@@ -48,11 +48,11 @@ export async function sendRequest(method, params, url, redirect = "") {
     .catch((errors) => {
       let desc = "";
       res = errors.response.data;
-      errors.response.data.errors.map((e) => {
-        desc = desc + " " + e;
-      });
-      Notify.create({ color: "negative", message: desc });
-      // show_alerta(desc, "error","red", "");
+      // errors.response.data.errors.map((e) => {
+      //   desc = desc + " " + e;
+      // });
+      // Notify.create({ color: "negative", message: desc });
+      // // show_alerta(desc, "error","red", "");
     });
   return res;
 }

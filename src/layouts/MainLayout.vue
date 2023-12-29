@@ -10,6 +10,7 @@
           aria-label="Menu"
           @click="toggleLeftDrawer"
         />
+        <q-toolbar-title> ETBSA </q-toolbar-title>
 
         <!-- <q-toolbar-title> User Name </q-toolbar-title> -->
         <q-space />
