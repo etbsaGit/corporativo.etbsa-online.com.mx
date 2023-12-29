@@ -1,33 +1,33 @@
 <template>
   <q-form class="q-gutter-y-sm text-uppercase">
     <!-- <q-item>
-      <q-file
-        v-model="formEmployee.foto"
-        filled
-        outlined
-        bottom-slots
-        label="Foto Empleado"
-        counter
-        hint="Seleccionar Foto"
-        class="col-12"
-      >
-        <template v-slot:before>
-          <q-avatar size="64px">
-            <img src="https://cdn.quasar.dev/img/avatar5.jpg" />
-          </q-avatar>
-        </template>
-
-        <template v-slot:append>
-          <q-icon
-            v-if="formEmployee.foto !== null"
-            name="close"
-            @click.stop.prevent="formEmployee.foto = null"
-            class="cursor-pointer"
-          />
-          <q-icon name="create_new_folder" @click.stop.prevent />
-        </template>
-      </q-file>
-    </q-item> -->
+        <q-file
+          v-model="formEmployee.foto"
+          filled
+          outlined
+          bottom-slots
+          label="Foto Empleado"
+          counter
+          hint="Seleccionar Foto"
+          class="col-12"
+        >
+          <template v-slot:before>
+            <q-avatar size="64px">
+              <img src="https://cdn.quasar.dev/img/avatar5.jpg" />
+            </q-avatar>
+          </template>
+  
+          <template v-slot:append>
+            <q-icon
+              v-if="formEmployee.foto !== null"
+              name="close"
+              @click.stop.prevent="formEmployee.foto = null"
+              class="cursor-pointer"
+            />
+            <q-icon name="create_new_folder" @click.stop.prevent />
+          </template>
+        </q-file>
+      </q-item> -->
 
     <q-item>
       <q-item-section>
@@ -281,8 +281,7 @@
     <q-item>
       <q-item-section>
         <q-select
-          @update:model-value="obtenerEscolaridad"
-          v-model="escolaridad"
+          v-model="formEmployee.escolaridad_id"
           transition-show="jump-up"
           transition-hide="jump-up"
           filled
@@ -291,6 +290,8 @@
           :rules="[(val) => val !== null || 'Obligatorio']"
           :options="escolaridades"
           label="Escolaridad"
+          emit-value
+          map-options
           option-value="id"
           option-label="nombre"
         />
@@ -347,8 +348,7 @@
     <q-item>
       <q-item-section>
         <q-select
-          @update:model-value="obtenerEstadoCivil"
-          v-model="estadoCivil"
+          v-model="formEmployee.estado_civil_id"
           transition-show="jump-up"
           transition-hide="jump-up"
           filled
@@ -357,14 +357,15 @@
           :rules="[(val) => val !== null || 'Obligatorio']"
           :options="estadosCiviles"
           label="Estado civil"
+          emit-value
+          map-options
           option-value="id"
           option-label="nombre"
         />
       </q-item-section>
       <q-item-section>
         <q-select
-          @update:model-value="obtenerTipoDeSangre"
-          v-model="tipoDeSangre"
+          v-model="formEmployee.tipo_de_sangre_id"
           transition-show="jump-up"
           transition-hide="jump-up"
           filled
@@ -373,6 +374,8 @@
           :rules="[(val) => val !== null || 'Obligatorio']"
           :options="tiposDeSangre"
           label="Tipo de sangre"
+          emit-value
+          map-options
           option-value="id"
           option-label="nombre"
         />
@@ -398,47 +401,49 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, defineProps } from "vue";
 import { useQuasar } from "quasar";
 import { sendRequest } from "src/boot/functions";
 
+const { empleado } = defineProps(["empleado"]);
+
 const $q = useQuasar();
 const estadosCiviles = ref(null);
-const estadoCivil = ref("");
 const tiposDeSangre = ref([]);
-const tipoDeSangre = ref("");
 const escolaridades = ref([]);
-const escolaridad = ref("");
 
 const formEmployee = ref({
-  nombre: null,
-  segundoNombre: null,
-  apellidoPaterno: null,
-  apellidoMaterno: null,
-  telefono: null,
-  fechaDeNacimiento: null,
-  curp: null,
-  rfc: null,
-  ine: null,
-  passaporte: null,
-  visa: null,
-  licenciaDeManejo: null,
-  nss: null,
-  hijos: null,
-  dependientesEconomicos: null,
-  escolaridad_id: null,
-  cedulaProfecional: null,
-  foto: null,
-  numeroExterior: null,
-  numeroInterior: null,
-  calle: null,
-  colonia: null,
-  codigoPostal: null,
-  ciudad: null,
-  estado: null,
-  cuentaBancaria: null,
-  estadoCivil_id: null,
-  tipoDeSangre_id: null
+  id: empleado.id,
+  nombre: empleado.nombre,
+  segundoNombre: empleado.segundoNombre,
+  apellidoPaterno: empleado.apellidoMaterno,
+  apellidoMaterno: empleado.apellidoMaterno,
+  telefono: empleado.telefono,
+  fechaDeNacimiento: empleado.fechaDeNacimiento,
+  curp: empleado.curp,
+  rfc: empleado.rfc,
+  ine: empleado.ine,
+  passaporte: empleado.passaporte,
+  visa: empleado.visa,
+  licenciaDeManejo: empleado.licenciaDeManejo,
+  nss: empleado.nss,
+  hijos: empleado.hijos,
+  dependientesEconomicos: empleado.dependientesEconomicos,
+  escolaridad_id: empleado.escolaridad_id.id,
+  cedulaProfecional: empleado.cedulaProfecional,
+  foto: empleado.foto,
+  numeroExterior: empleado.numeroExterior,
+  numeroInterior: empleado.numeroInterior,
+  calle: empleado.calle,
+  colonia: empleado.colonia,
+  codigoPostal: empleado.codigoPostal,
+  ciudad: empleado.ciudad,
+  estado: empleado.estado,
+  cuentaBancaria: empleado.cuentaBancaria,
+  estado_civil_id: empleado.estado_civil_id.id,
+  tipo_de_sangre_id: empleado.tipo_de_sangre_id.id,
+  estadoCivil_id: empleado.estado_civil_id.id,
+  tipoDeSangre_id: empleado.tipo_de_sangre_id.id
 });
 
 const getEstadosCiviles = async () => {
@@ -454,21 +459,6 @@ const getTiposDeSangre = async () => {
 const getEscolaridades = async () => {
   let res = await sendRequest("GET", null, "/api/escolaridad/all", "");
   escolaridades.value = res;
-};
-
-const obtenerEstadoCivil = (newValue) => {
-  estadoCivil.value = newValue;
-  formEmployee.value.estadoCivil_id = newValue.id;
-};
-
-const obtenerTipoDeSangre = (newValue) => {
-  tipoDeSangre.value = newValue;
-  formEmployee.value.tipoDeSangre_id = newValue.id;
-};
-
-const obtenerEscolaridad = (newValue) => {
-  escolaridad.value = newValue;
-  formEmployee.value.escolaridad_id = newValue.id;
 };
 
 onMounted(() => {
