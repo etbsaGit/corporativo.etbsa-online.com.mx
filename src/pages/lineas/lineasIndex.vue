@@ -199,6 +199,7 @@ const crearLinea = async () => {
     console.log(res);
 
     // Si la solicitud es exitosa, recarga la página
+    showAdd.value = false;
     getLineas();
   } catch (error) {
     // Maneja el error aquí si es necesario
@@ -216,6 +217,7 @@ const actualizarLinea = async () => {
     console.log(res);
 
     // Si la solicitud es exitosa, recarga la página
+    showDetails.value = false;
     getLineas();
   } catch (error) {
     // Maneja el error aquí si es necesario

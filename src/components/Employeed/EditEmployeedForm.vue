@@ -416,7 +416,7 @@ const formEmployee = ref({
   id: empleado.id,
   nombre: empleado.nombre,
   segundoNombre: empleado.segundoNombre,
-  apellidoPaterno: empleado.apellidoMaterno,
+  apellidoPaterno: empleado.apellidoPaterno,
   apellidoMaterno: empleado.apellidoMaterno,
   telefono: empleado.telefono,
   fechaDeNacimiento: empleado.fechaDeNacimiento,

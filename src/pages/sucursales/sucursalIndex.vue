@@ -202,6 +202,7 @@ const crearSucursal = async () => {
     console.log(res);
 
     // Si la solicitud es exitosa, recarga la página
+    showAdd.value = false;
     getSucursales();
   } catch (error) {
     // Maneja el error aquí si es necesario
@@ -219,6 +220,7 @@ const actualizarSucursal = async () => {
     console.log(res);
 
     // Si la solicitud es exitosa, recarga la página
+    showDetails.value = false;
     getSucursales();
   } catch (error) {
     // Maneja el error aquí si es necesario
