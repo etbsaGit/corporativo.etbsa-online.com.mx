@@ -199,6 +199,7 @@ const crearDepartamento = async () => {
     console.log(res);
 
     // Si la solicitud es exitosa, recarga la página
+    showAdd.value = false;
     getDepartamentos();
   } catch (error) {
     // Maneja el error aquí si es necesario
@@ -221,6 +222,7 @@ const actualizarDepartamento = async () => {
     console.log(res);
 
     // Si la solicitud es exitosa, recarga la página
+    showDetails.value = false;
     getDepartamentos();
   } catch (error) {
     // Maneja el error aquí si es necesario

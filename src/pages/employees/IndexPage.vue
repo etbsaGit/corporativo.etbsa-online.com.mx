@@ -348,7 +348,7 @@ const actualizarEmpleado = async () => {
     console.log(res);
 
     // Si la solicitud es exitosa, recarga la página
-    showAdd.value = false;
+    showDetails.value = false;
     getEmployees();
   } catch (error) {
     // Maneja el error aquí si es necesario
