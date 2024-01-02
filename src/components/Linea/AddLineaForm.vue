@@ -3,7 +3,7 @@
     <q-item>
       <q-item-section>
         <q-input
-          v-model="formPuesto.nombre"
+          v-model="formLinea.nombre"
           filled
           dense
           label="Nombre"
@@ -16,16 +16,13 @@
 </template>
 
 <script setup>
-import { ref, defineProps } from "vue";
+import { ref } from "vue";
 
-const { puesto } = defineProps(["puesto"]);
-
-const formPuesto = ref({
-  id: puesto.id,
-  nombre: puesto.nombre
+const formLinea = ref({
+  nombre: null
 });
 
 defineExpose({
-  formPuesto
+  formLinea
 });
 </script>

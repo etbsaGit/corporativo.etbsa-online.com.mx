@@ -4,6 +4,7 @@
       label="Registrar departamento"
       color="primary"
       @click="showAdd = true"
+      icon="add_circle"
     />
 
     <div><br /></div>
@@ -40,26 +41,14 @@
           transition-show="rotate"
           transition-hide="rotate"
         >
-          <q-card style="width: 1800px">
+          <q-card style="max-width: 400px">
             <q-card-section>
               <div class="text-h6">Registrar Departamento</div>
             </q-card-section>
             <q-separator />
 
-            <q-tabs
-              v-model="tab"
-              dense
-              class="text-grey"
-              active-color="primary"
-              indicator-color="primary"
-              align="justify"
-              narrow-indicator
-            >
-              <q-tab name="tab_form_one" label="Nombre departamento" />
-            </q-tabs>
-
             <q-separator />
-            <q-card style="height: 65vh" class="q-pa-none scroll" flat>
+            <q-card style="max-height: 400px" class="q-pa-none scroll" flat>
               <q-tab-panels v-model="tab" animated keep-alive>
                 <q-tab-panel name="tab_form_one">
                   <add-departamento-form ref="form_1"></add-departamento-form>
@@ -129,26 +118,14 @@
       transition-show="rotate"
       transition-hide="rotate"
     >
-      <q-card style="width: 1800px">
+      <q-card style="max-width: 400px">
         <q-card-section>
           <div class="text-h6">Actualizar departamento</div>
         </q-card-section>
         <q-separator />
 
-        <q-tabs
-          v-model="tab"
-          dense
-          class="text-grey"
-          active-color="primary"
-          indicator-color="primary"
-          align="justify"
-          narrow-indicator
-        >
-          <q-tab name="tab_form_one" label="Nombre departamento" />
-        </q-tabs>
-
         <q-separator />
-        <q-card style="height: 65vh" class="q-pa-none scroll" flat>
+        <q-card style="max-height: 400px" class="q-pa-none scroll" flat>
           <q-tab-panels v-model="tab" animated keep-alive>
             <q-tab-panel name="tab_form_one">
               <edit-departamento-form
@@ -167,7 +144,7 @@
             flat
             label="Actualizar"
             color="primary"
-            @click="actualizarDepartamento()"
+            @click="actualizarDepartamento"
           />
         </q-card-actions>
       </q-card>
@@ -177,8 +154,8 @@
 
 <script setup>
 import { ref, onMounted, computed } from "vue";
-import AddDepartamentoForm from "src/components/AddDepartamentoForm.vue";
-import EditDepartamentoForm from "src/components/EditDepartamentoForm.vue";
+import AddDepartamentoForm from "src/components/Departamento/AddDepartamentoForm.vue";
+import EditDepartamentoForm from "src/components/Departamento/EditDepartamentoForm.vue";
 
 import { sendRequest } from "src/boot/functions";
 import { useQuasar } from "quasar";

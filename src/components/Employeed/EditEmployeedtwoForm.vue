@@ -177,7 +177,7 @@
 
 <script setup>
 import { useQuasar } from "quasar";
-import { ref, onMounted, defineProps } from "vue";
+import { ref, onMounted } from "vue";
 import { sendRequest } from "src/boot/functions";
 
 const { empleado } = defineProps(["empleado"]);
