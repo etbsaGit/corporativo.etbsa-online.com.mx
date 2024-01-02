@@ -5,7 +5,7 @@
         <q-input
           filled
           dense
-          v-model="formEmployeetwo.fechaDeIngreso"
+          v-model="formEmployeetwo.fecha_de_ingreso"
           mask="date"
           label="Fecha de ingreso"
           :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
@@ -17,7 +17,7 @@
                 transition-show="scale"
                 transition-hide="scale"
               >
-                <q-date v-model="formEmployeetwo.fechaDeIngreso">
+                <q-date v-model="formEmployeetwo.fecha_de_ingreso">
                   <div class="row items-center justify-end">
                     <q-btn v-close-popup label="Close" color="primary" flat />
                   </div>
@@ -144,7 +144,7 @@
         <q-input
           filled
           dense
-          v-model="formEmployeetwo.sueldoBase"
+          v-model="formEmployeetwo.sueldo_base"
           label="Sueldo Base"
           mask="######"
           :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
@@ -190,16 +190,16 @@ const jefeDirecto = ref("");
 const estatus = ["Activo", "Baja", "Pencionado", "Suspendido"];
 
 const formEmployeetwo = ref({
-  sueldoBase: null,
+  sueldo_base: null,
   comision: false,
   matriz: false,
-  fechaDeIngreso: null,
+  fecha_de_ingreso: null,
   status: null,
   puesto_id: null,
   sucursal_id: null,
   linea_id: null,
   departamento_id: null,
-  jefeDirecto_id: null
+  jefe_directo_id: null
 });
 
 const getLineas = async () => {
@@ -249,7 +249,7 @@ const obtenerPuesto = (newValue) => {
 
 const obtenerJefe = (newValue) => {
   jefeDirecto.value = newValue;
-  formEmployeetwo.value.jefeDirecto_id = newValue.id;
+  formEmployeetwo.value.jefe_directo_id = newValue.id;
 };
 
 onMounted(() => {

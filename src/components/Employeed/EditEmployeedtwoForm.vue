@@ -5,7 +5,7 @@
         <q-input
           filled
           dense
-          v-model="formEmployeetwo.fechaDeIngreso"
+          v-model="formEmployeetwo.fecha_de_ingreso"
           mask="date"
           label="Fecha de ingreso"
           :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
@@ -17,7 +17,7 @@
                 transition-show="scale"
                 transition-hide="scale"
               >
-                <q-date v-model="formEmployeetwo.fechaDeIngreso">
+                <q-date v-model="formEmployeetwo.fecha_de_ingreso">
                   <div class="row items-center justify-end">
                     <q-btn v-close-popup label="Close" color="primary" flat />
                   </div>
@@ -149,7 +149,7 @@
         <q-input
           filled
           dense
-          v-model="formEmployeetwo.sueldoBase"
+          v-model="formEmployeetwo.sueldo_base"
           label="Sueldo Base"
           mask="######"
           :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
@@ -192,10 +192,10 @@ const jefesDirectos = ref([]);
 const estatus = ["Activo", "Baja", "Pencionado", "Suspendido"];
 
 const formEmployeetwo = ref({
-  sueldoBase: empleado.sueldoBase,
+  sueldo_base: empleado.sueldo_base,
   comision: empleado.comision,
   matriz: empleado.matriz,
-  fechaDeIngreso: empleado.fechaDeIngreso,
+  fecha_de_ingreso: empleado.fecha_de_ingreso,
   status: empleado.status,
   puesto_id: empleado.puesto_id.id,
   sucursal_id: empleado.sucursal_id.id,

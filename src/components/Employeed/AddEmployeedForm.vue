@@ -42,7 +42,7 @@
       </q-item-section>
       <q-item-section>
         <q-input
-          v-model="formEmployee.segundoNombre"
+          v-model="formEmployee.segundo_nombre"
           filled
           dense
           label="Segundo Nombre"
@@ -54,7 +54,7 @@
     <q-item>
       <q-item-section>
         <q-input
-          v-model="formEmployee.apellidoPaterno"
+          v-model="formEmployee.apellido_paterno"
           filled
           dense
           label="Apellido paterno"
@@ -64,7 +64,7 @@
       </q-item-section>
       <q-item-section>
         <q-input
-          v-model="formEmployee.apellidoMaterno"
+          v-model="formEmployee.apellido_materno"
           filled
           dense
           label="Apellido materno"
@@ -93,14 +93,15 @@
     <q-item>
       <q-item-section>
         <q-input
-          v-model="formEmployee.telefonoInstitucional"
+          v-model="formEmployee.telefono_institucional"
           filled
           dense
           label="Telefono Institucional"
           mask="##########"
           hint="Opcional"
           :rules="[
-            (val) => (val && val.length === 10) || 'Deben de ser 10 digitos'
+            (val) =>
+              !val || (val && /^\d{10}$/.test(val)) || 'Debe tener 10 dígitos'
           ]"
         />
       </q-item-section>
@@ -121,8 +122,9 @@
         <q-input
           filled
           dense
-          v-model="formEmployee.numeroExterior"
+          v-model="formEmployee.numero_exterior"
           label="# Exterior"
+          mask="################"
           lazy-rules
           :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
         />
@@ -131,7 +133,7 @@
         <q-input
           filled
           dense
-          v-model="formEmployee.numeroInterior"
+          v-model="formEmployee.numero_interior"
           label="# Interior"
           hint="Opcional"
         />
@@ -152,7 +154,7 @@
         <q-input
           filled
           dense
-          v-model="formEmployee.codigoPostal"
+          v-model="formEmployee.codigo_postal"
           label="Codigo postal"
           mask="#####"
           lazy-rules
@@ -188,7 +190,7 @@
         <q-input
           filled
           dense
-          v-model="formEmployee.fechaDeNacimiento"
+          v-model="formEmployee.fecha_de_nacimiento"
           mask="date"
           label="Fecha de Nacimiento"
           lazy-rules
@@ -201,7 +203,7 @@
                 transition-show="scale"
                 transition-hide="scale"
               >
-                <q-date v-model="formEmployee.fechaDeNacimiento">
+                <q-date v-model="formEmployee.fecha_de_nacimiento">
                   <div class="row items-center justify-end">
                     <q-btn v-close-popup label="Close" color="primary" flat />
                   </div>
@@ -261,11 +263,11 @@
       </q-item-section>
       <q-item-section>
         <q-input
-          v-model="formEmployee.licenciaDeManejo"
+          v-model="formEmployee.licencia_de_manejo"
           filled
           dense
           label="Licencia de manejo"
-          hint="(opcional)"
+          hint="Opcional"
         />
       </q-item-section>
     </q-item>
@@ -287,8 +289,10 @@
           dense
           label="Visa"
           hint="(opcional)"
+          mask="################"
           :rules="[
-            (val) => !val || (val && val.length > 16) || 'Campo inválido'
+            (val) =>
+              !val || (val && /^\d{16}$/.test(val)) || 'Debe tener 16 dígitos'
           ]"
         />
       </q-item-section>
@@ -313,7 +317,7 @@
       </q-item-section>
       <q-item-section v-if="[4, 5, 6].includes(formEmployee.escolaridad_id)">
         <q-input
-          v-model="formEmployee.cedulaProfecional"
+          v-model="formEmployee.cedula_profecional"
           filled
           dense
           label="Cedula Profesional"
@@ -350,7 +354,7 @@
       </q-item-section>
       <q-item-section>
         <q-input
-          v-model="formEmployee.dependientesEconomicos"
+          v-model="formEmployee.dependientes_economicos"
           filled
           dense
           label="Numero de dependientes economicos"
@@ -398,7 +402,7 @@
     <q-item>
       <q-item-section>
         <q-input
-          v-model="formEmployee.cuentaBancaria"
+          v-model="formEmployee.cuenta_bancaria"
           filled
           dense
           label="Numero de cuenta bancarias"
@@ -413,7 +417,7 @@
     <q-item>
       <q-item-section>
         <q-input
-          v-model="formEmployee.correoInstitucional"
+          v-model="formEmployee.correo_institucional"
           filled
           dense
           label="Correo institucional"
@@ -443,35 +447,35 @@ const escolaridad = ref("");
 
 const formEmployee = ref({
   nombre: null,
-  segundoNombre: null,
-  apellidoPaterno: null,
-  apellidoMaterno: null,
+  segundo_nombre: null,
+  apellido_paterno: null,
+  apellido_materno: null,
   telefono: null,
-  telefonoInstitucional: null,
-  fechaDeNacimiento: null,
+  telefono_institucional: null,
+  fecha_de_nacimiento: null,
   curp: null,
   rfc: null,
   ine: null,
   passaporte: null,
   visa: null,
-  licenciaDeManejo: null,
+  licencia_de_manejo: null,
   nss: null,
   hijos: null,
-  dependientesEconomicos: null,
+  dependientes_economicos: null,
   escolaridad_id: null,
-  cedulaProfecional: null,
+  cedula_profecional: null,
   foto: null,
-  numeroExterior: null,
-  numeroInterior: null,
+  numero_exterior: null,
+  numero_interior: null,
   calle: null,
   colonia: null,
-  codigoPostal: null,
+  codigo_postal: null,
   ciudad: null,
   estado: null,
-  cuentaBancaria: null,
-  estadoCivil_id: null,
-  tipoDeSangre_id: null,
-  correoInstitucional: null
+  cuenta_bancaria: null,
+  estado_civil_id: null,
+  tipo_de_sangre_id: null,
+  correo_institucional: null
 });
 
 const getEstadosCiviles = async () => {
@@ -491,12 +495,12 @@ const getEscolaridades = async () => {
 
 const obtenerEstadoCivil = (newValue) => {
   estadoCivil.value = newValue;
-  formEmployee.value.estadoCivil_id = newValue.id;
+  formEmployee.value.estado_civil_id = newValue.id;
 };
 
 const obtenerTipoDeSangre = (newValue) => {
   tipoDeSangre.value = newValue;
-  formEmployee.value.tipoDeSangre_id = newValue.id;
+  formEmployee.value.tipo_de_sangre_id = newValue.id;
 };
 
 const obtenerEscolaridad = (newValue) => {

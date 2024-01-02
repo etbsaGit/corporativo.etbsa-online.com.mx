@@ -42,7 +42,7 @@
       </q-item-section>
       <q-item-section>
         <q-input
-          v-model="formEmployee.segundoNombre"
+          v-model="formEmployee.segundo_nombre"
           filled
           dense
           label="Segundo Nombre"
@@ -54,7 +54,7 @@
     <q-item>
       <q-item-section>
         <q-input
-          v-model="formEmployee.apellidoPaterno"
+          v-model="formEmployee.apellido_paterno"
           filled
           dense
           label="Apellido paterno"
@@ -64,7 +64,7 @@
       </q-item-section>
       <q-item-section>
         <q-input
-          v-model="formEmployee.apellidoMaterno"
+          v-model="formEmployee.apellido_materno"
           filled
           dense
           label="Apellido materno"
@@ -93,14 +93,15 @@
     <q-item>
       <q-item-section>
         <q-input
-          v-model="formEmployee.telefonoInstitucional"
+          v-model="formEmployee.telefono_institucional"
           filled
           dense
           label="Telefono Institucional"
           mask="##########"
           hint="Opcional"
           :rules="[
-            (val) => (val && val.length === 10) || 'Deben de ser 10 digitos'
+            (val) =>
+              !val || (val && /^\d{10}$/.test(val)) || 'Debe tener 10 dígitos'
           ]"
         />
       </q-item-section>
@@ -121,7 +122,7 @@
         <q-input
           filled
           dense
-          v-model="formEmployee.numeroExterior"
+          v-model="formEmployee.numero_exterior"
           label="# Exterior"
           lazy-rules
           :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
@@ -131,7 +132,7 @@
         <q-input
           filled
           dense
-          v-model="formEmployee.numeroInterior"
+          v-model="formEmployee.numero_interior"
           label="# Interior"
           hint="Opcional"
         />
@@ -152,7 +153,7 @@
         <q-input
           filled
           dense
-          v-model="formEmployee.codigoPostal"
+          v-model="formEmployee.codigo_postal"
           label="Codigo postal"
           mask="#####"
           lazy-rules
@@ -188,7 +189,7 @@
         <q-input
           filled
           dense
-          v-model="formEmployee.fechaDeNacimiento"
+          v-model="formEmployee.fecha_de_nacimiento"
           mask="date"
           label="Fecha de Nacimiento"
           lazy-rules
@@ -201,7 +202,7 @@
                 transition-show="scale"
                 transition-hide="scale"
               >
-                <q-date v-model="formEmployee.fechaDeNacimiento">
+                <q-date v-model="formEmployee.fecha_de_nacimiento">
                   <div class="row items-center justify-end">
                     <q-btn v-close-popup label="Close" color="primary" flat />
                   </div>
@@ -261,11 +262,17 @@
       </q-item-section>
       <q-item-section>
         <q-input
-          v-model="formEmployee.licenciaDeManejo"
+          v-model="formEmployee.licencia_de_manejo"
           filled
           dense
           label="Licencia de manejo"
           hint="(opcional)"
+          :rules="[
+            (val) =>
+              !val ||
+              (val && val.length === 16) ||
+              'La VISA debe tener exactamente 16 caracteres'
+          ]"
         />
       </q-item-section>
     </q-item>
@@ -287,8 +294,10 @@
           dense
           label="Visa"
           hint="(opcional)"
+          mask="################"
           :rules="[
-            (val) => !val || (val && val.length > 16) || 'Campo inválido'
+            (val) =>
+              !val || (val && /^\d{16}$/.test(val)) || 'Debe tener 16 dígitos'
           ]"
         />
       </q-item-section>
@@ -314,7 +323,7 @@
       </q-item-section>
       <q-item-section v-if="[4, 5, 6].includes(formEmployee.escolaridad_id)">
         <q-input
-          v-model="formEmployee.cedulaProfecional"
+          v-model="formEmployee.cedula_profecional"
           filled
           dense
           label="Cedula Profesional"
@@ -351,7 +360,7 @@
       </q-item-section>
       <q-item-section>
         <q-input
-          v-model="formEmployee.dependientesEconomicos"
+          v-model="formEmployee.dependientes_economicos"
           filled
           dense
           label="Numero de dependientes economicos"
@@ -401,7 +410,7 @@
     <q-item>
       <q-item-section>
         <q-input
-          v-model="formEmployee.cuentaBancaria"
+          v-model="formEmployee.cuenta_bancaria"
           filled
           dense
           label="Numero de cuenta bancarias"
@@ -416,7 +425,7 @@
     <q-item>
       <q-item-section>
         <q-input
-          v-model="formEmployee.correoInstitucional"
+          v-model="formEmployee.correo_institucional"
           filled
           dense
           label="Correo institucional"
@@ -446,37 +455,35 @@ const escolaridades = ref([]);
 const formEmployee = ref({
   id: empleado.id,
   nombre: empleado.nombre,
-  segundoNombre: empleado.segundoNombre,
-  apellidoPaterno: empleado.apellidoPaterno,
-  apellidoMaterno: empleado.apellidoMaterno,
+  segundo_nombre: empleado.segundo_nombre,
+  apellido_paterno: empleado.apellido_paterno,
+  apellido_materno: empleado.apellido_materno,
   telefono: empleado.telefono,
-  telefonoInstitucional: empleado.telefonoInstitucional,
-  fechaDeNacimiento: empleado.fechaDeNacimiento,
+  telefono_institucional: empleado.telefono_institucional,
+  fecha_de_nacimiento: empleado.fecha_de_nacimiento,
   curp: empleado.curp,
   rfc: empleado.rfc,
   ine: empleado.ine,
   passaporte: empleado.passaporte,
   visa: empleado.visa,
-  licenciaDeManejo: empleado.licenciaDeManejo,
+  licencia_de_manejo: empleado.licencia_de_manejo,
   nss: empleado.nss,
   hijos: empleado.hijos,
-  dependientesEconomicos: empleado.dependientesEconomicos,
+  dependientes_economicos: empleado.dependientes_economicos,
   escolaridad_id: empleado.escolaridad_id.id,
-  cedulaProfecional: empleado.cedulaProfecional,
+  cedula_profecional: empleado.cedula_profecional,
   foto: empleado.foto,
-  numeroExterior: empleado.numeroExterior,
-  numeroInterior: empleado.numeroInterior,
+  numero_exterior: empleado.numero_exterior,
+  numero_interior: empleado.numero_interior,
   calle: empleado.calle,
   colonia: empleado.colonia,
-  codigoPostal: empleado.codigoPostal,
+  codigo_postal: empleado.codigo_postal,
   ciudad: empleado.ciudad,
   estado: empleado.estado,
-  cuentaBancaria: empleado.cuentaBancaria,
+  cuenta_bancaria: empleado.cuenta_bancaria,
   estado_civil_id: empleado.estado_civil_id.id,
   tipo_de_sangre_id: empleado.tipo_de_sangre_id.id,
-  estadoCivil_id: empleado.estado_civil_id.id,
-  tipoDeSangre_id: empleado.tipo_de_sangre_id.id,
-  correoInstitucional: empleado.correoInstitucional
+  correo_institucional: empleado.correo_institucional
 });
 
 const getEstadosCiviles = async () => {
