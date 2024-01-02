@@ -17,16 +17,16 @@
     <q-item
       clickable
       v-ripple
-      to="/negocios"
-      :active="link === 'negocios'"
-      @click="link = 'negocios'"
+      to="/catalogos"
+      :active="link === 'catalogos'"
+      @click="link = 'catalogos'"
       active-class="my-menu-link"
     >
       <q-item-section avatar>
         <q-icon name="list" />
       </q-item-section>
 
-      <q-item-section>Catalogos para la unidad de negocios</q-item-section>
+      <q-item-section>Catalogos para empleados</q-item-section>
     </q-item>
     <!--
     <q-item

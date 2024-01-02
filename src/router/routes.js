@@ -45,7 +45,7 @@ const routes = [
     ],
   },
   {
-    path: "/negocios",
+    path: "/catalogos",
     component: () => import("layouts/MainLayout.vue"),
     meta: {
       middlewares: [auth],
@@ -53,7 +53,7 @@ const routes = [
     children: [
       {
         path: "",
-        component: () => import("src/pages/negocios/negociosIndex.vue"),
+        component: () => import("src/pages/catalogos/index.vue"),
       },
     ],
   },
