@@ -39,7 +39,7 @@ export async function sendRequest(method, params, url, redirect = "") {
     .then(({ data }) => {
       res = data;
       // Notify.create(data.message);
-      show_notify(data.message, "check", "green", "");
+      show_notify("Datos cargados con exito", "check", "green", "");
       setTimeout(
         () => (redirect !== "" ? (window.location.href = redirect) : ""),
         2000

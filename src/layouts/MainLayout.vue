@@ -10,7 +10,12 @@
           aria-label="Menu"
           @click="toggleLeftDrawer"
         />
-        <q-toolbar-title> ETBSA </q-toolbar-title>
+        <q-toolbar-title>
+          <q-avatar rounded>
+            <img src="../assets/logo2.png" />
+          </q-avatar>
+          ETBSA Departamento de recursos humanos
+        </q-toolbar-title>
 
         <!-- <q-toolbar-title> User Name </q-toolbar-title> -->
         <q-space />
@@ -27,6 +32,7 @@
     </q-header>
 
     <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
+      <q-item-label header> Opciones </q-item-label>
       <menu-list />
     </q-drawer>
 

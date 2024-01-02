@@ -1,6 +1,11 @@
 <template>
   <div class="q-pa-md">
-    <q-btn label="Registrar puesto" color="primary" @click="showAdd = true" />
+    <q-btn
+      label="Registrar sucursal"
+      color="primary"
+      @click="showAdd = true"
+      icon="add_circle"
+    />
 
     <div><br /></div>
 
@@ -21,44 +26,32 @@
     <q-table
       flat
       bordered
-      title="Puestos"
-      :rows="filteredPuestos"
+      title="Sucursales"
+      :rows="filteredSucursales"
       :columns="columns"
       row-key="name"
       :visible-columns="visibleColumns"
       dense
     >
       <template v-slot:top="props">
-        <div class="col-2 q-table__title">Puestos</div>
+        <div class="col-2 q-table__title">Sucursales</div>
 
         <q-dialog
           v-model="showAdd"
           transition-show="rotate"
           transition-hide="rotate"
         >
-          <q-card style="width: 1800px">
+          <q-card style="max-width: 1000px">
             <q-card-section>
-              <div class="text-h6">Registrar Puesto</div>
+              <div class="text-h6">Registrar Sucursal</div>
             </q-card-section>
             <q-separator />
 
-            <q-tabs
-              v-model="tab"
-              dense
-              class="text-grey"
-              active-color="primary"
-              indicator-color="primary"
-              align="justify"
-              narrow-indicator
-            >
-              <q-tab name="tab_form_one" label="Nombre puesto" />
-            </q-tabs>
-
             <q-separator />
-            <q-card style="height: 65vh" class="q-pa-none scroll" flat>
+            <q-card style="max-height: 1000px" class="q-pa-none scroll" flat>
               <q-tab-panels v-model="tab" animated keep-alive>
                 <q-tab-panel name="tab_form_one">
-                  <add-puesto-form ref="form_1"></add-puesto-form>
+                  <add-sucursal-form ref="form_1"></add-sucursal-form>
                 </q-tab-panel>
               </q-tab-panels>
             </q-card>
@@ -71,7 +64,7 @@
                 flat
                 label="Registrar"
                 color="primary"
-                @click="crearPuesto()"
+                @click="crearSucursal"
               />
             </q-card-actions>
           </q-card>
@@ -125,32 +118,20 @@
       transition-show="rotate"
       transition-hide="rotate"
     >
-      <q-card style="width: 1800px">
+      <q-card style="max-width: 1000px">
         <q-card-section>
-          <div class="text-h6">Actualizar puesto</div>
+          <div class="text-h6">Actualizar sucursal</div>
         </q-card-section>
         <q-separator />
 
-        <q-tabs
-          v-model="tab"
-          dense
-          class="text-grey"
-          active-color="primary"
-          indicator-color="primary"
-          align="justify"
-          narrow-indicator
-        >
-          <q-tab name="tab_form_one" label="Nombre puesto" />
-        </q-tabs>
-
         <q-separator />
-        <q-card style="height: 65vh" class="q-pa-none scroll" flat>
+        <q-card style="max-height: 1000px" class="q-pa-none scroll" flat>
           <q-tab-panels v-model="tab" animated keep-alive>
             <q-tab-panel name="tab_form_one">
-              <edit-puesto-form
+              <edit-sucursal-form
                 ref="edit_1"
-                :puesto="selectedPuesto"
-              ></edit-puesto-form>
+                :sucursal="selectedSucursal"
+              ></edit-sucursal-form>
             </q-tab-panel>
           </q-tab-panels>
         </q-card>
@@ -163,7 +144,7 @@
             flat
             label="Actualizar"
             color="primary"
-            @click="actualizarPuesto()"
+            @click="actualizarSucursal()"
           />
         </q-card-actions>
       </q-card>
@@ -173,8 +154,8 @@
 
 <script setup>
 import { ref, onMounted, computed } from "vue";
-import AddPuestoForm from "src/components/AddPuestoForm.vue";
-import EditPuestoForm from "src/components/EditPuestoForm.vue";
+import AddSucursalForm from "src/components/Sucursal/AddSucursalForm.vue";
+import EditSucursalForm from "src/components/Sucursal/EditSucursalForm.vue";
 
 import { sendRequest } from "src/boot/functions";
 import { useQuasar } from "quasar";
@@ -185,22 +166,25 @@ const edit_1 = ref(null);
 const $q = useQuasar();
 
 const showDetails = ref(false);
-const selectedPuesto = ref(null);
+const selectedSucursal = ref(null);
 
-const visibleColumns = ref(["id", "nombre"]);
+const visibleColumns = ref(["id", "nombre", "direccion"]);
 
 const tab = ref("tab_form_one");
 const searchTerm = ref("");
 const showAdd = ref(false);
-const puestos = ref([]);
+const sucursales = ref([]);
 
 const onRowClick = (row) => {
-  selectedPuesto.value = row;
+  selectedSucursal.value = row;
   showDetails.value = true;
 };
 
-const crearPuesto = async () => {
-  if (!form_1.value.formPuesto.nombre) {
+const crearSucursal = async () => {
+  if (
+    !form_1.value.formSucursal.nombre ||
+    !form_1.value.formSucursal.direccion
+  ) {
     $q.notify({
       color: "red-5",
       textColor: "white",
@@ -210,41 +194,41 @@ const crearPuesto = async () => {
     return;
   }
   const final = {
-    ...form_1.value.formPuesto
+    ...form_1.value.formSucursal
   };
   console.log(final);
   try {
-    let res = await sendRequest("POST", final, "/api/puesto", "");
+    let res = await sendRequest("POST", final, "/api/sucursal", "");
     console.log(res);
 
     // Si la solicitud es exitosa, recarga la página
-    getPuestos();
+    getSucursales();
   } catch (error) {
     // Maneja el error aquí si es necesario
     console.error("Error al enviar la solicitud:", error);
   }
 };
 
-const actualizarPuesto = async () => {
+const actualizarSucursal = async () => {
   const final = {
-    ...edit_1.value.formPuesto
+    ...edit_1.value.formSucursal
   };
   console.log(final);
   try {
-    let res = await sendRequest("PUT", final, "/api/puesto/" + final.id, "");
+    let res = await sendRequest("PUT", final, "/api/sucursal/" + final.id, "");
     console.log(res);
 
     // Si la solicitud es exitosa, recarga la página
-    getPuestos();
+    getSucursales();
   } catch (error) {
     // Maneja el error aquí si es necesario
     console.error("Error al enviar la solicitud:", error);
   }
 };
 
-const getPuestos = async () => {
-  let res = await sendRequest("GET", null, "/api/puesto/all", "");
-  puestos.value = res;
+const getSucursales = async () => {
+  let res = await sendRequest("GET", null, "/api/sucursal/all", "");
+  sucursales.value = res;
 };
 
 const columns = [
@@ -255,17 +239,26 @@ const columns = [
     align: "left",
     field: "nombre",
     sortable: true
+  },
+  {
+    name: "direccion",
+    label: "Direccion",
+    align: "left",
+    field: "direccion",
+    sortable: true
   }
 ];
 
-const filteredPuestos = computed(() => {
-  return puestos.value.filter((puesto) => {
-    return puesto.nombre.toLowerCase().includes(searchTerm.value.toLowerCase());
+const filteredSucursales = computed(() => {
+  return sucursales.value.filter((sucursal) => {
+    return sucursal.nombre
+      .toLowerCase()
+      .includes(searchTerm.value.toLowerCase());
   });
 });
 
 onMounted(() => {
-  getPuestos();
+  getSucursales();
 });
 </script>
 

@@ -2,9 +2,15 @@
   <q-page class="flex flex-center bg-grey-2">
     <q-card class="q-pa-md shadow-2 my_card" bordered>
       <q-card-section class="text-center">
+        <q-img src="../../assets/Logo2.png" alt="Logo" class="my-logo-image" />
+        <div class="text-grey-9 text-h5 text-weight-bold">
+          Equipos y tractores del bajio
+        </div>
+      </q-card-section>
+      <!-- <q-card-section class="text-center">
         <div class="text-grey-9 text-h5 text-weight-bold">Sign in</div>
         <div class="text-grey-8">Sign in below to access your account</div>
-      </q-card-section>
+      </q-card-section> -->
       <q-form @submit.prevent="login(form)" class="q-gutter-md">
         <q-card-section>
           <q-input

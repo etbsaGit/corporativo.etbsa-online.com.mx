@@ -5,6 +5,13 @@
         <q-toolbar-title> ETBSA </q-toolbar-title>
 
         <!-- <div>ETBSA v{{ $q.version }}</div> -->
+        <q-btn
+          label="Login"
+          class="q-ml-md"
+          size="sm"
+          color="blue"
+          to="/login"
+        ></q-btn>
       </q-toolbar>
     </q-header>
 
@@ -18,6 +25,7 @@
 import { defineComponent, ref } from "vue";
 // import EssentialLink from 'components/EssentialLink.vue'
 // import MenuList from "./MenuList.vue";
+import { useAuthStore } from "src/stores/auth";
 
 export default defineComponent({
   name: "DefaultLayout",
@@ -28,7 +36,8 @@ export default defineComponent({
   },
 
   setup() {
-    const leftDrawerOpen = ref(false);
+    const auth = useAuthStore();
+    const { login } = auth;
 
     return {
       // essentialLinks: linksList,
@@ -36,6 +45,7 @@ export default defineComponent({
       // toggleLeftDrawer() {
       //   leftDrawerOpen.value = !leftDrawerOpen.value;
       // }
+      login
     };
   }
 });

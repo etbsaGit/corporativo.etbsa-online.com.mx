@@ -31,7 +31,8 @@ export const useAuthStore = defineStore("auth", {
           Notify.create({
             color: "negative",
             position: "top",
-            message: errors.response.data.message,
+            //message: errors.response.data.message,
+            message: "Error al iniciar la sesion",
             icon: "report_problem",
           });
         });

@@ -9,7 +9,7 @@
       active-class="my-menu-link"
     >
       <q-item-section avatar>
-        <q-icon name="dashboard" />
+        <q-icon name="group" />
       </q-item-section>
 
       <q-item-section>Empleados</q-item-section>
@@ -17,30 +17,16 @@
     <q-item
       clickable
       v-ripple
-      to="/departamentos"
-      :active="link === 'departamentos'"
-      @click="link = 'departamentos'"
+      to="/catalogos"
+      :active="link === 'catalogos'"
+      @click="link = 'catalogos'"
       active-class="my-menu-link"
     >
       <q-item-section avatar>
-        <q-icon name="dashboard" />
+        <q-icon name="list" />
       </q-item-section>
 
-      <q-item-section>Departamentos</q-item-section>
-    </q-item>
-    <q-item
-      clickable
-      v-ripple
-      to="/puestos"
-      :active="link === 'puestos'"
-      @click="link = 'puestos'"
-      active-class="my-menu-link"
-    >
-      <q-item-section avatar>
-        <q-icon name="dashboard" />
-      </q-item-section>
-
-      <q-item-section>Puestos</q-item-section>
+      <q-item-section>Catalogos para empleados</q-item-section>
     </q-item>
     <!--
     <q-item
