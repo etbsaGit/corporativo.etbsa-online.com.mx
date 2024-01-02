@@ -93,6 +93,22 @@
     <q-item>
       <q-item-section>
         <q-input
+          v-model="formEmployee.telefonoInstitucional"
+          filled
+          dense
+          label="Telefono Institucional"
+          mask="##########"
+          hint="Opcional"
+          :rules="[
+            (val) => (val && val.length === 10) || 'Deben de ser 10 digitos'
+          ]"
+        />
+      </q-item-section>
+    </q-item>
+
+    <q-item>
+      <q-item-section>
+        <q-input
           filled
           dense
           v-model="formEmployee.calle"
@@ -397,6 +413,21 @@
         />
       </q-item-section>
     </q-item>
+    <q-item>
+      <q-item-section>
+        <q-input
+          v-model="formEmployee.correoInstitucional"
+          filled
+          dense
+          label="Correo institucional"
+          hint="Opcional"
+          lazy-rules
+          :rules="[
+            (v) => !v || /.+@.+\..+/.test(v) || 'Formato de correo inválido'
+          ]"
+        />
+      </q-item-section>
+    </q-item>
   </q-form>
 </template>
 
@@ -419,6 +450,7 @@ const formEmployee = ref({
   apellidoPaterno: empleado.apellidoPaterno,
   apellidoMaterno: empleado.apellidoMaterno,
   telefono: empleado.telefono,
+  telefonoInstitucional: empleado.telefonoInstitucional,
   fechaDeNacimiento: empleado.fechaDeNacimiento,
   curp: empleado.curp,
   rfc: empleado.rfc,
@@ -443,7 +475,8 @@ const formEmployee = ref({
   estado_civil_id: empleado.estado_civil_id.id,
   tipo_de_sangre_id: empleado.tipo_de_sangre_id.id,
   estadoCivil_id: empleado.estado_civil_id.id,
-  tipoDeSangre_id: empleado.tipo_de_sangre_id.id
+  tipoDeSangre_id: empleado.tipo_de_sangre_id.id,
+  correoInstitucional: empleado.correoInstitucional
 });
 
 const getEstadosCiviles = async () => {
