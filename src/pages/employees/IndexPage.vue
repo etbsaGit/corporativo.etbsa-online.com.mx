@@ -130,7 +130,7 @@
                   <q-avatar color="primary" text-color="white"
                     >{{ props.row.nombre.charAt(0).toUpperCase()
                     }}{{
-                      props.row.apellidoPaterno.charAt(0).toUpperCase()
+                      props.row.apellido_paterno.charAt(0).toUpperCase()
                     }}</q-avatar
                   >
                 </q-item-section>
@@ -138,7 +138,7 @@
                 <q-item-section>
                   <q-item-label>{{ props.row.nombre }}</q-item-label>
                   <q-item-label caption lines="1">
-                    {{ props.row.apellidoPaterno }}
+                    {{ props.row.apellido_paterno }}
                     {{ props.row.nombre }}@etbsa.com.mx
                   </q-item-label>
                 </q-item-section>
@@ -148,22 +148,22 @@
 
           <template v-slot:body-cell-puesto="props">
             <q-td :props="props">
-              {{ props.row.puesto_id.nombre }}
+              {{ props.row.puesto.nombre }}
             </q-td>
           </template>
           <template v-slot:body-cell-sucursal="props">
             <q-td :props="props">
-              {{ props.row.sucursal_id.nombre }}
+              {{ props.row.sucursal.nombre }}
             </q-td>
           </template>
           <template v-slot:body-cell-linea="props">
             <q-td :props="props">
-              {{ props.row.linea_id.nombre }}
+              {{ props.row.linea.nombre }}
             </q-td>
           </template>
           <template v-slot:body-cell-departamento="props">
             <q-td :props="props">
-              {{ props.row.departamento_id.nombre }}
+              {{ props.row.departamento.nombre }}
             </q-td>
           </template>
         </q-table>
@@ -283,26 +283,26 @@ const onRowClick = (row) => {
 const crearEmpleado = async () => {
   if (
     !form_1.value.formEmployee.nombre ||
-    !form_1.value.formEmployee.apellidoPaterno ||
-    !form_1.value.formEmployee.apellidoMaterno ||
+    !form_1.value.formEmployee.apellido_paterno ||
+    !form_1.value.formEmployee.apellido_materno ||
     !form_1.value.formEmployee.telefono ||
-    !form_1.value.formEmployee.fechaDeNacimiento ||
+    !form_1.value.formEmployee.fecha_de_nacimiento ||
     !form_1.value.formEmployee.curp ||
     !form_1.value.formEmployee.rfc ||
     !form_1.value.formEmployee.ine ||
     !form_1.value.formEmployee.nss ||
     !form_1.value.formEmployee.escolaridad_id ||
-    !form_1.value.formEmployee.numeroExterior ||
+    !form_1.value.formEmployee.numero_exterior ||
     !form_1.value.formEmployee.calle ||
     !form_1.value.formEmployee.colonia ||
-    !form_1.value.formEmployee.codigoPostal ||
+    !form_1.value.formEmployee.codigo_postal ||
     !form_1.value.formEmployee.ciudad ||
     !form_1.value.formEmployee.estado ||
-    !form_1.value.formEmployee.cuentaBancaria ||
-    !form_1.value.formEmployee.estadoCivil_id ||
-    !form_1.value.formEmployee.tipoDeSangre_id ||
-    !form_2.value.formEmployeetwo.sueldoBase ||
-    !form_2.value.formEmployeetwo.fechaDeIngreso ||
+    !form_1.value.formEmployee.cuenta_bancaria ||
+    !form_1.value.formEmployee.estado_civil_id ||
+    !form_1.value.formEmployee.tipo_de_sangre_id ||
+    !form_2.value.formEmployeetwo.sueldo_base ||
+    !form_2.value.formEmployeetwo.fecha_de_ingreso ||
     !form_2.value.formEmployeetwo.status ||
     !form_2.value.formEmployeetwo.puesto_id ||
     !form_2.value.formEmployeetwo.sucursal_id ||
@@ -374,14 +374,14 @@ const columns = [
     name: "apellido_paterno",
     label: "Apellido Paterno",
     align: "left",
-    field: "apellidoPaterno",
+    field: "apellido_paterno",
     sortable: true
   },
   {
     name: "apellido_materno",
     label: "Apellido Materno",
     align: "left",
-    field: "apellidoMaterno",
+    field: "apellido_materno",
     sortable: true
   },
 
@@ -419,10 +419,10 @@ const filteredEmployees = computed(() => {
   return employees.value.filter((employee) => {
     return (
       employee.nombre.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
-      employee.apellidoPaterno
+      employee.apellido_paterno
         .toLowerCase()
         .includes(searchTerm.value.toLowerCase()) ||
-      employee.apellidoMaterno
+      employee.apellido_materno
         .toLowerCase()
         .includes(searchTerm.value.toLowerCase()) ||
       employee.sucursal_id.nombre
