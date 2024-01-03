@@ -148,22 +148,22 @@
 
           <template v-slot:body-cell-puesto="props">
             <q-td :props="props">
-              {{ props.row.puesto_id.nombre }}
+              {{ props.row.puesto.nombre }}
             </q-td>
           </template>
           <template v-slot:body-cell-sucursal="props">
             <q-td :props="props">
-              {{ props.row.sucursal_id.nombre }}
+              {{ props.row.sucursal.nombre }}
             </q-td>
           </template>
           <template v-slot:body-cell-linea="props">
             <q-td :props="props">
-              {{ props.row.linea_id.nombre }}
+              {{ props.row.linea.nombre }}
             </q-td>
           </template>
           <template v-slot:body-cell-departamento="props">
             <q-td :props="props">
-              {{ props.row.departamento_id.nombre }}
+              {{ props.row.departamento.nombre }}
             </q-td>
           </template>
         </q-table>

@@ -317,6 +317,7 @@
           label="Escolaridad"
           emit-value
           map-options
+          option-disable="inactive"
           option-value="id"
           option-label="nombre"
         />
@@ -384,6 +385,7 @@
           label="Estado civil"
           emit-value
           map-options
+          option-disable="inactive"
           option-value="id"
           option-label="nombre"
         />
@@ -401,6 +403,7 @@
           label="Tipo de sangre"
           emit-value
           map-options
+          option-disable="inactive"
           option-value="id"
           option-label="nombre"
         />
@@ -470,7 +473,7 @@ const formEmployee = ref({
   nss: empleado.nss,
   hijos: empleado.hijos,
   dependientes_economicos: empleado.dependientes_economicos,
-  escolaridad_id: empleado.escolaridad_id.id,
+  escolaridad_id: empleado.escolaridad.id,
   cedula_profecional: empleado.cedula_profecional,
   foto: empleado.foto,
   numero_exterior: empleado.numero_exterior,
@@ -481,8 +484,8 @@ const formEmployee = ref({
   ciudad: empleado.ciudad,
   estado: empleado.estado,
   cuenta_bancaria: empleado.cuenta_bancaria,
-  estado_civil_id: empleado.estado_civil_id.id,
-  tipo_de_sangre_id: empleado.tipo_de_sangre_id.id,
+  estado_civil_id: empleado.estado_civil.id,
+  tipo_de_sangre_id: empleado.tipo_de_sangre.id,
   correo_institucional: empleado.correo_institucional
 });
 
