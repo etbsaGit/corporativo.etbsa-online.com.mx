@@ -28,7 +28,7 @@
         </q-input>
       </q-item-section>
     </q-item>
-    <q-item>
+    <!-- <q-item>
       <q-item-section>
         <div
           class="q-pa-sm rounded-borders"
@@ -43,7 +43,7 @@
           />
         </div>
       </q-item-section>
-    </q-item>
+    </q-item> -->
     <q-item>
       <q-item-section>
         <q-select

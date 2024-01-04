@@ -110,6 +110,22 @@
     <q-item>
       <q-item-section>
         <q-input
+          v-model="formEmployee.correo_institucional"
+          filled
+          dense
+          label="Correo institucional"
+          hint="Opcional"
+          lazy-rules
+          :rules="[
+            (v) => !v || /.+@.+\..+/.test(v) || 'Formato de correo inválido'
+          ]"
+        />
+      </q-item-section>
+    </q-item>
+
+    <q-item>
+      <q-item-section>
+        <q-input
           filled
           dense
           v-model="formEmployee.calle"
@@ -421,21 +437,6 @@
           lazy-rules
           :rules="[
             (val) => (val && val.length === 18) || 'Debes ingresar 18 digitos'
-          ]"
-        />
-      </q-item-section>
-    </q-item>
-    <q-item>
-      <q-item-section>
-        <q-input
-          v-model="formEmployee.correo_institucional"
-          filled
-          dense
-          label="Correo institucional"
-          hint="Opcional"
-          lazy-rules
-          :rules="[
-            (v) => !v || /.+@.+\..+/.test(v) || 'Formato de correo inválido'
           ]"
         />
       </q-item-section>

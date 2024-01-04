@@ -60,12 +60,7 @@
 
             <q-card-actions align="right">
               <q-btn label="Cancelar" color="red" v-close-popup />
-              <q-btn
-                flat
-                label="Registrar"
-                color="primary"
-                @click="crearLinea"
-              />
+              <q-btn flat label="Registrar" color="blue" @click="crearLinea" />
             </q-card-actions>
           </q-card>
         </q-dialog>
@@ -143,7 +138,7 @@
           <q-btn
             flat
             label="Actualizar"
-            color="primary"
+            color="blue"
             @click="actualizarLinea()"
           />
         </q-card-actions>
