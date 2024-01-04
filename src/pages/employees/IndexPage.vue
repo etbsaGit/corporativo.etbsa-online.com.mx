@@ -323,34 +323,11 @@ const onRowClick = (row) => {
 };
 
 const crearEmpleado = async () => {
-  if (
-    !form_1.value.formEmployee.nombre ||
-    !form_1.value.formEmployee.apellido_paterno ||
-    !form_1.value.formEmployee.apellido_materno ||
-    !form_1.value.formEmployee.telefono ||
-    !form_1.value.formEmployee.fecha_de_nacimiento ||
-    !form_1.value.formEmployee.curp ||
-    !form_1.value.formEmployee.rfc ||
-    !form_1.value.formEmployee.ine ||
-    !form_1.value.formEmployee.nss ||
-    !form_1.value.formEmployee.escolaridad_id ||
-    !form_1.value.formEmployee.numero_exterior ||
-    !form_1.value.formEmployee.calle ||
-    !form_1.value.formEmployee.colonia ||
-    !form_1.value.formEmployee.codigo_postal ||
-    !form_1.value.formEmployee.ciudad ||
-    !form_1.value.formEmployee.estado ||
-    !form_1.value.formEmployee.cuenta_bancaria ||
-    !form_1.value.formEmployee.estado_civil_id ||
-    !form_1.value.formEmployee.tipo_de_sangre_id ||
-    !form_2.value.formEmployeetwo.sueldo_base ||
-    !form_2.value.formEmployeetwo.fecha_de_ingreso ||
-    !form_2.value.formEmployeetwo.status ||
-    !form_2.value.formEmployeetwo.puesto_id ||
-    !form_2.value.formEmployeetwo.sucursal_id ||
-    !form_2.value.formEmployeetwo.linea_id ||
-    !form_2.value.formEmployeetwo.departamento_id
-  ) {
+  console.log(await form_1.value.validate(), await form_2.value.validate());
+
+  const form1_valid = await form_1.value.validate();
+  const form2_valid = await form_2.value.validate();
+  if (!form1_valid || !form2_valid) {
     $q.notify({
       color: "red-5",
       textColor: "white",

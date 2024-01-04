@@ -1,5 +1,5 @@
 <template>
-  <q-form class="q-gutter-y-sm text-uppercase">
+  <q-form class="q-gutter-y-sm text-uppercase" ref="myForm" greedy>
     <q-item>
       <q-item-section>
         <q-input
@@ -28,35 +28,22 @@
         </q-input>
       </q-item-section>
     </q-item>
-    <!-- <q-item>
-      <q-item-section>
-        <div
-          class="q-pa-sm rounded-borders"
-          :class="$q.dark.isActive ? 'bg-grey-9' : 'bg-grey-3'"
-        >
-          <q-toggle
-            filled
-            dense
-            v-model="formEmployeetwo.matriz"
-            class="text-grey-7"
-            label="El empleado pertenece a matriz"
-          />
-        </div>
-      </q-item-section>
-    </q-item> -->
     <q-item>
       <q-item-section>
         <q-select
-          @update:model-value="obtenerSucursal"
-          v-model="sucursal"
-          transition-show="jump-up"
-          transition-hide="jump-up"
-          filled
-          dense
+          v-model="formEmployeetwo.sucursal_id"
           :options="sucursales"
           label="Sucursal"
           option-value="id"
           option-label="nombre"
+          option-disable="inactive"
+          emit-value
+          map-options
+          transition-show="jump-up"
+          transition-hide="jump-up"
+          clearable
+          filled
+          dense
           :rules="[(val) => val !== null || 'Obligatorio']"
         />
       </q-item-section>
@@ -188,6 +175,7 @@ const puesto = ref("");
 const jefesDirectos = ref([]);
 const jefeDirecto = ref("");
 const estatus = ["Activo", "Baja", "Pencionado", "Suspendido"];
+const myForm = ref(null);
 
 const formEmployeetwo = ref({
   sueldo_base: null,
@@ -227,10 +215,10 @@ const getJefes = async () => {
   jefesDirectos.value = res;
 };
 
-const obtenerSucursal = (newValue) => {
-  sucursal.value = newValue;
-  formEmployeetwo.value.sucursal_id = newValue.id;
-};
+// const obtenerSucursal = (newValue) => {
+//   sucursal.value = newValue;
+//   formEmployeetwo.value.sucursal_id = newValue.id;
+// };
 
 const obtenerDepartamento = (newValue) => {
   departamento.value = newValue;
@@ -252,6 +240,10 @@ const obtenerJefe = (newValue) => {
   formEmployeetwo.value.jefe_directo_id = newValue.id;
 };
 
+const validate = async () => {
+  return await myForm.value.validate();
+};
+
 onMounted(() => {
   getLineas();
   getSucursales();
@@ -261,6 +253,7 @@ onMounted(() => {
 });
 
 defineExpose({
-  formEmployeetwo
+  formEmployeetwo,
+  validate
 });
 </script>

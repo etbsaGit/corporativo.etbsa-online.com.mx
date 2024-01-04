@@ -1,5 +1,5 @@
 <template>
-  <q-form class="q-gutter-y-sm text-uppercase">
+  <q-form class="q-gutter-y-sm text-uppercase" ref="myForm" greedy>
     <!-- <q-item>
       <q-file
         v-model="formEmployee.foto"
@@ -445,6 +445,7 @@ const tiposDeSangre = ref([]);
 const tipoDeSangre = ref("");
 const escolaridades = ref([]);
 const escolaridad = ref("");
+const myForm = ref(null);
 
 const formEmployee = ref({
   nombre: null,
@@ -509,6 +510,10 @@ const obtenerEscolaridad = (newValue) => {
   formEmployee.value.escolaridad_id = newValue.id;
 };
 
+const validate = async () => {
+  return await myForm.value.validate();
+};
+
 onMounted(() => {
   getEstadosCiviles();
   getTiposDeSangre();
@@ -516,6 +521,7 @@ onMounted(() => {
 });
 
 defineExpose({
-  formEmployee
+  formEmployee,
+  validate
 });
 </script>
