@@ -179,13 +179,25 @@ const crearUser = async () => {
   if (
     !form_1.value.formUser.name ||
     !form_1.value.formUser.email ||
-    !form_1.value.formUser.password
+    !form_1.value.formUser.password ||
+    !form_1.value.formUser.confirmPassword
   ) {
     $q.notify({
       color: "red-5",
       textColor: "white",
       icon: "warning",
       message: "Por favor completa todos los campos obligatorios"
+    });
+    return;
+  }
+  if (
+    form_1.value.formUser.password !== form_1.value.formUser.confirmPassword
+  ) {
+    $q.notify({
+      color: "red-5",
+      textColor: "white",
+      icon: "warning",
+      message: "La contraseña y la confirmación de la contraseña no coinciden"
     });
     return;
   }
@@ -207,6 +219,17 @@ const crearUser = async () => {
 };
 
 const actualizarUser = async () => {
+  if (
+    edit_1.value.formUser.password !== edit_1.value.formUser.confirmPassword
+  ) {
+    $q.notify({
+      color: "red-5",
+      textColor: "white",
+      icon: "warning",
+      message: "La contraseña y la confirmación de la contraseña no coinciden"
+    });
+    return;
+  }
   const final = {
     ...edit_1.value.formUser
   };
@@ -215,11 +238,11 @@ const actualizarUser = async () => {
     let res = await sendRequest("PUT", final, "/api/user/" + final.id, "");
     console.log(res);
 
-    // Si la solicitud es exitosa, recarga la página
+    // Si la solicitud es exitosa, cierra el diálogo y actualiza la lista de usuarios
     showDetails.value = false;
     getUsers();
   } catch (error) {
-    // Maneja el error aquí si es necesario
+    // Manejar el error aquí si es necesario
     console.error("Error al enviar la solicitud:", error);
   }
 };

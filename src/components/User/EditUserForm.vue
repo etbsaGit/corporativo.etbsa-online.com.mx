@@ -21,6 +21,8 @@
           :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
         />
       </q-item-section>
+    </q-item>
+    <q-item>
       <q-item-section style="max-width: 800px">
         <q-input
           v-model="formUser.password"
@@ -28,7 +30,17 @@
           dense
           label="password"
           lazy-rules
-          :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
+          type="password"
+        />
+      </q-item-section>
+      <q-item-section style="max-width: 800px">
+        <q-input
+          v-model="formUser.confirmPassword"
+          filled
+          dense
+          label="confirm password"
+          lazy-rules
+          type="password"
         />
       </q-item-section>
     </q-item>
@@ -44,7 +56,8 @@ const formUser = ref({
   id: user.id,
   name: user.name,
   email: user.email,
-  password: user.password
+  password: user.password,
+  confirmPassword: user.password
 });
 
 defineExpose({
