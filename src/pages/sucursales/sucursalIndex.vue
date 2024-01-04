@@ -63,7 +63,7 @@
               <q-btn
                 flat
                 label="Registrar"
-                color="primary"
+                color="blue"
                 @click="crearSucursal"
               />
             </q-card-actions>
@@ -143,7 +143,7 @@
           <q-btn
             flat
             label="Actualizar"
-            color="primary"
+            color="blue"
             @click="actualizarSucursal()"
           />
         </q-card-actions>

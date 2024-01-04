@@ -11,12 +11,22 @@
 
         <div><br /></div>
 
+        <q-btn
+          color="primary"
+          icon-right="archive"
+          label="Export to csv"
+          no-caps
+          @click="exportTable"
+        />
+
+        <div><br /></div>
+
         <q-input
           outlined
           class="boton"
           color="green-9"
           v-model="searchTerm"
-          label="Buscar"
+          label="Buscar por nombre, apellidos o unidad de negocios"
         >
           <template v-slot:prepend>
             <q-icon name="search" />
@@ -35,6 +45,16 @@
           :visible-columns="visibleColumns"
           dense
         >
+          <template v-slot:top-right>
+            <q-btn
+              color="primary"
+              icon-right="archive"
+              label="Export to csv"
+              no-caps
+              @click="exportTable"
+            />
+          </template>
+
           <template v-slot:top="props">
             <div class="col-2 q-table__title">Empleados</div>
 
@@ -90,7 +110,7 @@
                   <q-btn
                     flat
                     label="Registrar"
-                    color="primary"
+                    color="blue"
                     @click="crearEmpleado()"
                   />
                 </q-card-actions>
@@ -166,6 +186,28 @@
               {{ props.row.departamento.nombre }}
             </q-td>
           </template>
+          <template v-slot:body-cell-estado_civil="props">
+            <q-td :props="props">
+              {{ props.row.estado_civil.nombre }}
+            </q-td>
+          </template>
+          <template v-slot:body-cell-escolaridad="props">
+            <q-td :props="props">
+              {{ props.row.escolaridad.nombre }}
+            </q-td>
+          </template>
+          <template v-slot:body-cell-tipo_de_sangre="props">
+            <q-td :props="props">
+              {{ props.row.tipo_de_sangre.nombre }}
+            </q-td>
+          </template>
+          <template v-slot:body-cell-jefe_directo="props">
+            <q-td :props="props">
+              <template v-if="props.row.jefe_directo">
+                {{ props.row.jefe_directo.nombre }}
+              </template>
+            </q-td>
+          </template>
         </q-table>
 
         <q-dialog
@@ -225,7 +267,7 @@
               <q-btn
                 flat
                 label="Actualizar"
-                color="primary"
+                color="blue"
                 @click="actualizarEmpleado()"
               />
             </q-card-actions>
@@ -245,7 +287,7 @@ import EditEmployeedForm from "src/components/Employeed/EditEmployeedForm.vue";
 import EditEmployeedtwoForm from "src/components/Employeed/EditEmployeedtwoForm.vue";
 import EditEmployeedthreeForm from "src/components/Employeed/EditEmployeedthreeForm.vue";
 import { sendRequest } from "src/boot/functions";
-import { useQuasar } from "quasar";
+import { useQuasar, exportFile } from "quasar";
 
 const form_1 = ref(null);
 const form_2 = ref(null);
@@ -308,7 +350,6 @@ const crearEmpleado = async () => {
     !form_2.value.formEmployeetwo.sucursal_id ||
     !form_2.value.formEmployeetwo.linea_id ||
     !form_2.value.formEmployeetwo.departamento_id
-    //  !form_2.value.formEmployeetwo.jefeDirecto_id
   ) {
     $q.notify({
       color: "red-5",
@@ -327,12 +368,9 @@ const crearEmpleado = async () => {
     let res = await sendRequest("POST", final, "/api/empleado", "");
     console.log(res);
 
-    // Si la solicitud es exitosa, recarga la página
-    //window.location.reload();
     showAdd.value = false;
     getEmployees();
   } catch (error) {
-    // Maneja el error aquí si es necesario
     console.error("Error al enviar la solicitud:", error);
   }
 };
@@ -371,6 +409,13 @@ const columns = [
     sortable: true
   },
   {
+    name: "segundo_nombre",
+    label: "Segundo nombre",
+    align: "left",
+    field: "segundo_nombre",
+    sortable: true
+  },
+  {
     name: "apellido_paterno",
     label: "Apellido Paterno",
     align: "left",
@@ -384,33 +429,242 @@ const columns = [
     field: "apellido_materno",
     sortable: true
   },
-
   {
-    name: "puesto",
-    label: "Puesto",
+    name: "telefono",
+    label: "Telefono",
     align: "left",
-    field: "puesto_id",
+    field: "telefono",
+    sortable: true
+  },
+  {
+    name: "telefono_institucional",
+    label: "Telefono institucional",
+    align: "left",
+    field: "telefono_institucional",
+    sortable: true
+  },
+  {
+    name: "correo_institucional",
+    label: "Correo institucional",
+    align: "left",
+    field: "correo_institucional",
+    sortable: true
+  },
+  {
+    name: "fecha_de_nacimiento",
+    label: "Fecha de nacimiento",
+    align: "left",
+    field: "fecha_de_nacimiento",
+    sortable: true
+  },
+  {
+    name: "curp",
+    label: "CURP",
+    align: "left",
+    field: "curp",
+    sortable: true
+  },
+  {
+    name: "rfc",
+    label: "RFC",
+    align: "left",
+    field: "rfc",
+    sortable: true
+  },
+  {
+    name: "ine",
+    label: "INE",
+    align: "left",
+    field: "ine",
+    sortable: true
+  },
+  {
+    name: "pasaporte",
+    label: "Pasaporte",
+    align: "left",
+    field: "pasaporte",
+    sortable: true
+  },
+  {
+    name: "visa",
+    label: "VISA",
+    align: "left",
+    field: "visa",
+    sortable: true
+  },
+  {
+    name: "licencia_de_manejo",
+    label: "Licencia de manejo",
+    align: "left",
+    field: "licencia_de_manejo",
+    sortable: true
+  },
+  {
+    name: "nss",
+    label: "NSS",
+    align: "left",
+    field: "nss",
+    sortable: true
+  },
+  {
+    name: "fecha_de_ingreso",
+    label: "Fecha de ingreso",
+    align: "left",
+    field: "fecha_de_ingreso",
+    sortable: true
+  },
+  {
+    name: "hijos",
+    label: "Hijos",
+    align: "left",
+    field: "hijos",
+    sortable: true
+  },
+  {
+    name: "dependientes_economicos",
+    label: "Depandientes economicos",
+    align: "left",
+    field: "dependientes_economicos",
+    sortable: true
+  },
+  {
+    name: "estado_civil",
+    label: "Estado civil",
+    align: "left",
+    field: "estado_civil",
+    sortable: true
+  },
+  {
+    name: "tipo_de_sangre",
+    label: "Tipo de sangre",
+    align: "left",
+    field: "tipo_de_sangre",
+    sortable: true
+  },
+  {
+    name: "escolaridad",
+    label: "Escolaridad",
+    align: "left",
+    field: "escolaridad",
+    sortable: true
+  },
+  {
+    name: "cedula_profesional",
+    label: "Cedula profecional",
+    align: "left",
+    field: "cedula_profesional",
+    sortable: true
+  },
+  {
+    name: "sueldo_base",
+    label: "Sueldo base",
+    align: "left",
+    field: "sueldo_base",
+    sortable: true
+  },
+  {
+    name: "comision",
+    label: "Comision",
+    align: "left",
+    field: "comision",
+    sortable: true
+  },
+  {
+    name: "numero_exterior",
+    label: "Numero exterior",
+    align: "left",
+    field: "numero_exterior",
+    sortable: true
+  },
+  {
+    name: "numero_interior",
+    label: "Numero interior",
+    align: "left",
+    field: "numero_interior",
+    sortable: true
+  },
+  {
+    name: "calle",
+    label: "Calle",
+    align: "left",
+    field: "calle",
+    sortable: true
+  },
+  {
+    name: "colonia",
+    label: "Colonia",
+    align: "left",
+    field: "colonia",
+    sortable: true
+  },
+  {
+    name: "codigo_postal",
+    label: "Codigo postal",
+    align: "left",
+    field: "codigo_postal",
+    sortable: true
+  },
+  {
+    name: "ciudad",
+    label: "Ciudad",
+    align: "left",
+    field: "ciudad",
+    sortable: true
+  },
+  {
+    name: "estado",
+    label: "Estado",
+    align: "left",
+    field: "estado",
+    sortable: true
+  },
+  {
+    name: "cuenta_bancaria",
+    label: "Cuenta bancaria",
+    align: "left",
+    field: "cuenta_bancaria",
+    sortable: true
+  },
+  {
+    name: "status",
+    label: "Status",
+    align: "left",
+    field: "status",
     sortable: true
   },
   {
     name: "sucursal",
     label: "Sucursal",
     align: "left",
-    field: "sucursal_id",
+    field: "sucursal",
     sortable: true
   },
   {
     name: "linea",
     label: "Linea",
     align: "left",
-    field: "linea_id",
+    field: "linea",
     sortable: true
   },
   {
     name: "departamento",
     label: "Departamento",
     align: "left",
-    field: "departamento_id",
+    field: "departamento",
+    sortable: true
+  },
+  {
+    name: "puesto",
+    label: "Puesto",
+    align: "left",
+    field: "puesto",
+    sortable: true
+  },
+  {
+    name: "jefe_directo",
+    label: "Jefe directo",
+    align: "left",
+    field: "jefe_directo",
     sortable: true
   }
 ];
@@ -425,21 +679,68 @@ const filteredEmployees = computed(() => {
       employee.apellido_materno
         .toLowerCase()
         .includes(searchTerm.value.toLowerCase()) ||
-      employee.sucursal_id.nombre
+      employee.sucursal.nombre
         .toLowerCase()
         .includes(searchTerm.value.toLowerCase()) ||
-      employee.linea_id.nombre
+      employee.linea.nombre
         .toLowerCase()
         .includes(searchTerm.value.toLowerCase()) ||
-      employee.departamento_id.nombre
+      employee.departamento.nombre
         .toLowerCase()
         .includes(searchTerm.value.toLowerCase()) ||
-      employee.puesto_id.nombre
+      employee.puesto.nombre
         .toLowerCase()
         .includes(searchTerm.value.toLowerCase())
     );
   });
 });
+
+const wrapCsvValue = (val, formatFn, row) => {
+  let formatted = formatFn !== undefined ? formatFn(val, row) : val;
+
+  formatted =
+    formatted === undefined || formatted === null ? "" : String(formatted);
+
+  formatted = formatted.split('"').join('""');
+
+  if (typeof val === "object" && val !== null) {
+    // Si val es un objeto, intentamos acceder a una propiedad específica
+    const propertyName = "nombre"; // Cambia 'nombre' por la propiedad que deseas mostrar
+    formatted = val[propertyName] || ""; // Utilizamos 'nombre' como ejemplo
+  }
+
+  return `"${formatted}"`;
+};
+
+const exportTable = () => {
+  const content = [columns.map((col) => wrapCsvValue(col.label))]
+    .concat(
+      filteredEmployees.value.map((row) =>
+        columns
+          .map((col) =>
+            wrapCsvValue(
+              typeof col.field === "function"
+                ? col.field(row)
+                : row[col.field === undefined ? col.name : col.field],
+              col.format,
+              row
+            )
+          )
+          .join(",")
+      )
+    )
+    .join("\r\n");
+
+  const status = exportFile("employees-export.csv", content, "text/csv");
+
+  if (status !== true) {
+    $q.notify({
+      message: "Browser denied file download...",
+      color: "negative",
+      icon: "warning"
+    });
+  }
+};
 
 onMounted(() => {
   getEmployees();

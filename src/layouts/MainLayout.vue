@@ -11,8 +11,8 @@
           @click="toggleLeftDrawer"
         />
         <q-toolbar-title>
-          <q-avatar rounded>
-            <img src="../assets/logo2.png" />
+          <q-avatar>
+            <img src="../assets/logo.png" />
           </q-avatar>
           ETBSA Departamento de recursos humanos
         </q-toolbar-title>
