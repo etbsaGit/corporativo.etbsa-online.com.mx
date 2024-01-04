@@ -11,10 +11,12 @@
           @click="toggleLeftDrawer"
         />
         <q-toolbar-title>
-          <q-avatar>
-            <img src="../assets/logo.png" />
-          </q-avatar>
-          ETBSA Departamento de recursos humanos
+          <q-img
+            src="../assets/logo.png"
+            spinner-color="white"
+            style="max-width: 20%"
+          />
+          Departamento de RH
         </q-toolbar-title>
 
         <!-- <q-toolbar-title> User Name </q-toolbar-title> -->
