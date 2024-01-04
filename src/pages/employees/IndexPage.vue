@@ -26,7 +26,7 @@
           class="boton"
           color="green-9"
           v-model="searchTerm"
-          label="Buscar"
+          label="Buscar por nombre, apellidos o unidad de negocios"
         >
           <template v-slot:prepend>
             <q-icon name="search" />
@@ -184,6 +184,28 @@
           <template v-slot:body-cell-departamento="props">
             <q-td :props="props">
               {{ props.row.departamento.nombre }}
+            </q-td>
+          </template>
+          <template v-slot:body-cell-estado_civil="props">
+            <q-td :props="props">
+              {{ props.row.estado_civil.nombre }}
+            </q-td>
+          </template>
+          <template v-slot:body-cell-escolaridad="props">
+            <q-td :props="props">
+              {{ props.row.escolaridad.nombre }}
+            </q-td>
+          </template>
+          <template v-slot:body-cell-tipo_de_sangre="props">
+            <q-td :props="props">
+              {{ props.row.tipo_de_sangre.nombre }}
+            </q-td>
+          </template>
+          <template v-slot:body-cell-jefe_directo="props">
+            <q-td :props="props">
+              <template v-if="props.row.jefe_directo">
+                {{ props.row.jefe_directo.nombre }}
+              </template>
             </q-td>
           </template>
         </q-table>
@@ -472,7 +494,7 @@ const columns = [
   },
   {
     name: "licencia_de_manejo",
-    label: "Puesto",
+    label: "Licencia de manejo",
     align: "left",
     field: "licencia_de_manejo",
     sortable: true
@@ -657,16 +679,16 @@ const filteredEmployees = computed(() => {
       employee.apellido_materno
         .toLowerCase()
         .includes(searchTerm.value.toLowerCase()) ||
-      employee.sucursal_id.nombre
+      employee.sucursal.nombre
         .toLowerCase()
         .includes(searchTerm.value.toLowerCase()) ||
-      employee.linea_id.nombre
+      employee.linea.nombre
         .toLowerCase()
         .includes(searchTerm.value.toLowerCase()) ||
-      employee.departamento_id.nombre
+      employee.departamento.nombre
         .toLowerCase()
         .includes(searchTerm.value.toLowerCase()) ||
-      employee.puesto_id.nombre
+      employee.puesto.nombre
         .toLowerCase()
         .includes(searchTerm.value.toLowerCase())
     );
@@ -693,7 +715,7 @@ const wrapCsvValue = (val, formatFn, row) => {
 const exportTable = () => {
   const content = [columns.map((col) => wrapCsvValue(col.label))]
     .concat(
-      employees.value.map((row) =>
+      filteredEmployees.value.map((row) =>
         columns
           .map((col) =>
             wrapCsvValue(
