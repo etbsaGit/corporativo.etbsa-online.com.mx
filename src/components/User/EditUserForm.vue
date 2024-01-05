@@ -1,5 +1,5 @@
 <template>
-  <q-form class="q-gutter-y-sm text-uppercase">
+  <q-form class="q-gutter-y-sm text-uppercase" ref="myForm" greedy>
     <q-item>
       <q-item-section style="max-width: 400px">
         <q-input
@@ -51,6 +51,7 @@
 import { ref } from "vue";
 
 const { user } = defineProps(["user"]);
+const myForm = ref(null);
 
 const formUser = ref({
   id: user.id,
@@ -60,7 +61,12 @@ const formUser = ref({
   confirmPassword: user.password
 });
 
+const validate = async () => {
+  return await myForm.value.validate();
+};
+
 defineExpose({
-  formUser
+  formUser,
+  validate
 });
 </script>

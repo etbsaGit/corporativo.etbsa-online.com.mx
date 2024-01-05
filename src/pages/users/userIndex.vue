@@ -176,12 +176,8 @@ const onRowClick = (row) => {
 };
 
 const crearUser = async () => {
-  if (
-    !form_1.value.formUser.name ||
-    !form_1.value.formUser.email ||
-    !form_1.value.formUser.password ||
-    !form_1.value.formUser.confirmPassword
-  ) {
+  const form1_valid = await form_1.value.validate();
+  if (!form1_valid) {
     $q.notify({
       color: "red-5",
       textColor: "white",
@@ -219,6 +215,16 @@ const crearUser = async () => {
 };
 
 const actualizarUser = async () => {
+  const edit1_valid = await edit_1.value.validate();
+  if (!edit1_valid) {
+    $q.notify({
+      color: "red-5",
+      textColor: "white",
+      icon: "warning",
+      message: "Por favor completa todos los campos obligatorios"
+    });
+    return;
+  }
   if (
     edit_1.value.formUser.password !== edit_1.value.formUser.confirmPassword
   ) {

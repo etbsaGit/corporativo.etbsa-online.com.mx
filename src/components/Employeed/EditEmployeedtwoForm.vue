@@ -1,5 +1,5 @@
 <template>
-  <q-form class="q-gutter-y-sm text-uppercase">
+  <q-form class="q-gutter-y-sm text-uppercase" ref="myForm" greedy>
     <q-item>
       <q-item-section>
         <q-input
@@ -48,34 +48,36 @@
       <q-item-section>
         <q-select
           v-model="formEmployeetwo.sucursal_id"
-          transition-show="jump-up"
-          transition-hide="jump-up"
-          filled
-          dense
           :options="sucursales"
           label="Sucursal"
-          emit-value
-          map-options
           option-value="id"
           option-label="nombre"
           option-disable="inactive"
+          emit-value
+          map-options
+          transition-show="jump-up"
+          transition-hide="jump-up"
+          clearable
+          filled
+          dense
           :rules="[(val) => val !== null || 'Obligatorio']"
         />
       </q-item-section>
       <q-item-section>
         <q-select
           v-model="formEmployeetwo.departamento_id"
-          transition-show="jump-up"
-          transition-hide="jump-up"
-          filled
-          dense
           :options="departamentos"
           label="Departamento"
+          option-value="id"
           option-label="nombre"
+          option-disable="inactive"
           emit-value
           map-options
-          option-disable="inactive"
-          option-value="id"
+          transition-show="jump-up"
+          transition-hide="jump-up"
+          clearable
+          filled
+          dense
           :rules="[(val) => val !== null || 'Obligatorio']"
         />
       </q-item-section>
@@ -84,29 +86,30 @@
       <q-item-section>
         <q-select
           v-model="formEmployeetwo.linea_id"
-          transition-show="jump-up"
-          transition-hide="jump-up"
-          filled
-          dense
           :options="lineas"
           label="Linea"
-          emit-value
-          map-options
           option-value="id"
           option-label="nombre"
           option-disable="inactive"
+          emit-value
+          map-options
+          transition-show="jump-up"
+          transition-hide="jump-up"
+          clearable
+          filled
+          dense
           :rules="[(val) => val !== null || 'Obligatorio']"
         />
       </q-item-section>
       <q-item-section>
         <q-select
           v-model="formEmployeetwo.status"
+          :options="estatus"
           transition-show="jump-up"
           transition-hide="jump-up"
+          label="Status"
           filled
           dense
-          :options="estatus"
-          label="Status"
           :rules="[(val) => val !== null || 'Obligatorio']"
         />
       </q-item-section>
@@ -116,17 +119,18 @@
       <q-item-section>
         <q-select
           v-model="formEmployeetwo.puesto_id"
-          transition-show="jump-up"
-          transition-hide="jump-up"
-          filled
-          dense
           :options="puestos"
           label="Puesto a desempeñar"
-          emit-value
-          map-options
           option-value="id"
           option-label="nombre"
           option-disable="inactive"
+          emit-value
+          map-options
+          transition-show="jump-up"
+          transition-hide="jump-up"
+          clearable
+          filled
+          dense
           :rules="[(val) => val !== null || 'Obligatorio']"
         />
       </q-item-section>
@@ -135,17 +139,18 @@
       <q-item-section>
         <q-select
           v-model="formEmployeetwo.jefe_directo_id"
-          transition-show="jump-up"
-          transition-hide="jump-up"
-          filled
-          dense
           :options="jefesDirectos"
-          label="Jefe directo"
-          emit-value
-          map-options
           option-value="id"
           option-label="nombre"
+          label="Jefe directo"
           option-disable="inactive"
+          emit-value
+          map-options
+          transition-show="jump-up"
+          transition-hide="jump-up"
+          clearable
+          filled
+          dense
         />
       </q-item-section>
     </q-item>
@@ -157,7 +162,6 @@
           v-model="formEmployeetwo.sueldo_base"
           label="Sueldo Base"
           mask="######"
-          :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
         />
       </q-item-section>
     </q-item>
@@ -195,6 +199,7 @@ const departamentos = ref([]);
 const puestos = ref([]);
 const jefesDirectos = ref([]);
 const estatus = ["Activo", "Baja", "Pencionado", "Suspendido"];
+const myForm = ref(null);
 
 const formEmployeetwo = ref({
   sueldo_base: empleado.sueldo_base,
@@ -234,6 +239,10 @@ const getJefes = async () => {
   jefesDirectos.value = res;
 };
 
+const validate = async () => {
+  return await myForm.value.validate();
+};
+
 onMounted(() => {
   getLineas();
   getSucursales();
@@ -243,6 +252,7 @@ onMounted(() => {
 });
 
 defineExpose({
-  formEmployeetwo
+  formEmployeetwo,
+  validate
 });
 </script>

@@ -349,6 +349,17 @@ const crearEmpleado = async () => {
 };
 
 const actualizarEmpleado = async () => {
+  const edit1_valid = await edit_1.value.validate();
+  const edit2_valid = await edit_2.value.validate();
+  if (!edit1_valid || !edit2_valid) {
+    $q.notify({
+      color: "red-5",
+      textColor: "white",
+      icon: "warning",
+      message: "Por favor completa todos los campos obligatorios"
+    });
+    return;
+  }
   const final = {
     ...edit_1.value.formEmployee,
     ...edit_2.value.formEmployeetwo

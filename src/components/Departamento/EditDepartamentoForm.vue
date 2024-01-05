@@ -1,5 +1,5 @@
 <template>
-  <q-form class="q-gutter-y-sm text-uppercase">
+  <q-form class="q-gutter-y-sm text-uppercase" ref="myForm" greedy>
     <q-item>
       <q-item-section>
         <q-input
@@ -19,13 +19,19 @@
 import { ref } from "vue";
 
 const { departamento } = defineProps(["departamento"]);
+const myForm = ref(null);
 
 const formDepartamento = ref({
   id: departamento.id,
   nombre: departamento.nombre
 });
 
+const validate = async () => {
+  return await myForm.value.validate();
+};
+
 defineExpose({
-  formDepartamento
+  formDepartamento,
+  validate
 });
 </script>

@@ -1,5 +1,5 @@
 <template>
-  <q-form class="q-gutter-y-sm text-uppercase">
+  <q-form class="q-gutter-y-sm text-uppercase" ref="myForm" greedy>
     <q-item>
       <q-item-section style="max-width: 400px">
         <q-input
@@ -29,6 +29,7 @@
 import { ref } from "vue";
 
 const { sucursal } = defineProps(["sucursal"]);
+const myForm = ref(null);
 
 const formSucursal = ref({
   id: sucursal.id,
@@ -36,7 +37,12 @@ const formSucursal = ref({
   direccion: sucursal.direccion
 });
 
+const validate = async () => {
+  return await myForm.value.validate();
+};
+
 defineExpose({
-  formSucursal
+  formSucursal,
+  validate
 });
 </script>
