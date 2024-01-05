@@ -181,7 +181,8 @@ const onRowClick = (row) => {
 };
 
 const crearDepartamento = async () => {
-  if (!form_1.value.formDepartamento.nombre) {
+  const form1_valid = await form_1.value.validate();
+  if (!form1_valid) {
     $q.notify({
       color: "red-5",
       textColor: "white",
@@ -193,25 +194,30 @@ const crearDepartamento = async () => {
   const final = {
     ...form_1.value.formDepartamento
   };
-  console.log(final);
   try {
     let res = await sendRequest("POST", final, "/api/departamento", "");
-    console.log(res);
 
-    // Si la solicitud es exitosa, recarga la página
     showAdd.value = false;
     getDepartamentos();
   } catch (error) {
-    // Maneja el error aquí si es necesario
     console.error("Error al enviar la solicitud:", error);
   }
 };
 
 const actualizarDepartamento = async () => {
+  const edit1_valid = await edit_1.value.validate();
+  if (!edit1_valid) {
+    $q.notify({
+      color: "red-5",
+      textColor: "white",
+      icon: "warning",
+      message: "Por favor completa todos los campos obligatorios"
+    });
+    return;
+  }
   const final = {
     ...edit_1.value.formDepartamento
   };
-  console.log(final);
   try {
     let res = await sendRequest(
       "PUT",
@@ -219,13 +225,10 @@ const actualizarDepartamento = async () => {
       "/api/departamento/" + final.id,
       ""
     );
-    console.log(res);
 
-    // Si la solicitud es exitosa, recarga la página
     showDetails.value = false;
     getDepartamentos();
   } catch (error) {
-    // Maneja el error aquí si es necesario
     console.error("Error al enviar la solicitud:", error);
   }
 };

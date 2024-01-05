@@ -1,5 +1,5 @@
 <template>
-  <q-form class="q-gutter-y-sm text-uppercase">
+  <q-form class="q-gutter-y-sm text-uppercase" ref="myForm" greedy>
     <q-item>
       <q-item-section>
         <q-input
@@ -18,11 +18,18 @@
 <script setup>
 import { ref } from "vue";
 
+const myForm = ref(null);
+
+const validate = async () => {
+  return await myForm.value.validate();
+};
+
 const formPuesto = ref({
   nombre: null
 });
 
 defineExpose({
-  formPuesto
+  formPuesto,
+  validate
 });
 </script>

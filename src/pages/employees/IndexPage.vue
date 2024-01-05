@@ -323,8 +323,6 @@ const onRowClick = (row) => {
 };
 
 const crearEmpleado = async () => {
-  console.log(await form_1.value.validate(), await form_2.value.validate());
-
   const form1_valid = await form_1.value.validate();
   const form2_valid = await form_2.value.validate();
   if (!form1_valid || !form2_valid) {
@@ -340,10 +338,8 @@ const crearEmpleado = async () => {
     ...form_1.value.formEmployee,
     ...form_2.value.formEmployeetwo
   };
-  console.log(final);
   try {
     let res = await sendRequest("POST", final, "/api/empleado", "");
-    console.log(res);
 
     showAdd.value = false;
     getEmployees();
@@ -353,20 +349,27 @@ const crearEmpleado = async () => {
 };
 
 const actualizarEmpleado = async () => {
+  const edit1_valid = await edit_1.value.validate();
+  const edit2_valid = await edit_2.value.validate();
+  if (!edit1_valid || !edit2_valid) {
+    $q.notify({
+      color: "red-5",
+      textColor: "white",
+      icon: "warning",
+      message: "Por favor completa todos los campos obligatorios"
+    });
+    return;
+  }
   const final = {
     ...edit_1.value.formEmployee,
     ...edit_2.value.formEmployeetwo
   };
-  console.log(final);
   try {
     let res = await sendRequest("PUT", final, "/api/empleado/" + final.id, "");
-    console.log(res);
 
-    // Si la solicitud es exitosa, recarga la página
     showDetails.value = false;
     getEmployees();
   } catch (error) {
-    // Maneja el error aquí si es necesario
     console.error("Error al enviar la solicitud:", error);
   }
 };
