@@ -59,11 +59,12 @@
       <template v-slot:after>
         <div class="q-pa-md">
           <div class="text-h6 q-mb-md">Documentos</div>
-          {{
-            selectedRequisito
-              ? selectedRequisito.nombre
-              : "Selecciona un Requisito"
-          }}
+          <edit-employeedfour-form
+            v-if="selectedRequisito"
+            ref="edit_4"
+            :requisito="selectedRequisito"
+          />
+          <div v-else>Selecciona un requisito para ver los detalles.</div>
         </div>
       </template>
     </q-splitter>
@@ -72,6 +73,7 @@
 
 <script setup>
 import { onMounted, ref } from "vue";
+import EditEmployeedfourForm from "./EditEmployeedfourForm.vue";
 
 const { empleado } = defineProps(["empleado"]);
 
@@ -80,6 +82,7 @@ const requisitos = ref([]);
 const selectedRequisito = ref(null);
 const splitterModel = ref(50);
 const filter = ref("");
+const edit_4 = ref(null);
 
 const columns = [
   {
