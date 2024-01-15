@@ -44,6 +44,7 @@
           row-key="name"
           :visible-columns="visibleColumns"
           dense
+          :rows-per-page-options="[0]"
         >
           <template v-slot:top-right>
             <q-btn
@@ -62,6 +63,7 @@
               v-model="showAdd"
               transition-show="rotate"
               transition-hide="rotate"
+              persistent
             >
               <q-card style="width: 1800px">
                 <q-card-section>
@@ -80,7 +82,6 @@
                 >
                   <q-tab name="tab_form_one" label="Datos Personales" />
                   <q-tab name="tab_form_two" label="Unidad Negocio" />
-                  <q-tab name="tab_form_three" label="Expediente" />
                 </q-tabs>
 
                 <q-separator />
@@ -94,11 +95,6 @@
                       <add-employeedtwo-form
                         ref="form_2"
                       ></add-employeedtwo-form>
-                    </q-tab-panel>
-                    <q-tab-panel name="tab_form_three">
-                      <add-employeedthree-form
-                        ref="form_3"
-                      ></add-employeedthree-form>
                     </q-tab-panel>
                   </q-tab-panels>
                 </q-card>
@@ -154,15 +150,16 @@
                     }}</q-avatar
                   >
                 </q-item-section>
-
                 <q-item-section>
                   <q-item-label>{{ props.row.nombre }}</q-item-label>
-                  <q-item-label caption lines="1">
-                    {{ props.row.apellido_paterno }}
-                    {{ props.row.nombre }}@etbsa.com.mx
-                  </q-item-label>
                 </q-item-section>
               </q-item>
+            </q-td>
+          </template>
+
+          <template v-slot:body-cell-expediente="props">
+            <q-td @click="onRowClickFile(props.row)">
+              <q-btn flat round color="primary" icon="folder" />
             </q-td>
           </template>
 
@@ -214,6 +211,7 @@
           v-model="showDetails"
           transition-show="rotate"
           transition-hide="rotate"
+          persistent
         >
           <q-card style="width: 1800px">
             <q-card-section>
@@ -232,7 +230,6 @@
             >
               <q-tab name="tab_form_one" label="Datos Personales" />
               <q-tab name="tab_form_two" label="Unidad Negocio" />
-              <q-tab name="tab_form_three" label="Expediente" />
             </q-tabs>
 
             <q-separator />
@@ -251,6 +248,41 @@
                     :empleado="selectedEmployee"
                   ></edit-employeedtwo-form>
                 </q-tab-panel>
+              </q-tab-panels>
+            </q-card>
+
+            <q-separator />
+
+            <q-card-actions align="right">
+              <q-btn label="Cancelar" color="red" v-close-popup />
+              <q-btn
+                flat
+                label="Actualizar"
+                color="blue"
+                @click="actualizarEmpleado()"
+              />
+            </q-card-actions>
+          </q-card>
+        </q-dialog>
+
+        <q-dialog
+          v-model="showFiles"
+          transition-show="rotate"
+          transition-hide="rotate"
+          full-width
+          persistent
+        >
+          <q-card style="width: 1800px">
+            <q-card-section>
+              <div class="text-h6">
+                Expediente de {{ selectedEmployee.nombre }}
+                {{ selectedEmployee.apellido_paterno }}
+                {{ selectedEmployee.apellido_materno }}
+              </div>
+            </q-card-section>
+            <q-separator />
+            <q-card style="height: 65vh" class="q-pa-none scroll" flat>
+              <q-tab-panels v-model="tab2" animated keep-alive>
                 <q-tab-panel name="tab_form_three">
                   <edit-employeedthree-form
                     ref="edit_3"
@@ -282,7 +314,6 @@
 import { ref, onMounted, computed } from "vue";
 import AddEmployeedForm from "src/components/Employeed/AddEmployeedForm.vue";
 import AddEmployeedtwoForm from "src/components/Employeed/AddEmployeedtwoForm.vue";
-import AddEmployeedthreeForm from "src/components/Employeed/AddEmployeedthreeForm.vue";
 import EditEmployeedForm from "src/components/Employeed/EditEmployeedForm.vue";
 import EditEmployeedtwoForm from "src/components/Employeed/EditEmployeedtwoForm.vue";
 import EditEmployeedthreeForm from "src/components/Employeed/EditEmployeedthreeForm.vue";
@@ -291,7 +322,6 @@ import { useQuasar, exportFile } from "quasar";
 
 const form_1 = ref(null);
 const form_2 = ref(null);
-const form_3 = ref(null);
 const edit_1 = ref(null);
 const edit_2 = ref(null);
 const edit_3 = ref(null);
@@ -299,6 +329,7 @@ const edit_3 = ref(null);
 const $q = useQuasar();
 
 const showDetails = ref(false);
+const showFiles = ref(false);
 const selectedEmployee = ref(null);
 
 const visibleColumns = ref([
@@ -309,10 +340,12 @@ const visibleColumns = ref([
   "sucursal",
   "linea",
   "departamento",
-  "puesto"
+  "puesto",
+  "expediente"
 ]);
 
 const tab = ref("tab_form_one");
+const tab2 = ref("tab_form_three");
 const searchTerm = ref("");
 const showAdd = ref(false);
 const employees = ref([]);
@@ -320,6 +353,11 @@ const employees = ref([]);
 const onRowClick = (row) => {
   selectedEmployee.value = row;
   showDetails.value = true;
+};
+
+const onRowClickFile = (row) => {
+  selectedEmployee.value = row;
+  showFiles.value = true;
 };
 
 const crearEmpleado = async () => {
@@ -645,6 +683,12 @@ const columns = [
     label: "Jefe directo",
     align: "left",
     field: "jefe_directo",
+    sortable: true
+  },
+  {
+    name: "expediente",
+    label: "Expediente",
+    align: "left",
     sortable: true
   }
 ];

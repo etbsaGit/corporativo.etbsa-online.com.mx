@@ -1,314 +1,107 @@
 <template>
-  <q-form class="q-gutter-y-sm text-uppercase" ref="myForm" greedy>
-    <q-file
-      name="poster_file"
-      v-model="formExpediente.foto"
-      filled
-      label="Foto"
-      hint="(opcional)"
-    >
-      <template v-slot:append>
-        <q-icon name="attachment" />
-      </template>
+  <div>
+    <q-splitter v-model="splitterModel" style="height: 585px">
       <template v-slot:before>
-        <q-avatar>
-          <img src="https://cdn.quasar.dev/img/avatar5.jpg" />
-        </q-avatar>
+        <div class="q-pa-md">
+          <q-table
+            flat
+            bordered
+            grid
+            :rows="requisitos"
+            :columns="columns"
+            row-key="name"
+            :filter="filter"
+            :rows-per-page-options="[0]"
+          >
+            <template v-slot:top-right>
+              <q-input
+                bordered
+                dense
+                debounce="300"
+                v-model="filter"
+                placeholder="Search"
+              >
+                <template v-slot:append>
+                  <q-icon name="search" />
+                </template>
+              </q-input>
+            </template>
+
+            <template v-slot:top-left>
+              <div class="text-h6 q-mb-md">Requisitos</div>
+            </template>
+
+            <template v-slot:item="props">
+              <q-card
+                @click.stop="onRowClick(props.row)"
+                :style="{
+                  backgroundColor: '#f2f2f2',
+                  width: '200px',
+                  height: '100px',
+                  margin: '5px'
+                }"
+              >
+                <q-card-section>
+                  <q-item v-for="col in props.cols" :key="col.name">
+                    <q-item-section side>
+                      <q-item-label caption>{{
+                        props.row[col.name]
+                      }}</q-item-label>
+                    </q-item-section>
+                  </q-item>
+                </q-card-section>
+              </q-card>
+            </template>
+          </q-table>
+        </div>
       </template>
-    </q-file>
-    <q-file
-      name="poster_file"
-      v-model="formExpediente.cv"
-      filled
-      label="Curriculum Vitae"
-      accept=".pdf"
-      :rules="[(val) => val !== null || 'Obligatorio']"
-    >
-      <template v-slot:append>
-        <q-icon name="attachment" />
+
+      <template v-slot:after>
+        <div class="q-pa-md">
+          <div class="text-h6 q-mb-md">Documentos</div>
+          {{
+            selectedRequisito
+              ? selectedRequisito.nombre
+              : "Selecciona un Requisito"
+          }}
+        </div>
       </template>
-    </q-file>
-    <q-file
-      name="poster_file"
-      v-model="formExpediente.acta_de_nacimiento"
-      filled
-      label="Acta de nacimiento"
-      accept=".pdf"
-      :rules="[(val) => val !== null || 'Obligatorio']"
-    >
-      <template v-slot:append>
-        <q-icon name="attachment" />
-      </template>
-    </q-file>
-    <q-file
-      name="poster_file"
-      v-model="formExpediente.credencial_de_elector"
-      filled
-      label="Credencial de elector"
-      accept=".pdf"
-      :rules="[(val) => val !== null || 'Obligatorio']"
-    >
-      <template v-slot:append>
-        <q-icon name="attachment" />
-      </template>
-    </q-file>
-    <q-file
-      name="poster_file"
-      v-model="formExpediente.curp"
-      filled
-      label="CURP"
-      accept=".pdf"
-      :rules="[(val) => val !== null || 'Obligatorio']"
-    >
-      <template v-slot:append>
-        <q-icon name="attachment" />
-      </template>
-    </q-file>
-    <q-file
-      name="poster_file"
-      v-model="formExpediente.constancia_de_sicuacion_fiscal"
-      filled
-      label="Constancia de situacion fiscal"
-      accept=".pdf"
-      :rules="[(val) => val !== null || 'Obligatorio']"
-    >
-      <template v-slot:append>
-        <q-icon name="attachment" />
-      </template>
-    </q-file>
-    <q-file
-      name="poster_file"
-      v-model="formExpediente.imss"
-      filled
-      label="IMSS"
-      accept=".pdf"
-      :rules="[(val) => val !== null || 'Obligatorio']"
-    >
-      <template v-slot:append>
-        <q-icon name="attachment" />
-      </template>
-    </q-file>
-    <q-file
-      name="poster_file"
-      v-model="formExpediente.comprobante_de_domicilio"
-      filled
-      label="Comprobante de domicilio"
-      accept=".pdf"
-      :rules="[(val) => val !== null || 'Obligatorio']"
-    >
-      <template v-slot:append>
-        <q-icon name="attachment" />
-      </template>
-    </q-file>
-    <q-file
-      name="poster_file"
-      v-model="formExpediente.croquis_de_domicilio"
-      filled
-      label="Croquis del domicilio"
-      accept=".pdf"
-      :rules="[(val) => val !== null || 'Obligatorio']"
-    >
-      <template v-slot:append>
-        <q-icon name="attachment" />
-      </template>
-    </q-file>
-    <q-file
-      name="poster_file"
-      v-model="formExpediente.certificado_de_estudios"
-      filled
-      label="Certificado de estudios"
-      accept=".pdf"
-      hint="(opcional)"
-    >
-      <template v-slot:append>
-        <q-icon name="attachment" />
-      </template>
-    </q-file>
-    <q-file
-      name="poster_file"
-      v-model="formExpediente.carta_de_antecedentes_no_penales"
-      filled
-      label="Carta de antecedentes no penales"
-      accept=".pdf"
-      :rules="[(val) => val !== null || 'Obligatorio']"
-    >
-      <template v-slot:append>
-        <q-icon name="attachment" />
-      </template>
-    </q-file>
-    <q-file
-      name="poster_file"
-      v-model="formExpediente.aviso_de_retencion_credito_infonavit"
-      filled
-      label="Aviso de retencion credito infonavit"
-      accept=".pdf"
-      hint="(opcional)"
-    >
-      <template v-slot:append>
-        <q-icon name="attachment" />
-      </template>
-    </q-file>
-    <q-file
-      name="poster_file"
-      v-model="formExpediente.acta_de_matrimonio"
-      filled
-      label="Acta de matrimonio"
-      accept=".pdf"
-      hint="(opcional)"
-    >
-      <template v-slot:append>
-        <q-icon name="attachment" />
-      </template>
-    </q-file>
-    <q-file
-      name="poster_file"
-      v-model="formExpediente.acta_de_nacimiento_hijos"
-      filled
-      label="Acta de nacimiento de los hijos"
-      accept=".pdf"
-      hint="(opcional)"
-    >
-      <template v-slot:append>
-        <q-icon name="attachment" />
-      </template>
-    </q-file>
-    <q-file
-      name="poster_file"
-      v-model="formExpediente.certificado_medico"
-      filled
-      label="Certificado medico"
-      accept=".pdf"
-      :rules="[(val) => val !== null || 'Obligatorio']"
-    >
-      <template v-slot:append>
-        <q-icon name="attachment" />
-      </template>
-    </q-file>
-    <q-file
-      name="poster_file"
-      v-model="formExpediente.licencia_de_manejo"
-      filled
-      label="Licencia de manejo"
-      accept=".pdf"
-      hint="(opcional)"
-    >
-      <template v-slot:append>
-        <q-icon name="attachment" />
-      </template>
-    </q-file>
-    <q-file
-      name="poster_file"
-      v-model="formExpediente.cartas_de_recomendacion"
-      filled
-      label="Cartas de recomendacion"
-      accept=".pdf"
-      :rules="[(val) => val !== null || 'Obligatorio']"
-    >
-      <template v-slot:append>
-        <q-icon name="attachment" />
-      </template>
-    </q-file>
-    <q-file
-      name="poster_file"
-      v-model="formExpediente.apertura_cuenta_bbva"
-      filled
-      label="Apertura cuenta BBVA"
-      accept=".pdf"
-      :rules="[(val) => val !== null || 'Obligatorio']"
-    >
-      <template v-slot:append>
-        <q-icon name="attachment" />
-      </template>
-    </q-file>
-    <q-file
-      name="poster_file"
-      v-model="formExpediente.reporte_semanas_cotizadas"
-      filled
-      label="Reporte de semanas cotizadas"
-      accept=".pdf"
-      :rules="[(val) => val !== null || 'Obligatorio']"
-    >
-      <template v-slot:append>
-        <q-icon name="attachment" />
-      </template>
-    </q-file>
-    <q-file
-      name="poster_file"
-      v-model="formExpediente.nominas_empleo_anterior"
-      filled
-      label="Nominas de empleo anterior"
-      accept=".pdf"
-      hint="(opcional)"
-    >
-      <template v-slot:append>
-        <q-icon name="attachment" />
-      </template>
-    </q-file>
-    <q-file
-      name="poster_file"
-      v-model="formExpediente.alta_interna"
-      filled
-      label="Alta interna"
-      accept=".pdf"
-      :rules="[(val) => val !== null || 'Obligatorio']"
-    >
-      <template v-slot:append>
-        <q-icon name="attachment" />
-      </template>
-    </q-file>
-    <q-file
-      name="poster_file"
-      v-model="formExpediente.alta_imss"
-      filled
-      label="Alta IMSS"
-      accept=".pdf"
-      hint
-    >
-      <template v-slot:append>
-        <q-icon name="attachment" />
-      </template>
-    </q-file>
-    <q-file
-      name="poster_file"
-      v-model="formExpediente.baja_imss"
-      filled
-      label="Baja IMSS"
-      accept=".pdf"
-      hint
-    >
-      <template v-slot:append>
-        <q-icon name="attachment" />
-      </template>
-    </q-file>
-  </q-form>
+    </q-splitter>
+  </div>
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 
-const formExpediente = ref({
-  cv: null,
-  acta_de_nacimiento: null,
-  credencial_de_elector: null,
-  curp: null,
-  constancia_de_sicuacion_fiscal: null,
-  imss: null,
-  comprobante_de_domicilio: null,
-  croquis_de_domicilio: null,
-  certificado_de_estudios: null,
-  carta_de_antecedentes_no_penales: null,
-  aviso_de_retencion_credito_infonavit: null,
-  acta_de_matrimonio: null,
-  acta_de_nacimiento_hijos: null,
-  certificado_medico: null,
-  licencia_de_manejo: null,
-  foto: null,
-  cartas_de_recomendacion: null,
-  apertura_cuenta_bbva: null,
-  reporte_semanas_cotizadas: null,
-  nominas_empleo_anterior: null,
-  alta_interna: null,
-  alta_imss: null,
-  baja_imss: null
+const { empleado } = defineProps(["empleado"]);
+
+const expedientes = ref([]);
+const requisitos = ref([]);
+const selectedRequisito = ref(null);
+const splitterModel = ref(50);
+const filter = ref("");
+
+const columns = [
+  {
+    name: "nombre",
+    align: "left",
+    field: "nombre",
+    sortable: true
+  }
+];
+
+const mapear = () => {
+  expedientes.value = empleado.archivable;
+  requisitos.value = empleado.archivable[0].requisito;
+};
+
+const onRowClick = (row) => {
+  selectedRequisito.value = row;
+  //console.log(selectedRequisito.value.nombre);
+};
+
+onMounted(() => {
+  mapear();
+  //console.log(empleado.archivable);
 });
 </script>
