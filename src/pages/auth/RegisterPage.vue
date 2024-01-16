@@ -69,7 +69,7 @@ const form = ref({
       <q-card-section class="text-center q-pt-none">
         <div class="text-grey-8">
           Already registered?
-          <q-btn flat to="/login" class="text-dark text-weight-bold">
+          <q-btn to="/login" class="text-dark text-weight-bold">
             Sign in.
           </q-btn>
         </div>

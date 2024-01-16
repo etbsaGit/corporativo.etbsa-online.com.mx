@@ -60,7 +60,7 @@
 
             <q-card-actions align="right">
               <q-btn label="Cancelar" color="red" v-close-popup />
-              <q-btn flat label="Registrar" color="blue" @click="crearLinea" />
+              <q-btn label="Registrar" color="blue" @click="crearLinea" />
             </q-card-actions>
           </q-card>
         </q-dialog>
@@ -82,7 +82,6 @@
         />
 
         <q-btn
-          flat
           round
           dense
           :icon="props.inFullscreen ? 'fullscreen_exit' : 'fullscreen'"
@@ -135,12 +134,7 @@
 
         <q-card-actions align="right">
           <q-btn label="Cancelar" color="red" v-close-popup />
-          <q-btn
-            flat
-            label="Actualizar"
-            color="blue"
-            @click="actualizarLinea()"
-          />
+          <q-btn label="Actualizar" color="blue" @click="actualizarLinea()" />
         </q-card-actions>
       </q-card>
     </q-dialog>

@@ -44,7 +44,7 @@
       <q-card-section class="text-center q-pt-none">
         <div class="text-grey-8">
           Don't have an account yet?
-          <q-btn flat to="/register" class="text-dark text-weight-bold">
+          <q-btn to="/register" class="text-dark text-weight-bold">
             Sign up.
           </q-btn>
         </div>
