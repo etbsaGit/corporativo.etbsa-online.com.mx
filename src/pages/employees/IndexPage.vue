@@ -104,7 +104,6 @@
                 <q-card-actions align="right">
                   <q-btn label="Cancelar" color="red" v-close-popup />
                   <q-btn
-                    flat
                     label="Registrar"
                     color="blue"
                     @click="crearEmpleado()"
@@ -112,7 +111,7 @@
                 </q-card-actions>
               </q-card>
             </q-dialog>
-
+            <!-- ------------------------------------------------ -->
             <q-space />
 
             <q-select
@@ -130,7 +129,6 @@
             />
 
             <q-btn
-              flat
               round
               dense
               :icon="props.inFullscreen ? 'fullscreen_exit' : 'fullscreen'"
@@ -206,7 +204,7 @@
             </q-td>
           </template>
         </q-table>
-
+        <!-- ------------------------------------------------------------------- -->
         <q-dialog
           v-model="showDetails"
           transition-show="rotate"
@@ -256,7 +254,6 @@
             <q-card-actions align="right">
               <q-btn label="Cancelar" color="red" v-close-popup />
               <q-btn
-                flat
                 label="Actualizar"
                 color="blue"
                 @click="actualizarEmpleado()"
@@ -264,7 +261,7 @@
             </q-card-actions>
           </q-card>
         </q-dialog>
-
+        <!-- ---------------------------------------------------------------------------- -->
         <q-dialog
           v-model="showFiles"
           transition-show="rotate"
@@ -281,7 +278,7 @@
               </div>
             </q-card-section>
             <q-separator />
-            <q-card style="height: 65vh" class="q-pa-none scroll" flat>
+            <q-card style="height: 70vh" class="q-pa-none scroll" flat>
               <q-tab-panels v-model="tab2" animated keep-alive>
                 <q-tab-panel name="tab_form_three">
                   <edit-employeedthree-form
@@ -291,20 +288,9 @@
                 </q-tab-panel>
               </q-tab-panels>
             </q-card>
-
-            <q-separator />
-
-            <q-card-actions align="right">
-              <q-btn label="Cancelar" color="red" v-close-popup />
-              <q-btn
-                flat
-                label="Actualizar"
-                color="blue"
-                @click="actualizarEmpleado()"
-              />
-            </q-card-actions>
           </q-card>
         </q-dialog>
+        <!-- -------------------------------------------------------------------------------- -->
       </div>
     </q-card>
   </div>

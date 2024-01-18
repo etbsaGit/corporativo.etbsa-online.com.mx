@@ -28,14 +28,18 @@
             </template>
 
             <template v-slot:top-left>
-              <div class="text-h6 q-mb-md">Requisitos</div>
+              <div class="text-h6 q-mb-md">
+                <q-btn color="primary" icon="add" @click="showDetails = true" />
+                Requisitos
+              </div>
             </template>
 
             <template v-slot:item="props">
               <q-card
                 @click.stop="onRowClick(props.row)"
+                :class="[selectedClass(props.row.isSelected)]"
                 :style="{
-                  backgroundColor: '#f2f2f2',
+                  backgroundColor: getStatusColor(props.row.pivot.estatus_id),
                   width: '200px',
                   height: '100px',
                   margin: '5px'
@@ -62,18 +66,62 @@
           <edit-employeedfour-form
             v-if="selectedRequisito"
             ref="edit_4"
-            :requisito="selectedRequisito"
+            v-model:requisito="selectedRequisito"
+            :archivos="archivos"
           />
           <div v-else>Selecciona un requisito para ver los detalles.</div>
         </div>
       </template>
     </q-splitter>
+    <q-separator />
+    <q-card-actions align="right">
+      <q-btn
+        v-if="selectedRequisito"
+        label="Resetear selección"
+        color="negative"
+        @click="resetSelection"
+      />
+      <q-btn
+        v-if="selectedRequisito"
+        icon="upload"
+        label="Subir y actualizar"
+        color="blue"
+        @click="actualizarRequisito()"
+      />
+      <q-btn label="Cancelar" color="red" v-close-popup />
+    </q-card-actions>
   </div>
+  <q-dialog
+    v-model="showDetails"
+    transition-show="rotate"
+    transition-hide="rotate"
+    persistent
+  >
+    <q-card style="width: 1000px">
+      <q-card-section>
+        <div class="text-h6">Registrar requisito al empleado</div>
+      </q-card-section>
+      <q-separator />
+      <q-card style="height: 100px" class="q-pa-none scroll" flat>
+        <add-documento-form ref="edit_5" :empleado="empleado">
+        </add-documento-form>
+      </q-card>
+      <q-separator />
+
+      <q-card-actions align="right">
+        <q-btn label="Cancelar" color="red" v-close-popup />
+        <q-btn label="Agregar" color="blue" @click="agregarDocumento()" />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script setup>
 import { onMounted, ref } from "vue";
 import EditEmployeedfourForm from "./EditEmployeedfourForm.vue";
+import AddDocumentoForm from "../Documento/AddDocumentoForm.vue";
+import { sendRequest } from "src/boot/functions";
+import { useQuasar } from "quasar";
 
 const { empleado } = defineProps(["empleado"]);
 
@@ -83,6 +131,11 @@ const selectedRequisito = ref(null);
 const splitterModel = ref(50);
 const filter = ref("");
 const edit_4 = ref(null);
+const edit_5 = ref(null);
+const showDetails = ref(false);
+const $q = useQuasar();
+const archivos = ref([]);
+const clickable = ref(true);
 
 const columns = [
   {
@@ -98,13 +151,120 @@ const mapear = () => {
   requisitos.value = empleado.archivable[0].requisito;
 };
 
-const onRowClick = (row) => {
+const selectedClass = (isSelected) => {
+  return isSelected ? "selected" : "";
+};
+
+const onRowClick = async (row) => {
+  if (!clickable.value) {
+    return;
+  }
+
+  resetSelection();
   selectedRequisito.value = row;
-  //console.log(selectedRequisito.value.nombre);
+  row.isSelected = true;
+  cargarArchivos();
+
+  requisitos.value.forEach((requisito) => {
+    requisito.isClickable = false;
+  });
+  clickable.value = false;
+};
+
+const cargarArchivos = async () => {
+  if (!selectedRequisito.value || !selectedRequisito.value.pivot) {
+    $q.notify({
+      color: "red-5",
+      textColor: "white",
+      icon: "warning",
+      message: "Seleccione un a validar"
+    });
+    return;
+  }
+  const id = selectedRequisito.value.pivot.id;
+  let res = await sendRequest("GET", null, "/api/documento/" + id, "");
+  archivos.value = res.asignable;
+};
+
+const agregarDocumento = async () => {
+  const edit_5_valid = await edit_5.value.validate();
+  if (!edit_5_valid) {
+    $q.notify({
+      color: "red-5",
+      textColor: "white",
+      icon: "warning",
+      message: "Por favor completa todos los campos obligatorios"
+    });
+    return;
+  }
+  const final = { ...edit_5.value.formDocumento };
+  try {
+    let res = await sendRequest("POST", final, "/api/documento", "");
+    showDetails.value = false;
+    obtenerEmpleado();
+  } catch (error) {
+    console.error("Error al enviar la solicitud:", error);
+  }
+};
+
+const resetSelection = () => {
+  requisitos.value.forEach((requisito) => {
+    requisito.isSelected = false;
+  });
+  selectedRequisito.value = null;
+  archivos.value = [];
+  clickable.value = true;
+};
+
+const obtenerEmpleado = async () => {
+  let res = await sendRequest("GET", null, "/api/empleado/" + empleado.id, "");
+  requisitos.value = res.archivable[0].requisito;
+};
+
+const actualizarRequisito = async () => {
+  const final = edit_4.value.formRequisito;
+  let res = await sendRequest(
+    "PUT",
+    final,
+    "/api/documento/" + selectedRequisito.value.id,
+    ""
+  );
+  obtenerEmpleado();
+  resetSelection();
+};
+
+const getStatusColor = (status) => {
+  switch (status) {
+    case 1:
+      return "#fff3b2"; // Amarillo más claro
+    case 2:
+      return "#b5fff4"; // Verde más claro
+    case 3:
+      return "#ffcccc"; // Rojo más claro
+    case 4:
+      return "#b6ffaa"; // Verde claro
+    //Añade más casos para otros estados
+    default:
+      return "#f2f2f2";
+  }
 };
 
 onMounted(() => {
   mapear();
-  //console.log(empleado.archivable);
 });
 </script>
+
+<style scoped>
+.selected-enter-active,
+.selected-leave-active {
+  transition: opacity 0.5s;
+}
+.selected-enter,
+.selected-leave-to {
+  opacity: 0;
+}
+.selected {
+  border: 2px solid #9596ce;
+  background-color: #e6ffe6;
+}
+</style>
