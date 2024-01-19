@@ -34,38 +34,10 @@ const sleep = (miliseconds) => {
 //         }
 //     });
 
-// }
-// export async function sendRequest(method, params, url, redirect = "") {
-//   const authStore = useAuthStore();
-//   axios.defaults.headers.common[
-//     "Authorization"
-//   ] = `Bearer ${authStore.authToken}`;
-//   let res;
-//   await axios({ method: method, url: url, data: params })
-//     .then(({ data }) => {
-//       res = data;
-//       // Notify.create(data.message);
-//       show_notify("Datos cargados con exito", "check", "green", "");
-//       setTimeout(
-//         () => (redirect !== "" ? (window.location.href = redirect) : ""),
-//         2000
-//       );
-//     })
-//     .catch((errors) => {
-//       let desc = "";
-//       res = errors.response.data;
-//       // errors.response.data.errors.map((e) => {
-//       //   desc = desc + " " + e;
-//       // });
-//       // Notify.create({ color: "negative", message: desc });
-//       // // show_alerta(desc, "error","red", "");
-//     });
-//   return res;
-// }
-
 export async function sendRequest(method, params, url, redirect = "") {
   const authStore = useAuthStore();
   axios.defaults.headers.common["Authorization"] = `Bearer ${authStore.authToken}`;
+  //axios.defaults.headers.common["Content-Type"] = "multipart/form-data"
   try {
     const response = await axios({ method: method, url: url, data: params });
     const data = response.data;
