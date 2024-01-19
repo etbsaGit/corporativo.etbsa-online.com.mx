@@ -226,7 +226,7 @@ const actualizarRequisito = async () => {
   let res = await sendRequest(
     "PUT",
     final,
-    "/api/documento/" + selectedRequisito.value.id,
+    "/api/documento/" + selectedRequisito.value.pivot.id,
     ""
   );
   obtenerEmpleado();
@@ -251,6 +251,7 @@ const getStatusColor = (status) => {
 
 onMounted(() => {
   mapear();
+  obtenerEmpleado();
 });
 </script>
 
