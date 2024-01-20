@@ -114,6 +114,22 @@
           :visible-columns="visibleColumns"
           style="width: 800px"
         >
+          <template v-slot:body-cell-opciones="props">
+            <q-td>
+              <q-btn-group spread style="width: 100px" flat>
+                <q-btn
+                  color="blue"
+                  icon="visibility"
+                  @click="show(props.row)"
+                />
+                <q-btn
+                  color="red"
+                  icon="delete"
+                  @click="mostrarDialogConfirmacion(props.row.id)"
+                />
+              </q-btn-group>
+            </q-td>
+          </template>
           <template v-slot:top>
             <q-select
               v-model="visibleColumns"
@@ -131,6 +147,22 @@
           </template>
         </q-table>
       </q-item>
+      <q-dialog v-model="mostrarDialog" persistent>
+        <q-card>
+          <q-card-section>
+            <div class="text-h6">Confirmar Borrado</div>
+          </q-card-section>
+
+          <q-card-section>
+            ¿Seguro que deseas borrar este archivo?
+          </q-card-section>
+
+          <q-card-actions align="right">
+            <q-btn label="Cancelar" color="grey" @click="cerrarDialog" />
+            <q-btn label="Aceptar" color="red" @click="borrarArchivo" />
+          </q-card-actions>
+        </q-card>
+      </q-dialog>
     </q-form>
   </div>
 </template>
@@ -145,13 +177,29 @@ const { requisito, archivos } = defineProps(["requisito", "archivos"]);
 const myForm = ref(null);
 const status = ref([]);
 const model = ref(null);
+const archivoIdBorrar = ref(null);
+const mostrarDialog = ref(false);
+
+const mostrarDialogConfirmacion = (archivoId) => {
+  archivoIdBorrar.value = archivoId;
+  mostrarDialog.value = true;
+};
+
+const cerrarDialog = () => {
+  mostrarDialog.value = false;
+};
+
+const borrarArchivo = () => {
+  borrar(archivoIdBorrar.value);
+  mostrarDialog.value = false;
+};
 
 const getEstatus = async () => {
   let res = await sendRequest("GET", null, "/api/estatus/all", "");
   status.value = res;
 };
 
-const visibleColumns = ref(["nombre", "created_at"]);
+const visibleColumns = ref(["nombre", "created_at", "opciones"]);
 
 const columns = [
   { name: "id", label: "ID", align: "left", field: "id", sortable: true },
@@ -189,13 +237,20 @@ const columns = [
     align: "left",
     field: "created_at",
     sortable: true
+  },
+  {
+    name: "opciones",
+    label: "Opciones",
+    align: "left",
+    field: "opciones",
+    sortable: true
   }
 ];
 
 const uploadFile = async () => {
   const formData = new FormData();
   formData.append("file", model.value);
-  formData.append("asignableId", requisito.id);
+  formData.append("asignableId", requisito.pivot.id);
   try {
     let res = await api.post("/archivo/uploadFile", formData, {
       headers: {
@@ -203,6 +258,30 @@ const uploadFile = async () => {
       },
       withCredentials: true
     });
+  } catch (error) {
+    console.error("Error al enviar la solicitud:", error);
+  }
+};
+
+const show = async (archivoId) => {
+  console.log(archivoId.path);
+  // if (archivoId.path) {
+  //   window.open(archivoId.path, "_blank");
+  // } else if (archivoId) {
+  //   const url = URL.createObjectURL(archivoId);
+  //   window.open(url, "_blank");
+  // }
+};
+
+const borrar = async (archivoId) => {
+  try {
+    let res = await sendRequest(
+      "DELETE",
+      null,
+      "/api/archivo/" + archivoId,
+      ""
+    );
+    console.log(res); // Puedes manejar la respuesta según tus necesidades
   } catch (error) {
     console.error("Error al enviar la solicitud:", error);
   }
