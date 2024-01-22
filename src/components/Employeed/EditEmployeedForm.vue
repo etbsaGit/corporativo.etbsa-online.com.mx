@@ -1,34 +1,5 @@
 <template>
-  <q-form class="q-gutter-y-sm text-uppercase">
-    <!-- <q-item>
-        <q-file
-          v-model="formEmployee.foto"
-          filled
-          outlined
-          bottom-slots
-          label="Foto Empleado"
-          counter
-          hint="Seleccionar Foto"
-          class="col-12"
-        >
-          <template v-slot:before>
-            <q-avatar size="64px">
-              <img src="https://cdn.quasar.dev/img/avatar5.jpg" />
-            </q-avatar>
-          </template>
-  
-          <template v-slot:append>
-            <q-icon
-              v-if="formEmployee.foto !== null"
-              name="close"
-              @click.stop.prevent="formEmployee.foto = null"
-              class="cursor-pointer"
-            />
-            <q-icon name="create_new_folder" @click.stop.prevent />
-          </template>
-        </q-file>
-      </q-item> -->
-
+  <q-form class="q-gutter-y-sm text-uppercase" ref="myForm" greedy>
     <q-item>
       <q-item-section>
         <q-input
@@ -36,7 +7,6 @@
           filled
           dense
           label="Primer Nombre"
-          lazy-rules
           :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
         />
       </q-item-section>
@@ -58,7 +28,6 @@
           filled
           dense
           label="Apellido paterno"
-          lazy-rules
           :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
         />
       </q-item-section>
@@ -68,7 +37,6 @@
           filled
           dense
           label="Apellido materno"
-          lazy-rules
           :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
         />
       </q-item-section>
@@ -82,7 +50,6 @@
           dense
           label="Telefono"
           mask="##########"
-          lazy-rules
           :rules="[
             (val) => (val && val.length === 10) || 'Deben de ser 10 digitos'
           ]"
@@ -115,7 +82,6 @@
           dense
           label="Correo institucional"
           hint="Opcional"
-          lazy-rules
           :rules="[
             (v) => !v || /.+@.+\..+/.test(v) || 'Formato de correo inválido'
           ]"
@@ -129,7 +95,6 @@
           filled
           dense
           v-model="formEmployee.calle"
-          lazy-rules
           :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
           label="Calle"
         />
@@ -140,7 +105,6 @@
           dense
           v-model="formEmployee.numero_exterior"
           label="# Exterior"
-          lazy-rules
           :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
         />
       </q-item-section>
@@ -160,7 +124,6 @@
           filled
           dense
           v-model="formEmployee.colonia"
-          lazy-rules
           :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
           label="Colonia"
         />
@@ -172,8 +135,6 @@
           v-model="formEmployee.codigo_postal"
           label="Codigo postal"
           mask="#####"
-          lazy-rules
-          :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
         />
       </q-item-section>
     </q-item>
@@ -183,7 +144,6 @@
           filled
           dense
           v-model="formEmployee.ciudad"
-          lazy-rules
           :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
           label="Ciudad"
         />
@@ -193,7 +153,6 @@
           filled
           dense
           v-model="formEmployee.estado"
-          lazy-rules
           :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
           label="Estado"
         />
@@ -208,7 +167,6 @@
           v-model="formEmployee.fecha_de_nacimiento"
           mask="date"
           label="Fecha de Nacimiento"
-          lazy-rules
           :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
         >
           <template v-slot:append>
@@ -237,7 +195,6 @@
           filled
           dense
           label="CURP"
-          lazy-rules
           :rules="[
             (val) =>
               (val && val.length === 18) ||
@@ -251,7 +208,6 @@
           filled
           dense
           label="RFC"
-          lazy-rules
           :rules="[
             (val) =>
               (val && val.length === 13) ||
@@ -268,7 +224,6 @@
           filled
           dense
           label="INE"
-          lazy-rules
           :rules="[
             (val) =>
               (val && val.length === 18) ||
@@ -287,7 +242,7 @@
             (val) =>
               !val ||
               (val && val.length === 16) ||
-              'La VISA debe tener exactamente 16 caracteres'
+              'La licencia debe tener exactamente 16 caracteres'
           ]"
         />
       </q-item-section>
@@ -323,19 +278,19 @@
       <q-item-section>
         <q-select
           v-model="formEmployee.escolaridad_id"
-          transition-show="jump-up"
-          transition-hide="jump-up"
-          filled
-          dense
-          lazy-rules
-          :rules="[(val) => val !== null || 'Obligatorio']"
           :options="escolaridades"
           label="Escolaridad"
-          emit-value
-          map-options
-          option-disable="inactive"
           option-value="id"
           option-label="nombre"
+          option-disable="inactive"
+          emit-value
+          map-options
+          transition-show="jump-up"
+          transition-hide="jump-up"
+          clearable
+          filled
+          dense
+          :rules="[(val) => val !== null || 'Obligatorio']"
         />
       </q-item-section>
       <q-item-section v-if="[4, 5, 6].includes(formEmployee.escolaridad_id)">
@@ -357,12 +312,6 @@
           dense
           label="Numero de seguridad social"
           mask="###########"
-          lazy-rules
-          :rules="[
-            (val) =>
-              (val && val.length === 11) ||
-              'EL numero de seguro consta de 11 digitos'
-          ]"
         />
       </q-item-section>
       <q-item-section>
@@ -391,37 +340,37 @@
       <q-item-section>
         <q-select
           v-model="formEmployee.estado_civil_id"
-          transition-show="jump-up"
-          transition-hide="jump-up"
-          filled
-          dense
-          lazy-rules
-          :rules="[(val) => val !== null || 'Obligatorio']"
           :options="estadosCiviles"
           label="Estado civil"
-          emit-value
-          map-options
-          option-disable="inactive"
           option-value="id"
           option-label="nombre"
+          option-disable="inactive"
+          emit-value
+          map-options
+          transition-show="jump-up"
+          transition-hide="jump-up"
+          clearable
+          filled
+          dense
+          :rules="[(val) => val !== null || 'Obligatorio']"
         />
       </q-item-section>
       <q-item-section>
         <q-select
           v-model="formEmployee.tipo_de_sangre_id"
-          transition-show="jump-up"
-          transition-hide="jump-up"
-          filled
-          dense
-          lazy-rules
-          :rules="[(val) => val !== null || 'Obligatorio']"
           :options="tiposDeSangre"
           label="Tipo de sangre"
-          emit-value
-          map-options
-          option-disable="inactive"
           option-value="id"
           option-label="nombre"
+          option-disable="inactive"
+          emit-value
+          map-options
+          transition-show="jump-up"
+          transition-hide="jump-up"
+          clearable
+          filled
+          dense
+          :rules="[(val) => val !== null || 'Obligatorio']"
         />
       </q-item-section>
     </q-item>
@@ -434,7 +383,6 @@
           dense
           label="Numero de cuenta bancarias"
           mask="##################"
-          lazy-rules
           :rules="[
             (val) => (val && val.length === 18) || 'Debes ingresar 18 digitos'
           ]"
@@ -446,15 +394,14 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import { useQuasar } from "quasar";
 import { sendRequest } from "src/boot/functions";
 
 const { empleado } = defineProps(["empleado"]);
 
-const $q = useQuasar();
 const estadosCiviles = ref(null);
 const tiposDeSangre = ref([]);
 const escolaridades = ref([]);
+const myForm = ref(null);
 
 const formEmployee = ref({
   id: empleado.id,
@@ -505,6 +452,10 @@ const getEscolaridades = async () => {
   escolaridades.value = res;
 };
 
+const validate = async () => {
+  return await myForm.value.validate();
+};
+
 onMounted(() => {
   getEstadosCiviles();
   getTiposDeSangre();
@@ -512,6 +463,7 @@ onMounted(() => {
 });
 
 defineExpose({
-  formEmployee
+  formEmployee,
+  validate
 });
 </script>

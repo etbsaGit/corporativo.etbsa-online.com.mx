@@ -1,34 +1,5 @@
 <template>
   <q-form class="q-gutter-y-sm text-uppercase" ref="myForm" greedy>
-    <!-- <q-item>
-      <q-file
-        v-model="formEmployee.foto"
-        filled
-        outlined
-        bottom-slots
-        label="Foto Empleado"
-        counter
-        hint="Seleccionar Foto"
-        class="col-12"
-      >
-        <template v-slot:before>
-          <q-avatar size="64px">
-            <img src="https://cdn.quasar.dev/img/avatar5.jpg" />
-          </q-avatar>
-        </template>
-
-        <template v-slot:append>
-          <q-icon
-            v-if="formEmployee.foto !== null"
-            name="close"
-            @click.stop.prevent="formEmployee.foto = null"
-            class="cursor-pointer"
-          />
-          <q-icon name="create_new_folder" @click.stop.prevent />
-        </template>
-      </q-file>
-    </q-item> -->
-
     <q-item>
       <q-item-section>
         <q-input
@@ -283,7 +254,13 @@
           filled
           dense
           label="Licencia de manejo"
-          hint="Opcional"
+          hint="(opcional)"
+          :rules="[
+            (val) =>
+              !val ||
+              (val && val.length === 16) ||
+              'La licencia debe tener exactamente 16 caracteres'
+          ]"
         />
       </q-item-section>
     </q-item>
@@ -317,18 +294,20 @@
     <q-item>
       <q-item-section>
         <q-select
-          @update:model-value="obtenerEscolaridad"
-          v-model="escolaridad"
-          transition-show="jump-up"
-          transition-hide="jump-up"
-          filled
-          dense
-          lazy-rules
-          :rules="[(val) => val !== null || 'Obligatorio']"
+          v-model="formEmployee.escolaridad_id"
           :options="escolaridades"
           label="Escolaridad"
           option-value="id"
           option-label="nombre"
+          option-disable="inactive"
+          emit-value
+          map-options
+          transition-show="jump-up"
+          transition-hide="jump-up"
+          clearable
+          filled
+          dense
+          :rules="[(val) => val !== null || 'Obligatorio']"
         />
       </q-item-section>
       <q-item-section v-if="[4, 5, 6].includes(formEmployee.escolaridad_id)">
@@ -383,34 +362,38 @@
     <q-item>
       <q-item-section>
         <q-select
-          @update:model-value="obtenerEstadoCivil"
-          v-model="estadoCivil"
-          transition-show="jump-up"
-          transition-hide="jump-up"
-          filled
-          dense
-          lazy-rules
-          :rules="[(val) => val !== null || 'Obligatorio']"
+          v-model="formEmployee.estado_civil_id"
           :options="estadosCiviles"
           label="Estado civil"
           option-value="id"
           option-label="nombre"
+          option-disable="inactive"
+          emit-value
+          map-options
+          transition-show="jump-up"
+          transition-hide="jump-up"
+          clearable
+          filled
+          dense
+          :rules="[(val) => val !== null || 'Obligatorio']"
         />
       </q-item-section>
       <q-item-section>
         <q-select
-          @update:model-value="obtenerTipoDeSangre"
-          v-model="tipoDeSangre"
-          transition-show="jump-up"
-          transition-hide="jump-up"
-          filled
-          dense
-          lazy-rules
-          :rules="[(val) => val !== null || 'Obligatorio']"
+          v-model="formEmployee.tipo_de_sangre_id"
           :options="tiposDeSangre"
           label="Tipo de sangre"
           option-value="id"
           option-label="nombre"
+          option-disable="inactive"
+          emit-value
+          map-options
+          transition-show="jump-up"
+          transition-hide="jump-up"
+          clearable
+          filled
+          dense
+          :rules="[(val) => val !== null || 'Obligatorio']"
         />
       </q-item-section>
     </q-item>
@@ -435,16 +418,11 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import { useQuasar } from "quasar";
 import { sendRequest } from "src/boot/functions";
 
-const $q = useQuasar();
 const estadosCiviles = ref(null);
-const estadoCivil = ref("");
 const tiposDeSangre = ref([]);
-const tipoDeSangre = ref("");
 const escolaridades = ref([]);
-const escolaridad = ref("");
 const myForm = ref(null);
 
 const formEmployee = ref({
@@ -493,21 +471,6 @@ const getTiposDeSangre = async () => {
 const getEscolaridades = async () => {
   let res = await sendRequest("GET", null, "/api/escolaridad/all", "");
   escolaridades.value = res;
-};
-
-const obtenerEstadoCivil = (newValue) => {
-  estadoCivil.value = newValue;
-  formEmployee.value.estado_civil_id = newValue.id;
-};
-
-const obtenerTipoDeSangre = (newValue) => {
-  tipoDeSangre.value = newValue;
-  formEmployee.value.tipo_de_sangre_id = newValue.id;
-};
-
-const obtenerEscolaridad = (newValue) => {
-  escolaridad.value = newValue;
-  formEmployee.value.escolaridad_id = newValue.id;
 };
 
 const validate = async () => {
