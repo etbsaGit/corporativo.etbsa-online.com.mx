@@ -226,8 +226,8 @@
           label="INE"
           :rules="[
             (val) =>
-              (val && val.length === 18) ||
-              'La INE debe tener exactamente 18 caracteres'
+              (val && val.length === 10) ||
+              'La INE debe tener exactamente 10 caracteres'
           ]"
         />
       </q-item-section>
@@ -383,9 +383,6 @@
           dense
           label="Numero de cuenta bancarias"
           mask="##################"
-          :rules="[
-            (val) => (val && val.length === 18) || 'Debes ingresar 18 digitos'
-          ]"
         />
       </q-item-section>
     </q-item>
