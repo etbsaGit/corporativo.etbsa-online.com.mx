@@ -134,7 +134,6 @@
           v-model="formEmployeetwo.sueldo_base"
           label="Sueldo Base"
           mask="######"
-          :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
         />
       </q-item-section>
     </q-item>
