@@ -173,6 +173,7 @@ import { sendRequest } from "src/boot/functions";
 import { api } from "boot/axios";
 
 const { requisito, archivos } = defineProps(["requisito", "archivos"]);
+const backendUrl = ref("192.168.0.106:8000");
 
 const myForm = ref(null);
 const status = ref([]);
@@ -263,14 +264,9 @@ const uploadFile = async () => {
   }
 };
 
-const show = async (archivoId) => {
-  console.log(archivoId.path);
-  // if (archivoId.path) {
-  //   window.open(archivoId.path, "_blank");
-  // } else if (archivoId) {
-  //   const url = URL.createObjectURL(archivoId);
-  //   window.open(url, "_blank");
-  // }
+const show = (archivoId) => {
+  const backendUrl = "http://192.168.0.106:8000";
+  window.open(`${backendUrl}${archivoId.path}`, "_blank");
 };
 
 const borrar = async (archivoId) => {
@@ -278,7 +274,7 @@ const borrar = async (archivoId) => {
     let res = await sendRequest(
       "DELETE",
       null,
-      "/api/archivo/" + archivoId,
+      "/api/archivo/delete/" + archivoId,
       ""
     );
     console.log(res); // Puedes manejar la respuesta según tus necesidades
