@@ -53,6 +53,17 @@
                       }}</q-item-label>
                     </q-item-section>
                   </q-item>
+                  <q-item-section side>
+                    <q-btn
+                      icon="delete"
+                      size="sm"
+                      color="red"
+                      filled
+                      dense
+                      :disable="isAnyRequisitoSelected || props.row.isSelected"
+                      @click="mostrarDialogConfirmacion(props.row.pivot.id)"
+                    />
+                  </q-item-section>
                 </q-card-section>
               </q-card>
             </template>
@@ -67,7 +78,6 @@
             v-if="selectedRequisito"
             ref="edit_4"
             v-model:requisito="selectedRequisito"
-            :archivos="archivos"
           />
           <div v-else>Selecciona un requisito para ver los detalles.</div>
         </div>
@@ -79,12 +89,12 @@
         v-if="selectedRequisito"
         label="Resetear selección"
         color="negative"
-        @click="resetSelection"
+        @click="btnReset"
       />
       <q-btn
         v-if="selectedRequisito"
         icon="upload"
-        label="Subir y actualizar"
+        label="Actualizar"
         color="blue"
         @click="actualizarRequisito()"
       />
@@ -114,6 +124,22 @@
       </q-card-actions>
     </q-card>
   </q-dialog>
+  <q-dialog v-model="mostrarDialog" persistent>
+    <q-card>
+      <q-card-section>
+        <div class="text-h6">Confirmar Borrado</div>
+      </q-card-section>
+
+      <q-card-section>
+        ¿Seguro que deseas borrar este requisito?
+      </q-card-section>
+
+      <q-card-actions align="right">
+        <q-btn label="Cancelar" color="grey" @click="cerrarDialog" />
+        <q-btn label="Aceptar" color="red" @click="borrarArchivo" />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script setup>
@@ -134,8 +160,10 @@ const edit_4 = ref(null);
 const edit_5 = ref(null);
 const showDetails = ref(false);
 const $q = useQuasar();
-const archivos = ref([]);
 const clickable = ref(true);
+const archivoIdBorrar = ref(null);
+const mostrarDialog = ref(false);
+const isAnyRequisitoSelected = ref(false);
 
 const columns = [
   {
@@ -155,6 +183,20 @@ const selectedClass = (isSelected) => {
   return isSelected ? "selected" : "";
 };
 
+const mostrarDialogConfirmacion = (archivoId) => {
+  archivoIdBorrar.value = archivoId;
+  mostrarDialog.value = true;
+};
+
+const cerrarDialog = () => {
+  mostrarDialog.value = false;
+};
+
+const borrarArchivo = () => {
+  borrar(archivoIdBorrar.value);
+  mostrarDialog.value = false;
+};
+
 const onRowClick = async (row) => {
   if (!clickable.value) {
     return;
@@ -163,27 +205,11 @@ const onRowClick = async (row) => {
   resetSelection();
   selectedRequisito.value = row;
   row.isSelected = true;
-  cargarArchivos();
-
+  isAnyRequisitoSelected.value = true;
   requisitos.value.forEach((requisito) => {
     requisito.isClickable = false;
   });
   clickable.value = false;
-};
-
-const cargarArchivos = async () => {
-  if (!selectedRequisito.value || !selectedRequisito.value.pivot) {
-    $q.notify({
-      color: "red-5",
-      textColor: "white",
-      icon: "warning",
-      message: "Seleccione un a validar"
-    });
-    return;
-  }
-  const id = selectedRequisito.value.pivot.id;
-  let res = await sendRequest("GET", null, "/api/documento/" + id, "");
-  archivos.value = res.asignable;
 };
 
 const agregarDocumento = async () => {
@@ -207,13 +233,33 @@ const agregarDocumento = async () => {
   }
 };
 
+const borrar = async (archivoId) => {
+  try {
+    let res = await sendRequest(
+      "DELETE",
+      null,
+      "/api/documento/" + archivoId,
+      ""
+    );
+    showDetails.value = false;
+    obtenerEmpleado();
+  } catch (error) {
+    console.error("Error al enviar la solicitud:", error);
+  }
+};
+
+const btnReset = () => {
+  obtenerEmpleado();
+  resetSelection();
+};
+
 const resetSelection = () => {
   requisitos.value.forEach((requisito) => {
     requisito.isSelected = false;
   });
   selectedRequisito.value = null;
-  archivos.value = [];
   clickable.value = true;
+  isAnyRequisitoSelected.value = false;
 };
 
 const obtenerEmpleado = async () => {

@@ -168,18 +168,38 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, nextTick } from "vue";
 import { sendRequest } from "src/boot/functions";
 import { api } from "boot/axios";
+import { useQuasar } from "quasar";
 
-const { requisito, archivos } = defineProps(["requisito", "archivos"]);
-const backendUrl = ref("192.168.0.106:8000");
+const { requisito } = defineProps(["requisito"]);
 
 const myForm = ref(null);
 const status = ref([]);
 const model = ref(null);
 const archivoIdBorrar = ref(null);
 const mostrarDialog = ref(false);
+const archivos = ref([]);
+const $q = useQuasar();
+
+const cargarArchivos = async () => {
+  if (!requisito || !requisito.pivot) {
+    $q.notify({
+      color: "red-5",
+      textColor: "white",
+      icon: "warning",
+      message: "Seleccione un a validar"
+    });
+    return;
+  }
+  const id = requisito.pivot.id;
+  let res = await sendRequest("GET", null, "/api/documento/" + id, "");
+  archivos.value = res.asignable;
+  if (archivos.value.length === 0) {
+    formRequisito.value.estatus_id = null;
+  }
+};
 
 const mostrarDialogConfirmacion = (archivoId) => {
   archivoIdBorrar.value = archivoId;
@@ -253,12 +273,18 @@ const uploadFile = async () => {
   formData.append("file", model.value);
   formData.append("asignableId", requisito.pivot.id);
   try {
-    let res = await api.post("/archivo/uploadFile", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data"
-      },
-      withCredentials: true
-    });
+    let res = await api.post(
+      `/documento/uploadFile/${requisito.pivot.id}`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data"
+        },
+        withCredentials: true
+      }
+    );
+    model.value = null;
+    cargarArchivos();
   } catch (error) {
     console.error("Error al enviar la solicitud:", error);
   }
@@ -277,7 +303,7 @@ const borrar = async (archivoId) => {
       "/api/archivo/" + archivoId,
       ""
     );
-    console.log(res); // Puedes manejar la respuesta según tus necesidades
+    cargarArchivos();
   } catch (error) {
     console.error("Error al enviar la solicitud:", error);
   }
@@ -293,6 +319,7 @@ const formRequisito = ref({
 
 onMounted(() => {
   getEstatus();
+  cargarArchivos();
 });
 
 defineExpose({
