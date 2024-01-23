@@ -274,7 +274,7 @@ const borrar = async (archivoId) => {
     let res = await sendRequest(
       "DELETE",
       null,
-      "/api/archivo/delete/" + archivoId,
+      "/api/archivo/" + archivoId,
       ""
     );
     console.log(res); // Puedes manejar la respuesta según tus necesidades
