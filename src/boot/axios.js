@@ -7,7 +7,7 @@ import axios from "axios";
 // good idea to move this instance creation inside of the
 // "export default () => {}" function below (which runs individually
 // for each client)
-axios.defaults.baseURL = "http://192.168.0.106:8000/";
+axios.defaults.baseURL = process.env.APP_URI_BASE_PATH ?? "";
 axios.defaults.headers.common["Accept"] = "application/json";
 axios.defaults.headers.common["Content-Type"] = "application/json";
 axios.defaults.headers.common["X-Requested-With"] = "XMLHttpRequest";
@@ -15,7 +15,7 @@ axios.defaults.withXSRFToken = true;
 axios.defaults.withCredentials = true;
 
 const api = axios.create({
-  baseURL: "http://192.168.0.106:8000/api",
+  baseURL: process.env.API_URI_BASE_PATH,
   withCredentials: true,
   withXSRFToken: true,
 });
