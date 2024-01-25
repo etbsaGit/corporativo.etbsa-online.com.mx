@@ -291,7 +291,7 @@ const uploadFile = async () => {
 };
 
 const show = (archivoId) => {
-  window.open(archivoId.path, "_blank");
+  window.open(archivoId.path_absolute, "_blank");
 };
 
 const borrar = async (archivoId) => {

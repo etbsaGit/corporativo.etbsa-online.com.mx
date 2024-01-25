@@ -146,10 +146,7 @@
                     text-color="white"
                     v-if="props.row.fotografia"
                   >
-                    <img
-                      :src="backendUrl + props.row.fotografia"
-                      alt="Foto del empleado"
-                    />
+                    <img :src="props.row.fotografia" alt="Foto del empleado" />
                   </q-avatar>
                   <q-avatar v-else color="primary" text-color="white">
                     {{ props.row.nombre.charAt(0).toUpperCase()
@@ -326,7 +323,6 @@ const $q = useQuasar();
 const showDetails = ref(false);
 const showFiles = ref(false);
 const selectedEmployee = ref(null);
-const backendUrl = "http://192.168.0.106:8000";
 
 const bus = inject("bus"); // inside setup()
 
