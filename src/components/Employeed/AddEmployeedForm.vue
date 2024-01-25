@@ -1,5 +1,36 @@
 <template>
   <q-form class="q-gutter-y-sm text-uppercase" ref="myForm" greedy>
+    <!-- <q-item>
+      <q-item-section>
+        <q-file
+          filled
+          dense
+          bottom-slots
+          v-model="formEmployee.fotografia"
+          label="Fotografia"
+          max-file-size="2048"
+          clearable
+          accept=".jpg"
+          max-files="1"
+        >
+          <template v-slot:before>
+            <q-avatar
+              color="primary"
+              text-color="white"
+              caption
+              icon="photo_camera"
+            >
+            </q-avatar>
+          </template>
+
+          <template v-slot:hint>(Opcional)</template>
+
+          <template v-slot:after>
+            <q-btn round dense flat icon="send" />
+          </template>
+        </q-file>
+      </q-item-section>
+    </q-item> -->
     <q-item>
       <q-item-section>
         <q-input
@@ -407,6 +438,7 @@
           label="Numero de cuenta bancarias"
           mask="##################"
           lazy-rules
+          hint
         />
       </q-item-section>
     </q-item>

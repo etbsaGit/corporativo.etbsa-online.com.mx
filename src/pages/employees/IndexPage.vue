@@ -141,12 +141,20 @@
             <q-td @click="onRowClick(props.row)">
               <q-item class="q-my-none" dense>
                 <q-item-section avatar>
-                  <q-avatar color="primary" text-color="white"
-                    >{{ props.row.nombre.charAt(0).toUpperCase()
-                    }}{{
-                      props.row.apellido_paterno.charAt(0).toUpperCase()
-                    }}</q-avatar
+                  <q-avatar
+                    color="primary"
+                    text-color="white"
+                    v-if="props.row.fotografia"
                   >
+                    <img
+                      :src="backendUrl + props.row.fotografia"
+                      alt="Foto del empleado"
+                    />
+                  </q-avatar>
+                  <q-avatar v-else color="primary" text-color="white">
+                    {{ props.row.nombre.charAt(0).toUpperCase()
+                    }}{{ props.row.apellido_paterno.charAt(0).toUpperCase() }}
+                  </q-avatar>
                 </q-item-section>
                 <q-item-section>
                   <q-item-label>{{ props.row.nombre }}</q-item-label>
@@ -305,6 +313,7 @@ import EditEmployeedtwoForm from "src/components/Employeed/EditEmployeedtwoForm.
 import EditEmployeedthreeForm from "src/components/Employeed/EditEmployeedthreeForm.vue";
 import { sendRequest } from "src/boot/functions";
 import { useQuasar, exportFile } from "quasar";
+import { inject } from "vue";
 
 const form_1 = ref(null);
 const form_2 = ref(null);
@@ -317,6 +326,9 @@ const $q = useQuasar();
 const showDetails = ref(false);
 const showFiles = ref(false);
 const selectedEmployee = ref(null);
+const backendUrl = "http://192.168.0.106:8000";
+
+const bus = inject("bus"); // inside setup()
 
 const visibleColumns = ref([
   "id",
@@ -751,6 +763,11 @@ const exportTable = () => {
     });
   }
 };
+
+bus.on("cargar_empleados", () => {
+  getEmployees();
+  showDetails.value = false;
+});
 
 onMounted(() => {
   getEmployees();

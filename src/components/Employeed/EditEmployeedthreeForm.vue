@@ -30,14 +30,14 @@
             <template v-slot:top-left>
               <div class="text-h6 q-mb-md">
                 <q-btn color="primary" icon="add" @click="showDetails = true" />
-                Requisitos
+                Documentos
               </div>
             </template>
 
             <template v-slot:item="props">
               <q-card
-                @click.stop="onRowClick(props.row)"
-                :class="[selectedClass(props.row.isSelected)]"
+                @click="onRowClick(props.row)"
+                :class="{ selected: props.row.isSelected }"
                 :style="{
                   backgroundColor: getStatusColor(props.row.pivot.estatus_id),
                   width: '200px',
@@ -60,7 +60,6 @@
                       color="red"
                       filled
                       dense
-                      :disable="isAnyRequisitoSelected || props.row.isSelected"
                       @click="mostrarDialogConfirmacion(props.row.pivot.id)"
                     />
                   </q-item-section>
@@ -73,11 +72,12 @@
 
       <template v-slot:after>
         <div class="q-pa-md">
-          <div class="text-h6 q-mb-md">Documentos</div>
+          <div class="text-h6 q-mb-md">Archivos</div>
           <edit-employeedfour-form
             v-if="selectedRequisito"
             ref="edit_4"
-            v-model:requisito="selectedRequisito"
+            :key="selectedRequisito.id"
+            :requisito="selectedRequisito"
           />
           <div v-else>Selecciona un requisito para ver los detalles.</div>
         </div>
@@ -85,12 +85,6 @@
     </q-splitter>
     <q-separator />
     <q-card-actions align="right">
-      <q-btn
-        v-if="selectedRequisito"
-        label="Resetear selección"
-        color="negative"
-        @click="btnReset"
-      />
       <q-btn
         v-if="selectedRequisito"
         icon="upload"
@@ -148,7 +142,9 @@ import EditEmployeedfourForm from "./EditEmployeedfourForm.vue";
 import AddDocumentoForm from "../Documento/AddDocumentoForm.vue";
 import { sendRequest } from "src/boot/functions";
 import { useQuasar } from "quasar";
+import { inject } from "vue";
 
+const bus = inject("bus");
 const { empleado } = defineProps(["empleado"]);
 
 const expedientes = ref([]);
@@ -160,10 +156,8 @@ const edit_4 = ref(null);
 const edit_5 = ref(null);
 const showDetails = ref(false);
 const $q = useQuasar();
-const clickable = ref(true);
 const archivoIdBorrar = ref(null);
 const mostrarDialog = ref(false);
-const isAnyRequisitoSelected = ref(false);
 
 const columns = [
   {
@@ -174,13 +168,14 @@ const columns = [
   }
 ];
 
+bus.on("archivo-subido", () => {
+  selectedRequisito.value = null;
+  obtenerEmpleado();
+});
+
 const mapear = () => {
   expedientes.value = empleado.archivable;
   requisitos.value = empleado.archivable[0].requisito;
-};
-
-const selectedClass = (isSelected) => {
-  return isSelected ? "selected" : "";
 };
 
 const mostrarDialogConfirmacion = (archivoId) => {
@@ -197,19 +192,11 @@ const borrarArchivo = () => {
   mostrarDialog.value = false;
 };
 
-const onRowClick = async (row) => {
-  if (!clickable.value) {
-    return;
-  }
-
-  resetSelection();
+const onRowClick = (row) => {
   selectedRequisito.value = row;
+  requisitos.value.forEach((requisito) => (requisito.isSelected = false));
   row.isSelected = true;
-  isAnyRequisitoSelected.value = true;
-  requisitos.value.forEach((requisito) => {
-    requisito.isClickable = false;
-  });
-  clickable.value = false;
+  bus.emit("click_documento", row);
 };
 
 const agregarDocumento = async () => {
@@ -248,20 +235,6 @@ const borrar = async (archivoId) => {
   }
 };
 
-const btnReset = () => {
-  obtenerEmpleado();
-  resetSelection();
-};
-
-const resetSelection = () => {
-  requisitos.value.forEach((requisito) => {
-    requisito.isSelected = false;
-  });
-  selectedRequisito.value = null;
-  clickable.value = true;
-  isAnyRequisitoSelected.value = false;
-};
-
 const obtenerEmpleado = async () => {
   let res = await sendRequest("GET", null, "/api/empleado/" + empleado.id, "");
   requisitos.value = res.archivable[0].requisito;
@@ -275,20 +248,20 @@ const actualizarRequisito = async () => {
     "/api/documento/" + selectedRequisito.value.pivot.id,
     ""
   );
+  selectedRequisito.value = null;
   obtenerEmpleado();
-  resetSelection();
 };
 
 const getStatusColor = (status) => {
   switch (status) {
     case 1:
-      return "#fff3b2"; // Amarillo más claro
-    case 2:
-      return "#b5fff4"; // Verde más claro
-    case 3:
-      return "#ffcccc"; // Rojo más claro
-    case 4:
       return "#b6ffaa"; // Verde claro
+    case 2:
+      return "#ffcccc"; // Rojo más claro
+    case 3:
+      return "#fff3b2"; // Amarillo más claro
+    case 4:
+      return "#b5fff4"; // Verde más claro
     //Añade más casos para otros estados
     default:
       return "#f2f2f2";
@@ -302,14 +275,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.selected-enter-active,
-.selected-leave-active {
-  transition: opacity 0.5s;
-}
-.selected-enter,
-.selected-leave-to {
-  opacity: 0;
-}
 .selected {
   border: 2px solid #9596ce;
   background-color: #e6ffe6;

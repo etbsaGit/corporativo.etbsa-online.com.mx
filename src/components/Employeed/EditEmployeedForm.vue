@@ -2,6 +2,36 @@
   <q-form class="q-gutter-y-sm text-uppercase" ref="myForm" greedy>
     <q-item>
       <q-item-section>
+        <q-file
+          filled
+          dense
+          bottom-slots
+          v-model="formEmployee.fotografia"
+          label="Fotografia"
+          clearable
+          accept=".jpg"
+          max-files="1"
+        >
+          <template v-slot:before>
+            <q-avatar
+              color="primary"
+              text-color="white"
+              caption
+              icon="photo_camera"
+            >
+            </q-avatar>
+          </template>
+
+          <template v-slot:hint>(Opcional)</template>
+
+          <template v-slot:after>
+            <q-btn round dense flat icon="send" @click="uploadPicture" />
+          </template>
+        </q-file>
+      </q-item-section>
+    </q-item>
+    <q-item>
+      <q-item-section>
         <q-input
           v-model="formEmployee.nombre"
           filled
@@ -135,6 +165,7 @@
           v-model="formEmployee.codigo_postal"
           label="Codigo postal"
           mask="#####"
+          :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
         />
       </q-item-section>
     </q-item>
@@ -312,6 +343,11 @@
           dense
           label="Numero de seguridad social"
           mask="###########"
+          :rules="[
+            (val) =>
+              (val && val.length === 11) ||
+              'EL numero de seguro consta de 11 digitos'
+          ]"
         />
       </q-item-section>
       <q-item-section>
@@ -383,6 +419,7 @@
           dense
           label="Numero de cuenta bancarias"
           mask="##################"
+          hint
         />
       </q-item-section>
     </q-item>
@@ -392,7 +429,10 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { sendRequest } from "src/boot/functions";
+import { api } from "src/boot/axios";
+import { inject } from "vue";
 
+const bus = inject("bus"); // inside setup()
 const { empleado } = defineProps(["empleado"]);
 
 const estadosCiviles = ref(null);
@@ -401,6 +441,7 @@ const escolaridades = ref([]);
 const myForm = ref(null);
 
 const formEmployee = ref({
+  fotografia: empleado.fotografia,
   id: empleado.id,
   nombre: empleado.nombre,
   segundo_nombre: empleado.segundo_nombre,
@@ -433,6 +474,27 @@ const formEmployee = ref({
   tipo_de_sangre_id: empleado.tipo_de_sangre.id,
   correo_institucional: empleado.correo_institucional
 });
+
+const uploadPicture = async () => {
+  const formData = new FormData();
+  formData.append("pic", formEmployee.value.fotografia);
+  try {
+    let res = await api.post(
+      `/empleado/uploadPicture/${empleado.id}`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data"
+        },
+        withCredentials: true
+      }
+    );
+    bus.emit("cargar_empleados");
+    formEmployee.value.fotografia = null;
+  } catch (error) {
+    console.error("Error al enviar la solicitud:", error);
+  }
+};
 
 const getEstadosCiviles = async () => {
   let res = await sendRequest("GET", null, "/api/estadoCivil/all", "");

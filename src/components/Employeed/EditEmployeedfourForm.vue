@@ -35,6 +35,7 @@
             label="Fecha de vencimiento"
             lazy-rules
             hint
+            clearable
           >
             <template v-slot:append>
               <q-icon name="event" class="cursor-pointer">
@@ -68,7 +69,7 @@
             clearable
             filled
             dense
-            :rules="[(val) => val !== null || 'Obligatorio']"
+            hint
           />
         </q-item-section>
       </q-item>
@@ -91,7 +92,6 @@
             bottom-slots
             v-model="model"
             label="Sube aqui los archivos"
-            counter
             accept=".pdf"
             max-files="1"
           >
@@ -168,11 +168,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick } from "vue";
+import { ref, onMounted } from "vue";
 import { sendRequest } from "src/boot/functions";
 import { api } from "boot/axios";
 import { useQuasar } from "quasar";
+import { inject } from "vue";
 
+const bus = inject("bus"); // inside setup()
 const { requisito } = defineProps(["requisito"]);
 
 const myForm = ref(null);
@@ -196,9 +198,6 @@ const cargarArchivos = async () => {
   const id = requisito.pivot.id;
   let res = await sendRequest("GET", null, "/api/documento/" + id, "");
   archivos.value = res.asignable;
-  if (archivos.value.length === 0) {
-    formRequisito.value.estatus_id = null;
-  }
 };
 
 const mostrarDialogConfirmacion = (archivoId) => {
@@ -285,6 +284,7 @@ const uploadFile = async () => {
     );
     model.value = null;
     cargarArchivos();
+    bus.emit("archivo-subido");
   } catch (error) {
     console.error("Error al enviar la solicitud:", error);
   }
@@ -304,6 +304,7 @@ const borrar = async (archivoId) => {
       ""
     );
     cargarArchivos();
+    bus.emit("archivo-subido");
   } catch (error) {
     console.error("Error al enviar la solicitud:", error);
   }

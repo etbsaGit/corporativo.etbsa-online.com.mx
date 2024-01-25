@@ -151,6 +151,7 @@
           clearable
           filled
           dense
+          hint
         />
       </q-item-section>
     </q-item>
@@ -162,6 +163,7 @@
           v-model="formEmployeetwo.sueldo_base"
           label="Sueldo Base"
           mask="######"
+          hint
         />
       </q-item-section>
     </q-item>
@@ -177,6 +179,7 @@
             v-model="formEmployeetwo.comision"
             class="text-grey-7"
             label="Comision"
+            hint
           />
         </div>
       </q-item-section>
