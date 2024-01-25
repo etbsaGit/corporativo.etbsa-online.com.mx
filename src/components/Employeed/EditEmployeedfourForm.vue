@@ -291,8 +291,7 @@ const uploadFile = async () => {
 };
 
 const show = (archivoId) => {
-  const backendUrl = "http://192.168.0.106:8000";
-  window.open(`${backendUrl}${archivoId.path}`, "_blank");
+  window.open(archivoId.path, "_blank");
 };
 
 const borrar = async (archivoId) => {
