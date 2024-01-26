@@ -9,7 +9,7 @@
           v-model="formEmployee.fotografia"
           label="Fotografia"
           clearable
-          accept=".jpg"
+          accept=".jpg,.jpeg,.png,.jpg"
           max-files="1"
         >
           <template v-slot:before>
