@@ -110,6 +110,7 @@
           transition-hide="jump-up"
           filled
           dense
+          :display-value="estatus[0]"
           :rules="[(val) => val !== null || 'Obligatorio']"
         />
       </q-item-section>
@@ -151,6 +152,7 @@
           clearable
           filled
           dense
+          hint
         />
       </q-item-section>
     </q-item>
@@ -162,6 +164,7 @@
           v-model="formEmployeetwo.sueldo_base"
           label="Sueldo Base"
           mask="######"
+          hint
         />
       </q-item-section>
     </q-item>
@@ -177,6 +180,7 @@
             v-model="formEmployeetwo.comision"
             class="text-grey-7"
             label="Comision"
+            hint
           />
         </div>
       </q-item-section>
@@ -204,7 +208,7 @@ const formEmployeetwo = ref({
   comision: false,
   matriz: false,
   fecha_de_ingreso: null,
-  status: null,
+  status: estatus[0],
   puesto_id: null,
   sucursal_id: null,
   linea_id: null,

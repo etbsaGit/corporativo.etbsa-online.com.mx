@@ -22,7 +22,7 @@ const routes = [
     ],
   },
   {
-    path: "/register",
+    path: "/register/",
     component: () => import("/src/layouts/DefaultLayout.vue"),
     meta: {
       middlewares: [guest],
@@ -67,6 +67,20 @@ const routes = [
       {
         path: "",
         component: () => import("src/pages/users/userIndex.vue"),
+      },
+    ],
+  },
+
+  {
+    path: "/expedientes",
+    component: () => import("/src/layouts/ExpedienteLayout.vue"),
+    meta: {
+      middlewares: [guest],
+    },
+    children: [
+      {
+        path: "",
+        component: () => import("src/pages/expedientes/expedienteIndex.vue"),
       },
     ],
   },

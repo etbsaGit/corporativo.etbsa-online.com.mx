@@ -1,7 +1,7 @@
 <template>
   <div class="q-pa-md">
     <q-btn
-      label="Registrar linea"
+      label="Registrar requisito"
       color="primary"
       @click="showAdd = true"
       icon="add_circle"
@@ -26,15 +26,15 @@
     <q-table
       flat
       bordered
-      title="Lineas"
-      :rows="filteredLineas"
+      title="Requisitos"
+      :rows="filteredRequisitos"
       :columns="columns"
       row-key="name"
       :visible-columns="visibleColumns"
       dense
     >
       <template v-slot:top="props">
-        <div class="col-2 q-table__title">Lineas</div>
+        <div class="col-2 q-table__title">Requisitos</div>
 
         <q-dialog
           v-model="showAdd"
@@ -43,7 +43,7 @@
         >
           <q-card style="max-width: 400px">
             <q-card-section>
-              <div class="text-h6">Registrar Linea</div>
+              <div class="text-h6">Registrar Requisito</div>
             </q-card-section>
             <q-separator />
 
@@ -51,7 +51,7 @@
             <q-card style="max-height: 400px" class="q-pa-none scroll" flat>
               <q-tab-panels v-model="tab" animated keep-alive>
                 <q-tab-panel name="tab_form_one">
-                  <add-linea-form ref="form_1"></add-linea-form>
+                  <add-requisito-form ref="form_1"></add-requisito-form>
                 </q-tab-panel>
               </q-tab-panels>
             </q-card>
@@ -60,7 +60,7 @@
 
             <q-card-actions align="right">
               <q-btn label="Cancelar" color="red" v-close-popup />
-              <q-btn label="Registrar" color="blue" @click="crearLinea" />
+              <q-btn label="Registrar" color="blue" @click="crearRequisito" />
             </q-card-actions>
           </q-card>
         </q-dialog>
@@ -114,7 +114,7 @@
     >
       <q-card style="max-width: 400px">
         <q-card-section>
-          <div class="text-h6">Actualizar linea</div>
+          <div class="text-h6">Actualizar requisito</div>
         </q-card-section>
         <q-separator />
 
@@ -122,10 +122,10 @@
         <q-card style="max-height: 400px" class="q-pa-none scroll" flat>
           <q-tab-panels v-model="tab" animated keep-alive>
             <q-tab-panel name="tab_form_one">
-              <edit-linea-form
+              <edit-requisito-form
                 ref="edit_1"
-                :linea="selectedLinea"
-              ></edit-linea-form>
+                :requisito="selectedRequisito"
+              ></edit-requisito-form>
             </q-tab-panel>
           </q-tab-panels>
         </q-card>
@@ -134,7 +134,11 @@
 
         <q-card-actions align="right">
           <q-btn label="Cancelar" color="red" v-close-popup />
-          <q-btn label="Actualizar" color="blue" @click="actualizarLinea()" />
+          <q-btn
+            label="Actualizar"
+            color="blue"
+            @click="actualizarRequisito()"
+          />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -143,8 +147,8 @@
 
 <script setup>
 import { ref, onMounted, computed } from "vue";
-import AddLineaForm from "src/components/Linea/AddLineaForm.vue";
-import EditLineaForm from "src/components/Linea/EditLineaForm.vue";
+import AddRequisitoForm from "src/components/Requisito/AddRequisitoForm.vue";
+import EditRequisitoForm from "src/components/Requisito/EditRequisitoForm.vue";
 
 import { sendRequest } from "src/boot/functions";
 import { useQuasar } from "quasar";
@@ -155,21 +159,21 @@ const edit_1 = ref(null);
 const $q = useQuasar();
 
 const showDetails = ref(false);
-const selectedLinea = ref(null);
+const selectedRequisito = ref(null);
 
-const visibleColumns = ref(["id", "nombre"]);
+const visibleColumns = ref(["id", "nombre", "descripcion"]);
 
 const tab = ref("tab_form_one");
 const searchTerm = ref("");
 const showAdd = ref(false);
-const lineas = ref([]);
+const requisitos = ref([]);
 
 const onRowClick = (row) => {
-  selectedLinea.value = row;
+  selectedRequisito.value = row;
   showDetails.value = true;
 };
 
-const crearLinea = async () => {
+const crearRequisito = async () => {
   const form1_valid = await form_1.value.validate();
   if (!form1_valid) {
     $q.notify({
@@ -181,19 +185,19 @@ const crearLinea = async () => {
     return;
   }
   const final = {
-    ...form_1.value.formLinea
+    ...form_1.value.formRequisito
   };
   try {
-    let res = await sendRequest("POST", final, "/api/linea", "");
+    let res = await sendRequest("POST", final, "/api/requisito", "");
 
     showAdd.value = false;
-    getLineas();
+    getRequisitos();
   } catch (error) {
     console.error("Error al enviar la solicitud:", error);
   }
 };
 
-const actualizarLinea = async () => {
+const actualizarRequisito = async () => {
   const edit1_valid = await edit_1.value.validate();
   if (!edit1_valid) {
     $q.notify({
@@ -205,22 +209,21 @@ const actualizarLinea = async () => {
     return;
   }
   const final = {
-    ...edit_1.value.formLinea
+    ...edit_1.value.formRequisito
   };
   try {
-    let res = await sendRequest("PUT", final, "/api/linea/" + final.id, "");
-    console.log(res);
+    let res = await sendRequest("PUT", final, "/api/requisito/" + final.id, "");
 
     showDetails.value = false;
-    getLineas();
+    getRequisitos();
   } catch (error) {
     console.error("Error al enviar la solicitud:", error);
   }
 };
 
-const getLineas = async () => {
-  let res = await sendRequest("GET", null, "/api/linea/all", "");
-  lineas.value = res;
+const getRequisitos = async () => {
+  let res = await sendRequest("GET", null, "/api/requisito/all", "");
+  requisitos.value = res;
 };
 
 const columns = [
@@ -231,17 +234,26 @@ const columns = [
     align: "left",
     field: "nombre",
     sortable: true
+  },
+  {
+    name: "descripcion",
+    label: "Descripcion",
+    align: "left",
+    field: "descripcion",
+    sortable: true
   }
 ];
 
-const filteredLineas = computed(() => {
-  return lineas.value.filter((linea) => {
-    return linea.nombre.toLowerCase().includes(searchTerm.value.toLowerCase());
+const filteredRequisitos = computed(() => {
+  return requisitos.value.filter((requisito) => {
+    return requisito.nombre
+      .toLowerCase()
+      .includes(searchTerm.value.toLowerCase());
   });
 });
 
 onMounted(() => {
-  getLineas();
+  getRequisitos();
 });
 </script>
 
