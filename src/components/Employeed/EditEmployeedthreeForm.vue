@@ -229,6 +229,7 @@ const borrar = async (archivoId) => {
       ""
     );
     showDetails.value = false;
+    selectedRequisito.value = false;
     obtenerEmpleado();
   } catch (error) {
     console.error("Error al enviar la solicitud:", error);
