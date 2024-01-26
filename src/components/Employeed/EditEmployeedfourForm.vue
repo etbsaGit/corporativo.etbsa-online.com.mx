@@ -92,7 +92,7 @@
             bottom-slots
             v-model="model"
             label="Sube aqui los archivos"
-            accept=".pdf"
+            accept=".pdf,.jpeg,.png,.jpg"
             max-files="1"
           >
             <template v-slot:after>

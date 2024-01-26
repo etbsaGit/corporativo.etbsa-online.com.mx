@@ -85,9 +85,7 @@
           label="Telefono"
           mask="##########"
           lazy-rules
-          :rules="[
-            (val) => (val && val.length === 10) || 'Deben de ser 10 digitos'
-          ]"
+          hint
         />
       </q-item-section>
     </q-item>
@@ -132,8 +130,8 @@
           dense
           v-model="formEmployee.calle"
           lazy-rules
-          :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
           label="Calle"
+          hint
         />
       </q-item-section>
       <q-item-section>
@@ -144,7 +142,7 @@
           label="# Exterior"
           mask="################"
           lazy-rules
-          :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
+          hint
         />
       </q-item-section>
       <q-item-section>
@@ -164,8 +162,8 @@
           dense
           v-model="formEmployee.colonia"
           lazy-rules
-          :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
           label="Colonia"
+          hint
         />
       </q-item-section>
       <q-item-section>
@@ -176,7 +174,7 @@
           label="Codigo postal"
           mask="#####"
           lazy-rules
-          :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
+          hint
         />
       </q-item-section>
     </q-item>
@@ -187,7 +185,7 @@
           dense
           v-model="formEmployee.ciudad"
           lazy-rules
-          :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
+          hint
           label="Ciudad"
         />
       </q-item-section>
@@ -197,8 +195,8 @@
           dense
           v-model="formEmployee.estado"
           lazy-rules
-          :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
           label="Estado"
+          hint
         />
       </q-item-section>
     </q-item>
@@ -212,7 +210,7 @@
           mask="date"
           label="Fecha de Nacimiento"
           lazy-rules
-          :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
+          hint
         >
           <template v-slot:append>
             <q-icon name="event" class="cursor-pointer">
@@ -241,11 +239,7 @@
           dense
           label="CURP"
           lazy-rules
-          :rules="[
-            (val) =>
-              (val && val.length === 18) ||
-              'La CURP debe tener exactamente 18 caracteres'
-          ]"
+          hint
         />
       </q-item-section>
       <q-item-section>
@@ -255,11 +249,7 @@
           dense
           label="RFC"
           lazy-rules
-          :rules="[
-            (val) =>
-              (val && val.length === 13) ||
-              'La RFC debe tener exactamente 13 caracteres'
-          ]"
+          hint
         />
       </q-item-section>
     </q-item>
@@ -272,11 +262,7 @@
           dense
           label="INE"
           lazy-rules
-          :rules="[
-            (val) =>
-              (val && val.length === 10) ||
-              'La INE debe tener exactamente 10 caracteres'
-          ]"
+          hint
         />
       </q-item-section>
       <q-item-section>
@@ -286,12 +272,6 @@
           dense
           label="Licencia de manejo"
           hint="(opcional)"
-          :rules="[
-            (val) =>
-              !val ||
-              (val && val.length === 16) ||
-              'La licencia debe tener exactamente 16 caracteres'
-          ]"
         />
       </q-item-section>
     </q-item>
@@ -338,7 +318,7 @@
           clearable
           filled
           dense
-          :rules="[(val) => val !== null || 'Obligatorio']"
+          hint
         />
       </q-item-section>
       <q-item-section v-if="[4, 5, 6].includes(formEmployee.escolaridad_id)">
@@ -361,11 +341,7 @@
           label="Numero de seguridad social"
           mask="###########"
           lazy-rules
-          :rules="[
-            (val) =>
-              (val && val.length === 11) ||
-              'EL numero de seguro consta de 11 digitos'
-          ]"
+          hint
         />
       </q-item-section>
       <q-item-section>
@@ -406,7 +382,7 @@
           clearable
           filled
           dense
-          :rules="[(val) => val !== null || 'Obligatorio']"
+          hint
         />
       </q-item-section>
       <q-item-section>
@@ -424,7 +400,7 @@
           clearable
           filled
           dense
-          :rules="[(val) => val !== null || 'Obligatorio']"
+          hint
         />
       </q-item-section>
     </q-item>

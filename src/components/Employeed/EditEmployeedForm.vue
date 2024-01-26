@@ -80,9 +80,7 @@
           dense
           label="Telefono"
           mask="##########"
-          :rules="[
-            (val) => (val && val.length === 10) || 'Deben de ser 10 digitos'
-          ]"
+          hint
         />
       </q-item-section>
     </q-item>
@@ -121,13 +119,7 @@
 
     <q-item>
       <q-item-section>
-        <q-input
-          filled
-          dense
-          v-model="formEmployee.calle"
-          :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
-          label="Calle"
-        />
+        <q-input filled dense hint v-model="formEmployee.calle" label="Calle" />
       </q-item-section>
       <q-item-section>
         <q-input
@@ -135,7 +127,7 @@
           dense
           v-model="formEmployee.numero_exterior"
           label="# Exterior"
-          :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
+          hint
         />
       </q-item-section>
       <q-item-section>
@@ -153,8 +145,8 @@
         <q-input
           filled
           dense
+          hint
           v-model="formEmployee.colonia"
-          :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
           label="Colonia"
         />
       </q-item-section>
@@ -165,7 +157,7 @@
           v-model="formEmployee.codigo_postal"
           label="Codigo postal"
           mask="#####"
-          :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
+          hint
         />
       </q-item-section>
     </q-item>
@@ -174,8 +166,8 @@
         <q-input
           filled
           dense
+          hint
           v-model="formEmployee.ciudad"
-          :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
           label="Ciudad"
         />
       </q-item-section>
@@ -183,8 +175,8 @@
         <q-input
           filled
           dense
+          hint
           v-model="formEmployee.estado"
-          :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
           label="Estado"
         />
       </q-item-section>
@@ -198,7 +190,7 @@
           v-model="formEmployee.fecha_de_nacimiento"
           mask="date"
           label="Fecha de Nacimiento"
-          :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
+          hint
         >
           <template v-slot:append>
             <q-icon name="event" class="cursor-pointer">
@@ -221,46 +213,16 @@
 
     <q-item>
       <q-item-section>
-        <q-input
-          v-model="formEmployee.curp"
-          filled
-          dense
-          label="CURP"
-          :rules="[
-            (val) =>
-              (val && val.length === 18) ||
-              'La CURP debe tener exactamente 18 caracteres'
-          ]"
-        />
+        <q-input v-model="formEmployee.curp" hint filled dense label="CURP" />
       </q-item-section>
       <q-item-section>
-        <q-input
-          v-model="formEmployee.rfc"
-          filled
-          dense
-          label="RFC"
-          :rules="[
-            (val) =>
-              (val && val.length === 13) ||
-              'La RFC debe tener exactamente 13 caracteres'
-          ]"
-        />
+        <q-input v-model="formEmployee.rfc" hint filled dense label="RFC" />
       </q-item-section>
     </q-item>
 
     <q-item>
       <q-item-section>
-        <q-input
-          v-model="formEmployee.ine"
-          filled
-          dense
-          label="INE"
-          :rules="[
-            (val) =>
-              (val && val.length === 10) ||
-              'La INE debe tener exactamente 10 caracteres'
-          ]"
-        />
+        <q-input v-model="formEmployee.ine" filled hint dense label="INE" />
       </q-item-section>
       <q-item-section>
         <q-input
@@ -297,10 +259,6 @@
           label="Visa"
           hint="(opcional)"
           mask="################"
-          :rules="[
-            (val) =>
-              !val || (val && /^\d{16}$/.test(val)) || 'Debe tener 16 dígitos'
-          ]"
         />
       </q-item-section>
     </q-item>
@@ -320,8 +278,8 @@
           transition-hide="jump-up"
           clearable
           filled
+          hint
           dense
-          :rules="[(val) => val !== null || 'Obligatorio']"
         />
       </q-item-section>
       <q-item-section v-if="[4, 5, 6].includes(formEmployee.escolaridad_id)">
@@ -343,11 +301,7 @@
           dense
           label="Numero de seguridad social"
           mask="###########"
-          :rules="[
-            (val) =>
-              (val && val.length === 11) ||
-              'EL numero de seguro consta de 11 digitos'
-          ]"
+          hint
         />
       </q-item-section>
       <q-item-section>
@@ -388,7 +342,7 @@
           clearable
           filled
           dense
-          :rules="[(val) => val !== null || 'Obligatorio']"
+          hint
         />
       </q-item-section>
       <q-item-section>
@@ -406,7 +360,7 @@
           clearable
           filled
           dense
-          :rules="[(val) => val !== null || 'Obligatorio']"
+          hint
         />
       </q-item-section>
     </q-item>
@@ -459,7 +413,7 @@ const formEmployee = ref({
   nss: empleado.nss,
   hijos: empleado.hijos,
   dependientes_economicos: empleado.dependientes_economicos,
-  escolaridad_id: empleado.escolaridad.id,
+  escolaridad_id: empleado.escolaridad_id ? empleado.escolaridad.id : null,
   cedula_profecional: empleado.cedula_profecional,
   foto: empleado.foto,
   numero_exterior: empleado.numero_exterior,
@@ -470,8 +424,10 @@ const formEmployee = ref({
   ciudad: empleado.ciudad,
   estado: empleado.estado,
   cuenta_bancaria: empleado.cuenta_bancaria,
-  estado_civil_id: empleado.estado_civil.id,
-  tipo_de_sangre_id: empleado.tipo_de_sangre.id,
+  estado_civil_id: empleado.estado_civil_id ? empleado.estado_civil.id : null,
+  tipo_de_sangre_id: empleado.tipo_de_sangre_id
+    ? empleado.tipo_de_sangre.id
+    : null,
   correo_institucional: empleado.correo_institucional
 });
 

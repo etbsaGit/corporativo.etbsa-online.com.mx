@@ -144,9 +144,9 @@
                   <q-avatar
                     color="primary"
                     text-color="white"
-                    v-if="props.row.fotografia"
+                    v-if="props.row.picture"
                   >
-                    <img :src="props.row.fotografia" alt="Foto del empleado" />
+                    <img :src="props.row.picture" alt="Foto del empleado" />
                   </q-avatar>
                   <q-avatar v-else color="primary" text-color="white">
                     {{ props.row.nombre.charAt(0).toUpperCase()
