@@ -26,6 +26,31 @@
       <q-item>
         <q-item-section>
           <div v-if="empleado">
+            <q-item-section>
+              <template v-if="empleado.picture">
+                <img
+                  :src="empleado.picture"
+                  alt="Foto del empleado"
+                  style="width: 100px; height: 100px; border-radius: 50%"
+                />
+              </template>
+              <template v-else>
+                <div
+                  style="
+                    width: 100px;
+                    height: 100px;
+                    border-radius: 50%;
+                    background-color: #ccc;
+                    text-align: center;
+                    line-height: 100px;
+                    font-size: 40px;
+                  "
+                >
+                  {{ empleado.nombre.charAt(0).toUpperCase()
+                  }}{{ empleado.apellido_paterno.charAt(0).toUpperCase() }}
+                </div>
+              </template>
+            </q-item-section>
             <q-item-label header>
               <strong> Nombre completo: </strong>
               {{ empleado.nombre }} {{ empleado.segundo_nombre }}
