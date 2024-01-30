@@ -41,7 +41,7 @@ export async function sendRequest(method, params, url, redirect = "") {
   try {
     const response = await axios({ method: method, url: url, data: params });
     const data = response.data;
-    show_notify("Datos cargados con éxito", "check", "green", "");
+    //show_notify("Datos cargados con éxito", "check", "green", "");
     if (!!redirect) {
       await sleep(2000);
       window.location.href = redirect;
@@ -57,7 +57,7 @@ export async function sendRequest(method, params, url, redirect = "") {
           errorMessages.push(`Error en ${key}: ${error}`);
         }
       }
-      show_notify(errorMessages.join('\n'), "check", "red", "");
+      show_notify(errorMessages.join('\n'), "error", "red", "");
     } else {
       show_notify('Error desconocido: ' + errorMessage, "check", "red", "");
     }
