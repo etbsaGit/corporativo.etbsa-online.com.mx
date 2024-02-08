@@ -216,27 +216,23 @@
         <q-input v-model="formEmployee.curp" hint filled dense label="CURP" />
       </q-item-section>
       <q-item-section>
-        <q-input
-          v-model="formEmployee.rfc"
-          hint
-          filled
-          dense
-          label="RFC"
-          :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
-        />
+
+        <q-input v-model="formEmployee.rfc" filled dense label="RFC" :rules="[
+            (val) => !!val || 'Este campo es obligatorio',
+            (val) => (val && val.length === 13) || 'El RFC debe tener exactamente 13 dígitos'
+          ]" />
+
       </q-item-section>
     </q-item>
 
     <q-item>
       <q-item-section>
-        <q-input
-          v-model="formEmployee.ine"
-          filled
-          hint
-          dense
-          label="INE"
-          :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
-        />
+
+        <q-input v-model="formEmployee.ine" filled dense label="INE" :rules="[
+            (val) => !!val || 'Este campo es obligatorio',
+            (val) => (val && val.length === 10) || 'El INE debe tener exactamente 10 dígitos'
+          ]"/>
+
       </q-item-section>
       <q-item-section>
         <q-input
@@ -296,12 +292,23 @@
           dense
         />
       </q-item-section>
-      <q-item-section v-if="[4, 5, 6].includes(formEmployee.escolaridad_id)">
+    </q-item>
+    <q-item v-if="[4, 5, 6].includes(formEmployee.escolaridad_id)">
+      <q-item-section>
         <q-input
           v-model="formEmployee.cedula_profecional"
           filled
           dense
           label="Cedula Profesional"
+          hint
+        />
+      </q-item-section>
+      <q-item-section>
+        <q-input
+          v-model="formEmployee.carrera"
+          filled
+          dense
+          label="Carrera"
           hint
         />
       </q-item-section>
@@ -429,7 +436,7 @@ const formEmployee = ref({
   dependientes_economicos: empleado.dependientes_economicos,
   escolaridad_id: empleado.escolaridad_id ? empleado.escolaridad.id : null,
   cedula_profecional: empleado.cedula_profecional,
-  foto: empleado.foto,
+  carrera: empleado.carrera,
   numero_exterior: empleado.numero_exterior,
   numero_interior: empleado.numero_interior,
   calle: empleado.calle,

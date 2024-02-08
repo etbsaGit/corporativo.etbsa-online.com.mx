@@ -249,8 +249,10 @@
           dense
           label="RFC"
           lazy-rules
-          hint
-          :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
+          :rules="[
+            (val) => !!val || 'Este campo es obligatorio',
+            (val) => (val && val.length === 13) || 'El RFC debe tener exactamente 13 dígitos'
+          ]"
         />
       </q-item-section>
     </q-item>
@@ -263,8 +265,12 @@
           dense
           label="INE"
           lazy-rules
-          hint
-          :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
+          mask="##########"
+          :rules="[
+            (val) => !!val || 'Este campo es obligatorio',
+            (val) => (val && val.length === 10) || 'El INE debe tener exactamente 10 dígitos'
+          ]"
+
         />
       </q-item-section>
       <q-item-section>
@@ -323,12 +329,23 @@
           hint
         />
       </q-item-section>
-      <q-item-section v-if="[4, 5, 6].includes(formEmployee.escolaridad_id)">
+    </q-item>
+    <q-item v-if="[4, 5, 6].includes(formEmployee.escolaridad_id)">
+      <q-item-section>
         <q-input
           v-model="formEmployee.cedula_profecional"
           filled
           dense
           label="Cedula Profesional"
+          hint
+        />
+      </q-item-section>
+      <q-item-section>
+        <q-input
+          v-model="formEmployee.carrera"
+          filled
+          dense
+          label="Carrera"
           hint
         />
       </q-item-section>
@@ -451,7 +468,7 @@ const formEmployee = ref({
   dependientes_economicos: null,
   escolaridad_id: null,
   cedula_profecional: null,
-  foto: null,
+  carrera: null,
   numero_exterior: null,
   numero_interior: null,
   calle: null,
