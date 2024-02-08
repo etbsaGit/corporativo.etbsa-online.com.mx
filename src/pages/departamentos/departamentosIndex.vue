@@ -31,6 +31,7 @@
       :columns="columns"
       row-key="name"
       :visible-columns="visibleColumns"
+      class="text-uppercase"
       dense
       class="text-uppercase"
     >
@@ -42,14 +43,14 @@
           transition-show="rotate"
           transition-hide="rotate"
         >
-          <q-card style="max-width: 400px">
+          <q-card style="width: 2000px">
             <q-card-section>
               <div class="text-h6">Registrar Departamento</div>
             </q-card-section>
             <q-separator />
 
             <q-separator />
-            <q-card style="max-height: 400px" class="q-pa-none scroll" flat>
+            <q-card style="max-height: 1000px" class="q-pa-none scroll" flat>
               <q-tab-panels v-model="tab" animated keep-alive>
                 <q-tab-panel name="tab_form_one">
                   <add-departamento-form ref="form_1"></add-departamento-form>
@@ -117,14 +118,14 @@
       transition-show="rotate"
       transition-hide="rotate"
     >
-      <q-card style="max-width: 400px">
+      <q-card style="width: 2000px">
         <q-card-section>
           <div class="text-h6">Actualizar departamento</div>
         </q-card-section>
         <q-separator />
 
         <q-separator />
-        <q-card style="max-height: 400px" class="q-pa-none scroll" flat>
+        <q-card style="max-height: 1000px" class="q-pa-none scroll" flat>
           <q-tab-panels v-model="tab" animated keep-alive>
             <q-tab-panel name="tab_form_one">
               <edit-departamento-form

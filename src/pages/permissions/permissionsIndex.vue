@@ -1,7 +1,7 @@
 <template>
   <div class="q-pa-md">
     <q-btn
-      label="Registrar requisito"
+      label="Registrar permission"
       color="primary"
       @click="showAdd = true"
       icon="add_circle"
@@ -26,8 +26,8 @@
     <q-table
       flat
       bordered
-      title="Requisitos"
-      :rows="filteredRequisitos"
+      title="Permissions"
+      :rows="filteredPermissions"
       :columns="columns"
       row-key="name"
       :visible-columns="visibleColumns"
@@ -35,7 +35,7 @@
       class="text-uppercase"
     >
       <template v-slot:top="props">
-        <div class="col-2 q-table__title">Requisitos</div>
+        <div class="col-2 q-table__title">Permissions</div>
 
         <q-dialog
           v-model="showAdd"
@@ -44,7 +44,7 @@
         >
           <q-card style="width: 2000px">
             <q-card-section>
-              <div class="text-h6">Registrar Requisito</div>
+              <div class="text-h6">Registrar Permission</div>
             </q-card-section>
             <q-separator />
 
@@ -52,7 +52,7 @@
             <q-card style="max-height: 1000px" class="q-pa-none scroll" flat>
               <q-tab-panels v-model="tab" animated keep-alive>
                 <q-tab-panel name="tab_form_one">
-                  <add-requisito-form ref="form_1"></add-requisito-form>
+                  <add-permission-form ref="form_1"></add-permission-form>
                 </q-tab-panel>
               </q-tab-panels>
             </q-card>
@@ -61,7 +61,7 @@
 
             <q-card-actions align="right">
               <q-btn label="Cancelar" color="red" v-close-popup />
-              <q-btn label="Registrar" color="blue" @click="crearRequisito" />
+              <q-btn label="Registrar" color="blue" @click="crearPermission" />
             </q-card-actions>
           </q-card>
         </q-dialog>
@@ -91,17 +91,17 @@
         />
       </template>
 
-      <template v-slot:body-cell-nombre="props">
+      <template v-slot:body-cell-name="props">
         <q-td @click="onRowClick(props.row)">
           <q-item class="q-my-none" dense>
             <q-item-section avatar>
               <q-avatar color="primary" text-color="white">{{
-                props.row.nombre.charAt(0).toUpperCase()
+                props.row.name.charAt(0).toUpperCase()
               }}</q-avatar>
             </q-item-section>
 
             <q-item-section>
-              <q-item-label>{{ props.row.nombre }}</q-item-label>
+              <q-item-label>{{ props.row.name }}</q-item-label>
             </q-item-section>
           </q-item>
         </q-td>
@@ -115,7 +115,7 @@
     >
       <q-card style="width: 2000px">
         <q-card-section>
-          <div class="text-h6">Actualizar requisito</div>
+          <div class="text-h6">Actualizar permission</div>
         </q-card-section>
         <q-separator />
 
@@ -123,10 +123,10 @@
         <q-card style="max-height: 1000px" class="q-pa-none scroll" flat>
           <q-tab-panels v-model="tab" animated keep-alive>
             <q-tab-panel name="tab_form_one">
-              <edit-requisito-form
+              <edit-permission-form
                 ref="edit_1"
-                :requisito="selectedRequisito"
-              ></edit-requisito-form>
+                :permission="selectedPermission"
+              ></edit-permission-form>
             </q-tab-panel>
           </q-tab-panels>
         </q-card>
@@ -138,7 +138,7 @@
           <q-btn
             label="Actualizar"
             color="blue"
-            @click="actualizarRequisito()"
+            @click="actualizarPermission()"
           />
         </q-card-actions>
       </q-card>
@@ -148,8 +148,8 @@
 
 <script setup>
 import { ref, onMounted, computed } from "vue";
-import AddRequisitoForm from "src/components/Requisito/AddRequisitoForm.vue";
-import EditRequisitoForm from "src/components/Requisito/EditRequisitoForm.vue";
+import AddPermissionForm from "src/components/Permission/AddPermissionForm.vue";
+import EditPermissionForm from "src/components/Permission/EditPermissionForm.vue";
 
 import { sendRequest } from "src/boot/functions";
 import { useQuasar } from "quasar";
@@ -160,21 +160,21 @@ const edit_1 = ref(null);
 const $q = useQuasar();
 
 const showDetails = ref(false);
-const selectedRequisito = ref(null);
+const selectedPermission = ref(null);
 
-const visibleColumns = ref(["id", "nombre", "descripcion"]);
+const visibleColumns = ref(["id", "name"]);
 
 const tab = ref("tab_form_one");
 const searchTerm = ref("");
 const showAdd = ref(false);
-const requisitos = ref([]);
+const permissions = ref([]);
 
 const onRowClick = (row) => {
-  selectedRequisito.value = row;
+  selectedPermission.value = row;
   showDetails.value = true;
 };
 
-const crearRequisito = async () => {
+const crearPermission = async () => {
   const form1_valid = await form_1.value.validate();
   if (!form1_valid) {
     $q.notify({
@@ -186,19 +186,19 @@ const crearRequisito = async () => {
     return;
   }
   const final = {
-    ...form_1.value.formRequisito
+    ...form_1.value.formPermission
   };
   try {
-    let res = await sendRequest("POST", final, "/api/requisito", "");
+    let res = await sendRequest("POST", final, "/api/permission", "");
 
     showAdd.value = false;
-    getRequisitos();
+    getPermissions();
   } catch (error) {
     console.error("Error al enviar la solicitud:", error);
   }
 };
 
-const actualizarRequisito = async () => {
+const actualizarPermission = async () => {
   const edit1_valid = await edit_1.value.validate();
   if (!edit1_valid) {
     $q.notify({
@@ -210,51 +210,49 @@ const actualizarRequisito = async () => {
     return;
   }
   const final = {
-    ...edit_1.value.formRequisito
+    ...edit_1.value.formPermission
   };
   try {
-    let res = await sendRequest("PUT", final, "/api/requisito/" + final.id, "");
+    let res = await sendRequest(
+      "PUT",
+      final,
+      "/api/permission/" + final.id,
+      ""
+    );
 
     showDetails.value = false;
-    getRequisitos();
+    getPermissions();
   } catch (error) {
     console.error("Error al enviar la solicitud:", error);
   }
 };
 
-const getRequisitos = async () => {
-  let res = await sendRequest("GET", null, "/api/requisito/all", "");
-  requisitos.value = res;
+const getPermissions = async () => {
+  let res = await sendRequest("GET", null, "/api/permission", "");
+  permissions.value = res;
 };
 
 const columns = [
   { name: "id", label: "ID", align: "left", field: "id", sortable: true },
   {
-    name: "nombre",
+    name: "name",
     label: "Nombre",
     align: "left",
-    field: "nombre",
-    sortable: true
-  },
-  {
-    name: "descripcion",
-    label: "Descripcion",
-    align: "left",
-    field: "descripcion",
+    field: "name",
     sortable: true
   }
 ];
 
-const filteredRequisitos = computed(() => {
-  return requisitos.value.filter((requisito) => {
-    return requisito.nombre
+const filteredPermissions = computed(() => {
+  return permissions.value.filter((permission) => {
+    return permission.name
       .toLowerCase()
       .includes(searchTerm.value.toLowerCase());
   });
 });
 
 onMounted(() => {
-  getRequisitos();
+  getPermissions();
 });
 </script>
 

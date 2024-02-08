@@ -112,6 +112,7 @@
           virtual-scroll
           :rows-per-page-options="[0]"
           :visible-columns="visibleColumns"
+          class="text-uppercase"
           style="width: 800px"
           class="text-uppercase"
         >

@@ -270,6 +270,7 @@
             (val) => !!val || 'Este campo es obligatorio',
             (val) => (val && val.length === 10) || 'El INE debe tener exactamente 10 dígitos'
           ]"
+
         />
       </q-item-section>
       <q-item-section>
