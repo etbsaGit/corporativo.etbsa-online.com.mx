@@ -216,13 +216,27 @@
         <q-input v-model="formEmployee.curp" hint filled dense label="CURP" />
       </q-item-section>
       <q-item-section>
-        <q-input v-model="formEmployee.rfc" hint filled dense label="RFC" />
+        <q-input
+          v-model="formEmployee.rfc"
+          hint
+          filled
+          dense
+          label="RFC"
+          :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
+        />
       </q-item-section>
     </q-item>
 
     <q-item>
       <q-item-section>
-        <q-input v-model="formEmployee.ine" filled hint dense label="INE" />
+        <q-input
+          v-model="formEmployee.ine"
+          filled
+          hint
+          dense
+          label="INE"
+          :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
+        />
       </q-item-section>
       <q-item-section>
         <q-input

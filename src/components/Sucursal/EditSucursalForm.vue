@@ -1,7 +1,7 @@
 <template>
   <q-form class="q-gutter-y-sm text-uppercase" ref="myForm" greedy>
     <q-item>
-      <q-item-section style="max-width: 400px">
+      <q-item-section style="max-width: 800px">
         <q-input
           v-model="formSucursal.nombre"
           filled
@@ -11,6 +11,8 @@
           :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
         />
       </q-item-section>
+    </q-item>
+    <q-item>
       <q-item-section style="max-width: 800px">
         <q-input
           v-model="formSucursal.direccion"
@@ -18,7 +20,6 @@
           dense
           label="Dirección"
           lazy-rules
-          :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
         />
       </q-item-section>
     </q-item>

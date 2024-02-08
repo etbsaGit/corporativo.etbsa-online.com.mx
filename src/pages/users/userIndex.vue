@@ -32,6 +32,7 @@
       row-key="name"
       :visible-columns="visibleColumns"
       dense
+      class="text-uppercase"
     >
       <template v-slot:top="props">
         <div class="col-2 q-table__title">Users</div>
@@ -194,10 +195,8 @@ const crearUser = async () => {
   const final = {
     ...form_1.value.formUser
   };
-  console.log(final);
   try {
     let res = await sendRequest("POST", final, "/api/user", "");
-    console.log(res);
 
     // Si la solicitud es exitosa, recarga la página
     showAdd.value = false;
@@ -219,9 +218,12 @@ const actualizarUser = async () => {
     });
     return;
   }
+  if (edit_1.value.formUser.password === '') {
+    edit_1.value.formUser.password = null;
+    edit_1.value.formUser.confirmPassword = null
+  }
   if (
-    edit_1.value.formUser.password !== edit_1.value.formUser.confirmPassword
-  ) {
+    edit_1.value.formUser.password !== edit_1.value.formUser.confirmPassword) {
     $q.notify({
       color: "red-5",
       textColor: "white",
@@ -233,16 +235,11 @@ const actualizarUser = async () => {
   const final = {
     ...edit_1.value.formUser
   };
-  console.log(final);
   try {
     let res = await sendRequest("PUT", final, "/api/user/" + final.id, "");
-    console.log(res);
-
-    // Si la solicitud es exitosa, cierra el diálogo y actualiza la lista de usuarios
     showDetails.value = false;
     getUsers();
   } catch (error) {
-    // Manejar el error aquí si es necesario
     console.error("Error al enviar la solicitud:", error);
   }
 };

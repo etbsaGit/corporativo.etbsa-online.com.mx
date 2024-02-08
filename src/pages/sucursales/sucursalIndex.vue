@@ -32,6 +32,7 @@
       row-key="name"
       :visible-columns="visibleColumns"
       dense
+      class="text-uppercase"
     >
       <template v-slot:top="props">
         <div class="col-2 q-table__title">Sucursales</div>
@@ -41,7 +42,7 @@
           transition-show="rotate"
           transition-hide="rotate"
         >
-          <q-card style="max-width: 1000px">
+          <q-card style="width: 2000px">
             <q-card-section>
               <div class="text-h6">Registrar Sucursal</div>
             </q-card-section>
@@ -112,7 +113,7 @@
       transition-show="rotate"
       transition-hide="rotate"
     >
-      <q-card style="max-width: 1000px">
+      <q-card style="width: 2000px">
         <q-card-section>
           <div class="text-h6">Actualizar sucursal</div>
         </q-card-section>

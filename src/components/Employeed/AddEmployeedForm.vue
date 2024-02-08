@@ -250,6 +250,7 @@
           label="RFC"
           lazy-rules
           hint
+          :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
         />
       </q-item-section>
     </q-item>
@@ -263,6 +264,7 @@
           label="INE"
           lazy-rules
           hint
+          :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
         />
       </q-item-section>
       <q-item-section>

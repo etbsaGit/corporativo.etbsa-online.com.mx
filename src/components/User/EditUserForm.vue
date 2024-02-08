@@ -57,8 +57,8 @@ const formUser = ref({
   id: user.id,
   name: user.name,
   email: user.email,
-  password: user.password,
-  confirmPassword: user.password
+  password: null,
+  confirmPassword: null
 });
 
 const validate = async () => {

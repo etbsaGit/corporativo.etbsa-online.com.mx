@@ -45,6 +45,19 @@ const routes = [
     ],
   },
   {
+    path: "/perfil",
+    component: () => import("layouts/MainLayout.vue"),
+    meta: {
+      middlewares: [auth],
+    },
+    children: [
+      {
+        path: "",
+        component: () => import("src/pages/employees/PerfilPage.vue"),
+      },
+    ],
+  },
+  {
     path: "/catalogos",
     component: () => import("layouts/MainLayout.vue"),
     meta: {
