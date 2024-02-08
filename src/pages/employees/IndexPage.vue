@@ -45,6 +45,7 @@
           :visible-columns="visibleColumns"
           dense
           :rows-per-page-options="[0]"
+          class="text-uppercase"
         >
           <template v-slot:top-right>
             <q-btn
@@ -104,6 +105,7 @@
                 <q-card-actions align="right">
                   <q-btn label="Cancelar" color="red" v-close-popup />
                   <q-btn
+                    :disable="!form_1 || !form_2"
                     label="Registrar"
                     color="blue"
                     @click="crearEmpleado()"
@@ -259,6 +261,7 @@
             <q-card-actions align="right">
               <q-btn label="Cancelar" color="red" v-close-popup />
               <q-btn
+                :disable="!edit_1 || !edit_2"
                 label="Actualizar"
                 color="blue"
                 @click="actualizarEmpleado()"
@@ -317,6 +320,8 @@ const form_2 = ref(null);
 const edit_1 = ref(null);
 const edit_2 = ref(null);
 const edit_3 = ref(null);
+const edit1_valid = ref()
+const edit2_valid = ref()
 
 const $q = useQuasar();
 
@@ -381,9 +386,9 @@ const crearEmpleado = async () => {
 };
 
 const actualizarEmpleado = async () => {
-  const edit1_valid = await edit_1.value.validate();
-  const edit2_valid = await edit_2.value.validate();
-  if (!edit1_valid || !edit2_valid) {
+  edit1_valid.value = await edit_1.value.validate();
+  edit2_valid.value = await edit_2.value.validate();
+  if (!edit1_valid.value || !edit2_valid.value) {
     $q.notify({
       color: "red-5",
       textColor: "white",
@@ -680,11 +685,17 @@ const columns = [
     sortable: true
   },
   {
+    name: "descripcion_puesto",
+    label: "Descripcion puesto",
+    align: "left",
+    sortable: true
+  },
+  {
     name: "expediente",
     label: "Expediente",
     align: "left",
     sortable: true
-  }
+  },
 ];
 
 const filteredEmployees = computed(() => {
@@ -726,6 +737,8 @@ const wrapCsvValue = (val, formatFn, row) => {
     const propertyName = "nombre"; // Cambia 'nombre' por la propiedad que deseas mostrar
     formatted = val[propertyName] || ""; // Utilizamos 'nombre' como ejemplo
   }
+
+  formatted = formatted.toUpperCase();
 
   return `"${formatted}"`;
 };

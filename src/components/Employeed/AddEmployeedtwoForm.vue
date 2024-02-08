@@ -135,6 +135,16 @@
           :rules="[(val) => val !== null || 'Obligatorio']"
         />
       </q-item-section>
+      <q-item-section>
+        <q-input
+          filled
+          dense
+          v-model="formEmployeetwo.descripcion_puesto"
+          lazy-rules
+          label="Descripcion del puesto"
+          hint
+        />
+      </q-item-section>
     </q-item>
     <q-item>
       <q-item-section>
@@ -210,6 +220,7 @@ const formEmployeetwo = ref({
   fecha_de_ingreso: null,
   status: estatus[0],
   puesto_id: null,
+  descripcion_puesto: null,
   sucursal_id: null,
   linea_id: null,
   departamento_id: null,

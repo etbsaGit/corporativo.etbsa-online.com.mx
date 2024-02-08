@@ -32,6 +32,7 @@
       row-key="name"
       :visible-columns="visibleColumns"
       dense
+      class="text-uppercase"
     >
       <template v-slot:top="props">
         <div class="col-2 q-table__title">Requisitos</div>
