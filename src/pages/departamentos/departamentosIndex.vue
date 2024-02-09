@@ -31,7 +31,7 @@
       :columns="columns"
       row-key="name"
       :visible-columns="visibleColumns"
-      class="text-uppercase"
+      
       dense
     >
       <template v-slot:top="props">

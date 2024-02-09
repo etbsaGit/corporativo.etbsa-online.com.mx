@@ -45,7 +45,7 @@
           :visible-columns="visibleColumns"
           dense
           :rows-per-page-options="[0]"
-          class="text-uppercase"
+          
         >
           <template v-slot:top-right>
             <q-btn

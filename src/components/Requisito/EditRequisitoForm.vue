@@ -1,5 +1,5 @@
 <template>
-  <q-form class="q-gutter-y-sm text-uppercase" ref="myForm" greedy>
+  <q-form class="q-gutter-y-sm" ref="myForm" greedy>
     <q-item>
       <q-item-section>
         <q-input
