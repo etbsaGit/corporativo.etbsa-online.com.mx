@@ -1,6 +1,6 @@
 <template>
   <div class="q-pa-md">
-    <q-form class="q-gutter-y-sm text-uppercase" ref="myForm" greedy>
+    <q-form class="q-gutter-y-sm" ref="myForm" greedy>
       <q-item>
         <q-item-section>
           <q-input
@@ -113,7 +113,7 @@
           :rows-per-page-options="[0]"
           :visible-columns="visibleColumns"
           style="width: 800px"
-          class="text-uppercase"
+          
         >
           <template v-slot:body-cell-opciones="props">
             <q-td>

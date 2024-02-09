@@ -45,7 +45,6 @@
           :visible-columns="visibleColumns"
           dense
           :rows-per-page-options="[0]"
-          class="text-uppercase"
         >
           <template v-slot:top-right>
             <q-btn
@@ -737,8 +736,6 @@ const wrapCsvValue = (val, formatFn, row) => {
     const propertyName = "nombre"; // Cambia 'nombre' por la propiedad que deseas mostrar
     formatted = val[propertyName] || ""; // Utilizamos 'nombre' como ejemplo
   }
-
-  formatted = formatted.toUpperCase();
 
   return `"${formatted}"`;
 };

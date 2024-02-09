@@ -1,5 +1,5 @@
 <template>
-  <q-form class="q-gutter-y-sm text-uppercase" ref="myForm" greedy>
+  <q-form class="q-gutter-y-sm" ref="myForm" greedy>
     <!-- <q-item>
       <q-item-section>
         <q-file
@@ -249,11 +249,12 @@
           dense
           label="RFC"
           lazy-rules
-          :rules="[
+          hint
+        />
+          <!-- :rules="[
             (val) => !!val || 'Este campo es obligatorio',
             (val) => (val && val.length === 13) || 'El RFC debe tener exactamente 13 dígitos'
-          ]"
-        />
+          ]" -->
       </q-item-section>
     </q-item>
 
@@ -265,12 +266,13 @@
           dense
           label="INE"
           lazy-rules
+          hint
           mask="##########"
-          :rules="[
+        />
+          <!-- :rules="[
             (val) => !!val || 'Este campo es obligatorio',
             (val) => (val && val.length === 10) || 'El INE debe tener exactamente 10 dígitos'
-          ]"
-        />
+          ]" -->
       </q-item-section>
       <q-item-section>
         <q-input
