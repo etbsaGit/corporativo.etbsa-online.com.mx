@@ -1,4 +1,4 @@
-import { auth, guest } from "./middleware";
+import { auth, guest, admin } from "./middleware";
 
 const routes = [
   {
@@ -35,7 +35,7 @@ const routes = [
     path: "/employees",
     component: () => import("layouts/MainLayout.vue"),
     meta: {
-      middlewares: [auth],
+      middlewares: [admin],
     },
     children: [
       {
@@ -61,7 +61,7 @@ const routes = [
     path: "/catalogos",
     component: () => import("layouts/MainLayout.vue"),
     meta: {
-      middlewares: [auth],
+      middlewares: [admin],
     },
     children: [
       {
@@ -74,7 +74,7 @@ const routes = [
     path: "/users",
     component: () => import("layouts/MainLayout.vue"),
     meta: {
-      middlewares: [auth],
+      middlewares: [admin],
     },
     children: [
       {

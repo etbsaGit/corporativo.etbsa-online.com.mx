@@ -114,7 +114,6 @@
           :visible-columns="visibleColumns"
           class="text-uppercase"
           style="width: 800px"
-          class="text-uppercase"
         >
           <template v-slot:body-cell-opciones="props">
             <q-td>

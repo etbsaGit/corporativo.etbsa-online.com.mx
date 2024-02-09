@@ -65,3 +65,14 @@ export async function sendRequest(method, params, url, redirect = "") {
   }
 }
 
+export function tieneRolAdmin(usuario) {
+  if (usuario && Array.isArray(usuario.roles)) {
+    for (const rol of usuario.roles) {
+      if (rol.name.includes('Admin')) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
