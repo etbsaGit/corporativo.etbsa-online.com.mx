@@ -6,7 +6,7 @@
           filled
           dense
           bottom-slots
-          v-model="formEmployee.fotografia"
+          v-model="fotografia"
           label="Fotografia"
           clearable
           accept=".jpg,.jpeg,.png,.jpg"
@@ -429,8 +429,9 @@ const tiposDeSangre = ref([]);
 const escolaridades = ref([]);
 const myForm = ref(null);
 
+const fotografia = ref(null)
+
 const formEmployee = ref({
-  fotografia: empleado.fotografia,
   id: empleado.id,
   nombre: empleado.nombre,
   segundo_nombre: empleado.segundo_nombre,
@@ -468,7 +469,7 @@ const formEmployee = ref({
 
 const uploadPicture = async () => {
   const formData = new FormData();
-  formData.append("pic", formEmployee.value.fotografia);
+  formData.append("pic", fotografia.value);
   try {
     let res = await api.post(
       `/empleado/uploadPicture/${empleado.id}`,

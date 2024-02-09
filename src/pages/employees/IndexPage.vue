@@ -737,9 +737,6 @@ const wrapCsvValue = (val, formatFn, row) => {
     const propertyName = "nombre"; // Cambia 'nombre' por la propiedad que deseas mostrar
     formatted = val[propertyName] || ""; // Utilizamos 'nombre' como ejemplo
   }
-
-  formatted = formatted.toUpperCase();
-
   return `"${formatted}"`;
 };
 
