@@ -197,7 +197,6 @@ const onRowClick = (row) => {
   selectedRequisito.value = row;
   requisitos.value.forEach((requisito) => (requisito.isSelected = false));
   row.isSelected = true;
-  bus.emit("click_documento", row);
 };
 
 const agregarDocumento = async () => {

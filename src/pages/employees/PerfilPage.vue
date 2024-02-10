@@ -56,6 +56,11 @@
             <negocios :empleado="user.empleado"></negocios>
           </q-tab-panel>
 
+          <q-tab-panel name="expediente">
+            <div class="text-h6">Expediente</div>
+            <expediente :empleado="user.empleado"></expediente>
+          </q-tab-panel>
+
         </q-tab-panels>
 
       </div>
@@ -75,6 +80,7 @@ import { ref } from "vue";
 
 import Personal from "src/components/Perfil/Personal.vue";
 import Negocios from "src/components/Perfil/Negocios.vue";
+import Expediente from "src/components/Perfil/Expediente.vue";
 
 const tab = ref('personal')
 
