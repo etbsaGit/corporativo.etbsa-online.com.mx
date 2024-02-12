@@ -1,65 +1,63 @@
 <template>
-   <div>
+   <div class="q-pa-md">
     <q-splitter v-model="splitterModel" style="height: 700px;">
         <template v-slot:before>
-            <div class="q-pa-md">
-                <q-table
-                    flat
+            <q-table
+                flat
+                bordered
+                grid
+                :rows="requisitos"
+                :columns="columns"
+                row-key="name"
+                :filter="filter"
+                :rows-per-page-options="[0]"
+            >
+            <template v-slot:top-right>
+                <q-input
                     bordered
-                    grid
-                    :rows="requisitos"
-                    :columns="columns"
-                    row-key="name"
-                    :filter="filter"
-                    :rows-per-page-options="[0]"
+                    dense
+                    debounce="300"
+                    v-model="filter"
+                    placeholder="Search"
                 >
-                <template v-slot:top-right>
-                    <q-input
-                        bordered
-                        dense
-                        debounce="300"
-                        v-model="filter"
-                        placeholder="Search"
-                    >
-                        <template v-slot:append>
-                        <q-icon name="search" />
-                        </template>
-                    </q-input>
+                    <template v-slot:append>
+                    <q-icon name="search" />
                     </template>
-                    <template v-slot:top-left>
-                        <div class="text-h6 q-mb-md">
-                            Documentos
-                        </div>
-                    </template>
+                </q-input>
+            </template>
+            <template v-slot:top-left>
+                <div class="text-h6">
+                    Documentos
+                </div>
+            </template>
 
-                    <template v-slot:item="props">
-                        <q-card
-                            @click="onRowClick(props.row)"
-                            :class="{ selected: props.row.isSelected }"
-                            :style="{
-                                backgroundColor: getStatusColor(props.row.pivot.estatus_id),
-                                width: '200px',
-                                height: '100px',
-                                margin: '5px'
-                            }"
-                        >
-                            <q-card-section>
-                            <q-item v-for="col in props.cols" :key="col.name">
-                                <q-item-section side>
-                                <q-item-label caption>{{
-                                    props.row[col.name]
-                                }}</q-item-label>
-                                </q-item-section>
-                            </q-item>
-                            </q-card-section>
-                        </q-card>
-                        </template>
-                </q-table>
-            </div>
+            <template v-slot:item="props">
+                <q-card
+                    @click="onRowClick(props.row)"
+                    :class="{ selected: props.row.isSelected }"
+                    :style="{
+                        backgroundColor: getStatusColor(props.row.pivot.estatus_id),
+                        width: '200px',
+                        height: '100px',
+                        margin: '5px'
+                    }"
+                >
+                    <q-card-section>
+                    <q-item v-for="col in props.cols" :key="col.name">
+                        <q-item-section side>
+                        <q-item-label caption>{{
+                            props.row[col.name]
+                        }}</q-item-label>
+                        </q-item-section>
+                    </q-item>
+                    </q-card-section>
+                </q-card>
+                    </template>
+            </q-table>
+           
         </template>
         <template v-slot:after>
-            <div class="q-pa-md">
-                <div class="text-h6 q-mb-md">Archivos</div>
+                <div class="text-h6">Archivos</div>
                 <archivos
                     v-if="selectedRequisito"
                     ref="edit_4"
@@ -67,8 +65,6 @@
                     :requisito="selectedRequisito"
                 />
                 <div v-else>Selecciona un requisito para ver los detalles.</div>
-                    </div>
-
         </template>
     </q-splitter>
    </div>

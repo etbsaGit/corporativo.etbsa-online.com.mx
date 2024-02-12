@@ -1,6 +1,22 @@
 <template>
   <q-list bordered padding class="rounded-borders text-primary">
     <q-item
+      v-if="isAdmin == true"
+      clickable
+      v-ripple
+      to="/users"
+      :active="link === 'users'"
+      @click="link = 'users'"
+      active-class="my-menu-link"
+    >
+      <q-item-section avatar>
+        <q-icon name="manage_accounts" />
+      </q-item-section>
+
+      <q-item-section>Usuarios</q-item-section>
+    </q-item>
+    <q-item
+      v-if="isRRHH == true"
       clickable
       v-ripple
       to="/employees"
@@ -15,6 +31,7 @@
       <q-item-section>Empleados</q-item-section>
     </q-item>
     <q-item
+      v-if="isRRHH == true"
       clickable
       v-ripple
       to="/catalogos"
@@ -105,16 +122,21 @@
   </q-list>
 </template>
 
-<script>
-import { ref } from "vue";
+<script setup>
+import { onMounted, ref } from "vue";
+import { getNamesRoles } from '../boot/functions';
+import { useAuthStore } from "src/stores/auth";
+import { storeToRefs } from "pinia";
 
-export default {
-  setup() {
-    return {
-      link: ref("inbox")
-    };
-  }
-};
+const link = ref("inbox")
+const auth = useAuthStore();
+const { user } = storeToRefs(auth);
+
+const nombresRoles = getNamesRoles(user.value);
+const isAdmin = nombresRoles.includes('Admin');
+const isRRHH = nombresRoles.includes('RRHH');
+const isEmpleado = nombresRoles.includes('Empleado');
+
 </script>
 
 <style lang="sass">

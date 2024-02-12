@@ -3,7 +3,6 @@
     <q-header elevated>
       <q-toolbar>
         <q-btn
-          v-if="isAdmin==true"
           flat
           dense
           round
@@ -22,7 +21,7 @@
 
         <q-space />
 
-        <div v-if="isEmpleado==true">{{ user.empleado.nombre }} {{ user.empleado.apellido_paterno }}</div>
+        <div v-if="user.empleado">{{ user.empleado.nombre }} {{ user.empleado.apellido_paterno }}</div>
 
         <q-btn
           label="Logout"
@@ -34,12 +33,34 @@
       </q-toolbar>
     </q-header>
 
-    <div v-if="isAdmin==true">
       <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
+        <q-item-label header> Perfil </q-item-label>
+        <q-separator/>
+        <div class="avatar-container">
+          <div v-if="user.empleado">
+            <q-item>
+              <q-avatar square size="200px" v-if="user.empleado.picture">
+                <img :src="user.empleado.picture">
+              </q-avatar>
+              <q-avatar size="200px" square v-else color="primary" text-color="white">
+                {{ user.empleado.nombre.charAt(0).toUpperCase()
+                }}{{ user.empleado.apellido_paterno.charAt(0).toUpperCase() }}
+              </q-avatar>
+            </q-item>
+            <q-item>
+              {{ user.empleado.nombre }} 
+              {{ user.empleado.segundo_nombre }} 
+              {{ user.empleado.apellido_paterno }} 
+              {{ user.empleado.apellido_materno }} </q-item>
+          </div>
+          <div v-else>
+            <q-avatar square size="200px" color="primary" text-color="white" icon="admin_panel_settings" />
+          </div>
+        </div>
+        <q-separator/>
         <q-item-label header> Opciones </q-item-label>
         <menu-list />
       </q-drawer>
-    </div>
 
     <q-page-container>
       <router-view />
@@ -54,8 +75,6 @@ import { onMounted, ref } from "vue";
 
 import MenuList from "./MenuList.vue";
 
-const isAdmin = ref(false)
-const isEmpleado = ref(false)
 const leftDrawerOpen = ref(false);
 const auth = useAuthStore();
 const { logout } = auth;
@@ -65,19 +84,16 @@ const toggleLeftDrawer = () => {
   leftDrawerOpen.value = !leftDrawerOpen.value;
 };
 
-const test = async () => {
-  if (user.value.roles[0].name == 'Empleado') {
-    isAdmin.value = false
-    isEmpleado.value= true
-  }
-  if (user.value.roles[0].name == 'Admin') {
-    isAdmin.value = true
-    isEmpleado.value= false
-  } 
-};
-
 onMounted(() => {
-  test();
+
 });
 
 </script>
+
+<style>
+.avatar-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+</style>

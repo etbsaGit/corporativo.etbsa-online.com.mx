@@ -1,5 +1,6 @@
 <template>
-    <q-form class="q-gutter-y-sm" ref="myForm" greedy>
+  <div class="q-pa-md">
+    <q-form ref="myForm" greedy>
       <q-item>
         <q-item-section>
          <q-input
@@ -195,37 +196,38 @@
         </q-item-section>
       </q-item>
     </q-form>
+    </div>
   </template>
   
-  <script setup>
-  import { useQuasar } from "quasar";
-  import { ref } from "vue";
-  
-  const { empleado } = defineProps(["empleado"]);
-  
-  const $q = useQuasar();
-  
-  const lineas = ref([]);
-  const sucursales = ref([]);
-  const departamentos = ref([]);
-  const puestos = ref([]);
-  const jefesDirectos = ref([]);
-  const estatus = ["Activo", "Baja", "Pencionado", "Suspendido"];
-  const myForm = ref(null);
-  
-  const formEmployeetwo = ref({
-    sueldo_base: empleado.sueldo_base,
-    comision: empleado.comision,
-    matriz: empleado.matriz,
-    fecha_de_ingreso: empleado.fecha_de_ingreso,
-    status: empleado.status,
-    puesto_id: empleado.puesto.nombre,
-    descripcion_puesto: empleado.descripcion_puesto,
-    sucursal_id: empleado.sucursal.nombre,
-    linea_id: empleado.linea.nombre,
-    departamento_id: empleado.departamento.nombre,
-    jefe_directo_id: empleado.jefe_directo_id ? empleado.jefe_directo.nombre : null
-  });
+<script setup>
+import { useQuasar } from "quasar";
+import { ref } from "vue";
 
-  </script>
+const { empleado } = defineProps(["empleado"]);
+
+const $q = useQuasar();
+
+const lineas = ref([]);
+const sucursales = ref([]);
+const departamentos = ref([]);
+const puestos = ref([]);
+const jefesDirectos = ref([]);
+const estatus = ["Activo", "Baja", "Pencionado", "Suspendido"];
+const myForm = ref(null);
+
+const formEmployeetwo = ref({
+  sueldo_base: empleado.sueldo_base,
+  comision: empleado.comision,
+  matriz: empleado.matriz,
+  fecha_de_ingreso: empleado.fecha_de_ingreso,
+  status: empleado.status,
+  puesto_id: empleado.puesto.nombre,
+  descripcion_puesto: empleado.descripcion_puesto,
+  sucursal_id: empleado.sucursal.nombre,
+  linea_id: empleado.linea.nombre,
+  departamento_id: empleado.departamento.nombre,
+  jefe_directo_id: empleado.jefe_directo_id ? empleado.jefe_directo.nombre : null
+});
+
+</script>
   

@@ -65,14 +65,25 @@ export async function sendRequest(method, params, url, redirect = "") {
   }
 }
 
-export function tieneRolAdmin(usuario) {
+// export function tieneRolAdmin(usuario) {
+//   if (usuario && Array.isArray(usuario.roles)) {
+//     for (const rol of usuario.roles) {
+//       if (rol.name.includes('Admin')) {
+//         return true;
+//       }
+//     }
+//   }
+//   return false;
+// }
+
+export function getNamesRoles(usuario) {
+  const nameRoles = [];
   if (usuario && Array.isArray(usuario.roles)) {
     for (const rol of usuario.roles) {
-      if (rol.name.includes('Admin')) {
-        return true;
-      }
+      nameRoles.push(rol.name);
     }
   }
-  return false;
+  return nameRoles;
 }
+
 

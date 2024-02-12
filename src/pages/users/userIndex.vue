@@ -158,7 +158,7 @@ const $q = useQuasar();
 const showDetails = ref(false);
 const selectedUser = ref(null);
 
-const visibleColumns = ref(["id", "name", "email", "email_verified_at"]);
+const visibleColumns = ref(["id", "name", "email"]);
 
 const tab = ref("tab_form_one");
 const searchTerm = ref("");

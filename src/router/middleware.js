@@ -1,5 +1,5 @@
 import { useAuthStore } from "src/stores/auth";
-import { tieneRolAdmin } from "src/boot/functions";
+import { getNamesRoles } from "src/boot/functions";
 
 export function guest(/* { to, from, next } */ { to, next }) {
   const auth = useAuthStore();
@@ -21,7 +21,9 @@ export function auth(/* { to, from, next } */ { to, next }) {
 
 export function admin(/* { to, from, next } */ { to, next }) {
   const auth = useAuthStore();
-  if (!tieneRolAdmin(auth.user)) {
+  const nombresRoles = getNamesRoles(auth.user);
+  const isAdmin = nombresRoles.includes('Admin');
+  if (isAdmin == false) {
     auth.returnUrl = to.fullPath;
     return next("/perfil");
   }

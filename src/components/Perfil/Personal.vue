@@ -1,5 +1,6 @@
 <template>
-  <q-form class="q-gutter-y-sm" ref="myForm" greedy>
+  <div class="q-pa-md">
+  <q-form ref="myForm" greedy>
     <q-item>
       <q-item-section>
         <q-input
@@ -360,6 +361,7 @@
       </q-item-section>
     </q-item>
   </q-form>
+  </div>
 </template>
 
 <script setup>
