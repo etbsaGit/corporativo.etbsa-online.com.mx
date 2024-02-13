@@ -208,14 +208,13 @@ const actualizarRole = async () => {
   const final = {
     ...edit_1.value.formRole
   };
-  console.log(edit_1.value.selectedPermissions);
-  // try {
-  //   let res = await sendRequest("PUT", final, "/api/role/" + final.id, "");
-  //   showDetails.value = false;
-  //   getRoles();
-  // } catch (error) {
-  //   console.error("Error al enviar la solicitud:", error);
-  // }
+  try {
+    let res = await sendRequest("PUT", final, "/api/role/" + final.id, "");
+    showDetails.value = false;
+    getRoles();
+  } catch (error) {
+    console.error("Error al enviar la solicitud:", error);
+  }
 };
 
 const getRoles = async () => {

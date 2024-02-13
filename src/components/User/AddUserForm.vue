@@ -46,24 +46,53 @@
         />
       </q-item-section>
     </q-item>
+    <q-separator/>
+    <q-item>
+      <q-item-section>
+        <div class="text-h6">Que roles tendra el usuario</div>
+      </q-item-section>
+    </q-item>
+    <q-item>
+      <q-item-section v-for="role in roles" :key="role.id">
+        <q-toggle
+          v-model="formUser.roles"
+          :label="role.name"
+          color="primary"
+          dense
+          :val="role.name"
+        />
+      </q-item-section>
+    </q-item>
   </q-form>
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
+import { sendRequest } from "src/boot/functions";
 
 const myForm = ref(null);
+const roles = ref([]);
 
 const formUser = ref({
   name: null,
   email: null,
   password: null,
-  confirmPassword: null
+  confirmPassword: null,
+  roles: []
 });
+
+const getRoles = async () => {
+  let res = await sendRequest("GET", null, "/api/role", "");
+  roles.value = res;
+};
 
 const validate = async () => {
   return await myForm.value.validate();
 };
+
+onMounted(() => {
+  getRoles();
+});
 
 defineExpose({
   formUser,

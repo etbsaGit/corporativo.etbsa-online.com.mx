@@ -29,3 +29,14 @@ export function admin(/* { to, from, next } */ { to, next }) {
   }
   return next();
 }
+
+export function rrhh(/* { to, from, next } */ { to, next }) {
+  const auth = useAuthStore();
+  const nombresRoles = getNamesRoles(auth.user);
+  const isAdmin = nombresRoles.includes('RRHH');
+  if (isAdmin == false) {
+    auth.returnUrl = to.fullPath;
+    return next("/perfil");
+  }
+  return next();
+}

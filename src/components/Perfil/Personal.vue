@@ -9,8 +9,8 @@
           filled
           dense
           label="Primer Nombre"
-          input-style="color: black; font-weight: bold;"
-        />
+          />
+          <!-- input-style="color: black; font-weight: bold;" -->
       </q-item-section>
       <q-item-section>
         <q-input

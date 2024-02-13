@@ -292,7 +292,7 @@
                   <edit-employeedthree-form
                     ref="edit_3"
                     :empleado="selectedEmployee"
-                  ></edit-employeedthree-form>
+                  />
                 </q-tab-panel>
               </q-tab-panels>
             </q-card>
