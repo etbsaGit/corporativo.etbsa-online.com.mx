@@ -79,11 +79,21 @@ export async function sendRequest(method, params, url, redirect = "") {
 export function getNamesRoles(usuario) {
   const nameRoles = [];
   if (usuario && Array.isArray(usuario.roles)) {
-    for (const rol of usuario.roles) {
-      nameRoles.push(rol.name);
+    for (const role of usuario.roles) {
+      nameRoles.push(role.name);
     }
   }
   return nameRoles;
+}
+
+export function getNamesPermissions(usuario) {
+  const namePermissions = [];
+  if (usuario && Array.isArray(usuario.permissions)) {
+    for (const permission of usuario.permissions) {
+      namePermissions.push(permission.name);
+    }
+  }
+  return namePermissions;
 }
 
 
