@@ -26,10 +26,14 @@
           class="boton"
           color="green-9"
           v-model="searchTerm"
-          label="Buscar por nombre, apellidos o unidad de negocios"
+          label="Buscar empleado"
         >
           <template v-slot:prepend>
-            <q-icon name="search" />
+            <q-icon name="person_search" />
+          </template>
+
+          <template v-slot:before>
+            <q-btn color="primary" icon="search" label="Busqueda avanzada" stack @click="onClick" />
           </template>
         </q-input>
 
@@ -299,6 +303,36 @@
           </q-card>
         </q-dialog>
         <!-- -------------------------------------------------------------------------------- -->
+        <q-dialog
+          v-model="showFilters"
+          transition-show="rotate"
+          transition-hide="rotate"
+          full-width
+          full-height
+          persistent
+        >
+          <q-card>
+            <q-card-section>
+              <div class="text-h6">
+               Filtrar empleados
+              </div>
+            </q-card-section>
+            <q-separator />
+            <q-card style="height: 82vh" class="q-pa-none scroll" flat>
+              <q-card-section>
+
+                <filter-employeed
+                  ref="edit_4"
+                  :empleados="employees"
+                />
+              </q-card-section>
+            </q-card>
+            <q-separator />
+            <q-card-actions align="right">
+              <q-btn label="Cancelar" color="red" v-close-popup />
+            </q-card-actions>
+          </q-card>
+        </q-dialog>
       </div>
     </q-card>
   </div>
@@ -311,6 +345,7 @@ import AddEmployeedtwoForm from "src/components/Employeed/AddEmployeedtwoForm.vu
 import EditEmployeedForm from "src/components/Employeed/EditEmployeedForm.vue";
 import EditEmployeedtwoForm from "src/components/Employeed/EditEmployeedtwoForm.vue";
 import EditEmployeedthreeForm from "src/components/Employeed/EditEmployeedthreeForm.vue";
+import FilterEmployeed from "src/components/Employeed/FilterEmployeed.vue";
 import { sendRequest } from "src/boot/functions";
 import { useQuasar, exportFile } from "quasar";
 import { inject } from "vue";
@@ -320,6 +355,7 @@ const form_2 = ref(null);
 const edit_1 = ref(null);
 const edit_2 = ref(null);
 const edit_3 = ref(null);
+const edit_4 = ref(null)
 const edit1_valid = ref()
 const edit2_valid = ref()
 
@@ -345,8 +381,10 @@ const visibleColumns = ref([
 
 const tab = ref("tab_form_one");
 const tab2 = ref("tab_form_three");
+const tab4 = ref("tab_form_four");
 const searchTerm = ref("");
 const showAdd = ref(false);
+const showFilters = ref(false);
 const employees = ref([]);
 
 const onRowClick = (row) => {
@@ -357,6 +395,10 @@ const onRowClick = (row) => {
 const onRowClickFile = (row) => {
   selectedEmployee.value = row;
   showFiles.value = true;
+};
+
+const onClick = () => {
+  showFilters.value = true;
 };
 
 const crearEmpleado = async () => {
@@ -472,13 +514,6 @@ const columns = [
     label: "Fecha de nacimiento",
     align: "left",
     field: "fecha_de_nacimiento",
-    sortable: true
-  },
-  {
-    name: "curp",
-    label: "CURP",
-    align: "left",
-    field: "curp",
     sortable: true
   },
   {
