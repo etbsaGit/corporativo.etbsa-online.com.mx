@@ -237,6 +237,7 @@
         filled
         dense
         label="INE"
+        hint
           />
         <!-- :rules="[
             (val) => !!val || 'Este campo es obligatorio',

@@ -140,7 +140,6 @@
           dense
           v-model="formEmployee.numero_exterior"
           label="# Exterior"
-          mask="################"
           lazy-rules
           hint
         />
