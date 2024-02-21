@@ -1,49 +1,36 @@
 <template>
   <q-list bordered padding class="rounded-borders text-primary">
-    <q-item
-      v-if="isAdmin == true"
-      clickable
-      v-ripple
-      to="/users"
-      :active="link === 'users'"
-      @click="link = 'users'"
-      active-class="my-menu-link"
-    >
+    <q-item v-if="isAdmin == true" clickable v-ripple to="/users" :active="link === 'users'" @click="link = 'users'"
+      active-class="my-menu-link">
       <q-item-section avatar>
         <q-icon name="manage_accounts" />
       </q-item-section>
 
       <q-item-section>Usuarios</q-item-section>
     </q-item>
-    <q-item
-      v-if="isRRHH == true"
-      clickable
-      v-ripple
-      to="/employees"
-      :active="link === 'dashboard'"
-      @click="link = 'dashboard'"
-      active-class="my-menu-link"
-    >
+    <q-item v-if="isRRHH == true" clickable v-ripple to="/employees" :active="link === 'dashboard'"
+      @click="link = 'dashboard'" active-class="my-menu-link">
       <q-item-section avatar>
         <q-icon name="group" />
       </q-item-section>
 
       <q-item-section>Empleados</q-item-section>
     </q-item>
-    <q-item
-      v-if="isRRHH == true"
-      clickable
-      v-ripple
-      to="/catalogos"
-      :active="link === 'catalogos'"
-      @click="link = 'catalogos'"
-      active-class="my-menu-link"
-    >
+    <q-item v-if="isRRHH == true" clickable v-ripple to="/catalogos" :active="link === 'catalogos'"
+      @click="link = 'catalogos'" active-class="my-menu-link">
       <q-item-section avatar>
         <q-icon name="list" />
       </q-item-section>
 
       <q-item-section>Catalogos para empleados</q-item-section>
+    </q-item>
+    <q-item v-if="isAdmin == true" clickable v-ripple to="/surveys" :active="link === 'surveys'" @click="link = 'surveys'"
+      active-class="my-menu-link">
+      <q-item-section avatar>
+        <q-icon name="psychology_alt" />
+      </q-item-section>
+
+      <q-item-section>Encuestas para empleados</q-item-section>
     </q-item>
     <!--
     <q-item

@@ -7,9 +7,7 @@ const routes = [
     meta: {
       middlewares: [guest],
     },
-    children: [
-      { path: "", component: () => import("pages/HomePage.vue") },
-    ],
+    children: [{ path: "", component: () => import("pages/HomePage.vue") }],
   },
   {
     path: "/login",
@@ -98,6 +96,19 @@ const routes = [
     ],
   },
 
+  {
+    path: "/surveys",
+    component: () => import("layouts/MainLayout.vue"),
+    meta: {
+      middlewares: [admin],
+    },
+    children: [
+      {
+        path: "",
+        component: () => import("src/pages/survey/indexSurvey.vue"),
+      },
+    ],
+  },
 
   // Always leave this as last one,
   // but you can also remove it
