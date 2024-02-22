@@ -15,7 +15,7 @@
       <template v-slot:body-cell-action="props">
         <q-td>
           <q-btn flat round color="primary" icon="menu" @click="onRowClick(props.row)" />
-          <q-btn flat round color="primary" icon="people" />
+          <q-btn flat round color="primary" icon="people" @click="onRowClickAsing(props.row)" />
         </q-td>
       </template>
 
@@ -61,6 +61,24 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+
+    <q-dialog v-model="showEmployees" transition-show="rotate" transition-hide="rotate" persistent full-width
+      full-height="">
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">Asignar encuesta {{ selectedSurvey.title }}</div>
+        </q-card-section>
+        <q-separator />
+        <q-card class="q-pa-none scroll" flat>
+          <add-evaluees-form ref="evaluees" :survey="selectedSurvey" />
+        </q-card>
+        <q-separator />
+        <q-card-actions align="right">
+          <q-btn label="Cancelar" color="red" v-close-popup />
+          <q-btn label="Asignar encuesta encuesta" color="blue" @click="evalueeSurvey()" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
@@ -68,8 +86,10 @@
 import { ref, onMounted } from 'vue'
 
 import { sendRequest } from "src/boot/functions";
+import { api } from "src/boot/axios";
 import AddSurveyForm from "src/components/Survey/AddSurveyForm.vue";
 import EditSurveyForm from "src/components/Survey/EditSurveyForm.vue";
+import AddEvalueesForm from "src/components/Survey/AddEvalueesForm.vue";
 import { useQuasar } from "quasar";
 
 
@@ -78,8 +98,10 @@ const surveys = ref([])
 const selectedSurvey = ref(null)
 const showAdd = ref(false);
 const showDetails = ref(false)
+const showEmployees = ref(false)
 const add = ref(null);
 const edit = ref(null)
+const evaluees = ref(null)
 const $q = useQuasar();
 
 const columns = [
@@ -94,6 +116,11 @@ const columns = [
 const onRowClick = (row) => {
   selectedSurvey.value = row;
   showDetails.value = true;
+};
+
+const onRowClickAsing = (row) => {
+  selectedSurvey.value = row;
+  showEmployees.value = true;
 };
 
 const getSurveys = async () => {
@@ -142,6 +169,35 @@ const editSurvey = async () => {
     let res = await sendRequest("PUT", final, "/api/survey/" + final.id, "");
     showDetails.value = false;
     getSurveys();
+  } catch (error) {
+    console.error("Error al enviar la solicitud:", error);
+  }
+}
+
+const evalueeSurvey = async () => {
+  const final = {
+    evaluees: evaluees.value.selectedEvaluee
+  };
+  // try {
+  //   let res = await sendRequest("POST", final, "/surveys/evaluees/" + selectedSurvey.value.id, "");
+  //   showEmployees.value = false;
+  //   getSurveys();
+  // } catch (error) {
+  //   console.error("Error al enviar la solicitud:", error);
+  // }
+  try {
+    let res = await api.post(
+      `/surveys/evaluees/${selectedSurvey.value.id}`,
+      final,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data"
+        },
+        withCredentials: true
+      }
+    );
+    showEmployees.value = false
+    getSurveys()
   } catch (error) {
     console.error("Error al enviar la solicitud:", error);
   }
