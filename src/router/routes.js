@@ -109,7 +109,19 @@ const routes = [
       },
     ],
   },
-
+  {
+    path: "/encuestas",
+    component: () => import("layouts/MainLayout.vue"),
+    meta: {
+      middlewares: [auth],
+    },
+    children: [
+      {
+        path: "",
+        component: () => import("src/pages/survey/indexEvaluee.vue"),
+      },
+    ],
+  },
   // Always leave this as last one,
   // but you can also remove it
   {
