@@ -1,10 +1,11 @@
 <template>
   <div class="q-pa-md">
-    <q-table title="Encuesta" :rows="user.evaluee" :columns="columns" row-key="id" :rows-per-page-options="[0]">
+    <q-table title="Encuesta" :rows="surveys" :columns="columns" row-key="id" :rows-per-page-options="[0]">
       <template v-slot:body-cell-action="props">
         <q-td>
-          <q-btn v-if="props.row.status === 1" flat round color="primary" icon="play_arrow"
+          <q-btn v-if="isSurveyActive(props.row)" flat round color="primary" icon="play_arrow"
             @click="onRowClick(props.row)" />
+          <q-btn flat round color="primary" icon="search" @click="onRowClickDetail(props.row)" />
         </q-td>
       </template>
       <template v-slot:body-cell-status="props">
@@ -14,18 +15,93 @@
         </q-td>
       </template>
     </q-table>
+
+    <q-dialog v-model="showQuestions" transition-show="rotate" transition-hide="rotate" persistent full-width full-height>
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">Responde las preguntas de {{ selectedSurvey.title }}</div>
+        </q-card-section>
+        <q-separator />
+        <q-card class="q-pa-none scroll" flat>
+          <add-answers-form ref="answers" :survey="selectedSurvey" />
+        </q-card>
+        <q-separator />
+        <q-card-actions align="right">
+          <q-btn label="Cerrar evaluacion" color="blue" @click="sendAnswers()" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <q-dialog v-model="showAnswers" transition-show="rotate" transition-hide="rotate" persistent full-width full-height>
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">Respuestas de {{ selectedSurvey.title }}</div>
+        </q-card-section>
+        <q-separator />
+        <q-card class="q-pa-none scroll" flat>
+          <show-answers-form ref="answers" :survey="selectedSurvey" />
+        </q-card>
+        <q-separator />
+        <q-card-actions align="right">
+          <q-btn label="Cerrar" color="red" @click="sendAnswers()" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <!-- <q-dialog v-model="mostrarDialog" persistent>
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">¿Empezar prueba {{ selectedSurvey.title }}?</div>
+        </q-card-section>
+
+        <q-card-section>
+          ¿Seguro que deseas empezar? solo tendras 2 horas para comenzar y si la pagina se actualiza o se cierra se tomara
+          como terminada
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn label="Cancelar" color="red" @click="mostrarDialog = false" />
+          <q-btn label="Empezar" color="blue" @click="empezar()" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog> -->
+
+    <!-- <q-dialog v-model="terminar" persistent>
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">Enviar prueba {{ selectedSurvey.title }}</div>
+        </q-card-section>
+
+        <q-card-section>
+          ¿Estas seguro de haber respondido todas las preguntas de manera correcta?
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn label="Cancelar" color="red" @click="terminar = false" />
+          <q-btn label="Cerrar Evaluacion" color="blue" @click="sendAnswers()" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog> -->
   </div>
 </template>
 
 <script setup>
+import { sendRequest } from "src/boot/functions";
+import { ref, onMounted } from 'vue'
 import { useAuthStore } from "src/stores/auth";
 import { storeToRefs } from "pinia";
-import { onMounted } from 'vue';
+import AddAnswersForm from "src/components/Survey/AddAnswersForm.vue";
+import ShowAnswersForm from "src/components/Survey/ShowAnswersForm.vue";
 
 
-
+const showQuestions = ref(false)
+const showAnswers = ref(false)
+const answers = ref(null)
+const selectedSurvey = ref(null)
 const auth = useAuthStore();
 const { user } = storeToRefs(auth);
+const terminar = ref(false);
+const surveys = ref([])
 
 const columns = [
   { name: "id", label: "ID", align: "left", field: "id", sortable: true },
@@ -36,14 +112,46 @@ const columns = [
   { name: "action", label: "Action", align: "left", field: "action", sortable: true },
 ]
 
-const onRowClick = (row) => {
-  console.log(row);
+const getSurveys = async () => {
+  const id = user.value.id
+  let res = await sendRequest("GET", null, "/api/survey/user/" + id, "");
+  surveys.value = res;
 };
 
+// Método computado para evaluar si la encuesta está activa
+const isSurveyActive = (survey) => {
+  const expirationDate = new Date(survey.expire_date);
+  const currentDate = new Date();
 
+  // Si la fecha de expiración es posterior a la fecha actual y el estado es 1 (activo), la encuesta está activa
+  return expirationDate > currentDate && survey.status === 1;
+};
+
+// Método para manejar el clic en el botón
+const onRowClick = (row) => {
+  if (!isSurveyActive(row)) {
+    console.log('La encuesta no está activa o ha expirado');
+    return;
+  }
+
+  // Aquí puedes manejar la lógica para abrir la encuesta
+  showQuestions.value = true
+  selectedSurvey.value = row
+};
+
+const onRowClickDetail = (row) => {
+  showAnswers.value = true
+  selectedSurvey.value = row
+};
+
+const sendAnswers = () => {
+  showAnswers.value = false
+  showQuestions.value = false
+  terminar.value = false
+}
 
 onMounted(() => {
-
+  getSurveys()
 });
 
 

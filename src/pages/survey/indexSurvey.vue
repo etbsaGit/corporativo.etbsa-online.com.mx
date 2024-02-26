@@ -62,8 +62,7 @@
       </q-card>
     </q-dialog>
 
-    <q-dialog v-model="showEmployees" transition-show="rotate" transition-hide="rotate" persistent full-width
-      full-height="">
+    <q-dialog v-model="showEmployees" transition-show="rotate" transition-hide="rotate" persistent full-width full-height>
       <q-card>
         <q-card-section>
           <div class="text-h6">Asignar encuesta {{ selectedSurvey.title }}</div>

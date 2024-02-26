@@ -2,32 +2,15 @@
   <div class="q-pa-md">
     <q-card>
       <div class="q-pa-md">
-        <q-btn
-          label="Registrar Empleado"
-          color="primary"
-          @click="showAdd = true"
-          icon="person_add"
-        />
+        <q-btn label="Registrar Empleado" color="primary" @click="showAdd = true" icon="person_add" />
 
         <div><br /></div>
 
-        <q-btn
-          color="primary"
-          icon-right="archive"
-          label="Export to csv"
-          no-caps
-          @click="exportTable"
-        />
+        <q-btn color="primary" icon-right="archive" label="Export to csv" no-caps @click="exportTable" />
 
         <div><br /></div>
 
-        <q-input
-          outlined
-          class="boton"
-          color="green-9"
-          v-model="searchTerm"
-          label="Buscar empleado"
-        >
+        <q-input outlined class="boton" color="green-9" v-model="searchTerm" label="Buscar empleado">
           <template v-slot:prepend>
             <q-icon name="person_search" />
           </template>
@@ -39,52 +22,24 @@
 
         <br />
 
-        <q-table
-          flat
-          bordered
-          title="Empleados"
-          :rows="filteredEmployees"
-          :columns="columns"
-          row-key="name"
-          :visible-columns="visibleColumns"
-          dense
-          :rows-per-page-options="[0]"
-          
-        >
+        <q-table flat bordered title="Empleados" :rows="filteredEmployees" :columns="columns" row-key="name"
+          :visible-columns="visibleColumns" dense :rows-per-page-options="[0]">
           <template v-slot:top-right>
-            <q-btn
-              color="primary"
-              icon-right="archive"
-              label="Export to csv"
-              no-caps
-              @click="exportTable"
-            />
+            <q-btn color="primary" icon-right="archive" label="Export to csv" no-caps @click="exportTable" />
           </template>
 
           <template v-slot:top="props">
             <div class="col-2 q-table__title">Empleados</div>
 
-            <q-dialog
-              v-model="showAdd"
-              transition-show="rotate"
-              transition-hide="rotate"
-              persistent
-            >
+            <q-dialog v-model="showAdd" transition-show="rotate" transition-hide="rotate" persistent>
               <q-card style="width: 1800px">
                 <q-card-section>
                   <div class="text-h6">Registrar Empleado</div>
                 </q-card-section>
                 <q-separator />
 
-                <q-tabs
-                  v-model="tab"
-                  dense
-                  class="text-grey"
-                  active-color="primary"
-                  indicator-color="primary"
-                  align="justify"
-                  narrow-indicator
-                >
+                <q-tabs v-model="tab" dense class="text-grey" active-color="primary" indicator-color="primary"
+                  align="justify" narrow-indicator>
                   <q-tab name="tab_form_one" label="Datos Personales" />
                   <q-tab name="tab_form_two" label="Unidad Negocio" />
                 </q-tabs>
@@ -97,9 +52,7 @@
                     </q-tab-panel>
 
                     <q-tab-panel name="tab_form_two">
-                      <add-employeedtwo-form
-                        ref="form_2"
-                      ></add-employeedtwo-form>
+                      <add-employeedtwo-form ref="form_2"></add-employeedtwo-form>
                     </q-tab-panel>
                   </q-tab-panels>
                 </q-card>
@@ -108,50 +61,26 @@
 
                 <q-card-actions align="right">
                   <q-btn label="Cancelar" color="red" v-close-popup />
-                  <q-btn
-                    :disable="!form_1 || !form_2"
-                    label="Registrar"
-                    color="blue"
-                    @click="crearEmpleado()"
-                  />
+                  <q-btn :disable="!form_1 || !form_2" label="Registrar" color="blue" @click="crearEmpleado()" />
                 </q-card-actions>
               </q-card>
             </q-dialog>
             <!-- ------------------------------------------------ -->
             <q-space />
 
-            <q-select
-              v-model="visibleColumns"
-              multiple
-              borderless
-              dense
-              options-dense
-              :display-value="$q.lang.table.columns"
-              emit-value
-              map-options
-              :options="columns"
-              style="min-width: 150px"
-              option-value="name"
-            />
+            <q-select v-model="visibleColumns" multiple borderless dense options-dense
+              :display-value="$q.lang.table.columns" emit-value map-options :options="columns" style="min-width: 150px"
+              option-value="name" />
 
-            <q-btn
-              round
-              dense
-              :icon="props.inFullscreen ? 'fullscreen_exit' : 'fullscreen'"
-              @click="props.toggleFullscreen"
-              class="q-ml-md"
-            />
+            <q-btn round dense :icon="props.inFullscreen ? 'fullscreen_exit' : 'fullscreen'"
+              @click="props.toggleFullscreen" class="q-ml-md" />
           </template>
 
           <template v-slot:body-cell-nombre="props">
             <q-td @click="onRowClick(props.row)">
               <q-item class="q-my-none" dense>
                 <q-item-section avatar>
-                  <q-avatar
-                    color="primary"
-                    text-color="white"
-                    v-if="props.row.picture"
-                  >
+                  <q-avatar color="primary" text-color="white" v-if="props.row.picture">
                     <img :src="props.row.picture" alt="Foto del empleado" />
                   </q-avatar>
                   <q-avatar v-else color="primary" text-color="white">
@@ -169,6 +98,12 @@
           <template v-slot:body-cell-expediente="props">
             <q-td @click="onRowClickFile(props.row)">
               <q-btn flat round color="primary" icon="folder" />
+            </q-td>
+          </template>
+
+          <template v-slot:body-cell-survey="props">
+            <q-td v-if="props.row.user_id" @click="onRowClickSurvey(props.row)">
+              <q-btn flat round color="primary" icon="quiz" />
             </q-td>
           </template>
 
@@ -216,27 +151,15 @@
           </template>
         </q-table>
         <!-- ------------------------------------------------------------------- -->
-        <q-dialog
-          v-model="showDetails"
-          transition-show="rotate"
-          transition-hide="rotate"
-          persistent
-        >
+        <q-dialog v-model="showDetails" transition-show="rotate" transition-hide="rotate" persistent>
           <q-card style="width: 1800px">
             <q-card-section>
               <div class="text-h6">Actualizar Empleado</div>
             </q-card-section>
             <q-separator />
 
-            <q-tabs
-              v-model="tab"
-              dense
-              class="text-grey"
-              active-color="primary"
-              indicator-color="primary"
-              align="justify"
-              narrow-indicator
-            >
+            <q-tabs v-model="tab" dense class="text-grey" active-color="primary" indicator-color="primary" align="justify"
+              narrow-indicator>
               <q-tab name="tab_form_one" label="Datos Personales" />
               <q-tab name="tab_form_two" label="Unidad Negocio" />
             </q-tabs>
@@ -245,17 +168,11 @@
             <q-card style="height: 65vh" class="q-pa-none scroll" flat>
               <q-tab-panels v-model="tab" animated keep-alive>
                 <q-tab-panel name="tab_form_one">
-                  <edit-employeed-form
-                    ref="edit_1"
-                    :empleado="selectedEmployee"
-                  ></edit-employeed-form>
+                  <edit-employeed-form ref="edit_1" :empleado="selectedEmployee"></edit-employeed-form>
                 </q-tab-panel>
 
                 <q-tab-panel name="tab_form_two">
-                  <edit-employeedtwo-form
-                    ref="edit_2"
-                    :empleado="selectedEmployee"
-                  ></edit-employeedtwo-form>
+                  <edit-employeedtwo-form ref="edit_2" :empleado="selectedEmployee"></edit-employeedtwo-form>
                 </q-tab-panel>
               </q-tab-panels>
             </q-card>
@@ -264,23 +181,12 @@
 
             <q-card-actions align="right">
               <q-btn label="Cancelar" color="red" v-close-popup />
-              <q-btn
-                :disable="!edit_1 || !edit_2"
-                label="Actualizar"
-                color="blue"
-                @click="actualizarEmpleado()"
-              />
+              <q-btn :disable="!edit_1 || !edit_2" label="Actualizar" color="blue" @click="actualizarEmpleado()" />
             </q-card-actions>
           </q-card>
         </q-dialog>
         <!-- ---------------------------------------------------------------------------- -->
-        <q-dialog
-          v-model="showFiles"
-          transition-show="rotate"
-          transition-hide="rotate"
-          full-width
-          persistent
-        >
+        <q-dialog v-model="showFiles" transition-show="rotate" transition-hide="rotate" full-width persistent>
           <q-card style="width: 1800px">
             <q-card-section>
               <div class="text-h6">
@@ -293,38 +199,48 @@
             <q-card style="height: 70vh" class="q-pa-none scroll" flat>
               <q-tab-panels v-model="tab2" animated keep-alive>
                 <q-tab-panel name="tab_form_three">
-                  <edit-employeedthree-form
-                    ref="edit_3"
-                    :empleado="selectedEmployee"
-                  />
+                  <edit-employeedthree-form ref="edit_3" :empleado="selectedEmployee" />
                 </q-tab-panel>
               </q-tab-panels>
             </q-card>
           </q-card>
         </q-dialog>
         <!-- -------------------------------------------------------------------------------- -->
-        <q-dialog
-          v-model="showFilters"
-          transition-show="rotate"
-          transition-hide="rotate"
-          full-width
-          full-height
-          persistent
-        >
+        <q-dialog v-model="showFilters" transition-show="rotate" transition-hide="rotate" full-width full-height
+          persistent>
           <q-card>
             <q-card-section>
               <div class="text-h6">
-               Filtrar empleados
+                Filtrar empleados
               </div>
             </q-card-section>
             <q-separator />
             <q-card style="height: 82vh" class="q-pa-none scroll" flat>
               <q-card-section>
 
-                <filter-employeed
-                  ref="edit_4"
-                  :empleados="employees"
-                />
+                <filter-employeed ref="edit_4" :empleados="employees" />
+              </q-card-section>
+            </q-card>
+            <q-separator />
+            <q-card-actions align="right">
+              <q-btn label="Cancelar" color="red" v-close-popup />
+            </q-card-actions>
+          </q-card>
+        </q-dialog>
+
+        <q-dialog v-model="showSurvey" transition-show="rotate" transition-hide="rotate" full-width full-height
+          persistent>
+          <q-card>
+            <q-card-section>
+              <div class="text-h6">
+                Evaluaciones de {{ selectedEmployee.nombre }}
+              </div>
+            </q-card-section>
+            <q-separator />
+            <q-card class="q-pa-none scroll" flat>
+              <q-card-section>
+
+                <add-comment-form ref="edit_5" :empleado="selectedEmployee" />
               </q-card-section>
             </q-card>
             <q-separator />
@@ -346,6 +262,7 @@ import EditEmployeedForm from "src/components/Employeed/EditEmployeedForm.vue";
 import EditEmployeedtwoForm from "src/components/Employeed/EditEmployeedtwoForm.vue";
 import EditEmployeedthreeForm from "src/components/Employeed/EditEmployeedthreeForm.vue";
 import FilterEmployeed from "src/components/Employeed/FilterEmployeed.vue";
+import AddCommentForm from "src/components/Survey/AddCommentForm.vue";
 import { sendRequest } from "src/boot/functions";
 import { useQuasar, exportFile } from "quasar";
 import { inject } from "vue";
@@ -355,7 +272,8 @@ const form_2 = ref(null);
 const edit_1 = ref(null);
 const edit_2 = ref(null);
 const edit_3 = ref(null);
-const edit_4 = ref(null)
+const edit_4 = ref(null);
+const edit_5 = ref(null);
 const edit1_valid = ref()
 const edit2_valid = ref()
 
@@ -363,6 +281,7 @@ const $q = useQuasar();
 
 const showDetails = ref(false);
 const showFiles = ref(false);
+const showSurvey = ref(false);
 const selectedEmployee = ref(null);
 
 const bus = inject("bus"); // inside setup()
@@ -376,7 +295,8 @@ const visibleColumns = ref([
   "linea",
   "departamento",
   "puesto",
-  "expediente"
+  "expediente",
+  "survey"
 ]);
 
 const tab = ref("tab_form_one");
@@ -395,6 +315,11 @@ const onRowClick = (row) => {
 const onRowClickFile = (row) => {
   selectedEmployee.value = row;
   showFiles.value = true;
+};
+
+const onRowClickSurvey = (row) => {
+  selectedEmployee.value = row;
+  showSurvey.value = true;
 };
 
 const onClick = () => {
@@ -728,6 +653,12 @@ const columns = [
   {
     name: "expediente",
     label: "Expediente",
+    align: "left",
+    sortable: true
+  },
+  {
+    name: "survey",
+    label: "Evaluaciones",
     align: "left",
     sortable: true
   },
