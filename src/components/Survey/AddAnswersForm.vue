@@ -8,7 +8,7 @@
           :disable="pregunta.respuestaAsignada" filled dense>
           <template v-slot:after>
             <q-btn v-if="pregunta.type !== 'hidden' && !pregunta.respuestaAsignada" color="primary"
-              @click="enviarRespuesta(pregunta)" round dense flat icon="send" />
+              @click="enviarRespuesta(pregunta)" round dense flat icon="send" label="Enviar respuesta" />
           </template>
         </q-input>
         <div v-if="pregunta.type === 'select'">
@@ -16,7 +16,7 @@
             label="Selecciona tu respuesta" :disable="pregunta.respuestaAsignada" filled dense>
             <template v-slot:after>
               <q-btn v-if="pregunta.type !== 'hidden' && !pregunta.respuestaAsignada" color="primary"
-                @click="enviarRespuesta(pregunta)" round dense flat icon="send" />
+                @click="enviarRespuesta(pregunta)" round dense flat icon="send" label="Enviar respuesta" />
             </template>
           </q-select>
         </div>

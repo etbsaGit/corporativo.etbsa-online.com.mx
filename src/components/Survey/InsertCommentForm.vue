@@ -17,7 +17,8 @@
           <q-input v-if="pregunta.respuestaAsignada" v-model="pregunta.comments" label="Comentario" filled dense
             :value="pregunta.comments">
             <template v-slot:after>
-              <q-btn color="primary" @click="sendComments(pregunta)" round dense flat icon="send" />
+              <q-btn color="primary" @click="sendComments(pregunta)" round dense flat icon="send"
+                label="Enviar retroalimentacion" />
             </template>
           </q-input>
           <!-- Checkbox que se marca/desmarca según el valor del ranking -->
