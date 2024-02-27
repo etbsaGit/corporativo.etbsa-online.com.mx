@@ -20,6 +20,18 @@
               <q-btn color="primary" @click="sendComments(pregunta)" round dense flat icon="send" />
             </template>
           </q-input>
+          <!-- Checkbox que se marca/desmarca según el valor del ranking -->
+          <q-checkbox v-if="pregunta.respuestaAsignada" v-model="pregunta.rating" true-value="1" false-value="0"
+            checked-icon="task_alt" unchecked-icon="highlight_off" color="green">
+            <q-item-label v-if="pregunta.respuestaAsignada && pregunta.rating === '1'" caption style="color: green;">
+              La respuesta es correcta
+            </q-item-label>
+
+            <q-item-label v-if="pregunta.respuestaAsignada && pregunta.rating === '0'" caption style="color: red;">
+              La respuesta no es correcta
+            </q-item-label>
+          </q-checkbox>
+
         </q-item-section>
       </q-item>
     </q-list>
@@ -31,7 +43,6 @@ import { ref, onMounted } from 'vue';
 import { sendRequest } from "src/boot/functions";
 
 const { survey } = defineProps(["survey"]);
-const myForm = ref(null);
 
 const getAnswers = async () => {
   try {
@@ -43,6 +54,7 @@ const getAnswers = async () => {
         pregunta.respuestaAsignada = true; // Marcar como respuesta asignada
         pregunta.comments = respuesta.comments; // Asignar comentarios
         pregunta.respuesta_id = respuesta.id
+        pregunta.rating = respuesta.rating.toString(); // Convertir a string para que coincida con los valores de true-value y false-value
       }
     }
   } catch (error) {
@@ -51,7 +63,7 @@ const getAnswers = async () => {
 }
 
 const sendComments = async (pregunta) => {
-  const comments = { comments: pregunta.comments }
+  const comments = { comments: pregunta.comments, rating: pregunta.rating }
   try {
     let res = await sendRequest("PUT", comments, "/api/survey/answer/" + pregunta.respuesta_id, "");
     getAnswers()
@@ -65,3 +77,4 @@ onMounted(() => {
 });
 
 </script>
+

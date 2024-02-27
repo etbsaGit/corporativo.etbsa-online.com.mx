@@ -15,6 +15,18 @@
           <q-item-label caption v-if="pregunta.respuestaAsignada">
             <span v-if="pregunta.comments !== ''">Comentarios: {{ pregunta.comments }}</span>
           </q-item-label>
+          <q-checkbox v-if="pregunta.respuestaAsignada" v-model="pregunta.rating" true-value="1" false-value="0"
+            checked-icon="task_alt" unchecked-icon="highlight_off" color="green" disable>
+
+            <q-item-label v-if="pregunta.respuestaAsignada && pregunta.rating === '1'" caption style="color: green;">
+              La respuesta es correcta
+            </q-item-label>
+
+            <q-item-label v-if="pregunta.respuestaAsignada && pregunta.rating === '0'" caption style="color: red;">
+              La respuesta no es correcta
+            </q-item-label>
+          </q-checkbox>
+
         </q-item-section>
       </q-item>
     </q-list>
@@ -43,6 +55,8 @@ const getAnswers = async () => {
         pregunta.respuesta = respuesta.answer;
         pregunta.respuestaAsignada = true; // Marcar como respuesta asignada
         pregunta.comments = respuesta.comments; // Asignar comentarios
+        pregunta.respuesta_id = respuesta.id
+        pregunta.rating = respuesta.rating.toString();
       }
     }
   } catch (error) {

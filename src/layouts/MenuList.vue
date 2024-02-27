@@ -32,6 +32,14 @@
 
       <q-item-section>Encuestas para empleados</q-item-section>
     </q-item>
+    <q-item v-if="isEmpleado == true" clickable v-ripple to="/perfil" :active="link === 'perfil'" @click="link = 'perfil'"
+      active-class="my-menu-link">
+      <q-item-section avatar>
+        <q-icon name="person" />
+      </q-item-section>
+
+      <q-item-section>Perfil</q-item-section>
+    </q-item>
     <q-item v-if="isEmpleado == true" clickable v-ripple to="/encuestas" :active="link === 'encuestas'"
       @click="link = 'encuestas'" active-class="my-menu-link">
       <q-item-section avatar>
