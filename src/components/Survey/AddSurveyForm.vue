@@ -55,7 +55,7 @@
           transition-hide="jump-up" clearable filled dense hint
           :rules="[(val) => (val && val.length > 0) || 'Obligatorio']" />
 
-        <div v-if="pregunta.type === 'select'">
+        <div v-if="pregunta.type === 'select' || 'checkbox'">
           <q-item>
             <q-item-section>
               <div class="text-h6">
@@ -112,6 +112,7 @@ const formSurvey = ref({
 const types = [
   'textarea',
   'select',
+  'checkbox'
 ]
 
 const agregarPregunta = () => {

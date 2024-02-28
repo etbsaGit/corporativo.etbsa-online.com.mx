@@ -21,6 +21,18 @@
           </q-select>
         </div>
 
+        <div v-if="pregunta.type === 'checkbox'">
+          <q-item>
+            <q-option-group v-model="pregunta.respuesta"
+              :options="pregunta.data.map(item => ({ value: item.data, label: item.data }))"
+              :disable="pregunta.respuestaAsignada" inline>
+            </q-option-group>
+            <q-btn class="q-ml-auto" v-if="pregunta.type !== 'hidden' && !pregunta.respuestaAsignada" color="primary"
+              @click="enviarRespuesta(pregunta)" round dense flat icon="send" label="Enviar respuesta" />
+          </q-item>
+        </div>
+
+
       </q-item-section>
     </q-item>
   </q-form>
