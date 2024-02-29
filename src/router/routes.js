@@ -1,4 +1,4 @@
-import { auth, guest, admin, rrhh } from "./middleware";
+import { auth, guest, admin, rrhh, encuestador } from "./middleware";
 
 const routes = [
   {
@@ -100,7 +100,7 @@ const routes = [
     path: "/surveys",
     component: () => import("layouts/MainLayout.vue"),
     meta: {
-      middlewares: [admin],
+      middlewares: [encuestador],
     },
     children: [
       {

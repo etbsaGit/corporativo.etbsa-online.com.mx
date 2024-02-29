@@ -8,7 +8,7 @@
 
       <q-item-section>Usuarios</q-item-section>
     </q-item>
-    <q-item v-if="isRRHH == true" clickable v-ripple to="/employees" :active="link === 'dashboard'"
+    <q-item v-if="isRRHH == true || isEncuestador == true" clickable v-ripple to="/employees" :active="link === 'dashboard'"
       @click="link = 'dashboard'" active-class="my-menu-link">
       <q-item-section avatar>
         <q-icon name="group" />
@@ -24,8 +24,8 @@
 
       <q-item-section>Catalogos para empleados</q-item-section>
     </q-item>
-    <q-item v-if="isAdmin == true" clickable v-ripple to="/surveys" :active="link === 'surveys'" @click="link = 'surveys'"
-      active-class="my-menu-link">
+    <q-item v-if="isEncuestador == true" clickable v-ripple to="/surveys" :active="link === 'surveys'"
+      @click="link = 'surveys'" active-class="my-menu-link">
       <q-item-section avatar>
         <q-icon name="psychology_alt" />
       </q-item-section>
@@ -139,6 +139,7 @@ const nombresRoles = getNamesRoles(user.value);
 const isAdmin = nombresRoles.includes('Admin');
 const isRRHH = nombresRoles.includes('RRHH');
 const isEmpleado = nombresRoles.includes('Empleado');
+const isEncuestador = nombresRoles.includes('Encuestador');
 
 </script>
 

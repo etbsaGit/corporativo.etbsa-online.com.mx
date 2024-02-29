@@ -44,7 +44,8 @@
     <q-item v-for="(pregunta, index) in formSurvey.questions" :key="index">
       <q-item-section>
         <div class="text-h6">
-          <q-btn icon="delete" size="sm" color="red" filled dense @click="eliminarPregunta(index)"></q-btn>
+          <q-btn icon="delete" size="sm" color="red" label="Eliminar pregunta" filled dense
+            @click="eliminarPregunta(index)"></q-btn>
           Pregunta {{ index + 1 }}
         </div>
         <br />
@@ -69,7 +70,8 @@
               <q-input v-model="data.data" placeholder="Opcion" filled dense hint
                 :rules="[(val) => (val && val.length > 0) || 'Obligatorio']">
                 <template v-slot:before>
-                  <q-btn @click="eliminarOpcion(index, dataIndex)" icon="delete" size="sm" color="red" filled dense />
+                  <q-btn @click="eliminarOpcion(index, dataIndex)" icon="delete" size="sm" color="red" filled dense
+                    label="Eliminar opcion" />
                 </template>
               </q-input>
             </q-item-section>

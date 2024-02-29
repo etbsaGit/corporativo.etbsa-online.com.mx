@@ -22,7 +22,7 @@ export function auth(/* { to, from, next } */ { to, next }) {
 export function admin(/* { to, from, next } */ { to, next }) {
   const auth = useAuthStore();
   const nombresRoles = getNamesRoles(auth.user);
-  const isAdmin = nombresRoles.includes('Admin');
+  const isAdmin = nombresRoles.includes("Admin");
   if (isAdmin == false) {
     auth.returnUrl = to.fullPath;
     return next("/perfil");
@@ -30,10 +30,22 @@ export function admin(/* { to, from, next } */ { to, next }) {
   return next();
 }
 
-export function rrhh(/* { to, from, next } */ { to, next }) {
+export function rrhh({ to, next }) {
   const auth = useAuthStore();
   const nombresRoles = getNamesRoles(auth.user);
-  const isAdmin = nombresRoles.includes('RRHH');
+  const isAdmin = nombresRoles.includes("RRHH");
+  const isEncuestador = nombresRoles.includes("Encuestador");
+  if (isAdmin || isEncuestador) {
+    return next();
+  }
+  auth.returnUrl = to.fullPath;
+  return next("/perfil");
+}
+
+export function encuestador(/* { to, from, next } */ { to, next }) {
+  const auth = useAuthStore();
+  const nombresRoles = getNamesRoles(auth.user);
+  const isAdmin = nombresRoles.includes("Encuestador");
   if (isAdmin == false) {
     auth.returnUrl = to.fullPath;
     return next("/perfil");

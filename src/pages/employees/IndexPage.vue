@@ -96,13 +96,13 @@
           </template>
 
           <template v-slot:body-cell-expediente="props">
-            <q-td @click="onRowClickFile(props.row)">
+            <q-td @click="onRowClickFile(props.row)" v-if="isRRHH == true">
               <q-btn flat round color="primary" icon="folder" />
             </q-td>
           </template>
 
           <template v-slot:body-cell-survey="props">
-            <q-td v-if="props.row.user_id" @click="onRowClickSurvey(props.row)">
+            <q-td v-if="props.row.user_id && isEncuestador == true" @click="onRowClickSurvey(props.row)">
               <q-btn flat round color="primary" icon="quiz" />
             </q-td>
           </template>
@@ -266,6 +266,8 @@ import AddCommentForm from "src/components/Survey/AddCommentForm.vue";
 import { sendRequest } from "src/boot/functions";
 import { useQuasar, exportFile } from "quasar";
 import { inject } from "vue";
+import { useAuthStore } from "src/stores/auth";
+import { getNamesRoles } from "src/boot/functions";
 
 const form_1 = ref(null);
 const form_2 = ref(null);
@@ -284,6 +286,11 @@ const showFiles = ref(false);
 const showSurvey = ref(false);
 const selectedEmployee = ref(null);
 
+const auth = useAuthStore();
+const nombresRoles = getNamesRoles(auth.user);
+const isRRHH = nombresRoles.includes("RRHH");
+const isEncuestador = nombresRoles.includes("Encuestador");
+
 const bus = inject("bus"); // inside setup()
 
 const visibleColumns = ref([
@@ -295,9 +302,16 @@ const visibleColumns = ref([
   "linea",
   "departamento",
   "puesto",
-  "expediente",
-  "survey"
 ]);
+
+// Modificar el objeto visibleColumns según un atributo de falso o verdadero
+if (isEncuestador) {
+  visibleColumns.value.push("survey");
+}
+
+if (isRRHH) {
+  visibleColumns.value.push("expediente");
+}
 
 const tab = ref("tab_form_one");
 const tab2 = ref("tab_form_three");
@@ -308,18 +322,24 @@ const showFilters = ref(false);
 const employees = ref([]);
 
 const onRowClick = (row) => {
-  selectedEmployee.value = row;
-  showDetails.value = true;
+  if (isRRHH) {
+    selectedEmployee.value = row;
+    showDetails.value = true;
+  }
 };
 
 const onRowClickFile = (row) => {
-  selectedEmployee.value = row;
-  showFiles.value = true;
+  if (isRRHH) {
+    selectedEmployee.value = row;
+    showFiles.value = true;
+  }
 };
 
 const onRowClickSurvey = (row) => {
-  selectedEmployee.value = row;
-  showSurvey.value = true;
+  if (isEncuestador) {
+    selectedEmployee.value = row;
+    showSurvey.value = true;
+  }
 };
 
 const onClick = () => {
