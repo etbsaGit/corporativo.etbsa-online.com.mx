@@ -1,40 +1,61 @@
 <template>
   <q-form class="q-gutter-y-sm" ref="myForm" greedy>
-    <q-item v-for="pregunta in survey.question" :key="pregunta.id">
-      <q-item-section>
-        <q-item-label overline>{{ pregunta.question }}</q-item-label>
-        <q-item-label caption>{{ pregunta.description }}</q-item-label>
-        <q-input label="Escribe tu respuesta" v-if="pregunta.type === 'textarea'" v-model="pregunta.respuesta"
-          :disable="pregunta.respuestaAsignada" filled dense>
-          <template v-slot:after>
-            <q-btn v-if="pregunta.type !== 'hidden' && !pregunta.respuestaAsignada" color="primary"
-              @click="enviarRespuesta(pregunta)" round dense flat icon="send" label="Enviar respuesta" />
-          </template>
-        </q-input>
-        <div v-if="pregunta.type === 'select'">
-          <q-select v-model="pregunta.respuesta" :options="pregunta.data.map(item => item.data)"
-            label="Selecciona tu respuesta" :disable="pregunta.respuestaAsignada" filled dense>
+    <q-list bordered separator>
+      <q-item v-for="pregunta in survey.question" :key="pregunta.id">
+
+        <q-item-section>
+          <q-item-label overline>{{ pregunta.question }}</q-item-label>
+          <q-item-label caption>{{ pregunta.description }}</q-item-label>
+          <q-input label="Escribe tu respuesta" v-if="pregunta.type === 'textarea'" v-model="pregunta.respuesta"
+            :disable="pregunta.respuestaAsignada" filled dense>
             <template v-slot:after>
               <q-btn v-if="pregunta.type !== 'hidden' && !pregunta.respuestaAsignada" color="primary"
                 @click="enviarRespuesta(pregunta)" round dense flat icon="send" label="Enviar respuesta" />
             </template>
-          </q-select>
-        </div>
+          </q-input>
+          <q-input label="Escribe tu respuesta" v-if="pregunta.type === 'text'" v-model="pregunta.respuesta"
+            :disable="pregunta.respuestaAsignada" filled dense>
+            <template v-slot:after>
+              <q-btn v-if="pregunta.type !== 'hidden' && !pregunta.respuestaAsignada" color="primary"
+                @click="enviarRespuesta(pregunta)" round dense flat icon="send" label="Enviar respuesta" />
+            </template>
+          </q-input>
+          <div v-if="pregunta.type === 'select'">
+            <q-select v-model="pregunta.respuesta" :options="pregunta.data.map(item => item.data)"
+              label="Selecciona tu respuesta" :disable="pregunta.respuestaAsignada" filled dense>
+              <template v-slot:after>
+                <q-btn v-if="pregunta.type !== 'hidden' && !pregunta.respuestaAsignada" color="primary"
+                  @click="enviarRespuesta(pregunta)" round dense flat icon="send" label="Enviar respuesta" />
+              </template>
+            </q-select>
+          </div>
 
-        <div v-if="pregunta.type === 'checkbox'">
-          <q-item>
-            <q-option-group v-model="pregunta.respuesta"
-              :options="pregunta.data.map(item => ({ value: item.data, label: item.data }))"
-              :disable="pregunta.respuestaAsignada" inline>
-            </q-option-group>
-            <q-btn class="q-ml-auto" v-if="pregunta.type !== 'hidden' && !pregunta.respuestaAsignada" color="primary"
-              @click="enviarRespuesta(pregunta)" round dense flat icon="send" label="Enviar respuesta" />
-          </q-item>
-        </div>
+          <div v-if="pregunta.type === 'radio'">
+            <q-item>
+              <q-option-group v-model="pregunta.respuesta"
+                :options="pregunta.data.map(item => ({ value: item.data, label: item.data }))"
+                :disable="pregunta.respuestaAsignada" inline>
+              </q-option-group>
+              <q-btn class="q-ml-auto" v-if="pregunta.type !== 'hidden' && !pregunta.respuestaAsignada" color="primary"
+                @click="enviarRespuesta(pregunta)" round dense flat icon="send" label="Enviar respuesta" />
+            </q-item>
+          </div>
+
+          <div v-if="pregunta.type === 'checkbox'">
+            <q-item>
+              <q-option-group v-model="pregunta.respuesta"
+                :options="pregunta.data.map(item => ({ value: item.data, label: item.data }))"
+                :disable="pregunta.respuestaAsignada" inline type="checkbox">
+              </q-option-group>
+              <q-btn class="q-ml-auto" v-if="pregunta.type !== 'hidden' && !pregunta.respuestaAsignada" color="primary"
+                @click="enviarRespuestaCheckbox(pregunta)" round dense flat icon="send" label="Enviar respuesta" />
+            </q-item>
+          </div>
 
 
-      </q-item-section>
-    </q-item>
+        </q-item-section>
+      </q-item>
+    </q-list>
   </q-form>
 </template>
 
@@ -49,8 +70,13 @@ const $q = useQuasar();
 
 // Método para inicializar las respuestas en cada pregunta
 for (const pregunta of survey.question) {
-  pregunta.respuesta = '';
-  pregunta.respuestaAsignada = false; // Nueva propiedad para indicar si la respuesta está asignada
+  if (pregunta.type === 'checkbox') {
+    pregunta.respuesta = [];
+    pregunta.respuestaAsignada = false;
+  } else {
+    pregunta.respuesta = '';
+    pregunta.respuestaAsignada = false;
+  }
 }
 
 const formAnswer = ref({
@@ -65,15 +91,26 @@ const getAnswers = async () => {
     for (const pregunta of survey.question) {
       const respuesta = res.find(ans => ans.question_id === pregunta.id);
       if (respuesta) {
-        pregunta.respuesta = respuesta.answer;
-        pregunta.respuestaAsignada = true; // Marcar como respuesta asignada
+        pregunta.respuestaAsignada = true;
+        if (pregunta.type === 'checkbox') {
+          const respuestasSeleccionadas = respuesta.answer.split(',');
+          pregunta.respuesta = [];
+          for (const respuestaSeleccionada of respuestasSeleccionadas) {
+
+            pregunta.respuesta.push(respuestaSeleccionada.trim());
+          }
+        } else {
+          pregunta.respuesta = respuesta.answer;
+        }
       }
     }
+
+
     $q.notify({
       color: "green-5",
       textColor: "white",
       icon: "check",
-      message: "Puedes comenzar"
+      message: "Continua"
     });
   } catch (error) {
     console.error("Error al obtener las respuestas:", error);
@@ -93,6 +130,28 @@ const enviarRespuesta = async (pregunta) => {
 
   formAnswer.value.question_id = pregunta.id,
     formAnswer.value.answer = pregunta.respuesta
+
+  try {
+    let res = await sendRequest("POST", formAnswer.value, "/api/survey/answer", "");
+    getAnswers()
+  } catch (error) {
+    console.error("Error al enviar la solicitud:", error);
+  }
+};
+
+const enviarRespuestaCheckbox = async (pregunta) => {
+  if (pregunta.respuesta === 0) {
+    $q.notify({
+      color: "red-5",
+      textColor: "white",
+      icon: "warning",
+      message: "La respuesta está vacía"
+    });
+    return;
+  }
+
+  formAnswer.value.question_id = pregunta.id,
+    formAnswer.value.answer = pregunta.respuesta.join(', ')
 
   try {
     let res = await sendRequest("POST", formAnswer.value, "/api/survey/answer", "");

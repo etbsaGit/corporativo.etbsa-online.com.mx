@@ -31,7 +31,7 @@
     </q-item>
     <q-item>
       <q-item-section>
-        <q-checkbox size="xl" v-model="formSurvey.status" val="xl" label="Activa" />
+        <q-checkbox size="xl" v-model="formSurvey.status" val="xl" label="Activa" :true-value="1" :false-value="0" />
       </q-item-section>
     </q-item>
     <q-separator />
@@ -55,7 +55,7 @@
           transition-hide="jump-up" clearable filled dense hint
           :rules="[(val) => (val && val.length > 0) || 'Obligatorio']" />
 
-        <div v-if="pregunta.type === 'select' || 'checkbox'">
+        <div v-if="pregunta.type === 'select' || pregunta.type === 'checkbox' || pregunta.type === 'radio'">
           <q-item>
             <q-item-section>
               <div class="text-h6">
@@ -107,8 +107,9 @@ const formSurvey = ref({
 })
 
 const types = [
-  'textarea',
+  'text',
   'select',
+  'radio',
   'checkbox'
 ]
 

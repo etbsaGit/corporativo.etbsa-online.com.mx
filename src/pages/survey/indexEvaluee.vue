@@ -27,7 +27,7 @@
         </q-card>
         <q-separator />
         <q-card-actions align="right">
-          <q-btn label="Cerrar evaluacion" color="blue" @click="sendAnswers()" />
+          <q-btn label="Cerrar evaluacion" color="blue" v-close-popup />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -43,7 +43,7 @@
         </q-card>
         <q-separator />
         <q-card-actions align="right">
-          <q-btn label="Cerrar" color="red" @click="sendAnswers()" />
+          <q-btn label="Cerrar" color="red" v-close-popup />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -100,7 +100,6 @@ const answers = ref(null)
 const selectedSurvey = ref(null)
 const auth = useAuthStore();
 const { user } = storeToRefs(auth);
-const terminar = ref(false);
 const surveys = ref([])
 
 const columns = [
@@ -118,13 +117,10 @@ const getSurveys = async () => {
   surveys.value = res;
 };
 
-// Método computado para evaluar si la encuesta está activa
 const isSurveyActive = (survey) => {
-  const expirationDate = new Date(survey.expire_date);
-  const currentDate = new Date();
-
-  // Si la fecha de expiración es posterior a la fecha actual y el estado es 1 (activo), la encuesta está activa
-  return expirationDate > currentDate && survey.status === 1;
+  // Si la encuesta no tiene una fecha de expiración o la fecha de expiración es posterior a la fecha actual,
+  // y el estado es 1 (activo), la encuesta está activa
+  return (!survey.expire_date || new Date(survey.expire_date) > new Date()) && survey.status === 1;
 };
 
 // Método para manejar el clic en el botón
@@ -143,12 +139,6 @@ const onRowClickDetail = (row) => {
   showAnswers.value = true
   selectedSurvey.value = row
 };
-
-const sendAnswers = () => {
-  showAnswers.value = false
-  showQuestions.value = false
-  terminar.value = false
-}
 
 onMounted(() => {
   getSurveys()

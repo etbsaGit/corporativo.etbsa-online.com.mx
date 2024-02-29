@@ -14,7 +14,7 @@
     <q-item>
       <q-item-section>
         <q-input filled dense v-model="formSurvey.expire_date" mask="date" label="Cuando expira" lazy-rules
-          hint="Si no tiene fecha de expiracion dejar en blanco">
+          :rules="[(val) => (val && val.length > 0) || 'Obligatorio']">
           <template v-slot:append>
             <q-icon name="event" class="cursor-pointer">
               <q-popup-proxy cover transition-show="scale" transition-hide="scale">
@@ -55,7 +55,7 @@
           transition-hide="jump-up" clearable filled dense hint
           :rules="[(val) => (val && val.length > 0) || 'Obligatorio']" />
 
-        <div v-if="pregunta.type === 'select' || 'checkbox'">
+        <div v-if="pregunta.type === 'select' || pregunta.type === 'checkbox' || pregunta.type === 'radio'">
           <q-item>
             <q-item-section>
               <div class="text-h6">
@@ -110,8 +110,9 @@ const formSurvey = ref({
 })
 
 const types = [
-  'textarea',
+  'text',
   'select',
+  'radio',
   'checkbox'
 ]
 
