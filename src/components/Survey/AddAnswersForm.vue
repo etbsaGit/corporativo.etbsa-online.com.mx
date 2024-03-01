@@ -87,6 +87,9 @@ const formAnswer = ref({
 
 const getAnswers = async () => {
   try {
+    $q.loading.show({
+      message: 'cargando....'
+    })
     let res = await sendRequest("GET", null, `/api/survey/answer/${survey.id}/${survey.pivot.evaluee_id}`, "");
     for (const pregunta of survey.question) {
       const respuesta = res.find(ans => ans.question_id === pregunta.id);
@@ -104,14 +107,7 @@ const getAnswers = async () => {
         }
       }
     }
-
-
-    $q.notify({
-      color: "green-5",
-      textColor: "white",
-      icon: "check",
-      message: "Continua"
-    });
+    $q.loading.hide()
   } catch (error) {
     console.error("Error al obtener las respuestas:", error);
   }
@@ -134,6 +130,7 @@ const enviarRespuesta = async (pregunta) => {
   try {
     let res = await sendRequest("POST", formAnswer.value, "/api/survey/answer", "");
     getAnswers()
+
   } catch (error) {
     console.error("Error al enviar la solicitud:", error);
   }

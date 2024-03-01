@@ -68,10 +68,12 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useQuasar } from 'quasar'
 import { sendRequest } from "src/boot/functions";
 
 const { survey } = defineProps(["survey"]);
 const myForm = ref(null);
+const $q = useQuasar()
 
 const getColor = (value) => {
   return value === 1 ? 'green' : 'red'; // Cambia el color a verde cuando el valor es 1, de lo contrario, a rojo
@@ -89,6 +91,34 @@ for (const pregunta of survey.question) {
 }
 
 const getAnswers = async () => {
+  try {
+    $q.loading.show({
+      message: 'Enviando calificacion'
+    })
+    let res = await sendRequest("GET", null, `/api/survey/answer/${survey.id}/${survey.pivot.evaluee_id}`, "");
+    for (const pregunta of survey.question) {
+      const respuesta = res.find(ans => ans.question_id === pregunta.id);
+      if (respuesta) {
+        pregunta.respuestaAsignada = true;
+        if (pregunta.type === 'checkbox') {
+          const respuestasSeleccionadas = respuesta.answer.split(',');
+          pregunta.respuesta = [];
+          for (const respuestaSeleccionada of respuestasSeleccionadas) {
+
+            pregunta.respuesta.push(respuestaSeleccionada.trim());
+          }
+        } else {
+          pregunta.respuesta = respuesta.answer;
+        }
+      }
+    }
+    $q.loading.hide()
+  } catch (error) {
+    console.error("Error al obtener las respuestas:", error);
+  }
+}
+
+const getAnswersfirst = async () => {
   try {
     let res = await sendRequest("GET", null, `/api/survey/answer/${survey.id}/${survey.pivot.evaluee_id}`, "");
     for (const pregunta of survey.question) {
@@ -127,7 +157,7 @@ const sendComments = async (pregunta) => {
 }
 
 onMounted(() => {
-  getAnswers()
+  getAnswersfirst()
 });
 
 
