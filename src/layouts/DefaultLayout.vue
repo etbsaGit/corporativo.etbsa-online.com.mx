@@ -5,13 +5,7 @@
         <q-toolbar-title> ETBSA </q-toolbar-title>
 
         <!-- <div>ETBSA v{{ $q.version }}</div> -->
-        <q-btn
-          label="Login"
-          class="q-ml-md"
-          size="sm"
-          color="blue"
-          to="/login"
-        ></q-btn>
+        <q-btn v-if="!auth.user" label="Login" class="q-ml-md" size="sm" color="blue" to="/login"></q-btn>
       </q-toolbar>
     </q-header>
 
@@ -21,32 +15,11 @@
   </q-layout>
 </template>
 
-<script>
-import { defineComponent, ref } from "vue";
-// import EssentialLink from 'components/EssentialLink.vue'
-// import MenuList from "./MenuList.vue";
+<script setup>
 import { useAuthStore } from "src/stores/auth";
+import { storeToRefs } from "pinia";
 
-export default defineComponent({
-  name: "DefaultLayout",
-
-  components: {
-    // EssentialLink
-    // MenuList
-  },
-
-  setup() {
-    const auth = useAuthStore();
-    const { login } = auth;
-
-    return {
-      // essentialLinks: linksList,
-      // leftDrawerOpen,
-      // toggleLeftDrawer() {
-      //   leftDrawerOpen.value = !leftDrawerOpen.value;
-      // }
-      login
-    };
-  }
-});
+const auth = useAuthStore();
+const { login } = auth;
+const { user } = storeToRefs(auth);
 </script>

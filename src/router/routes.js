@@ -1,4 +1,4 @@
-import { auth, guest } from "./middleware";
+import { auth, guest, admin, rrhh, encuestador } from "./middleware";
 
 const routes = [
   {
@@ -7,9 +7,7 @@ const routes = [
     meta: {
       middlewares: [guest],
     },
-    children: [
-      { path: "", component: () => import("pages/HomePage.vue") },
-    ],
+    children: [{ path: "", component: () => import("pages/HomePage.vue") }],
   },
   {
     path: "/login",
@@ -35,7 +33,7 @@ const routes = [
     path: "/employees",
     component: () => import("layouts/MainLayout.vue"),
     meta: {
-      middlewares: [auth],
+      middlewares: [rrhh],
     },
     children: [
       {
@@ -45,10 +43,23 @@ const routes = [
     ],
   },
   {
-    path: "/catalogos",
+    path: "/perfil",
     component: () => import("layouts/MainLayout.vue"),
     meta: {
       middlewares: [auth],
+    },
+    children: [
+      {
+        path: "",
+        component: () => import("src/pages/employees/PerfilPage.vue"),
+      },
+    ],
+  },
+  {
+    path: "/catalogos",
+    component: () => import("layouts/MainLayout.vue"),
+    meta: {
+      middlewares: [rrhh],
     },
     children: [
       {
@@ -61,12 +72,12 @@ const routes = [
     path: "/users",
     component: () => import("layouts/MainLayout.vue"),
     meta: {
-      middlewares: [auth],
+      middlewares: [admin],
     },
     children: [
       {
         path: "",
-        component: () => import("src/pages/users/userIndex.vue"),
+        component: () => import("src/pages/users/index.vue"),
       },
     ],
   },
@@ -85,7 +96,32 @@ const routes = [
     ],
   },
 
-
+  {
+    path: "/surveys",
+    component: () => import("layouts/MainLayout.vue"),
+    meta: {
+      middlewares: [encuestador],
+    },
+    children: [
+      {
+        path: "",
+        component: () => import("src/pages/survey/indexSurvey.vue"),
+      },
+    ],
+  },
+  {
+    path: "/encuestas",
+    component: () => import("layouts/MainLayout.vue"),
+    meta: {
+      middlewares: [auth],
+    },
+    children: [
+      {
+        path: "",
+        component: () => import("src/pages/survey/index.vue"),
+      },
+    ],
+  },
   // Always leave this as last one,
   // but you can also remove it
   {

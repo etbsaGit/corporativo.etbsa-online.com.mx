@@ -3,7 +3,7 @@
     <q-item>
       <q-item-section style="max-width: 800px">
         <q-input
-          v-model="formSucursal.nombre"
+          v-model="formPermission.name"
           filled
           dense
           label="Nombre"
@@ -12,36 +12,25 @@
         />
       </q-item-section>
     </q-item>
-    <q-item>
-      <q-item-section style="max-width: 800px">
-        <q-input
-          v-model="formSucursal.direccion"
-          filled
-          dense
-          label="Dirección"
-          lazy-rules
-        />
-      </q-item-section>
-    </q-item>
   </q-form>
 </template>
-
 <script setup>
 import { ref } from "vue";
 
+const { permission } = defineProps(["permission"]);
 const myForm = ref(null);
+
+const formPermission = ref({
+  id: permission.id,
+  name: permission.name
+});
 
 const validate = async () => {
   return await myForm.value.validate();
 };
 
-const formSucursal = ref({
-  nombre: null,
-  direccion: null
-});
-
 defineExpose({
-  formSucursal,
+  formPermission,
   validate
 });
 </script>

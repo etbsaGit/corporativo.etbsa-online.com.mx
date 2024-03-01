@@ -106,6 +106,13 @@
           </q-item>
         </q-td>
       </template>
+
+      <template v-slot:body-cell-role="props">
+        <q-td>
+          <q-btn @click="onRowClickFile(props.row)" flat round color="primary" icon="shield" />
+          <q-btn @click="onRowClickPermissions(props.row)" flat round color="primary" icon="key" />
+        </q-td>
+      </template>
     </q-table>
 
     <q-dialog
@@ -139,6 +146,76 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+
+    <q-dialog
+          v-model="showRoles"
+          transition-show="rotate"
+          transition-hide="rotate"
+          persistent
+        >
+          <q-card>
+            <q-card-section>
+              <div class="text-h6">
+                Roles de {{ selectedUser.name }}
+              </div>
+            </q-card-section>
+            <q-separator />
+            <q-card class="q-pa-none scroll" flat>
+              <q-tab-panels v-model="tab2" animated keep-alive>
+                <q-tab-panel name="tab_form_two">
+                  <add-role-user-form
+                    ref="edit"
+                    :user="selectedUser"
+                  />
+                </q-tab-panel>
+              </q-tab-panels>
+              <q-separator />
+              <q-card-actions align="right">
+                <q-btn label="Cancelar" color="red" v-close-popup />
+                <q-btn
+                  label="Actualizar roles"
+                  color="blue"
+                  @click="asignRolUser()"
+                />
+              </q-card-actions>
+            </q-card>
+          </q-card>
+        </q-dialog>
+
+        <q-dialog
+          v-model="showPermissions"
+          transition-show="rotate"
+          transition-hide="rotate"
+          persistent
+        >
+          <q-card>
+            <q-card-section>
+              <div class="text-h6">
+                Permisos de {{ selectedUser.name }}
+              </div>
+            </q-card-section>
+            <q-separator />
+            <q-card class="q-pa-none scroll" flat>
+              <q-tab-panels v-model="tab3" animated keep-alive>
+                <q-tab-panel name="tab_form_three">
+                  <add-permission-user-form
+                    ref="edit2"
+                    :user="selectedUser"
+                  />
+                </q-tab-panel>
+              </q-tab-panels>
+              <q-separator />
+              <q-card-actions align="right">
+                <q-btn label="Cancelar" color="red" v-close-popup />
+                <q-btn
+                  label="Actualizar permisos"
+                  color="blue"
+                  @click="asignPermissionUser()"
+                />
+              </q-card-actions>
+            </q-card>
+          </q-card>
+        </q-dialog>
   </div>
 </template>
 
@@ -146,28 +223,46 @@
 import { ref, onMounted, computed } from "vue";
 import AddUserForm from "src/components/User/AddUserForm.vue";
 import EditUserForm from "src/components/User/EditUserForm.vue";
+import AddRoleUserForm from "src/components/User/AddRoleUserForm.vue";
+import AddPermissionUserForm from "src/components/User/AddPermissionUserForm.vue";
 
-import { sendRequest } from "src/boot/functions";
+import { sendRequest, getNamesRoles, getNamesPermissions } from "src/boot/functions";
 import { useQuasar } from "quasar";
 
 const form_1 = ref(null);
 const edit_1 = ref(null);
+const edit = ref(null);
+const edit2 = ref(null);
 
 const $q = useQuasar();
 
 const showDetails = ref(false);
 const selectedUser = ref(null);
 
-const visibleColumns = ref(["id", "name", "email", "email_verified_at"]);
+const visibleColumns = ref(["id", "name", "email", "role"]);
 
 const tab = ref("tab_form_one");
+const tab2 = ref("tab_form_two");
+const tab3 = ref("tab_form_three");
 const searchTerm = ref("");
 const showAdd = ref(false);
 const users = ref([]);
+const showRoles = ref(false);
+const showPermissions = ref(false);
 
 const onRowClick = (row) => {
   selectedUser.value = row;
   showDetails.value = true;
+};
+
+const onRowClickFile = (row) => {
+  selectedUser.value = row;
+  showRoles.value = true;
+};
+
+const onRowClickPermissions = (row) => {
+  selectedUser.value = row;
+  showPermissions.value = true;
 };
 
 const crearUser = async () => {
@@ -195,11 +290,8 @@ const crearUser = async () => {
   const final = {
     ...form_1.value.formUser
   };
-  console.log(final);
   try {
     let res = await sendRequest("POST", final, "/api/user", "");
-    console.log(res);
-
     // Si la solicitud es exitosa, recarga la página
     showAdd.value = false;
     getUsers();
@@ -220,9 +312,12 @@ const actualizarUser = async () => {
     });
     return;
   }
+  if (edit_1.value.formUser.password === '') {
+    edit_1.value.formUser.password = null;
+    edit_1.value.formUser.confirmPassword = null
+  }
   if (
-    edit_1.value.formUser.password !== edit_1.value.formUser.confirmPassword
-  ) {
+    edit_1.value.formUser.password !== edit_1.value.formUser.confirmPassword) {
     $q.notify({
       color: "red-5",
       textColor: "white",
@@ -234,19 +329,85 @@ const actualizarUser = async () => {
   const final = {
     ...edit_1.value.formUser
   };
-  console.log(final);
   try {
     let res = await sendRequest("PUT", final, "/api/user/" + final.id, "");
-    console.log(res);
-
-    // Si la solicitud es exitosa, cierra el diálogo y actualiza la lista de usuarios
     showDetails.value = false;
     getUsers();
   } catch (error) {
-    // Manejar el error aquí si es necesario
     console.error("Error al enviar la solicitud:", error);
   }
 };
+
+const asignRolUser = async () => {
+
+  if (edit.value.selectedRolesNames.length > 0) {
+    const final = { roles: edit.value.selectedRolesNames }
+    try {
+      let res = await sendRequest("POST", final, "/api/user/role/" + selectedUser.value.id)
+      $q.notify({
+        color: "green-5",
+        textColor: "white",
+        icon: "check",
+        message: "Roles actualizados con exito"
+      });
+      showRoles.value = false
+      getUsers()
+    } catch (error) {
+      console.error("Error al enviar la solicitud:", error);
+    }
+  } else {
+    try {
+      const name = { roles: getNamesRoles(selectedUser.value) }
+      let res = await sendRequest("DELETE", name, "/api/user/role/" + selectedUser.value.id)
+      $q.notify({
+        color: "green-5",
+        textColor: "white",
+        icon: "check",
+        message: "Roles actualizados con exito"
+      });
+      showRoles.value = false
+      getUsers()
+    } catch (error) {
+      console.error("Error al enviar la solicitud:", error);
+    }
+  }
+};
+
+const asignPermissionUser = async () => {
+
+  if (edit2.value.selectedPermissionsNames.length > 0) {
+    const final = { permissions: edit2.value.selectedPermissionsNames }
+    try {
+      let res = await sendRequest("POST", final, "/api/user/permission/" + selectedUser.value.id)
+      $q.notify({
+        color: "green-5",
+        textColor: "white",
+        icon: "check",
+        message: "Permisos actualizados con exito"
+      });
+      showPermissions.value = false
+      getUsers()
+    } catch (error) {
+      console.error("Error al enviar la solicitud:", error);
+    }
+  } else {
+    try {
+      const name = { permissions: getNamesPermissions(selectedUser.value) }
+      let res = await sendRequest("DELETE", name, "/api/user/permission/" + selectedUser.value.id)
+      $q.notify({
+        color: "green-5",
+        textColor: "white",
+        icon: "check",
+        message: "Permisos actualizados con exito"
+      });
+      showPermissions.value = false
+      getUsers()
+    } catch (error) {
+      console.error("Error al enviar la solicitud:", error);
+    }
+  }
+};
+
 
 const getUsers = async () => {
   let res = await sendRequest("GET", null, "/api/user/all", "");
@@ -275,7 +436,13 @@ const columns = [
     align: "left",
     field: "email_verified_at",
     sortable: true
-  }
+  },
+  {
+    name: "role",
+    label: "Access",
+    align: "left",
+    sortable: true
+  },
 ];
 
 const filteredUsers = computed(() => {

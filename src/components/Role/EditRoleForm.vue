@@ -3,23 +3,12 @@
     <q-item>
       <q-item-section style="max-width: 800px">
         <q-input
-          v-model="formSucursal.nombre"
+          v-model="formRole.name"
           filled
           dense
           label="Nombre"
           lazy-rules
           :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
-        />
-      </q-item-section>
-    </q-item>
-    <q-item>
-      <q-item-section style="max-width: 800px">
-        <q-input
-          v-model="formSucursal.direccion"
-          filled
-          dense
-          label="Dirección"
-          lazy-rules
         />
       </q-item-section>
     </q-item>
@@ -29,19 +18,22 @@
 <script setup>
 import { ref } from "vue";
 
+const { role } = defineProps(["role"]);
+
 const myForm = ref(null);
 
 const validate = async () => {
   return await myForm.value.validate();
 };
 
-const formSucursal = ref({
-  nombre: null,
-  direccion: null
+const formRole = ref({
+  id: role.id,
+  name: role.name
 });
 
+
 defineExpose({
-  formSucursal,
-  validate
+  formRole,
+  validate,
 });
 </script>

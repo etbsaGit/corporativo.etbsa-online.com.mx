@@ -113,7 +113,6 @@
           :rows-per-page-options="[0]"
           :visible-columns="visibleColumns"
           style="width: 800px"
-          
         >
           <template v-slot:body-cell-opciones="props">
             <q-td>

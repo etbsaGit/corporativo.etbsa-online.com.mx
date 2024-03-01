@@ -65,3 +65,35 @@ export async function sendRequest(method, params, url, redirect = "") {
   }
 }
 
+// export function tieneRolAdmin(usuario) {
+//   if (usuario && Array.isArray(usuario.roles)) {
+//     for (const rol of usuario.roles) {
+//       if (rol.name.includes('Admin')) {
+//         return true;
+//       }
+//     }
+//   }
+//   return false;
+// }
+
+export function getNamesRoles(usuario) {
+  const nameRoles = [];
+  if (usuario && Array.isArray(usuario.roles)) {
+    for (const role of usuario.roles) {
+      nameRoles.push(role.name);
+    }
+  }
+  return nameRoles;
+}
+
+export function getNamesPermissions(usuario) {
+  const namePermissions = [];
+  if (usuario && Array.isArray(usuario.permissions)) {
+    for (const permission of usuario.permissions) {
+      namePermissions.push(permission.name);
+    }
+  }
+  return namePermissions;
+}
+
+

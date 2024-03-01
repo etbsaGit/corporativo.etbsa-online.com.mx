@@ -8,15 +8,13 @@
     />
 
     <div><br /></div>
-
-        <q-btn
-          color="primary"
-          icon-right="archive"
-          label="Export to csv"
-          no-caps
-          @click="exportTable"
-        />
-
+    <q-btn
+      color="primary"
+      icon-right="archive"
+      label="Export to csv"
+      no-caps
+      @click="exportTable"
+    />
     <div><br /></div>
 
     <q-input
@@ -52,14 +50,14 @@
           transition-show="rotate"
           transition-hide="rotate"
         >
-          <q-card style="max-width: 400px">
+          <q-card style="width: 2000px">
             <q-card-section>
               <div class="text-h6">Registrar Puesto</div>
             </q-card-section>
             <q-separator />
 
             <q-separator />
-            <q-card style="max-height: 400px" class="q-pa-none scroll" flat>
+            <q-card style="max-height: 1000px" class="q-pa-none scroll" flat>
               <q-tab-panels v-model="tab" animated keep-alive>
                 <q-tab-panel name="tab_form_one">
                   <add-puesto-form ref="form_1"></add-puesto-form>
@@ -123,14 +121,14 @@
       transition-show="rotate"
       transition-hide="rotate"
     >
-      <q-card style="max-width: 400px">
+      <q-card style="width: 2000px">
         <q-card-section>
           <div class="text-h6">Actualizar puesto</div>
         </q-card-section>
         <q-separator />
 
         <q-separator />
-        <q-card style="max-height: 400px" class="q-pa-none scroll" flat>
+        <q-card style="max-height: 1000px" class="q-pa-none scroll" flat>
           <q-tab-panels v-model="tab" animated keep-alive>
             <q-tab-panel name="tab_form_one">
               <edit-puesto-form
@@ -263,7 +261,6 @@ const wrapCsvValue = (val, formatFn, row) => {
     const propertyName = "nombre"; // Cambia 'nombre' por la propiedad que deseas mostrar
     formatted = val[propertyName] || ""; // Utilizamos 'nombre' como ejemplo
   }
-
   return `"${formatted}"`;
 };
 
@@ -296,8 +293,6 @@ const exportTable = () => {
     });
   }
 };
-
-
 onMounted(() => {
   getPuestos();
 });

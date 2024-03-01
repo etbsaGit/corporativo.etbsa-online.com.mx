@@ -1,73 +1,42 @@
 <template>
-  <q-form class="q-gutter-y-sm" ref="myForm" greedy>
-    <q-item>
-      <q-item-section>
-        <q-file
-          filled
-          dense
-          bottom-slots
-          v-model="fotografia"
-          label="Fotografia"
-          clearable
-          accept=".jpg,.jpeg,.png,.jpg"
-          max-files="1"
-        >
-          <template v-slot:before>
-            <q-avatar
-              color="primary"
-              text-color="white"
-              caption
-              icon="photo_camera"
-            >
-            </q-avatar>
-          </template>
-
-          <template v-slot:hint>(Opcional)</template>
-
-          <template v-slot:after>
-            <q-btn round dense flat icon="send" @click="uploadPicture" />
-          </template>
-        </q-file>
-      </q-item-section>
-    </q-item>
+  <div class="q-pa-md">
+  <q-form ref="myForm" greedy>
     <q-item>
       <q-item-section>
         <q-input
+          disable
           v-model="formEmployee.nombre"
           filled
           dense
           label="Primer Nombre"
-          :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
-        />
+          />
+          <!-- input-style="color: black; font-weight: bold;" -->
       </q-item-section>
       <q-item-section>
         <q-input
+          disable
           v-model="formEmployee.segundo_nombre"
           filled
           dense
           label="Segundo Nombre"
-          hint="(opcional)"
         />
       </q-item-section>
-    </q-item>
-
-    <q-item>
       <q-item-section>
         <q-input
+          disable
           v-model="formEmployee.apellido_paterno"
           filled
           dense
           label="Apellido paterno"
-          :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
         />
       </q-item-section>
       <q-item-section>
         <q-input
+          disable
           v-model="formEmployee.apellido_materno"
           filled
           dense
           label="Apellido materno"
-          :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
         />
       </q-item-section>
     </q-item>
@@ -75,107 +44,95 @@
     <q-item>
       <q-item-section>
         <q-input
+          disable
           v-model="formEmployee.telefono"
           filled
           dense
           label="Telefono"
           mask="##########"
-          hint
         />
       </q-item-section>
-    </q-item>
-
-    <q-item>
       <q-item-section>
         <q-input
+          disable
           v-model="formEmployee.telefono_institucional"
           filled
           dense
           label="Telefono Institucional"
           mask="##########"
-          hint="Opcional"
-          :rules="[
-            (val) =>
-              !val || (val && /^\d{10}$/.test(val)) || 'Debe tener 10 dígitos'
-          ]"
         />
       </q-item-section>
-    </q-item>
-
-    <q-item>
       <q-item-section>
         <q-input
+          disable
           v-model="formEmployee.correo_institucional"
           filled
           dense
           label="Correo institucional"
-          hint="Opcional"
-          :rules="[
-            (v) => !v || /.+@.+\..+/.test(v) || 'Formato de correo inválido'
-          ]"
         />
       </q-item-section>
     </q-item>
 
+
     <q-item>
       <q-item-section>
-        <q-input filled dense hint v-model="formEmployee.calle" label="Calle" />
+        <q-input
+          disable filled dense v-model="formEmployee.calle" label="Calle" />
       </q-item-section>
       <q-item-section>
         <q-input
+          disable
           filled
           dense
           v-model="formEmployee.numero_exterior"
           label="# Exterior"
-          hint
         />
       </q-item-section>
       <q-item-section>
         <q-input
+          disable
           filled
           dense
           v-model="formEmployee.numero_interior"
           label="# Interior"
-          hint="Opcional"
         />
       </q-item-section>
-    </q-item>
-    <q-item>
       <q-item-section>
         <q-input
+          disable
           filled
           dense
-          hint
           v-model="formEmployee.colonia"
           label="Colonia"
         />
       </q-item-section>
       <q-item-section>
         <q-input
+          disable
           filled
           dense
           v-model="formEmployee.codigo_postal"
           label="Codigo postal"
           mask="#####"
-          hint
         />
       </q-item-section>
     </q-item>
+
     <q-item>
       <q-item-section>
         <q-input
+          disable
           filled
           dense
-          hint
           v-model="formEmployee.ciudad"
           label="Ciudad"
         />
       </q-item-section>
       <q-item-section>
         <q-input
+          disable
           filled
           dense
-          hint
           v-model="formEmployee.estado"
           label="Estado"
         />
@@ -185,12 +142,12 @@
     <q-item>
       <q-item-section>
         <q-input
+          disable
           filled
           dense
           v-model="formEmployee.fecha_de_nacimiento"
           mask="date"
           label="Fecha de Nacimiento"
-          hint
         >
           <template v-slot:append>
             <q-icon name="event" class="cursor-pointer">
@@ -213,52 +170,45 @@
 
     <q-item>
       <q-item-section>
-        <q-input v-model="formEmployee.curp" hint filled dense label="CURP" />
-      </q-item-section>
-      <q-item-section>
         <q-input
-          v-model="formEmployee.rfc"
+          disable
+          v-model="formEmployee.curp"
           filled
           dense
-          label="RFC"
-          hint
-
+          label="CURP"
           />
-        <!-- :rules="[
-            (val) => !!val || 'Este campo es obligatorio',
-            (val) => (val && val.length === 13) || 'El RFC debe tener exactamente 13 dígitos'
-          ]" -->
+      </q-item-section>
+      <q-item-section>
+
+        <q-input
+          disable 
+          v-model="formEmployee.rfc" 
+          filled
+          dense
+          label="RFC"/>
+
       </q-item-section>
     </q-item>
 
     <q-item>
       <q-item-section>
+
         <q-input
+          disable
           v-model="formEmployee.ine"
           filled
           dense
           label="INE"
-          hint
-
           />
-        <!-- :rules="[
-            (val) => !!val || 'Este campo es obligatorio',
-            (val) => (val && val.length === 10) || 'El INE debe tener exactamente 10 dígitos'
-          ]" -->
+
       </q-item-section>
       <q-item-section>
         <q-input
+          disable
           v-model="formEmployee.licencia_de_manejo"
           filled
           dense
           label="Licencia de manejo"
-          hint="(opcional)"
-          :rules="[
-            (val) =>
-              !val ||
-              (val && val.length === 16) ||
-              'La licencia debe tener exactamente 16 caracteres'
-          ]"
         />
       </q-item-section>
     </q-item>
@@ -266,20 +216,20 @@
     <q-item>
       <q-item-section>
         <q-input
+          disable
           v-model="formEmployee.passaporte"
           filled
           dense
           label="Pasaporte"
-          hint="(opcional)"
         />
       </q-item-section>
       <q-item-section>
         <q-input
+          disable
           v-model="formEmployee.visa"
           filled
           dense
           label="Visa"
-          hint="(opcional)"
           mask="################"
         />
       </q-item-section>
@@ -300,28 +250,28 @@
           transition-hide="jump-up"
           clearable
           filled
-          hint
           dense
+          disable
         />
       </q-item-section>
     </q-item>
     <q-item v-if="[4, 5, 6].includes(formEmployee.escolaridad_id)">
       <q-item-section>
         <q-input
+          disable
           v-model="formEmployee.cedula_profecional"
           filled
           dense
           label="Cedula Profesional"
-          hint
         />
       </q-item-section>
       <q-item-section>
         <q-input
+          disable
           v-model="formEmployee.carrera"
           filled
           dense
           label="Carrera"
-          hint
         />
       </q-item-section>
     </q-item>
@@ -329,32 +279,32 @@
     <q-item>
       <q-item-section>
         <q-input
+          disable
           v-model="formEmployee.nss"
           filled
           dense
           label="Numero de seguridad social"
           mask="###########"
-          hint
         />
       </q-item-section>
       <q-item-section>
         <q-input
+          disable
           v-model="formEmployee.hijos"
           filled
           dense
           label="Numero de hijos"
           mask="###"
-          hint="Opcional"
         />
       </q-item-section>
       <q-item-section>
         <q-input
+          disable
           v-model="formEmployee.dependientes_economicos"
           filled
           dense
           label="Numero de dependientes economicos"
           mask="###"
-          hint="Opcional"
         />
       </q-item-section>
     </q-item>
@@ -375,7 +325,7 @@
           clearable
           filled
           dense
-          hint
+          disable
         />
       </q-item-section>
       <q-item-section>
@@ -393,7 +343,7 @@
           clearable
           filled
           dense
-          hint
+          disable
         />
       </q-item-section>
     </q-item>
@@ -401,25 +351,22 @@
     <q-item>
       <q-item-section>
         <q-input
+          disable
           v-model="formEmployee.cuenta_bancaria"
           filled
           dense
           label="Numero de cuenta bancarias"
           mask="##################"
-          hint
         />
       </q-item-section>
     </q-item>
   </q-form>
+  </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
-import { sendRequest } from "src/boot/functions";
-import { api } from "src/boot/axios";
-import { inject } from "vue";
+import { ref } from "vue";
 
-const bus = inject("bus"); // inside setup()
 const { empleado } = defineProps(["empleado"]);
 
 const estadosCiviles = ref(null);
@@ -427,9 +374,8 @@ const tiposDeSangre = ref([]);
 const escolaridades = ref([]);
 const myForm = ref(null);
 
-const fotografia = ref(null)
-
 const formEmployee = ref({
+  fotografia: empleado.fotografia,
   id: empleado.id,
   nombre: empleado.nombre,
   segundo_nombre: empleado.segundo_nombre,
@@ -447,7 +393,7 @@ const formEmployee = ref({
   nss: empleado.nss,
   hijos: empleado.hijos,
   dependientes_economicos: empleado.dependientes_economicos,
-  escolaridad_id: empleado.escolaridad_id ? empleado.escolaridad.id : null,
+  escolaridad_id: empleado.escolaridad_id ? empleado.escolaridad.nombre : null,
   cedula_profecional: empleado.cedula_profecional,
   carrera: empleado.carrera,
   numero_exterior: empleado.numero_exterior,
@@ -458,61 +404,11 @@ const formEmployee = ref({
   ciudad: empleado.ciudad,
   estado: empleado.estado,
   cuenta_bancaria: empleado.cuenta_bancaria,
-  estado_civil_id: empleado.estado_civil_id ? empleado.estado_civil.id : null,
+  estado_civil_id: empleado.estado_civil_id ? empleado.estado_civil.nombre : null,
   tipo_de_sangre_id: empleado.tipo_de_sangre_id
-    ? empleado.tipo_de_sangre.id
+    ? empleado.tipo_de_sangre.nombre
     : null,
   correo_institucional: empleado.correo_institucional
 });
 
-const uploadPicture = async () => {
-  const formData = new FormData();
-  formData.append("pic", fotografia.value);
-  try {
-    let res = await api.post(
-      `/empleado/uploadPicture/${empleado.id}`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data"
-        },
-        withCredentials: true
-      }
-    );
-    bus.emit("cargar_empleados");
-    formEmployee.value.fotografia = null;
-  } catch (error) {
-    console.error("Error al enviar la solicitud:", error);
-  }
-};
-
-const getEstadosCiviles = async () => {
-  let res = await sendRequest("GET", null, "/api/estadoCivil/all", "");
-  estadosCiviles.value = res;
-};
-
-const getTiposDeSangre = async () => {
-  let res = await sendRequest("GET", null, "/api/tipoDeSangre/all", "");
-  tiposDeSangre.value = res;
-};
-
-const getEscolaridades = async () => {
-  let res = await sendRequest("GET", null, "/api/escolaridad/all", "");
-  escolaridades.value = res;
-};
-
-const validate = async () => {
-  return await myForm.value.validate();
-};
-
-onMounted(() => {
-  getEstadosCiviles();
-  getTiposDeSangre();
-  getEscolaridades();
-});
-
-defineExpose({
-  formEmployee,
-  validate
-});
 </script>

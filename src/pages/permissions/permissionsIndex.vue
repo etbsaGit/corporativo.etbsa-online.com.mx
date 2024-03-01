@@ -1,7 +1,7 @@
 <template>
   <div class="q-pa-md">
     <q-btn
-      label="Registrar departamento"
+      label="Registrar permission"
       color="primary"
       @click="showAdd = true"
       icon="add_circle"
@@ -26,15 +26,16 @@
     <q-table
       flat
       bordered
-      title="Departamentos"
-      :rows="filteredDepartamentos"
+      title="Permissions"
+      :rows="filteredPermissions"
       :columns="columns"
       row-key="name"
       :visible-columns="visibleColumns"
       dense
+      
     >
       <template v-slot:top="props">
-        <div class="col-2 q-table__title">Departamentos</div>
+        <div class="col-2 q-table__title">Permissions</div>
 
         <q-dialog
           v-model="showAdd"
@@ -43,7 +44,7 @@
         >
           <q-card style="width: 2000px">
             <q-card-section>
-              <div class="text-h6">Registrar Departamento</div>
+              <div class="text-h6">Registrar Permission</div>
             </q-card-section>
             <q-separator />
 
@@ -51,7 +52,7 @@
             <q-card style="max-height: 1000px" class="q-pa-none scroll" flat>
               <q-tab-panels v-model="tab" animated keep-alive>
                 <q-tab-panel name="tab_form_one">
-                  <add-departamento-form ref="form_1"></add-departamento-form>
+                  <add-permission-form ref="form_1"></add-permission-form>
                 </q-tab-panel>
               </q-tab-panels>
             </q-card>
@@ -60,11 +61,7 @@
 
             <q-card-actions align="right">
               <q-btn label="Cancelar" color="red" v-close-popup />
-              <q-btn
-                label="Registrar"
-                color="blue"
-                @click="crearDepartamento()"
-              />
+              <q-btn label="Registrar" color="blue" @click="crearPermission" />
             </q-card-actions>
           </q-card>
         </q-dialog>
@@ -94,17 +91,17 @@
         />
       </template>
 
-      <template v-slot:body-cell-nombre="props">
+      <template v-slot:body-cell-name="props">
         <q-td @click="onRowClick(props.row)">
           <q-item class="q-my-none" dense>
             <q-item-section avatar>
               <q-avatar color="primary" text-color="white">{{
-                props.row.nombre.charAt(0).toUpperCase()
+                props.row.name.charAt(0).toUpperCase()
               }}</q-avatar>
             </q-item-section>
 
             <q-item-section>
-              <q-item-label>{{ props.row.nombre }}</q-item-label>
+              <q-item-label>{{ props.row.name }}</q-item-label>
             </q-item-section>
           </q-item>
         </q-td>
@@ -118,7 +115,7 @@
     >
       <q-card style="width: 2000px">
         <q-card-section>
-          <div class="text-h6">Actualizar departamento</div>
+          <div class="text-h6">Actualizar permission</div>
         </q-card-section>
         <q-separator />
 
@@ -126,10 +123,10 @@
         <q-card style="max-height: 1000px" class="q-pa-none scroll" flat>
           <q-tab-panels v-model="tab" animated keep-alive>
             <q-tab-panel name="tab_form_one">
-              <edit-departamento-form
+              <edit-permission-form
                 ref="edit_1"
-                :departamento="selectedDepartamento"
-              ></edit-departamento-form>
+                :permission="selectedPermission"
+              ></edit-permission-form>
             </q-tab-panel>
           </q-tab-panels>
         </q-card>
@@ -141,7 +138,7 @@
           <q-btn
             label="Actualizar"
             color="blue"
-            @click="actualizarDepartamento"
+            @click="actualizarPermission()"
           />
         </q-card-actions>
       </q-card>
@@ -151,8 +148,8 @@
 
 <script setup>
 import { ref, onMounted, computed } from "vue";
-import AddDepartamentoForm from "src/components/Departamento/AddDepartamentoForm.vue";
-import EditDepartamentoForm from "src/components/Departamento/EditDepartamentoForm.vue";
+import AddPermissionForm from "src/components/Permission/AddPermissionForm.vue";
+import EditPermissionForm from "src/components/Permission/EditPermissionForm.vue";
 
 import { sendRequest } from "src/boot/functions";
 import { useQuasar } from "quasar";
@@ -163,21 +160,21 @@ const edit_1 = ref(null);
 const $q = useQuasar();
 
 const showDetails = ref(false);
-const selectedDepartamento = ref(null);
+const selectedPermission = ref(null);
 
-const visibleColumns = ref(["id", "nombre"]);
+const visibleColumns = ref(["id", "name"]);
 
 const tab = ref("tab_form_one");
 const searchTerm = ref("");
 const showAdd = ref(false);
-const departamentos = ref([]);
+const permissions = ref([]);
 
 const onRowClick = (row) => {
-  selectedDepartamento.value = row;
+  selectedPermission.value = row;
   showDetails.value = true;
 };
 
-const crearDepartamento = async () => {
+const crearPermission = async () => {
   const form1_valid = await form_1.value.validate();
   if (!form1_valid) {
     $q.notify({
@@ -189,19 +186,19 @@ const crearDepartamento = async () => {
     return;
   }
   const final = {
-    ...form_1.value.formDepartamento
+    ...form_1.value.formPermission
   };
   try {
-    let res = await sendRequest("POST", final, "/api/departamento", "");
+    let res = await sendRequest("POST", final, "/api/permission", "");
 
     showAdd.value = false;
-    getDepartamentos();
+    getPermissions();
   } catch (error) {
     console.error("Error al enviar la solicitud:", error);
   }
 };
 
-const actualizarDepartamento = async () => {
+const actualizarPermission = async () => {
   const edit1_valid = await edit_1.value.validate();
   if (!edit1_valid) {
     $q.notify({
@@ -213,49 +210,49 @@ const actualizarDepartamento = async () => {
     return;
   }
   const final = {
-    ...edit_1.value.formDepartamento
+    ...edit_1.value.formPermission
   };
   try {
     let res = await sendRequest(
       "PUT",
       final,
-      "/api/departamento/" + final.id,
+      "/api/permission/" + final.id,
       ""
     );
 
     showDetails.value = false;
-    getDepartamentos();
+    getPermissions();
   } catch (error) {
     console.error("Error al enviar la solicitud:", error);
   }
 };
 
-const getDepartamentos = async () => {
-  let res = await sendRequest("GET", null, "/api/departamento/all", "");
-  departamentos.value = res;
+const getPermissions = async () => {
+  let res = await sendRequest("GET", null, "/api/permission", "");
+  permissions.value = res;
 };
 
 const columns = [
   { name: "id", label: "ID", align: "left", field: "id", sortable: true },
   {
-    name: "nombre",
+    name: "name",
     label: "Nombre",
     align: "left",
-    field: "nombre",
+    field: "name",
     sortable: true
   }
 ];
 
-const filteredDepartamentos = computed(() => {
-  return departamentos.value.filter((departamento) => {
-    return departamento.nombre
+const filteredPermissions = computed(() => {
+  return permissions.value.filter((permission) => {
+    return permission.name
       .toLowerCase()
       .includes(searchTerm.value.toLowerCase());
   });
 });
 
 onMounted(() => {
-  getDepartamentos();
+  getPermissions();
 });
 </script>
 
