@@ -267,6 +267,6 @@ onMounted(() => {
 
 defineExpose({
   formEmployeetwo,
-  validate
+  validate,
 });
 </script>

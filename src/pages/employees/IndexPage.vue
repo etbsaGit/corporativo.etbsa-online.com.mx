@@ -21,9 +21,17 @@
         </q-input>
 
         <br />
-
-        <q-table flat bordered title="Empleados" :rows="filteredEmployees" :columns="columns" row-key="name"
-          :visible-columns="visibleColumns" dense :rows-per-page-options="[0]">
+        <q-table
+          flat
+          bordered
+          title="Empleados"
+          :rows="filteredEmployees"
+          :columns="columns"
+          row-key="name"
+          :visible-columns="visibleColumns"
+          dense
+          :rows-per-page-options="[0]"
+        >
           <template v-slot:top-right>
             <q-btn color="primary" icon-right="archive" label="Export to csv" no-caps @click="exportTable" />
           </template>

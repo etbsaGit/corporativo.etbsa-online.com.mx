@@ -8,7 +8,6 @@
     />
 
     <div><br /></div>
-
     <q-btn
       color="primary"
       icon-right="archive"
@@ -16,7 +15,6 @@
       no-caps
       @click="exportTable"
     />
-
     <div><br /></div>
 
     <q-input
@@ -295,7 +293,6 @@ const exportTable = () => {
     });
   }
 };
-
 onMounted(() => {
   getPuestos();
 });
