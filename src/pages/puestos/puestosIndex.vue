@@ -40,7 +40,6 @@
       row-key="name"
       :visible-columns="visibleColumns"
       dense
-      
     >
       <template v-slot:top="props">
         <div class="col-2 q-table__title">Puestos</div>
@@ -185,21 +184,17 @@ const crearPuesto = async () => {
       color: "red-5",
       textColor: "white",
       icon: "warning",
-      message: "Por favor completa todos los campos obligatorios"
+      message: "Por favor completa todos los campos obligatorios",
     });
     return;
   }
   const final = {
-    ...form_1.value.formPuesto
+    ...form_1.value.formPuesto,
   };
-  try {
-    let res = await sendRequest("POST", final, "/api/puesto", "");
+  let res = await sendRequest("POST", final, "/api/puesto", "");
 
-    showAdd.value = false;
-    getPuestos();
-  } catch (error) {
-    console.error("Error al enviar la solicitud:", error);
-  }
+  showAdd.value = false;
+  getPuestos();
 };
 
 const actualizarPuesto = async () => {
@@ -209,21 +204,16 @@ const actualizarPuesto = async () => {
       color: "red-5",
       textColor: "white",
       icon: "warning",
-      message: "Por favor completa todos los campos obligatorios"
+      message: "Por favor completa todos los campos obligatorios",
     });
     return;
   }
   const final = {
-    ...edit_1.value.formPuesto
+    ...edit_1.value.formPuesto,
   };
-  try {
-    let res = await sendRequest("PUT", final, "/api/puesto/" + final.id, "");
-
-    showDetails.value = false;
-    getPuestos();
-  } catch (error) {
-    console.error("Error al enviar la solicitud:", error);
-  }
+  let res = await sendRequest("PUT", final, "/api/puesto/" + final.id, "");
+  showDetails.value = false;
+  getPuestos();
 };
 
 const getPuestos = async () => {
@@ -238,8 +228,8 @@ const columns = [
     label: "Nombre",
     align: "left",
     field: "nombre",
-    sortable: true
-  }
+    sortable: true,
+  },
 ];
 
 const filteredPuestos = computed(() => {
@@ -289,7 +279,7 @@ const exportTable = () => {
     $q.notify({
       message: "Browser denied file download...",
       color: "negative",
-      icon: "warning"
+      icon: "warning",
     });
   }
 };

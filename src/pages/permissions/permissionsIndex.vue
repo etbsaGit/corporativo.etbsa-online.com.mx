@@ -32,7 +32,6 @@
       row-key="name"
       :visible-columns="visibleColumns"
       dense
-      
     >
       <template v-slot:top="props">
         <div class="col-2 q-table__title">Permissions</div>
@@ -181,21 +180,16 @@ const crearPermission = async () => {
       color: "red-5",
       textColor: "white",
       icon: "warning",
-      message: "Por favor completa todos los campos obligatorios"
+      message: "Por favor completa todos los campos obligatorios",
     });
     return;
   }
   const final = {
-    ...form_1.value.formPermission
+    ...form_1.value.formPermission,
   };
-  try {
-    let res = await sendRequest("POST", final, "/api/permission", "");
-
-    showAdd.value = false;
-    getPermissions();
-  } catch (error) {
-    console.error("Error al enviar la solicitud:", error);
-  }
+  let res = await sendRequest("POST", final, "/api/permission", "");
+  showAdd.value = false;
+  getPermissions();
 };
 
 const actualizarPermission = async () => {
@@ -205,26 +199,17 @@ const actualizarPermission = async () => {
       color: "red-5",
       textColor: "white",
       icon: "warning",
-      message: "Por favor completa todos los campos obligatorios"
+      message: "Por favor completa todos los campos obligatorios",
     });
     return;
   }
   const final = {
-    ...edit_1.value.formPermission
+    ...edit_1.value.formPermission,
   };
-  try {
-    let res = await sendRequest(
-      "PUT",
-      final,
-      "/api/permission/" + final.id,
-      ""
-    );
+  let res = await sendRequest("PUT", final, "/api/permission/" + final.id, "");
 
-    showDetails.value = false;
-    getPermissions();
-  } catch (error) {
-    console.error("Error al enviar la solicitud:", error);
-  }
+  showDetails.value = false;
+  getPermissions();
 };
 
 const getPermissions = async () => {
@@ -239,8 +224,8 @@ const columns = [
     label: "Nombre",
     align: "left",
     field: "name",
-    sortable: true
-  }
+    sortable: true,
+  },
 ];
 
 const filteredPermissions = computed(() => {

@@ -1,16 +1,14 @@
 <script setup>
-import { useQuasar } from "quasar";
 import { useAuthStore } from "src/stores/auth";
 import { ref } from "vue";
 
-const $q = useQuasar();
 const { register } = useAuthStore();
 
 const form = ref({
   name: "",
   email: "",
   password: "",
-  password_confirmation: ""
+  password_confirmation: "",
 });
 </script>
 

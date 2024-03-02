@@ -191,7 +191,7 @@ const cargarArchivos = async () => {
       color: "red-5",
       textColor: "white",
       icon: "warning",
-      message: "Seleccione un a validar"
+      message: "Seleccione un a validar",
     });
     return;
   }
@@ -228,43 +228,43 @@ const columns = [
     label: "Nombre",
     align: "left",
     field: "nombre",
-    sortable: true
+    sortable: true,
   },
   {
     name: "path",
     label: "Path",
     align: "left",
     field: "path",
-    sortable: true
+    sortable: true,
   },
   {
     name: "tamano_de_archivo",
     label: "Tamaño del archivo",
     align: "left",
     field: "tamano_de_archivo",
-    sortable: true
+    sortable: true,
   },
   {
     name: "tipo_de_archivo",
     label: "Tipo de archivo",
     align: "left",
     field: "tipo_de_archivo",
-    sortable: true
+    sortable: true,
   },
   {
     name: "created_at",
     label: "Fecha de creacion",
     align: "left",
     field: "created_at",
-    sortable: true
+    sortable: true,
   },
   {
     name: "opciones",
     label: "Opciones",
     align: "left",
     field: "opciones",
-    sortable: true
-  }
+    sortable: true,
+  },
 ];
 
 const uploadFile = async () => {
@@ -277,9 +277,9 @@ const uploadFile = async () => {
       formData,
       {
         headers: {
-          "Content-Type": "multipart/form-data"
+          "Content-Type": "multipart/form-data",
         },
-        withCredentials: true
+        withCredentials: true,
       }
     );
     model.value = null;
@@ -295,18 +295,9 @@ const show = (archivoId) => {
 };
 
 const borrar = async (archivoId) => {
-  try {
-    let res = await sendRequest(
-      "DELETE",
-      null,
-      "/api/archivo/" + archivoId,
-      ""
-    );
-    cargarArchivos();
-    bus.emit("archivo-subido");
-  } catch (error) {
-    console.error("Error al enviar la solicitud:", error);
-  }
+  let res = await sendRequest("DELETE", null, "/api/archivo/" + archivoId, "");
+  cargarArchivos();
+  bus.emit("archivo-subido");
 };
 
 const formRequisito = ref({
@@ -314,7 +305,7 @@ const formRequisito = ref({
   expediente_id: requisito.pivot.expediente_id,
   fecha_de_vencimiento: requisito.pivot.fecha_de_vencimiento,
   comentario: requisito.pivot.comentario,
-  estatus_id: requisito.pivot.estatus_id
+  estatus_id: requisito.pivot.estatus_id,
 });
 
 onMounted(() => {
@@ -323,6 +314,6 @@ onMounted(() => {
 });
 
 defineExpose({
-  formRequisito
+  formRequisito,
 });
 </script>

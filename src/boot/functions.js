@@ -1,9 +1,8 @@
 // import Swal from 'sweetalert2';
 // import { nextTick } from '@vue/runtime-core';
 import axios from "axios";
-import { Notify } from "quasar";
 import { useAuthStore } from "src/stores/auth";
-
+import { Loading, QSpinnerGears, Notify } from "quasar";
 
 export function show_notify(msj, icon, color, focus) {
   if (focus !== "") {
@@ -20,7 +19,6 @@ const sleep = (miliseconds) => {
   return new Promise((resolve) => setTimeout(resolve, miliseconds));
 };
 
-
 // export function confirmation(name,url,redirect){
 //     const alert = Swal.mixin({buttonsStyling:true});
 //     alert.fire({
@@ -36,20 +34,35 @@ const sleep = (miliseconds) => {
 
 export async function sendRequest(method, params, url, redirect = "") {
   const authStore = useAuthStore();
-  axios.defaults.headers.common["Authorization"] = `Bearer ${authStore.authToken}`;
+  axios.defaults.headers.common[
+    "Authorization"
+  ] = `Bearer ${authStore.authToken}`;
   //axios.defaults.headers.common["Content-Type"] = "multipart/form-data"
   try {
+    Loading.show({
+      spinner: QSpinnerGears,
+    });
     const response = await axios({ method: method, url: url, data: params });
     const data = response.data;
-    //show_notify("Datos cargados con éxito", "check", "green", "");
+    if (method == "POST" || method == "PUT") {
+      show_notify("Registro cargado", "publish", "blue", "");
+    }
+    if (method == "GET") {
+      show_notify("Informacion cargada del servidor", "download", "green", "");
+    }
+    if (method == "DELETE") {
+      show_notify("Registro borrado", "delete", "orange", "");
+    }
     if (!!redirect) {
       await sleep(2000);
       window.location.href = redirect;
     }
+    Loading.hide();
     return data;
   } catch (err) {
+    Loading.hide();
     const errorMessage = err.response.data;
-    if (typeof errorMessage === 'object' && errorMessage !== null) {
+    if (typeof errorMessage === "object" && errorMessage !== null) {
       let errorMessages = [];
       for (const key in errorMessage) {
         if (Object.hasOwnProperty.call(errorMessage, key)) {
@@ -57,9 +70,9 @@ export async function sendRequest(method, params, url, redirect = "") {
           errorMessages.push(`Error en ${key}: ${error}`);
         }
       }
-      show_notify(errorMessages.join('\n'), "error", "red", "");
+      show_notify(errorMessages.join("\n"), "error", "red", "");
     } else {
-      show_notify('Error desconocido: ' + errorMessage, "check", "red", "");
+      show_notify("Error desconocido: " + errorMessage, "check", "red", "");
     }
     throw err;
   }
@@ -95,5 +108,3 @@ export function getNamesPermissions(usuario) {
   }
   return namePermissions;
 }
-
-

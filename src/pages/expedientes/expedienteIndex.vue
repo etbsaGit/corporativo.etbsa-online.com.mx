@@ -76,7 +76,7 @@
               <div
                 class="window"
                 :style="{
-                  backgroundColor: getStatusColor(requisito.pivot.estatus_id)
+                  backgroundColor: getStatusColor(requisito.pivot.estatus_id),
                 }"
               >
                 <q-file
@@ -124,18 +124,14 @@ const formRequisito = ref({});
 const formEmpleado = ref({ rfc: null, ine: null });
 
 const buscarEmpleado = async () => {
-  try {
-    let res = await sendRequest(
-      "GET",
-      null,
-      `/api/empleado/archivos/${formEmpleado.value.rfc}/${formEmpleado.value.ine}`,
-      ""
-    );
-    empleado.value = res;
-    requisitos.value = empleado.value.archivable[0].requisito;
-  } catch (error) {
-    console.error("Error al enviar la solicitud:", error);
-  }
+  let res = await sendRequest(
+    "GET",
+    null,
+    `/api/empleado/archivos/${formEmpleado.value.rfc}/${formEmpleado.value.ine}`,
+    ""
+  );
+  empleado.value = res;
+  requisitos.value = empleado.value.archivable[0].requisito;
 };
 
 const uploadFile = async (requisito) => {
@@ -149,9 +145,9 @@ const uploadFile = async (requisito) => {
       formData,
       {
         headers: {
-          "Content-Type": "multipart/form-data"
+          "Content-Type": "multipart/form-data",
         },
-        withCredentials: true
+        withCredentials: true,
       }
     );
     delete formRequisito.value[requisito.id];

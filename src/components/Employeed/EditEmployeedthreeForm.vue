@@ -12,7 +12,6 @@
             row-key="name"
             :filter="filter"
             :rows-per-page-options="[0]"
-            
           >
             <template v-slot:top-right>
               <q-input
@@ -43,7 +42,7 @@
                   backgroundColor: getStatusColor(props.row.pivot.estatus_id),
                   width: '200px',
                   height: '100px',
-                  margin: '5px'
+                  margin: '5px',
                 }"
               >
                 <q-card-section>
@@ -165,8 +164,8 @@ const columns = [
     name: "nombre",
     align: "left",
     field: "nombre",
-    sortable: true
-  }
+    sortable: true,
+  },
 ];
 
 bus.on("archivo-subido", () => {
@@ -206,34 +205,26 @@ const agregarDocumento = async () => {
       color: "red-5",
       textColor: "white",
       icon: "warning",
-      message: "Por favor completa todos los campos obligatorios"
+      message: "Por favor completa todos los campos obligatorios",
     });
     return;
   }
   const final = { ...edit_5.value.formDocumento };
-  try {
-    let res = await sendRequest("POST", final, "/api/documento", "");
-    showDetails.value = false;
-    obtenerEmpleado();
-  } catch (error) {
-    console.error("Error al enviar la solicitud:", error);
-  }
+  let res = await sendRequest("POST", final, "/api/documento", "");
+  showDetails.value = false;
+  obtenerEmpleado();
 };
 
 const borrar = async (archivoId) => {
-  try {
-    let res = await sendRequest(
-      "DELETE",
-      null,
-      "/api/documento/" + archivoId,
-      ""
-    );
-    showDetails.value = false;
-    selectedRequisito.value = false;
-    obtenerEmpleado();
-  } catch (error) {
-    console.error("Error al enviar la solicitud:", error);
-  }
+  let res = await sendRequest(
+    "DELETE",
+    null,
+    "/api/documento/" + archivoId,
+    ""
+  );
+  showDetails.value = false;
+  selectedRequisito.value = false;
+  obtenerEmpleado();
 };
 
 const obtenerEmpleado = async () => {
