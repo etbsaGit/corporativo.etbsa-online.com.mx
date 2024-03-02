@@ -2,23 +2,122 @@
   <div class="q-pa-md">
     <q-card>
       <div class="q-pa-md">
-        <q-btn label="Registrar Empleado" color="primary" @click="showAdd = true" icon="person_add" />
+        <q-btn
+          label="Registrar Empleado"
+          color="primary"
+          @click="showAdd = true"
+          icon="person_add"
+          v-if="isRRHH == true"
+        />
 
         <div><br /></div>
 
-        <q-btn color="primary" icon-right="archive" label="Export to csv" no-caps @click="exportTable" />
+        <q-btn
+          color="primary"
+          icon-right="archive"
+          label="Export to csv"
+          no-caps
+          @click="exportTable"
+        />
 
         <div><br /></div>
 
-        <q-input outlined class="boton" color="green-9" v-model="searchTerm" label="Buscar empleado">
-          <template v-slot:prepend>
-            <q-icon name="person_search" />
-          </template>
-
-          <template v-slot:before>
-            <q-btn color="primary" icon="search" label="Busqueda avanzada" stack @click="onClick" />
-          </template>
-        </q-input>
+        <q-item>
+          <q-item-section>
+            <q-select
+              v-model="formFilter.sucursal_id"
+              :options="sucursales"
+              label="Sucursal"
+              option-value="id"
+              option-label="nombre"
+              option-disable="inactive"
+              emit-value
+              map-options
+              transition-show="jump-up"
+              transition-hide="jump-up"
+              clearable
+              filled
+              dense
+            />
+          </q-item-section>
+          <q-item-section>
+            <q-select
+              v-model="formFilter.linea_id"
+              :options="lineas"
+              label="Linea"
+              option-value="id"
+              option-label="nombre"
+              option-disable="inactive"
+              emit-value
+              map-options
+              transition-show="jump-up"
+              transition-hide="jump-up"
+              clearable
+              filled
+              dense
+            />
+          </q-item-section>
+          <q-item-section>
+            <q-select
+              v-model="formFilter.departamento_id"
+              :options="departamentos"
+              label="Departamentos"
+              option-value="id"
+              option-label="nombre"
+              option-disable="inactive"
+              emit-value
+              map-options
+              transition-show="jump-up"
+              transition-hide="jump-up"
+              clearable
+              filled
+              dense
+            />
+          </q-item-section>
+          <q-item-section>
+            <q-select
+              v-model="formFilter.puesto_id"
+              :options="puestos"
+              label="Puesto"
+              option-value="id"
+              option-label="nombre"
+              option-disable="inactive"
+              emit-value
+              map-options
+              transition-show="jump-up"
+              transition-hide="jump-up"
+              clearable
+              filled
+              dense
+            />
+          </q-item-section>
+          <q-item-section>
+            <q-btn
+              color="primary"
+              icon="search"
+              label="Buscar"
+              dense
+              filled
+              @click="filter"
+            />
+          </q-item-section>
+        </q-item>
+        <q-item>
+          <q-item-section>
+            <q-input
+              outlined
+              dense
+              class="boton"
+              color="green-9"
+              v-model="searchTerm"
+              label="Buscar empleado"
+            >
+              <template v-slot:prepend>
+                <q-icon name="person_search" />
+              </template>
+            </q-input>
+          </q-item-section>
+        </q-item>
 
         <br />
         <q-table
@@ -33,21 +132,39 @@
           :rows-per-page-options="[0]"
         >
           <template v-slot:top-right>
-            <q-btn color="primary" icon-right="archive" label="Export to csv" no-caps @click="exportTable" />
+            <q-btn
+              color="primary"
+              icon-right="archive"
+              label="Export to csv"
+              no-caps
+              @click="exportTable"
+            />
           </template>
 
           <template v-slot:top="props">
             <div class="col-2 q-table__title">Empleados</div>
 
-            <q-dialog v-model="showAdd" transition-show="rotate" transition-hide="rotate" persistent>
+            <q-dialog
+              v-model="showAdd"
+              transition-show="rotate"
+              transition-hide="rotate"
+              persistent
+            >
               <q-card style="width: 1800px">
                 <q-card-section>
                   <div class="text-h6">Registrar Empleado</div>
                 </q-card-section>
                 <q-separator />
 
-                <q-tabs v-model="tab" dense class="text-grey" active-color="primary" indicator-color="primary"
-                  align="justify" narrow-indicator>
+                <q-tabs
+                  v-model="tab"
+                  dense
+                  class="text-grey"
+                  active-color="primary"
+                  indicator-color="primary"
+                  align="justify"
+                  narrow-indicator
+                >
                   <q-tab name="tab_form_one" label="Datos Personales" />
                   <q-tab name="tab_form_two" label="Unidad Negocio" />
                 </q-tabs>
@@ -60,7 +177,9 @@
                     </q-tab-panel>
 
                     <q-tab-panel name="tab_form_two">
-                      <add-employeedtwo-form ref="form_2"></add-employeedtwo-form>
+                      <add-employeedtwo-form
+                        ref="form_2"
+                      ></add-employeedtwo-form>
                     </q-tab-panel>
                   </q-tab-panels>
                 </q-card>
@@ -69,26 +188,50 @@
 
                 <q-card-actions align="right">
                   <q-btn label="Cancelar" color="red" v-close-popup />
-                  <q-btn :disable="!form_1 || !form_2" label="Registrar" color="blue" @click="crearEmpleado()" />
+                  <q-btn
+                    :disable="!form_1 || !form_2"
+                    label="Registrar"
+                    color="blue"
+                    @click="crearEmpleado()"
+                  />
                 </q-card-actions>
               </q-card>
             </q-dialog>
             <!-- ------------------------------------------------ -->
             <q-space />
 
-            <q-select v-model="visibleColumns" multiple borderless dense options-dense
-              :display-value="$q.lang.table.columns" emit-value map-options :options="columns" style="min-width: 150px"
-              option-value="name" />
+            <q-select
+              v-model="visibleColumns"
+              multiple
+              borderless
+              dense
+              options-dense
+              :display-value="$q.lang.table.columns"
+              emit-value
+              map-options
+              :options="columns"
+              style="min-width: 150px"
+              option-value="name"
+            />
 
-            <q-btn round dense :icon="props.inFullscreen ? 'fullscreen_exit' : 'fullscreen'"
-              @click="props.toggleFullscreen" class="q-ml-md" />
+            <q-btn
+              round
+              dense
+              :icon="props.inFullscreen ? 'fullscreen_exit' : 'fullscreen'"
+              @click="props.toggleFullscreen"
+              class="q-ml-md"
+            />
           </template>
 
           <template v-slot:body-cell-nombre="props">
             <q-td @click="onRowClick(props.row)">
               <q-item class="q-my-none" dense>
                 <q-item-section avatar>
-                  <q-avatar color="primary" text-color="white" v-if="props.row.picture">
+                  <q-avatar
+                    color="primary"
+                    text-color="white"
+                    v-if="props.row.picture"
+                  >
                     <img :src="props.row.picture" alt="Foto del empleado" />
                   </q-avatar>
                   <q-avatar v-else color="primary" text-color="white">
@@ -110,7 +253,10 @@
           </template>
 
           <template v-slot:body-cell-survey="props">
-            <q-td v-if="props.row.user_id && isEncuestador == true" @click="onRowClickSurvey(props.row)">
+            <q-td
+              v-if="props.row.user_id && isEncuestador == true"
+              @click="onRowClickSurvey(props.row)"
+            >
               <q-btn flat round color="primary" icon="quiz" />
             </q-td>
           </template>
@@ -159,15 +305,27 @@
           </template>
         </q-table>
         <!-- ------------------------------------------------------------------- -->
-        <q-dialog v-model="showDetails" transition-show="rotate" transition-hide="rotate" persistent>
+        <q-dialog
+          v-model="showDetails"
+          transition-show="rotate"
+          transition-hide="rotate"
+          persistent
+        >
           <q-card style="width: 1800px">
             <q-card-section>
               <div class="text-h6">Actualizar Empleado</div>
             </q-card-section>
             <q-separator />
 
-            <q-tabs v-model="tab" dense class="text-grey" active-color="primary" indicator-color="primary" align="justify"
-              narrow-indicator>
+            <q-tabs
+              v-model="tab"
+              dense
+              class="text-grey"
+              active-color="primary"
+              indicator-color="primary"
+              align="justify"
+              narrow-indicator
+            >
               <q-tab name="tab_form_one" label="Datos Personales" />
               <q-tab name="tab_form_two" label="Unidad Negocio" />
             </q-tabs>
@@ -176,11 +334,17 @@
             <q-card style="height: 65vh" class="q-pa-none scroll" flat>
               <q-tab-panels v-model="tab" animated keep-alive>
                 <q-tab-panel name="tab_form_one">
-                  <edit-employeed-form ref="edit_1" :empleado="selectedEmployee"></edit-employeed-form>
+                  <edit-employeed-form
+                    ref="edit_1"
+                    :empleado="selectedEmployee"
+                  ></edit-employeed-form>
                 </q-tab-panel>
 
                 <q-tab-panel name="tab_form_two">
-                  <edit-employeedtwo-form ref="edit_2" :empleado="selectedEmployee"></edit-employeedtwo-form>
+                  <edit-employeedtwo-form
+                    ref="edit_2"
+                    :empleado="selectedEmployee"
+                  ></edit-employeedtwo-form>
                 </q-tab-panel>
               </q-tab-panels>
             </q-card>
@@ -189,12 +353,23 @@
 
             <q-card-actions align="right">
               <q-btn label="Cancelar" color="red" v-close-popup />
-              <q-btn :disable="!edit_1 || !edit_2" label="Actualizar" color="blue" @click="actualizarEmpleado()" />
+              <q-btn
+                :disable="!edit_1 || !edit_2"
+                label="Actualizar"
+                color="blue"
+                @click="actualizarEmpleado()"
+              />
             </q-card-actions>
           </q-card>
         </q-dialog>
         <!-- ---------------------------------------------------------------------------- -->
-        <q-dialog v-model="showFiles" transition-show="rotate" transition-hide="rotate" full-width persistent>
+        <q-dialog
+          v-model="showFiles"
+          transition-show="rotate"
+          transition-hide="rotate"
+          full-width
+          persistent
+        >
           <q-card style="width: 1800px">
             <q-card-section>
               <div class="text-h6">
@@ -207,37 +382,24 @@
             <q-card style="height: 70vh" class="q-pa-none scroll" flat>
               <q-tab-panels v-model="tab2" animated keep-alive>
                 <q-tab-panel name="tab_form_three">
-                  <edit-employeedthree-form ref="edit_3" :empleado="selectedEmployee" />
+                  <edit-employeedthree-form
+                    ref="edit_3"
+                    :empleado="selectedEmployee"
+                  />
                 </q-tab-panel>
               </q-tab-panels>
             </q-card>
           </q-card>
         </q-dialog>
         <!-- -------------------------------------------------------------------------------- -->
-        <q-dialog v-model="showFilters" transition-show="rotate" transition-hide="rotate" full-width full-height
-          persistent>
-          <q-card>
-            <q-card-section>
-              <div class="text-h6">
-                Filtrar empleados
-              </div>
-            </q-card-section>
-            <q-separator />
-            <q-card style="height: 82vh" class="q-pa-none scroll" flat>
-              <q-card-section>
-
-                <filter-employeed ref="edit_4" :empleados="employees" />
-              </q-card-section>
-            </q-card>
-            <q-separator />
-            <q-card-actions align="right">
-              <q-btn label="Cancelar" color="red" v-close-popup />
-            </q-card-actions>
-          </q-card>
-        </q-dialog>
-
-        <q-dialog v-model="showSurvey" transition-show="rotate" transition-hide="rotate" full-width full-height
-          persistent>
+        <q-dialog
+          v-model="showSurvey"
+          transition-show="rotate"
+          transition-hide="rotate"
+          full-width
+          full-height
+          persistent
+        >
           <q-card>
             <q-card-section>
               <div class="text-h6">
@@ -247,7 +409,6 @@
             <q-separator />
             <q-card class="q-pa-none scroll" flat>
               <q-card-section>
-
                 <add-comment-form ref="edit_5" :empleado="selectedEmployee" />
               </q-card-section>
             </q-card>
@@ -269,7 +430,6 @@ import AddEmployeedtwoForm from "src/components/Employeed/AddEmployeedtwoForm.vu
 import EditEmployeedForm from "src/components/Employeed/EditEmployeedForm.vue";
 import EditEmployeedtwoForm from "src/components/Employeed/EditEmployeedtwoForm.vue";
 import EditEmployeedthreeForm from "src/components/Employeed/EditEmployeedthreeForm.vue";
-import FilterEmployeed from "src/components/Employeed/FilterEmployeed.vue";
 import AddCommentForm from "src/components/Survey/AddCommentForm.vue";
 import { sendRequest } from "src/boot/functions";
 import { useQuasar, exportFile } from "quasar";
@@ -282,10 +442,9 @@ const form_2 = ref(null);
 const edit_1 = ref(null);
 const edit_2 = ref(null);
 const edit_3 = ref(null);
-const edit_4 = ref(null);
 const edit_5 = ref(null);
-const edit1_valid = ref()
-const edit2_valid = ref()
+const edit1_valid = ref();
+const edit2_valid = ref();
 
 const $q = useQuasar();
 
@@ -293,6 +452,10 @@ const showDetails = ref(false);
 const showFiles = ref(false);
 const showSurvey = ref(false);
 const selectedEmployee = ref(null);
+const sucursales = ref([]);
+const lineas = ref([]);
+const departamentos = ref([]);
+const puestos = ref([]);
 
 const auth = useAuthStore();
 const nombresRoles = getNamesRoles(auth.user);
@@ -300,6 +463,13 @@ const isRRHH = nombresRoles.includes("RRHH");
 const isEncuestador = nombresRoles.includes("Encuestador");
 
 const bus = inject("bus"); // inside setup()
+
+const formFilter = ref({
+  sucursal_id: null,
+  linea_id: null,
+  departamento_id: null,
+  puesto_id: null,
+});
 
 const visibleColumns = ref([
   "id",
@@ -310,6 +480,7 @@ const visibleColumns = ref([
   "linea",
   "departamento",
   "puesto",
+  "rfc",
 ]);
 
 // Modificar el objeto visibleColumns según un atributo de falso o verdadero
@@ -323,10 +494,8 @@ if (isRRHH) {
 
 const tab = ref("tab_form_one");
 const tab2 = ref("tab_form_three");
-const tab4 = ref("tab_form_four");
 const searchTerm = ref("");
 const showAdd = ref(false);
-const showFilters = ref(false);
 const employees = ref([]);
 
 const onRowClick = (row) => {
@@ -350,8 +519,10 @@ const onRowClickSurvey = (row) => {
   }
 };
 
-const onClick = () => {
-  showFilters.value = true;
+const filter = async () => {
+  const final = { ...formFilter.value };
+  let res = await sendRequest("POST", final, "/api/empleado/filter", "");
+  employees.value = res;
 };
 
 const crearEmpleado = async () => {
@@ -362,22 +533,17 @@ const crearEmpleado = async () => {
       color: "red-5",
       textColor: "white",
       icon: "warning",
-      message: "Por favor completa todos los campos obligatorios"
+      message: "Por favor completa todos los campos obligatorios",
     });
     return;
   }
   const final = {
     ...form_1.value.formEmployee,
-    ...form_2.value.formEmployeetwo
+    ...form_2.value.formEmployeetwo,
   };
-  try {
-    let res = await sendRequest("POST", final, "/api/empleado", "");
-
-    showAdd.value = false;
-    getEmployees();
-  } catch (error) {
-    console.error("Error al enviar la solicitud:", error);
-  }
+  let res = await sendRequest("POST", final, "/api/empleado", "");
+  showAdd.value = false;
+  getEmployees();
 };
 
 const actualizarEmpleado = async () => {
@@ -388,27 +554,37 @@ const actualizarEmpleado = async () => {
       color: "red-5",
       textColor: "white",
       icon: "warning",
-      message: "Por favor completa todos los campos obligatorios"
+      message: "Por favor completa todos los campos obligatorios",
     });
     return;
   }
   const final = {
     ...edit_1.value.formEmployee,
-    ...edit_2.value.formEmployeetwo
+    ...edit_2.value.formEmployeetwo,
   };
-  try {
-    let res = await sendRequest("PUT", final, "/api/empleado/" + final.id, "");
-
-    showDetails.value = false;
-    getEmployees();
-  } catch (error) {
-    console.error("Error al enviar la solicitud:", error);
-  }
+  let res = await sendRequest("PUT", final, "/api/empleado/" + final.id, "");
+  showDetails.value = false;
+  getEmployees();
 };
 
 const getEmployees = async () => {
   let res = await sendRequest("GET", null, "/api/empleado/all", "");
   employees.value = res;
+};
+
+const getSucursales = async () => {
+  let res = await sendRequest("GET", null, "/api/sucursal/all", "");
+  sucursales.value = res;
+};
+
+const getLineas = async () => {
+  let res = await sendRequest("GET", null, "/api/linea/all", "");
+  lineas.value = res;
+};
+
+const getDepartamentos = async () => {
+  let res = await sendRequest("GET", null, "/api/departamento/all", "");
+  departamentos.value = res;
 };
 
 const columns = [
@@ -418,277 +594,277 @@ const columns = [
     label: "Nombre",
     align: "left",
     field: "nombre",
-    sortable: true
+    sortable: true,
   },
   {
     name: "segundo_nombre",
     label: "Segundo nombre",
     align: "left",
     field: "segundo_nombre",
-    sortable: true
+    sortable: true,
   },
   {
     name: "apellido_paterno",
     label: "Apellido Paterno",
     align: "left",
     field: "apellido_paterno",
-    sortable: true
+    sortable: true,
   },
   {
     name: "apellido_materno",
     label: "Apellido Materno",
     align: "left",
     field: "apellido_materno",
-    sortable: true
+    sortable: true,
   },
   {
     name: "telefono",
     label: "Telefono",
     align: "left",
     field: "telefono",
-    sortable: true
+    sortable: true,
   },
   {
     name: "telefono_institucional",
     label: "Telefono institucional",
     align: "left",
     field: "telefono_institucional",
-    sortable: true
+    sortable: true,
   },
   {
     name: "correo_institucional",
     label: "Correo institucional",
     align: "left",
     field: "correo_institucional",
-    sortable: true
+    sortable: true,
   },
   {
     name: "fecha_de_nacimiento",
     label: "Fecha de nacimiento",
     align: "left",
     field: "fecha_de_nacimiento",
-    sortable: true
+    sortable: true,
   },
   {
     name: "rfc",
     label: "RFC",
     align: "left",
     field: "rfc",
-    sortable: true
+    sortable: true,
   },
   {
     name: "ine",
     label: "INE",
     align: "left",
     field: "ine",
-    sortable: true
+    sortable: true,
   },
   {
     name: "pasaporte",
     label: "Pasaporte",
     align: "left",
     field: "pasaporte",
-    sortable: true
+    sortable: true,
   },
   {
     name: "visa",
     label: "VISA",
     align: "left",
     field: "visa",
-    sortable: true
+    sortable: true,
   },
   {
     name: "licencia_de_manejo",
     label: "Licencia de manejo",
     align: "left",
     field: "licencia_de_manejo",
-    sortable: true
+    sortable: true,
   },
   {
     name: "nss",
     label: "NSS",
     align: "left",
     field: "nss",
-    sortable: true
+    sortable: true,
   },
   {
     name: "fecha_de_ingreso",
     label: "Fecha de ingreso",
     align: "left",
     field: "fecha_de_ingreso",
-    sortable: true
+    sortable: true,
   },
   {
     name: "hijos",
     label: "Hijos",
     align: "left",
     field: "hijos",
-    sortable: true
+    sortable: true,
   },
   {
     name: "dependientes_economicos",
     label: "Depandientes economicos",
     align: "left",
     field: "dependientes_economicos",
-    sortable: true
+    sortable: true,
   },
   {
     name: "estado_civil",
     label: "Estado civil",
     align: "left",
     field: "estado_civil",
-    sortable: true
+    sortable: true,
   },
   {
     name: "tipo_de_sangre",
     label: "Tipo de sangre",
     align: "left",
     field: "tipo_de_sangre",
-    sortable: true
+    sortable: true,
   },
   {
     name: "escolaridad",
     label: "Escolaridad",
     align: "left",
     field: "escolaridad",
-    sortable: true
+    sortable: true,
   },
   {
     name: "cedula_profesional",
     label: "Cedula profecional",
     align: "left",
     field: "cedula_profesional",
-    sortable: true
+    sortable: true,
   },
   {
     name: "sueldo_base",
     label: "Sueldo base",
     align: "left",
     field: "sueldo_base",
-    sortable: true
+    sortable: true,
   },
   {
     name: "comision",
     label: "Comision",
     align: "left",
     field: "comision",
-    sortable: true
+    sortable: true,
   },
   {
     name: "numero_exterior",
     label: "Numero exterior",
     align: "left",
     field: "numero_exterior",
-    sortable: true
+    sortable: true,
   },
   {
     name: "numero_interior",
     label: "Numero interior",
     align: "left",
     field: "numero_interior",
-    sortable: true
+    sortable: true,
   },
   {
     name: "calle",
     label: "Calle",
     align: "left",
     field: "calle",
-    sortable: true
+    sortable: true,
   },
   {
     name: "colonia",
     label: "Colonia",
     align: "left",
     field: "colonia",
-    sortable: true
+    sortable: true,
   },
   {
     name: "codigo_postal",
     label: "Codigo postal",
     align: "left",
     field: "codigo_postal",
-    sortable: true
+    sortable: true,
   },
   {
     name: "ciudad",
     label: "Ciudad",
     align: "left",
     field: "ciudad",
-    sortable: true
+    sortable: true,
   },
   {
     name: "estado",
     label: "Estado",
     align: "left",
     field: "estado",
-    sortable: true
+    sortable: true,
   },
   {
     name: "cuenta_bancaria",
     label: "Cuenta bancaria",
     align: "left",
     field: "cuenta_bancaria",
-    sortable: true
+    sortable: true,
   },
   {
     name: "status",
     label: "Status",
     align: "left",
     field: "status",
-    sortable: true
+    sortable: true,
   },
   {
     name: "sucursal",
     label: "Sucursal",
     align: "left",
     field: "sucursal",
-    sortable: true
+    sortable: true,
   },
   {
     name: "linea",
     label: "Linea",
     align: "left",
     field: "linea",
-    sortable: true
+    sortable: true,
   },
   {
     name: "departamento",
     label: "Departamento",
     align: "left",
     field: "departamento",
-    sortable: true
+    sortable: true,
   },
   {
     name: "puesto",
     label: "Puesto",
     align: "left",
     field: "puesto",
-    sortable: true
+    sortable: true,
   },
   {
     name: "jefe_directo",
     label: "Jefe directo",
     align: "left",
     field: "jefe_directo",
-    sortable: true
+    sortable: true,
   },
   {
     name: "descripcion_puesto",
     label: "Descripcion puesto",
     align: "left",
-    sortable: true
+    sortable: true,
   },
   {
     name: "expediente",
     label: "Expediente",
     align: "left",
-    sortable: true
+    sortable: true,
   },
   {
     name: "survey",
     label: "Evaluaciones",
     align: "left",
-    sortable: true
+    sortable: true,
   },
 ];
 
@@ -696,6 +872,7 @@ const filteredEmployees = computed(() => {
   return employees.value.filter((employee) => {
     return (
       employee.nombre.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
+      employee.rfc.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
       employee.apellido_paterno
         .toLowerCase()
         .includes(searchTerm.value.toLowerCase()) ||
@@ -759,7 +936,7 @@ const exportTable = () => {
     $q.notify({
       message: "Browser denied file download...",
       color: "negative",
-      icon: "warning"
+      icon: "warning",
     });
   }
 };
@@ -771,6 +948,9 @@ bus.on("cargar_empleados", () => {
 
 onMounted(() => {
   getEmployees();
+  getSucursales();
+  getLineas();
+  getDepartamentos();
 });
 </script>
 

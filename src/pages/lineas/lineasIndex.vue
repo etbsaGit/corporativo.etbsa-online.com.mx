@@ -32,7 +32,6 @@
       row-key="name"
       :visible-columns="visibleColumns"
       dense
-      
     >
       <template v-slot:top="props">
         <div class="col-2 q-table__title">Lineas</div>
@@ -177,21 +176,16 @@ const crearLinea = async () => {
       color: "red-5",
       textColor: "white",
       icon: "warning",
-      message: "Por favor completa todos los campos obligatorios"
+      message: "Por favor completa todos los campos obligatorios",
     });
     return;
   }
   const final = {
-    ...form_1.value.formLinea
+    ...form_1.value.formLinea,
   };
-  try {
-    let res = await sendRequest("POST", final, "/api/linea", "");
-
-    showAdd.value = false;
-    getLineas();
-  } catch (error) {
-    console.error("Error al enviar la solicitud:", error);
-  }
+  let res = await sendRequest("POST", final, "/api/linea", "");
+  showAdd.value = false;
+  getLineas();
 };
 
 const actualizarLinea = async () => {
@@ -201,22 +195,18 @@ const actualizarLinea = async () => {
       color: "red-5",
       textColor: "white",
       icon: "warning",
-      message: "Por favor completa todos los campos obligatorios"
+      message: "Por favor completa todos los campos obligatorios",
     });
     return;
   }
   const final = {
-    ...edit_1.value.formLinea
+    ...edit_1.value.formLinea,
   };
-  try {
-    let res = await sendRequest("PUT", final, "/api/linea/" + final.id, "");
-    console.log(res);
+  let res = await sendRequest("PUT", final, "/api/linea/" + final.id, "");
+  console.log(res);
 
-    showDetails.value = false;
-    getLineas();
-  } catch (error) {
-    console.error("Error al enviar la solicitud:", error);
-  }
+  showDetails.value = false;
+  getLineas();
 };
 
 const getLineas = async () => {
@@ -231,8 +221,8 @@ const columns = [
     label: "Nombre",
     align: "left",
     field: "nombre",
-    sortable: true
-  }
+    sortable: true,
+  },
 ];
 
 const filteredLineas = computed(() => {

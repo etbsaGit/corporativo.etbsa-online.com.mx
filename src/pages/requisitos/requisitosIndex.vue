@@ -32,7 +32,6 @@
       row-key="name"
       :visible-columns="visibleColumns"
       dense
-      
     >
       <template v-slot:top="props">
         <div class="col-2 q-table__title">Requisitos</div>
@@ -181,21 +180,17 @@ const crearRequisito = async () => {
       color: "red-5",
       textColor: "white",
       icon: "warning",
-      message: "Por favor completa todos los campos obligatorios"
+      message: "Por favor completa todos los campos obligatorios",
     });
     return;
   }
   const final = {
-    ...form_1.value.formRequisito
+    ...form_1.value.formRequisito,
   };
-  try {
-    let res = await sendRequest("POST", final, "/api/requisito", "");
+  let res = await sendRequest("POST", final, "/api/requisito", "");
 
-    showAdd.value = false;
-    getRequisitos();
-  } catch (error) {
-    console.error("Error al enviar la solicitud:", error);
-  }
+  showAdd.value = false;
+  getRequisitos();
 };
 
 const actualizarRequisito = async () => {
@@ -205,21 +200,16 @@ const actualizarRequisito = async () => {
       color: "red-5",
       textColor: "white",
       icon: "warning",
-      message: "Por favor completa todos los campos obligatorios"
+      message: "Por favor completa todos los campos obligatorios",
     });
     return;
   }
   const final = {
-    ...edit_1.value.formRequisito
+    ...edit_1.value.formRequisito,
   };
-  try {
-    let res = await sendRequest("PUT", final, "/api/requisito/" + final.id, "");
-
-    showDetails.value = false;
-    getRequisitos();
-  } catch (error) {
-    console.error("Error al enviar la solicitud:", error);
-  }
+  let res = await sendRequest("PUT", final, "/api/requisito/" + final.id, "");
+  showDetails.value = false;
+  getRequisitos();
 };
 
 const getRequisitos = async () => {
@@ -234,15 +224,15 @@ const columns = [
     label: "Nombre",
     align: "left",
     field: "nombre",
-    sortable: true
+    sortable: true,
   },
   {
     name: "descripcion",
     label: "Descripcion",
     align: "left",
     field: "descripcion",
-    sortable: true
-  }
+    sortable: true,
+  },
 ];
 
 const filteredRequisitos = computed(() => {

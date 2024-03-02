@@ -32,7 +32,6 @@
       row-key="name"
       :visible-columns="visibleColumns"
       dense
-      
     >
       <template v-slot:top="props">
         <div class="col-2 q-table__title">Users</div>
@@ -109,8 +108,20 @@
 
       <template v-slot:body-cell-role="props">
         <q-td>
-          <q-btn @click="onRowClickFile(props.row)" flat round color="primary" icon="shield" />
-          <q-btn @click="onRowClickPermissions(props.row)" flat round color="primary" icon="key" />
+          <q-btn
+            @click="onRowClickFile(props.row)"
+            flat
+            round
+            color="primary"
+            icon="shield"
+          />
+          <q-btn
+            @click="onRowClickPermissions(props.row)"
+            flat
+            round
+            color="primary"
+            icon="key"
+          />
         </q-td>
       </template>
     </q-table>
@@ -148,74 +159,64 @@
     </q-dialog>
 
     <q-dialog
-          v-model="showRoles"
-          transition-show="rotate"
-          transition-hide="rotate"
-          persistent
-        >
-          <q-card>
-            <q-card-section>
-              <div class="text-h6">
-                Roles de {{ selectedUser.name }}
-              </div>
-            </q-card-section>
-            <q-separator />
-            <q-card class="q-pa-none scroll" flat>
-              <q-tab-panels v-model="tab2" animated keep-alive>
-                <q-tab-panel name="tab_form_two">
-                  <add-role-user-form
-                    ref="edit"
-                    :user="selectedUser"
-                  />
-                </q-tab-panel>
-              </q-tab-panels>
-              <q-separator />
-              <q-card-actions align="right">
-                <q-btn label="Cancelar" color="red" v-close-popup />
-                <q-btn
-                  label="Actualizar roles"
-                  color="blue"
-                  @click="asignRolUser()"
-                />
-              </q-card-actions>
-            </q-card>
-          </q-card>
-        </q-dialog>
+      v-model="showRoles"
+      transition-show="rotate"
+      transition-hide="rotate"
+      persistent
+    >
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">Roles de {{ selectedUser.name }}</div>
+        </q-card-section>
+        <q-separator />
+        <q-card class="q-pa-none scroll" flat>
+          <q-tab-panels v-model="tab2" animated keep-alive>
+            <q-tab-panel name="tab_form_two">
+              <add-role-user-form ref="edit" :user="selectedUser" />
+            </q-tab-panel>
+          </q-tab-panels>
+          <q-separator />
+          <q-card-actions align="right">
+            <q-btn label="Cancelar" color="red" v-close-popup />
+            <q-btn
+              label="Actualizar roles"
+              color="blue"
+              @click="asignRolUser()"
+            />
+          </q-card-actions>
+        </q-card>
+      </q-card>
+    </q-dialog>
 
-        <q-dialog
-          v-model="showPermissions"
-          transition-show="rotate"
-          transition-hide="rotate"
-          persistent
-        >
-          <q-card>
-            <q-card-section>
-              <div class="text-h6">
-                Permisos de {{ selectedUser.name }}
-              </div>
-            </q-card-section>
-            <q-separator />
-            <q-card class="q-pa-none scroll" flat>
-              <q-tab-panels v-model="tab3" animated keep-alive>
-                <q-tab-panel name="tab_form_three">
-                  <add-permission-user-form
-                    ref="edit2"
-                    :user="selectedUser"
-                  />
-                </q-tab-panel>
-              </q-tab-panels>
-              <q-separator />
-              <q-card-actions align="right">
-                <q-btn label="Cancelar" color="red" v-close-popup />
-                <q-btn
-                  label="Actualizar permisos"
-                  color="blue"
-                  @click="asignPermissionUser()"
-                />
-              </q-card-actions>
-            </q-card>
-          </q-card>
-        </q-dialog>
+    <q-dialog
+      v-model="showPermissions"
+      transition-show="rotate"
+      transition-hide="rotate"
+      persistent
+    >
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">Permisos de {{ selectedUser.name }}</div>
+        </q-card-section>
+        <q-separator />
+        <q-card class="q-pa-none scroll" flat>
+          <q-tab-panels v-model="tab3" animated keep-alive>
+            <q-tab-panel name="tab_form_three">
+              <add-permission-user-form ref="edit2" :user="selectedUser" />
+            </q-tab-panel>
+          </q-tab-panels>
+          <q-separator />
+          <q-card-actions align="right">
+            <q-btn label="Cancelar" color="red" v-close-popup />
+            <q-btn
+              label="Actualizar permisos"
+              color="blue"
+              @click="asignPermissionUser()"
+            />
+          </q-card-actions>
+        </q-card>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
@@ -225,8 +226,11 @@ import AddUserForm from "src/components/User/AddUserForm.vue";
 import EditUserForm from "src/components/User/EditUserForm.vue";
 import AddRoleUserForm from "src/components/User/AddRoleUserForm.vue";
 import AddPermissionUserForm from "src/components/User/AddPermissionUserForm.vue";
-
-import { sendRequest, getNamesRoles, getNamesPermissions } from "src/boot/functions";
+import {
+  sendRequest,
+  getNamesRoles,
+  getNamesPermissions,
+} from "src/boot/functions";
 import { useQuasar } from "quasar";
 
 const form_1 = ref(null);
@@ -272,7 +276,7 @@ const crearUser = async () => {
       color: "red-5",
       textColor: "white",
       icon: "warning",
-      message: "Por favor completa todos los campos obligatorios"
+      message: "Por favor completa todos los campos obligatorios",
     });
     return;
   }
@@ -283,22 +287,16 @@ const crearUser = async () => {
       color: "red-5",
       textColor: "white",
       icon: "warning",
-      message: "La contraseña y la confirmación de la contraseña no coinciden"
+      message: "La contraseña y la confirmación de la contraseña no coinciden",
     });
     return;
   }
   const final = {
-    ...form_1.value.formUser
+    ...form_1.value.formUser,
   };
-  try {
-    let res = await sendRequest("POST", final, "/api/user", "");
-    // Si la solicitud es exitosa, recarga la página
-    showAdd.value = false;
-    getUsers();
-  } catch (error) {
-    // Maneja el error aquí si es necesario
-    console.error("Error al enviar la solicitud:", error);
-  }
+  let res = await sendRequest("POST", final, "/api/user", "");
+  showAdd.value = false;
+  getUsers();
 };
 
 const actualizarUser = async () => {
@@ -308,106 +306,76 @@ const actualizarUser = async () => {
       color: "red-5",
       textColor: "white",
       icon: "warning",
-      message: "Por favor completa todos los campos obligatorios"
+      message: "Por favor completa todos los campos obligatorios",
     });
     return;
   }
-  if (edit_1.value.formUser.password === '') {
+  if (edit_1.value.formUser.password === "") {
     edit_1.value.formUser.password = null;
-    edit_1.value.formUser.confirmPassword = null
+    edit_1.value.formUser.confirmPassword = null;
   }
   if (
-    edit_1.value.formUser.password !== edit_1.value.formUser.confirmPassword) {
+    edit_1.value.formUser.password !== edit_1.value.formUser.confirmPassword
+  ) {
     $q.notify({
       color: "red-5",
       textColor: "white",
       icon: "warning",
-      message: "La contraseña y la confirmación de la contraseña no coinciden"
+      message: "La contraseña y la confirmación de la contraseña no coinciden",
     });
     return;
   }
   const final = {
-    ...edit_1.value.formUser
+    ...edit_1.value.formUser,
   };
-  try {
-    let res = await sendRequest("PUT", final, "/api/user/" + final.id, "");
-    showDetails.value = false;
-    getUsers();
-  } catch (error) {
-    console.error("Error al enviar la solicitud:", error);
-  }
+  let res = await sendRequest("PUT", final, "/api/user/" + final.id, "");
+  showDetails.value = false;
+  getUsers();
 };
 
 const asignRolUser = async () => {
-
   if (edit.value.selectedRolesNames.length > 0) {
-    const final = { roles: edit.value.selectedRolesNames }
-    try {
-      let res = await sendRequest("POST", final, "/api/user/role/" + selectedUser.value.id)
-      $q.notify({
-        color: "green-5",
-        textColor: "white",
-        icon: "check",
-        message: "Roles actualizados con exito"
-      });
-      showRoles.value = false
-      getUsers()
-    } catch (error) {
-      console.error("Error al enviar la solicitud:", error);
-    }
+    const final = { roles: edit.value.selectedRolesNames };
+    let res = await sendRequest(
+      "POST",
+      final,
+      "/api/user/role/" + selectedUser.value.id
+    );
+    showRoles.value = false;
+    getUsers();
   } else {
-    try {
-      const name = { roles: getNamesRoles(selectedUser.value) }
-      let res = await sendRequest("DELETE", name, "/api/user/role/" + selectedUser.value.id)
-      $q.notify({
-        color: "green-5",
-        textColor: "white",
-        icon: "check",
-        message: "Roles actualizados con exito"
-      });
-      showRoles.value = false
-      getUsers()
-    } catch (error) {
-      console.error("Error al enviar la solicitud:", error);
-    }
+    const name = { roles: getNamesRoles(selectedUser.value) };
+    let res = await sendRequest(
+      "DELETE",
+      name,
+      "/api/user/role/" + selectedUser.value.id
+    );
+    showRoles.value = false;
+    getUsers();
   }
 };
 
 const asignPermissionUser = async () => {
-
   if (edit2.value.selectedPermissionsNames.length > 0) {
-    const final = { permissions: edit2.value.selectedPermissionsNames }
-    try {
-      let res = await sendRequest("POST", final, "/api/user/permission/" + selectedUser.value.id)
-      $q.notify({
-        color: "green-5",
-        textColor: "white",
-        icon: "check",
-        message: "Permisos actualizados con exito"
-      });
-      showPermissions.value = false
-      getUsers()
-    } catch (error) {
-      console.error("Error al enviar la solicitud:", error);
-    }
+    const final = { permissions: edit2.value.selectedPermissionsNames };
+    let res = await sendRequest(
+      "POST",
+      final,
+      "/api/user/permission/" + selectedUser.value.id
+    );
+    showPermissions.value = false;
+    getUsers();
   } else {
-    try {
-      const name = { permissions: getNamesPermissions(selectedUser.value) }
-      let res = await sendRequest("DELETE", name, "/api/user/permission/" + selectedUser.value.id)
-      $q.notify({
-        color: "green-5",
-        textColor: "white",
-        icon: "check",
-        message: "Permisos actualizados con exito"
-      });
-      showPermissions.value = false
-      getUsers()
-    } catch (error) {
-      console.error("Error al enviar la solicitud:", error);
-    }
+    const name = { permissions: getNamesPermissions(selectedUser.value) };
+    let res = await sendRequest(
+      "DELETE",
+      name,
+      "/api/user/permission/" + selectedUser.value.id
+    );
+    showPermissions.value = false;
+    getUsers();
   }
 };
-
 
 const getUsers = async () => {
   let res = await sendRequest("GET", null, "/api/user/all", "");
@@ -421,27 +389,27 @@ const columns = [
     label: "Name",
     align: "left",
     field: "name",
-    sortable: true
+    sortable: true,
   },
   {
     name: "email",
     label: "Email",
     align: "left",
     field: "email",
-    sortable: true
+    sortable: true,
   },
   {
     name: "email_verified_at",
     label: "Email_verified_at",
     align: "left",
     field: "email_verified_at",
-    sortable: true
+    sortable: true,
   },
   {
     name: "role",
     label: "Access",
     align: "left",
-    sortable: true
+    sortable: true,
   },
 ];
 

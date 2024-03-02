@@ -184,21 +184,17 @@ const crearDepartamento = async () => {
       color: "red-5",
       textColor: "white",
       icon: "warning",
-      message: "Por favor completa todos los campos obligatorios"
+      message: "Por favor completa todos los campos obligatorios",
     });
     return;
   }
   const final = {
-    ...form_1.value.formDepartamento
+    ...form_1.value.formDepartamento,
   };
-  try {
-    let res = await sendRequest("POST", final, "/api/departamento", "");
+  let res = await sendRequest("POST", final, "/api/departamento", "");
 
-    showAdd.value = false;
-    getDepartamentos();
-  } catch (error) {
-    console.error("Error al enviar la solicitud:", error);
-  }
+  showAdd.value = false;
+  getDepartamentos();
 };
 
 const actualizarDepartamento = async () => {
@@ -208,26 +204,22 @@ const actualizarDepartamento = async () => {
       color: "red-5",
       textColor: "white",
       icon: "warning",
-      message: "Por favor completa todos los campos obligatorios"
+      message: "Por favor completa todos los campos obligatorios",
     });
     return;
   }
   const final = {
-    ...edit_1.value.formDepartamento
+    ...edit_1.value.formDepartamento,
   };
-  try {
-    let res = await sendRequest(
-      "PUT",
-      final,
-      "/api/departamento/" + final.id,
-      ""
-    );
+  let res = await sendRequest(
+    "PUT",
+    final,
+    "/api/departamento/" + final.id,
+    ""
+  );
 
-    showDetails.value = false;
-    getDepartamentos();
-  } catch (error) {
-    console.error("Error al enviar la solicitud:", error);
-  }
+  showDetails.value = false;
+  getDepartamentos();
 };
 
 const getDepartamentos = async () => {
@@ -242,8 +234,8 @@ const columns = [
     label: "Nombre",
     align: "left",
     field: "nombre",
-    sortable: true
-  }
+    sortable: true,
+  },
 ];
 
 const filteredDepartamentos = computed(() => {

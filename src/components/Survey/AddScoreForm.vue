@@ -27,7 +27,12 @@
             Respuestas sin revisar: {{ ungraded }}
           </q-card-section>
           <q-card-section>
-            <q-input filled v-model="formScore.comments" dense label="Comentario final" />
+            <q-input
+              filled
+              v-model="formScore.comments"
+              dense
+              label="Comentario final"
+            />
           </q-card-section>
         </q-card>
       </q-item-section>
@@ -36,25 +41,23 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import Chart from 'chart.js/auto';
+import { ref, onMounted } from "vue";
+import Chart from "chart.js/auto";
 import { sendRequest } from "src/boot/functions";
 
 const { survey } = defineProps(["survey"]);
 
 const myForm = ref(null);
-const ungraded = ref(null)
+const ungraded = ref(null);
 
 const data = ref({
-  labels: ['Correctas', 'Incorrectas', 'Sin responder'],
-  datasets: [{
-    data: [1, 1, 1],
-    backgroundColor: [
-      'green',
-      'red',
-      'gray',
-    ],
-  }],
+  labels: ["Correctas", "Incorrectas", "Sin responder"],
+  datasets: [
+    {
+      data: [1, 1, 1],
+      backgroundColor: ["green", "red", "gray"],
+    },
+  ],
 });
 
 const options = ref({
@@ -69,7 +72,7 @@ const renderChart = () => {
   if (pieChart.value) {
     if (!chart.value) {
       chart.value = new Chart(pieChart.value, {
-        type: 'pie',
+        type: "pie",
         data: data.value,
         options: options.value,
       });
@@ -92,24 +95,29 @@ const formScore = ref({
 });
 
 const getScore = async () => {
-  try {
-    let res = await sendRequest("GET", null, `/api/surveys/grade/${survey.pivot.evaluee_id}/${survey.id}/`, "");
-    formScore.value.score = res.average_grade
-    formScore.value.questions = res.total_questions
-    formScore.value.correct = res.correct_responses
-    formScore.value.incorrect = res.incorrect_responses
-    formScore.value.unanswered = res.unanswered_responses
-    formScore.value.evaluee_id = survey.pivot.evaluee_id
-    formScore.value.survey_id = survey.id
-    ungraded.value = res.ungraded_responses
+  let res = await sendRequest(
+    "GET",
+    null,
+    `/api/surveys/grade/${survey.pivot.evaluee_id}/${survey.id}/`,
+    ""
+  );
+  formScore.value.score = res.average_grade;
+  formScore.value.questions = res.total_questions;
+  formScore.value.correct = res.correct_responses;
+  formScore.value.incorrect = res.incorrect_responses;
+  formScore.value.unanswered = res.unanswered_responses;
+  formScore.value.evaluee_id = survey.pivot.evaluee_id;
+  formScore.value.survey_id = survey.id;
+  ungraded.value = res.ungraded_responses;
 
-    // Actualizar data del gráfico con los valores del formulario
-    data.value.datasets[0].data = [formScore.value.correct, formScore.value.incorrect, formScore.value.unanswered];
-    renderChart();
-  } catch (error) {
-    console.error("Error al enviar la solicitud:", error);
-  }
-}
+  // Actualizar data del gráfico con los valores del formulario
+  data.value.datasets[0].data = [
+    formScore.value.correct,
+    formScore.value.incorrect,
+    formScore.value.unanswered,
+  ];
+  renderChart();
+};
 
 onMounted(() => {
   getScore();
@@ -117,9 +125,8 @@ onMounted(() => {
 
 defineExpose({
   formScore,
-  ungraded
+  ungraded,
 });
-
 </script>
 
 <style scoped>

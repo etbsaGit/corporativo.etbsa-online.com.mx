@@ -9,11 +9,20 @@
 
       <q-card-actions>
         <q-btn dense color="blue" @click="onRowClick(survey)">Preguntas</q-btn>
-        <q-btn dense color="green" @click="onRowClickScore(survey)">Evaluacion</q-btn>
+        <q-btn dense color="green" @click="onRowClickScore(survey)"
+          >Evaluacion</q-btn
+        >
       </q-card-actions>
     </q-card>
 
-    <q-dialog v-model="showAnswers" transition-show="rotate" transition-hide="rotate" persistent full-width full-height>
+    <q-dialog
+      v-model="showAnswers"
+      transition-show="rotate"
+      transition-hide="rotate"
+      persistent
+      full-width
+      full-height
+    >
       <q-card>
         <q-card-section>
           <div class="text-h6">Respuestas de {{ selectedSurvey.title }}</div>
@@ -29,10 +38,19 @@
       </q-card>
     </q-dialog>
 
-    <q-dialog v-model="showScore" transition-show="rotate" transition-hide="rotate" persistent full-width full-height>
+    <q-dialog
+      v-model="showScore"
+      transition-show="rotate"
+      transition-hide="rotate"
+      persistent
+      full-width
+      full-height
+    >
       <q-card>
         <q-card-section>
-          <div class="text-h6">Evaluacion final de {{ selectedSurvey.title }}</div>
+          <div class="text-h6">
+            Evaluacion final de {{ selectedSurvey.title }}
+          </div>
         </q-card-section>
         <q-separator />
         <q-card class="q-pa-none scroll" flat>
@@ -41,7 +59,11 @@
         <q-separator />
         <q-card-actions align="right">
           <q-btn label="Cerrar" color="red" v-close-popup />
-          <q-btn label="Guardar comentarios" color="blue" @click="sendComments" />
+          <q-btn
+            label="Guardar comentarios"
+            color="blue"
+            @click="sendComments"
+          />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -50,22 +72,22 @@
 
 <script setup>
 import { sendRequest } from "src/boot/functions";
-import { ref, onMounted } from 'vue'
-import InsertCommentForm from "src/components/Survey/InsertCommentForm.vue"
+import { ref, onMounted } from "vue";
+import InsertCommentForm from "src/components/Survey/InsertCommentForm.vue";
 import AddScoreForm from "./AddScoreForm.vue";
 import { useQuasar } from "quasar";
 
 const { empleado } = defineProps(["empleado"]);
-const surveys = ref([])
-const showAnswers = ref(false)
-const showScore = ref(false)
-const selectedSurvey = ref(null)
-const answers = ref(null)
-const score = ref(null)
+const surveys = ref([]);
+const showAnswers = ref(false);
+const showScore = ref(false);
+const selectedSurvey = ref(null);
+const answers = ref(null);
+const score = ref(null);
 const $q = useQuasar();
 
 const getSurveys = async () => {
-  const id = empleado.user_id
+  const id = empleado.user_id;
   let res = await sendRequest("GET", null, "/api/survey/user/" + id, "");
   surveys.value = res;
 };
@@ -86,23 +108,18 @@ const sendComments = async () => {
       color: "red-5",
       textColor: "white",
       icon: "warning",
-      message: "Califique primero todas las preguntas"
+      message: "Califique primero todas las preguntas",
     });
     return;
   }
   const final = {
-    ...score.value.formScore
-  }
-  try {
-    let res = await sendRequest("POST", final, "/api/surveys/grade", "");
-    showScore.value = false
-  } catch (error) {
-    console.error("Error al enviar la solicitud:", error);
-  }
-
-}
+    ...score.value.formScore,
+  };
+  let res = await sendRequest("POST", final, "/api/surveys/grade", "");
+  showScore.value = false;
+};
 
 onMounted(() => {
-  getSurveys()
+  getSurveys();
 });
 </script>

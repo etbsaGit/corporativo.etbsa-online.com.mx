@@ -32,7 +32,6 @@
       row-key="name"
       :visible-columns="visibleColumns"
       dense
-      
     >
       <template v-slot:top="props">
         <div class="col-2 q-table__title">Sucursales</div>
@@ -181,21 +180,16 @@ const crearSucursal = async () => {
       color: "red-5",
       textColor: "white",
       icon: "warning",
-      message: "Por favor completa todos los campos obligatorios"
+      message: "Por favor completa todos los campos obligatorios",
     });
     return;
   }
   const final = {
-    ...form_1.value.formSucursal
+    ...form_1.value.formSucursal,
   };
-  try {
-    let res = await sendRequest("POST", final, "/api/sucursal", "");
-
-    showAdd.value = false;
-    getSucursales();
-  } catch (error) {
-    console.error("Error al enviar la solicitud:", error);
-  }
+  let res = await sendRequest("POST", final, "/api/sucursal", "");
+  showAdd.value = false;
+  getSucursales();
 };
 
 const actualizarSucursal = async () => {
@@ -205,21 +199,16 @@ const actualizarSucursal = async () => {
       color: "red-5",
       textColor: "white",
       icon: "warning",
-      message: "Por favor completa todos los campos obligatorios"
+      message: "Por favor completa todos los campos obligatorios",
     });
     return;
   }
   const final = {
-    ...edit_1.value.formSucursal
+    ...edit_1.value.formSucursal,
   };
-  try {
-    let res = await sendRequest("PUT", final, "/api/sucursal/" + final.id, "");
-
-    showDetails.value = false;
-    getSucursales();
-  } catch (error) {
-    console.error("Error al enviar la solicitud:", error);
-  }
+  let res = await sendRequest("PUT", final, "/api/sucursal/" + final.id, "");
+  showDetails.value = false;
+  getSucursales();
 };
 
 const getSucursales = async () => {
@@ -234,15 +223,15 @@ const columns = [
     label: "Nombre",
     align: "left",
     field: "nombre",
-    sortable: true
+    sortable: true,
   },
   {
     name: "direccion",
     label: "Direccion",
     align: "left",
     field: "direccion",
-    sortable: true
-  }
+    sortable: true,
+  },
 ];
 
 const filteredSucursales = computed(() => {
