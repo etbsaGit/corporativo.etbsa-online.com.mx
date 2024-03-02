@@ -872,7 +872,6 @@ const filteredEmployees = computed(() => {
   return employees.value.filter((employee) => {
     return (
       employee.nombre.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
-      employee.rfc.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
       employee.apellido_paterno
         .toLowerCase()
         .includes(searchTerm.value.toLowerCase()) ||
