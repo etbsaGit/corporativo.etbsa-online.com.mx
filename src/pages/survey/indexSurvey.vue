@@ -117,8 +117,11 @@
       full-height
     >
       <q-card>
-        <q-card-section>
+        <q-card-section class="d-flex justify-between items-center">
           <div class="text-h6">Asignar encuesta {{ selectedSurvey.title }}</div>
+          <q-card-actions align="right">
+            <q-btn label="X" color="red" v-close-popup dense />
+          </q-card-actions>
         </q-card-section>
         <q-separator />
         <q-card class="q-pa-none scroll" flat>
@@ -227,6 +230,7 @@ const addSurvey = async () => {
   const final = {
     ...add.value.formSurvey,
   };
+  console.log(final);
   let res = await sendRequest("POST", final, "/api/survey", "");
   showAdd.value = false;
   getSurveys();
@@ -284,3 +288,17 @@ onMounted(() => {
   getSurveys();
 });
 </script>
+
+<style>
+.d-flex {
+  display: flex;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.items-center {
+  align-items: center;
+}
+</style>

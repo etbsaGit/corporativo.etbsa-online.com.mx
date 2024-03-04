@@ -1,11 +1,29 @@
 <template>
   <div class="q-pa-md">
-    <q-table title="Encuesta" :rows="surveys" :columns="columns" row-key="id" :rows-per-page-options="[0]">
+    <q-table
+      title="Encuesta"
+      :rows="surveys"
+      :columns="columns"
+      row-key="id"
+      :rows-per-page-options="[0]"
+    >
       <template v-slot:body-cell-action="props">
         <q-td>
-          <q-btn v-if="isSurveyActive(props.row)" flat round color="primary" icon="play_arrow"
-            @click="onRowClick(props.row)" />
-          <q-btn flat round color="primary" icon="search" @click="onRowClickDetail(props.row)" />
+          <q-btn
+            v-if="isSurveyActive(props.row)"
+            flat
+            round
+            color="primary"
+            icon="play_arrow"
+            @click="onRowClick(props.row)"
+          />
+          <q-btn
+            flat
+            round
+            color="primary"
+            icon="search"
+            @click="onRowClickDetail(props.row)"
+          />
         </q-td>
       </template>
       <template v-slot:body-cell-status="props">
@@ -16,10 +34,22 @@
       </template>
     </q-table>
 
-    <q-dialog v-model="showQuestions" transition-show="rotate" transition-hide="rotate" persistent full-width full-height>
+    <q-dialog
+      v-model="showQuestions"
+      transition-show="rotate"
+      transition-hide="rotate"
+      persistent
+      full-width
+      full-height
+    >
       <q-card>
-        <q-card-section>
-          <div class="text-h6">Responde las preguntas de {{ selectedSurvey.title }}</div>
+        <q-card-section class="d-flex justify-between items-center">
+          <div class="text-h6">
+            Responde las preguntas de {{ selectedSurvey.title }}
+          </div>
+          <q-card-actions align="right">
+            <q-btn label="X" color="red" v-close-popup dense />
+          </q-card-actions>
         </q-card-section>
         <q-separator />
         <q-card class="q-pa-none scroll" flat>
@@ -32,7 +62,14 @@
       </q-card>
     </q-dialog>
 
-    <q-dialog v-model="showAnswers" transition-show="rotate" transition-hide="rotate" persistent full-width full-height>
+    <q-dialog
+      v-model="showAnswers"
+      transition-show="rotate"
+      transition-hide="rotate"
+      persistent
+      full-width
+      full-height
+    >
       <q-card>
         <q-card-section>
           <div class="text-h6">Respuestas de {{ selectedSurvey.title }}</div>
@@ -87,32 +124,61 @@
 
 <script setup>
 import { sendRequest } from "src/boot/functions";
-import { ref, onMounted } from 'vue'
+import { ref, onMounted } from "vue";
 import { useAuthStore } from "src/stores/auth";
 import { storeToRefs } from "pinia";
 import AddAnswersForm from "src/components/Survey/AddAnswersForm.vue";
 import ShowAnswersForm from "src/components/Survey/ShowAnswersForm.vue";
 
-
-const showQuestions = ref(false)
-const showAnswers = ref(false)
-const answers = ref(null)
-const selectedSurvey = ref(null)
+const showQuestions = ref(false);
+const showAnswers = ref(false);
+const answers = ref(null);
+const selectedSurvey = ref(null);
 const auth = useAuthStore();
 const { user } = storeToRefs(auth);
-const surveys = ref([])
+const surveys = ref([]);
 
 const columns = [
   { name: "id", label: "ID", align: "left", field: "id", sortable: true },
-  { name: "title", label: "Titulo", align: "left", field: "title", sortable: true },
-  { name: "status", label: "Status", align: "left", field: "status", sortable: true },
-  { name: "description", label: "Descripcion", align: "left", field: "description", sortable: true },
-  { name: "expire_date", label: "Fecha de expiracion", align: "left", field: "expire_date", sortable: true },
-  { name: "action", label: "Action", align: "left", field: "action", sortable: true },
-]
+  {
+    name: "title",
+    label: "Titulo",
+    align: "left",
+    field: "title",
+    sortable: true,
+  },
+  {
+    name: "status",
+    label: "Status",
+    align: "left",
+    field: "status",
+    sortable: true,
+  },
+  {
+    name: "description",
+    label: "Descripcion",
+    align: "left",
+    field: "description",
+    sortable: true,
+  },
+  {
+    name: "expire_date",
+    label: "Fecha de expiracion",
+    align: "left",
+    field: "expire_date",
+    sortable: true,
+  },
+  {
+    name: "action",
+    label: "Action",
+    align: "left",
+    field: "action",
+    sortable: true,
+  },
+];
 
 const getSurveys = async () => {
-  const id = user.value.id
+  const id = user.value.id;
   let res = await sendRequest("GET", null, "/api/survey/user/" + id, "");
   surveys.value = res;
 };
@@ -120,29 +186,44 @@ const getSurveys = async () => {
 const isSurveyActive = (survey) => {
   // Si la encuesta no tiene una fecha de expiración o la fecha de expiración es posterior a la fecha actual,
   // y el estado es 1 (activo), la encuesta está activa
-  return (!survey.expire_date || new Date(survey.expire_date) > new Date()) && survey.status === 1;
+  return (
+    (!survey.expire_date || new Date(survey.expire_date) > new Date()) &&
+    survey.status === 1
+  );
 };
 
 // Método para manejar el clic en el botón
 const onRowClick = (row) => {
   if (!isSurveyActive(row)) {
-    console.log('La encuesta no está activa o ha expirado');
+    console.log("La encuesta no está activa o ha expirado");
     return;
   }
 
   // Aquí puedes manejar la lógica para abrir la encuesta
-  showQuestions.value = true
-  selectedSurvey.value = row
+  showQuestions.value = true;
+  selectedSurvey.value = row;
 };
 
 const onRowClickDetail = (row) => {
-  showAnswers.value = true
-  selectedSurvey.value = row
+  showAnswers.value = true;
+  selectedSurvey.value = row;
 };
 
 onMounted(() => {
-  getSurveys()
+  getSurveys();
 });
-
-
 </script>
+
+<style>
+.d-flex {
+  display: flex;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.items-center {
+  align-items: center;
+}
+</style>

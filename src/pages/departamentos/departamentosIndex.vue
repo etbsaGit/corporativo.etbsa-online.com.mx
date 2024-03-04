@@ -42,8 +42,11 @@
           transition-hide="rotate"
         >
           <q-card style="width: 2000px">
-            <q-card-section>
+            <q-card-section class="d-flex justify-between items-center">
               <div class="text-h6">Registrar Departamento</div>
+              <q-card-actions align="right">
+                <q-btn label="X" color="red" v-close-popup dense />
+              </q-card-actions>
             </q-card-section>
             <q-separator />
 
@@ -117,8 +120,11 @@
       transition-hide="rotate"
     >
       <q-card style="width: 2000px">
-        <q-card-section>
-          <div class="text-h6">Actualizar departamento</div>
+        <q-card-section class="d-flex justify-between items-center">
+          <div class="text-h6">Actualizar Departamento</div>
+          <q-card-actions align="right">
+            <q-btn label="X" color="red" v-close-popup dense />
+          </q-card-actions>
         </q-card-section>
         <q-separator />
 
@@ -259,5 +265,16 @@ onMounted(() => {
   white-space: normal;
   color: #555;
   margin-top: 4px;
+}
+.d-flex {
+  display: flex;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.items-center {
+  align-items: center;
 }
 </style>

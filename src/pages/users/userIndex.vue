@@ -42,8 +42,11 @@
           transition-hide="rotate"
         >
           <q-card style="max-width: 1000px">
-            <q-card-section>
-              <div class="text-h6">Registrar usuario</div>
+            <q-card-section class="d-flex justify-between items-center">
+              <div class="text-h6">Registrar Usuario</div>
+              <q-card-actions align="right">
+                <q-btn label="X" color="red" v-close-popup dense />
+              </q-card-actions>
             </q-card-section>
             <q-separator />
 
@@ -132,8 +135,11 @@
       transition-hide="rotate"
     >
       <q-card style="max-width: 1000px">
-        <q-card-section>
+        <q-card-section class="d-flex justify-between items-center">
           <div class="text-h6">Actualizar usuario</div>
+          <q-card-actions align="right">
+            <q-btn label="X" color="red" v-close-popup dense />
+          </q-card-actions>
         </q-card-section>
         <q-separator />
 
