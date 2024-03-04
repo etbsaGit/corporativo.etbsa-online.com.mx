@@ -5,6 +5,27 @@
         <q-item-section>
           <q-item-label overline>{{ pregunta.question }}</q-item-label>
           <q-item-label caption>{{ pregunta.description }}</q-item-label>
+          <q-img
+            v-if="pregunta.imagen"
+            :src="pregunta.imagen"
+            style="height: 240px; max-width: 250px"
+          >
+            <q-icon
+              class="absolute all-pointer-events"
+              size="32px"
+              name="info"
+              color="white"
+              style="top: 8px; left: 8px"
+            >
+              <q-btn
+                size="10px"
+                color="blue"
+                icon="open_in_full"
+                @click="show(pregunta.imagen)"
+              />
+            </q-icon>
+          </q-img>
+          <br />
           <q-input
             v-if="pregunta.type === 'text'"
             v-model="pregunta.respuesta"
@@ -193,6 +214,11 @@ const getAnswersfirst = async () => {
       }
     }
   }
+};
+
+const show = (imagen) => {
+  window.open(imagen, "_blank");
+  console.log(imagen);
 };
 
 const sendComments = async (pregunta) => {

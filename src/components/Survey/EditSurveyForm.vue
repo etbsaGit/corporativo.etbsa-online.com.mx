@@ -104,6 +104,38 @@
           label="Descripcion"
           lazy-rules
         />
+
+        <q-img
+          v-if="pregunta.imagen || pregunta.base64"
+          :src="pregunta.base64 ? pregunta.base64 : pregunta.imagen"
+          style="height: 240px; max-width: 250px"
+        >
+          <q-icon
+            class="absolute all-pointer-events"
+            size="32px"
+            name="info"
+            color="white"
+            style="top: 8px; left: 8px"
+          >
+            <q-btn
+              size="10px"
+              color="blue"
+              icon="open_in_full"
+              @click="show(pregunta.imagen)"
+            />
+          </q-icon>
+        </q-img>
+
+        <q-file
+          filled
+          dense
+          hint
+          label="Imagenes"
+          lazy-rules
+          v-model="pregunta.file"
+          @input="convertirBase64($event, index)"
+        />
+
         <q-select
           v-model="pregunta.type"
           :options="types"
@@ -203,9 +235,24 @@ const agregarPregunta = () => {
     id: uuidv4(),
     question: null,
     descripcion: null,
+    base64: null,
     type: null,
     data: [],
+    file: [],
   });
+};
+
+const convertirBase64 = (event, index) => {
+  const archivo = event.target.files[0];
+  if (archivo) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const base64Data = e.target.result;
+      // Asignar el valor base64 al campo 'image' de la pregunta específica
+      formSurvey.value.questions[index].base64 = base64Data;
+    };
+    reader.readAsDataURL(archivo);
+  }
 };
 
 const eliminarPregunta = (index) => {
@@ -218,6 +265,11 @@ const agregarOpcion = (index) => {
 
 const eliminarOpcion = (preguntaIndex, opcionIndex) => {
   formSurvey.value.questions[preguntaIndex].data.splice(opcionIndex, 1);
+};
+
+const show = (imagen) => {
+  window.open(imagen, "_blank");
+  console.log(imagen);
 };
 
 const validate = async () => {

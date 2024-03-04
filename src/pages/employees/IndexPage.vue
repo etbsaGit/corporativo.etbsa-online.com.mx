@@ -151,8 +151,11 @@
               persistent
             >
               <q-card style="width: 1800px">
-                <q-card-section>
+                <q-card-section class="d-flex justify-between items-center">
                   <div class="text-h6">Registrar Empleado</div>
+                  <q-card-actions align="right">
+                    <q-btn label="X" color="red" v-close-popup dense />
+                  </q-card-actions>
                 </q-card-section>
                 <q-separator />
 
@@ -312,8 +315,11 @@
           persistent
         >
           <q-card style="width: 1800px">
-            <q-card-section>
-              <div class="text-h6">Actualizar Empleado</div>
+            <q-card-section class="d-flex justify-between items-center">
+              <div class="text-h6">Actualizar empleado</div>
+              <q-card-actions align="right">
+                <q-btn label="X" color="red" v-close-popup dense />
+              </q-card-actions>
             </q-card-section>
             <q-separator />
 
@@ -371,12 +377,15 @@
           persistent
         >
           <q-card style="width: 1800px">
-            <q-card-section>
+            <q-card-section class="d-flex justify-between items-center">
               <div class="text-h6">
                 Expediente de {{ selectedEmployee.nombre }}
                 {{ selectedEmployee.apellido_paterno }}
                 {{ selectedEmployee.apellido_materno }}
               </div>
+              <q-card-actions align="right">
+                <q-btn label="X" color="red" v-close-popup dense />
+              </q-card-actions>
             </q-card-section>
             <q-separator />
             <q-card style="height: 70vh" class="q-pa-none scroll" flat>
@@ -401,10 +410,13 @@
           persistent
         >
           <q-card>
-            <q-card-section>
+            <q-card-section class="d-flex justify-between items-center">
               <div class="text-h6">
                 Evaluaciones de {{ selectedEmployee.nombre }}
               </div>
+              <q-card-actions align="right">
+                <q-btn label="X" color="red" v-close-popup dense />
+              </q-card-actions>
             </q-card-section>
             <q-separator />
             <q-card class="q-pa-none scroll" flat>
@@ -961,5 +973,16 @@ onMounted(() => {
   white-space: normal;
   color: #555;
   margin-top: 4px;
+}
+.d-flex {
+  display: flex;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.items-center {
+  align-items: center;
 }
 </style>
