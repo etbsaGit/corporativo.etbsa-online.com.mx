@@ -33,85 +33,191 @@
     </q-item> -->
     <q-item>
       <q-item-section>
-        <q-input v-model="formEmployee.nombre" filled dense label="Primer Nombre" lazy-rules
-          :rules="[(val) => (val && val.length > 0) || 'Obligatorio']" />
+        <q-input
+          v-model="formEmployee.nombre"
+          filled
+          dense
+          label="Primer Nombre"
+          lazy-rules
+          :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
+        />
       </q-item-section>
       <q-item-section>
-        <q-input v-model="formEmployee.segundo_nombre" filled dense label="Segundo Nombre" hint="(opcional)" />
-      </q-item-section>
-    </q-item>
-
-    <q-item>
-      <q-item-section>
-        <q-input v-model="formEmployee.apellido_paterno" filled dense label="Apellido paterno" lazy-rules
-          :rules="[(val) => (val && val.length > 0) || 'Obligatorio']" />
-      </q-item-section>
-      <q-item-section>
-        <q-input v-model="formEmployee.apellido_materno" filled dense label="Apellido materno" lazy-rules
-          :rules="[(val) => (val && val.length > 0) || 'Obligatorio']" />
-      </q-item-section>
-    </q-item>
-
-    <q-item>
-      <q-item-section>
-        <q-input v-model="formEmployee.telefono" filled dense label="Telefono" mask="##########" lazy-rules hint />
+        <q-input
+          v-model="formEmployee.segundo_nombre"
+          filled
+          dense
+          label="Segundo Nombre"
+          hint="(opcional)"
+        />
       </q-item-section>
     </q-item>
 
     <q-item>
       <q-item-section>
-        <q-input v-model="formEmployee.telefono_institucional" filled dense label="Telefono Institucional"
-          mask="##########" hint="Opcional" :rules="[
+        <q-input
+          v-model="formEmployee.apellido_paterno"
+          filled
+          dense
+          label="Apellido paterno"
+          lazy-rules
+          :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
+        />
+      </q-item-section>
+      <q-item-section>
+        <q-input
+          v-model="formEmployee.apellido_materno"
+          filled
+          dense
+          label="Apellido materno"
+          lazy-rules
+          :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
+        />
+      </q-item-section>
+    </q-item>
+
+    <q-item>
+      <q-item-section>
+        <q-input
+          v-model="formEmployee.telefono"
+          filled
+          dense
+          label="Telefono"
+          mask="##########"
+          lazy-rules
+          hint
+        />
+      </q-item-section>
+    </q-item>
+
+    <q-item>
+      <q-item-section>
+        <q-input
+          v-model="formEmployee.telefono_institucional"
+          filled
+          dense
+          label="Telefono Institucional"
+          mask="##########"
+          hint="Opcional"
+          :rules="[
             (val) =>
-              !val || (val && /^\d{10}$/.test(val)) || 'Debe tener 10 dígitos'
-          ]" />
+              !val || (val && /^\d{10}$/.test(val)) || 'Debe tener 10 dígitos',
+          ]"
+        />
       </q-item-section>
     </q-item>
 
     <q-item>
       <q-item-section>
-        <q-input v-model="formEmployee.correo_institucional" filled dense label="Correo institucional" hint="Opcional"
-          lazy-rules :rules="[
-            (v) => !v || /.+@.+\..+/.test(v) || 'Formato de correo inválido'
-          ]" />
+        <q-input
+          v-model="formEmployee.correo_institucional"
+          filled
+          dense
+          label="Correo institucional"
+          hint="Opcional"
+          lazy-rules
+          :rules="[
+            (v) => !v || /.+@.+\..+/.test(v) || 'Formato de correo inválido',
+          ]"
+        />
       </q-item-section>
     </q-item>
 
     <q-item>
       <q-item-section>
-        <q-input filled dense v-model="formEmployee.calle" lazy-rules label="Calle" hint />
+        <q-input
+          filled
+          dense
+          v-model="formEmployee.calle"
+          lazy-rules
+          label="Calle"
+          hint
+        />
       </q-item-section>
       <q-item-section>
-        <q-input filled dense v-model="formEmployee.numero_exterior" label="# Exterior" lazy-rules hint />
+        <q-input
+          filled
+          dense
+          v-model="formEmployee.numero_exterior"
+          label="# Exterior"
+          lazy-rules
+          hint
+        />
       </q-item-section>
       <q-item-section>
-        <q-input filled dense v-model="formEmployee.numero_interior" label="# Interior" hint="Opcional" />
+        <q-input
+          filled
+          dense
+          v-model="formEmployee.numero_interior"
+          label="# Interior"
+          hint="Opcional"
+        />
       </q-item-section>
     </q-item>
     <q-item>
       <q-item-section>
-        <q-input filled dense v-model="formEmployee.colonia" lazy-rules label="Colonia" hint />
+        <q-input
+          filled
+          dense
+          v-model="formEmployee.colonia"
+          lazy-rules
+          label="Colonia"
+          hint
+        />
       </q-item-section>
       <q-item-section>
-        <q-input filled dense v-model="formEmployee.codigo_postal" label="Codigo postal" mask="#####" lazy-rules hint />
+        <q-input
+          filled
+          dense
+          v-model="formEmployee.codigo_postal"
+          label="Codigo postal"
+          mask="#####"
+          lazy-rules
+          hint
+        />
       </q-item-section>
     </q-item>
     <q-item>
       <q-item-section>
-        <q-input filled dense v-model="formEmployee.ciudad" lazy-rules hint label="Ciudad" />
+        <q-input
+          filled
+          dense
+          v-model="formEmployee.ciudad"
+          lazy-rules
+          hint
+          label="Ciudad"
+        />
       </q-item-section>
       <q-item-section>
-        <q-input filled dense v-model="formEmployee.estado" lazy-rules label="Estado" hint />
+        <q-input
+          filled
+          dense
+          v-model="formEmployee.estado"
+          lazy-rules
+          label="Estado"
+          hint
+        />
       </q-item-section>
     </q-item>
 
     <q-item>
       <q-item-section>
-        <q-input filled dense v-model="formEmployee.fecha_de_nacimiento" mask="date" label="Fecha de Nacimiento"
-          lazy-rules hint>
+        <q-input
+          filled
+          dense
+          v-model="formEmployee.fecha_de_nacimiento"
+          mask="date"
+          label="Fecha de Nacimiento"
+          lazy-rules
+          hint
+        >
           <template v-slot:append>
             <q-icon name="event" class="cursor-pointer">
-              <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+              <q-popup-proxy
+                cover
+                transition-show="scale"
+                transition-hide="scale"
+              >
                 <q-date v-model="formEmployee.fecha_de_nacimiento">
                   <div class="row items-center justify-end">
                     <q-btn v-close-popup label="Close" color="gray" flat />
@@ -126,88 +232,211 @@
 
     <q-item>
       <q-item-section>
-        <q-input v-model="formEmployee.curp" filled dense label="CURP" lazy-rules hint />
+        <q-input
+          v-model="formEmployee.curp"
+          filled
+          dense
+          label="CURP"
+          lazy-rules
+          hint
+        />
       </q-item-section>
       <q-item-section>
-        <q-input v-model="formEmployee.rfc" filled dense label="RFC" lazy-rules hint :rules="[
-          (val) => !!val || 'Este campo es obligatorio',
-          (val) => (val && val.length === 13) || 'El RFC debe tener exactamente 13 dígitos'
-        ]" />
+        <q-input
+          v-model="formEmployee.rfc"
+          filled
+          dense
+          label="RFC"
+          lazy-rules
+          hint
+          :rules="[
+            (val) => !!val || 'Este campo es obligatorio',
+            (val) =>
+              (val && val.length === 13) ||
+              'El RFC debe tener exactamente 13 dígitos',
+          ]"
+        />
       </q-item-section>
     </q-item>
 
     <q-item>
       <q-item-section>
-        <q-input v-model="formEmployee.ine" filled dense label="INE" lazy-rules mask="##########" hint />
+        <q-input
+          v-model="formEmployee.ine"
+          filled
+          dense
+          label="INE"
+          lazy-rules
+          mask="##########"
+          hint
+        />
         <!-- :rules="[
             (val) => !!val || 'Este campo es obligatorio',
             (val) => (val && val.length === 10) || 'El INE debe tener exactamente 10 dígitos'
           ]" -->
       </q-item-section>
       <q-item-section>
-        <q-input v-model="formEmployee.licencia_de_manejo" filled dense label="Licencia de manejo" hint="(opcional)" />
+        <q-input
+          v-model="formEmployee.licencia_de_manejo"
+          filled
+          dense
+          label="Licencia de manejo"
+          hint="(opcional)"
+        />
       </q-item-section>
     </q-item>
 
     <q-item>
       <q-item-section>
-        <q-input v-model="formEmployee.passaporte" filled dense label="Pasaporte" hint="(opcional)" />
+        <q-input
+          v-model="formEmployee.passaporte"
+          filled
+          dense
+          label="Pasaporte"
+          hint="(opcional)"
+        />
       </q-item-section>
       <q-item-section>
-        <q-input v-model="formEmployee.visa" filled dense label="Visa" hint="(opcional)" mask="################" :rules="[
-          (val) =>
-            !val || (val && /^\d{16}$/.test(val)) || 'Debe tener 16 dígitos'
-        ]" />
+        <q-input
+          v-model="formEmployee.visa"
+          filled
+          dense
+          label="Visa"
+          hint="(opcional)"
+          mask="################"
+          :rules="[
+            (val) =>
+              !val || (val && /^\d{16}$/.test(val)) || 'Debe tener 16 dígitos',
+          ]"
+        />
       </q-item-section>
     </q-item>
 
     <q-item>
       <q-item-section>
-        <q-select v-model="formEmployee.escolaridad_id" :options="escolaridades" label="Escolaridad" option-value="id"
-          option-label="nombre" option-disable="inactive" emit-value map-options transition-show="jump-up"
-          transition-hide="jump-up" clearable filled dense hint />
+        <q-select
+          v-model="formEmployee.escolaridad_id"
+          :options="escolaridades"
+          label="Escolaridad"
+          option-value="id"
+          option-label="nombre"
+          option-disable="inactive"
+          emit-value
+          map-options
+          transition-show="jump-up"
+          transition-hide="jump-up"
+          clearable
+          filled
+          dense
+          hint
+        />
       </q-item-section>
     </q-item>
     <q-item v-if="[4, 5, 6].includes(formEmployee.escolaridad_id)">
       <q-item-section>
-        <q-input v-model="formEmployee.cedula_profecional" filled dense label="Cedula Profesional" hint />
+        <q-input
+          v-model="formEmployee.cedula_profecional"
+          filled
+          dense
+          label="Cedula Profesional"
+          hint
+        />
       </q-item-section>
       <q-item-section>
-        <q-input v-model="formEmployee.carrera" filled dense label="Carrera" hint />
-      </q-item-section>
-    </q-item>
-
-    <q-item>
-      <q-item-section>
-        <q-input v-model="formEmployee.nss" filled dense label="Numero de seguridad social" mask="###########" lazy-rules
-          hint />
-      </q-item-section>
-      <q-item-section>
-        <q-input v-model="formEmployee.hijos" filled dense label="Numero de hijos" mask="###" hint="Opcional" />
-      </q-item-section>
-      <q-item-section>
-        <q-input v-model="formEmployee.dependientes_economicos" filled dense label="Numero de dependientes economicos"
-          mask="###" hint="Opcional" />
+        <q-input
+          v-model="formEmployee.carrera"
+          filled
+          dense
+          label="Carrera"
+          hint
+        />
       </q-item-section>
     </q-item>
 
     <q-item>
       <q-item-section>
-        <q-select v-model="formEmployee.estado_civil_id" :options="estadosCiviles" label="Estado civil" option-value="id"
-          option-label="nombre" option-disable="inactive" emit-value map-options transition-show="jump-up"
-          transition-hide="jump-up" clearable filled dense hint />
+        <q-input
+          v-model="formEmployee.nss"
+          filled
+          dense
+          label="Numero de seguridad social"
+          mask="###########"
+          lazy-rules
+          hint
+        />
       </q-item-section>
       <q-item-section>
-        <q-select v-model="formEmployee.tipo_de_sangre_id" :options="tiposDeSangre" label="Tipo de sangre"
-          option-value="id" option-label="nombre" option-disable="inactive" emit-value map-options
-          transition-show="jump-up" transition-hide="jump-up" clearable filled dense hint />
+        <q-input
+          v-model="formEmployee.hijos"
+          filled
+          dense
+          label="Numero de hijos"
+          mask="###"
+          hint="Opcional"
+        />
+      </q-item-section>
+      <q-item-section>
+        <q-input
+          v-model="formEmployee.dependientes_economicos"
+          filled
+          dense
+          label="Numero de dependientes economicos"
+          mask="###"
+          hint="Opcional"
+        />
       </q-item-section>
     </q-item>
 
     <q-item>
       <q-item-section>
-        <q-input v-model="formEmployee.cuenta_bancaria" filled dense label="Numero de cuenta bancarias"
-          mask="##################" lazy-rules hint />
+        <q-select
+          v-model="formEmployee.estado_civil_id"
+          :options="estadosCiviles"
+          label="Estado civil"
+          option-value="id"
+          option-label="nombre"
+          option-disable="inactive"
+          emit-value
+          map-options
+          transition-show="jump-up"
+          transition-hide="jump-up"
+          clearable
+          filled
+          dense
+          hint
+        />
+      </q-item-section>
+      <q-item-section>
+        <q-select
+          v-model="formEmployee.tipo_de_sangre_id"
+          :options="tiposDeSangre"
+          label="Tipo de sangre"
+          option-value="id"
+          option-label="nombre"
+          option-disable="inactive"
+          emit-value
+          map-options
+          transition-show="jump-up"
+          transition-hide="jump-up"
+          clearable
+          filled
+          dense
+          hint
+        />
+      </q-item-section>
+    </q-item>
+
+    <q-item>
+      <q-item-section>
+        <q-input
+          v-model="formEmployee.cuenta_bancaria"
+          filled
+          dense
+          label="Numero de cuenta bancarias"
+          mask="##################"
+          lazy-rules
+          hint
+        />
       </q-item-section>
     </q-item>
   </q-form>
@@ -252,7 +481,7 @@ const formEmployee = ref({
   cuenta_bancaria: null,
   estado_civil_id: null,
   tipo_de_sangre_id: null,
-  correo_institucional: null
+  correo_institucional: null,
 });
 
 const getEstadosCiviles = async () => {
@@ -270,18 +499,26 @@ const getEscolaridades = async () => {
   escolaridades.value = res;
 };
 
+const getAll = async () => {
+  let res = await sendRequest("GET", null, "/api/empleado/personal", "");
+  estadosCiviles.value = res.estados_civiles;
+  tiposDeSangre.value = res.tipos_de_sangre;
+  escolaridades.value = res.escolaridades;
+};
+
 const validate = async () => {
   return await myForm.value.validate();
 };
 
 onMounted(() => {
-  getEstadosCiviles();
-  getTiposDeSangre();
-  getEscolaridades();
+  // getEstadosCiviles();
+  // getTiposDeSangre();
+  // getEscolaridades();
+  getAll();
 });
 
 defineExpose({
   formEmployee,
-  validate
+  validate,
 });
 </script>

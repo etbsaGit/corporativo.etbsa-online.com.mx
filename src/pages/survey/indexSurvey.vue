@@ -62,15 +62,20 @@
       transition-hide="rotate"
       persistent
       full-width
-      full-height=""
+      full-height
     >
       <q-card>
-        <q-card-section>
+        <q-card-section class="d-flex justify-between items-center">
           <div class="text-h6">Registrar Encuesta</div>
+          <q-card-actions align="right">
+            <q-btn label="X" color="red" v-close-popup dense />
+          </q-card-actions>
         </q-card-section>
         <q-separator />
         <q-card class="q-pa-none scroll" flat>
-          <add-survey-form ref="add" />
+          <div class="survey-form-container">
+            <add-survey-form ref="add" />
+          </div>
         </q-card>
         <q-separator />
         <q-card-actions align="right">
@@ -89,12 +94,17 @@
       full-height=""
     >
       <q-card>
-        <q-card-section>
+        <q-card-section class="d-flex justify-between items-center">
           <div class="text-h6">Actualizar Encuesta</div>
+          <q-card-actions align="right">
+            <q-btn label="X" color="red" v-close-popup dense />
+          </q-card-actions>
         </q-card-section>
         <q-separator />
         <q-card class="q-pa-none scroll" flat>
-          <edit-survey-form ref="edit" :survey="selectedSurvey" />
+          <div class="survey-form-container">
+            <edit-survey-form ref="edit" :survey="selectedSurvey" />
+          </div>
         </q-card>
         <q-separator />
         <q-card-actions align="right">
@@ -300,5 +310,10 @@ onMounted(() => {
 
 .items-center {
   align-items: center;
+}
+
+.survey-form-container {
+  max-height: 600px; /* Ajusta este valor según tus necesidades */
+  overflow-y: auto;
 }
 </style>
