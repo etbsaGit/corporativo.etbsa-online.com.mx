@@ -204,7 +204,7 @@
         <q-btn
           color="primary"
           icon="add"
-          label="Agrgear pregunta"
+          label="Agregar pregunta"
           @click="agregarPregunta"
         />
       </q-item-section>
