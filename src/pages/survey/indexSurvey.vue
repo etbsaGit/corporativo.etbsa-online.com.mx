@@ -122,7 +122,7 @@
           <q-card-actions align="right">
             <q-btn label="Cancelar" color="red" v-close-popup />
             <q-btn
-              label="Asignar encuesta encuesta"
+              label="Asignar encuesta"
               color="blue"
               @click="evalueeSurvey()"
             />

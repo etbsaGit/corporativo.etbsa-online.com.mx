@@ -98,7 +98,7 @@ const getScore = async () => {
   let res = await sendRequest(
     "GET",
     null,
-    `/api/surveys/grade/${survey.pivot.evaluee_id}/${survey.id}/`,
+    `/api/surveys/grade/${survey.pivot.evaluee_id}/${survey.id}`,
     ""
   );
   formScore.value.score = res.average_grade;
