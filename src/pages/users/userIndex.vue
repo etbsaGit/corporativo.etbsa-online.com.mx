@@ -45,7 +45,8 @@
             <q-card-section class="d-flex justify-between items-center">
               <div class="text-h6">Registrar Usuario</div>
               <q-card-actions align="right">
-                <q-btn label="X" color="red" v-close-popup dense />
+                <q-btn label="Cerrar" color="red" v-close-popup />
+                <q-btn label="Registrar" color="blue" @click="crearUser" />
               </q-card-actions>
             </q-card-section>
             <q-separator />
@@ -58,13 +59,6 @@
                 </q-tab-panel>
               </q-tab-panels>
             </q-card>
-
-            <q-separator />
-
-            <q-card-actions align="right">
-              <q-btn label="Cancelar" color="red" v-close-popup />
-              <q-btn label="Registrar" color="blue" @click="crearUser" />
-            </q-card-actions>
           </q-card>
         </q-dialog>
 
@@ -138,7 +132,8 @@
         <q-card-section class="d-flex justify-between items-center">
           <div class="text-h6">Actualizar usuario</div>
           <q-card-actions align="right">
-            <q-btn label="X" color="red" v-close-popup dense />
+            <q-btn label="Cerrar" color="red" v-close-popup />
+            <q-btn label="Actualizar" color="blue" @click="actualizarUser()" />
           </q-card-actions>
         </q-card-section>
         <q-separator />
@@ -154,13 +149,6 @@
             </q-tab-panel>
           </q-tab-panels>
         </q-card>
-
-        <q-separator />
-
-        <q-card-actions align="right">
-          <q-btn label="Cancelar" color="red" v-close-popup />
-          <q-btn label="Actualizar" color="blue" @click="actualizarUser()" />
-        </q-card-actions>
       </q-card>
     </q-dialog>
 
@@ -171,8 +159,16 @@
       persistent
     >
       <q-card>
-        <q-card-section>
+        <q-card-section class="d-flex justify-between items-center">
           <div class="text-h6">Roles de {{ selectedUser.name }}</div>
+          <q-card-actions align="right">
+            <q-btn label="Cerrar" color="red" v-close-popup />
+            <q-btn
+              label="Actualizar roles"
+              color="blue"
+              @click="asignRolUser()"
+            />
+          </q-card-actions>
         </q-card-section>
         <q-separator />
         <q-card class="q-pa-none scroll" flat>
@@ -181,15 +177,6 @@
               <add-role-user-form ref="edit" :user="selectedUser" />
             </q-tab-panel>
           </q-tab-panels>
-          <q-separator />
-          <q-card-actions align="right">
-            <q-btn label="Cancelar" color="red" v-close-popup />
-            <q-btn
-              label="Actualizar roles"
-              color="blue"
-              @click="asignRolUser()"
-            />
-          </q-card-actions>
         </q-card>
       </q-card>
     </q-dialog>
@@ -201,8 +188,16 @@
       persistent
     >
       <q-card>
-        <q-card-section>
+        <q-card-section class="d-flex justify-between items-center">
           <div class="text-h6">Permisos de {{ selectedUser.name }}</div>
+          <q-card-actions align="right">
+            <q-btn label="Cerrar" color="red" v-close-popup />
+            <q-btn
+              label="Actualizar permisos"
+              color="blue"
+              @click="asignPermissionUser()"
+            />
+          </q-card-actions>
         </q-card-section>
         <q-separator />
         <q-card class="q-pa-none scroll" flat>
@@ -211,15 +206,6 @@
               <add-permission-user-form ref="edit2" :user="selectedUser" />
             </q-tab-panel>
           </q-tab-panels>
-          <q-separator />
-          <q-card-actions align="right">
-            <q-btn label="Cancelar" color="red" v-close-popup />
-            <q-btn
-              label="Actualizar permisos"
-              color="blue"
-              @click="asignPermissionUser()"
-            />
-          </q-card-actions>
         </q-card>
       </q-card>
     </q-dialog>

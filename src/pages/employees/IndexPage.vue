@@ -372,11 +372,11 @@
                 {{ selectedEmployee.apellido_materno }}
               </div>
               <q-card-actions align="right">
-                <q-btn label="X" color="red" v-close-popup dense />
+                <q-btn label="Cerrar" color="red" v-close-popup />
               </q-card-actions>
             </q-card-section>
             <q-separator />
-            <q-card style="height: 70vh" class="q-pa-none scroll" flat>
+            <q-card class="q-pa-none-scroll" flat>
               <q-tab-panels v-model="tab2" animated keep-alive>
                 <q-tab-panel name="tab_form_three">
                   <edit-employeedthree-form
@@ -403,7 +403,7 @@
                 Evaluaciones de {{ selectedEmployee.nombre }}
               </div>
               <q-card-actions align="right">
-                <q-btn label="X" color="red" v-close-popup dense />
+                <q-btn label="Cerrar" color="red" v-close-popup />
               </q-card-actions>
             </q-card-section>
             <q-separator />
@@ -412,10 +412,6 @@
                 <add-comment-form ref="edit_5" :empleado="selectedEmployee" />
               </q-card-section>
             </q-card>
-            <q-separator />
-            <q-card-actions align="right">
-              <q-btn label="Cancelar" color="red" v-close-popup />
-            </q-card-actions>
           </q-card>
         </q-dialog>
       </div>
