@@ -33,22 +33,22 @@ export function admin(/* { to, from, next } */ { to, next }) {
 export function rrhh({ to, next }) {
   const auth = useAuthStore();
   const nombresRoles = getNamesRoles(auth.user);
-  const isAdmin = nombresRoles.includes("RRHH");
-  const isEncuestador = nombresRoles.includes("Encuestador");
-  if (isAdmin || isEncuestador) {
-    return next();
+  const isRRHH = nombresRoles.includes("RRHH");
+  if (isRRHH == false) {
+    auth.returnUrl = to.fullPath;
+    return next("/perfil");
   }
-  auth.returnUrl = to.fullPath;
-  return next("/perfil");
+  return next();
 }
 
 export function encuestador(/* { to, from, next } */ { to, next }) {
   const auth = useAuthStore();
   const nombresRoles = getNamesRoles(auth.user);
-  const isAdmin = nombresRoles.includes("Encuestador");
-  if (isAdmin == false) {
-    auth.returnUrl = to.fullPath;
-    return next("/perfil");
+  const isEncuestador = nombresRoles.includes("Encuestador");
+  const isEvaluador = nombresRoles.includes("Evaluador");
+  if (isEncuestador == true || isEvaluador == true) {
+    return next();
   }
-  return next();
+  auth.returnUrl = to.fullPath;
+  return next("/perfil");
 }

@@ -7,7 +7,6 @@
           color="primary"
           @click="showAdd = true"
           icon="person_add"
-          v-if="isRRHH == true"
         />
 
         <div><br /></div>
@@ -244,17 +243,8 @@
           </template>
 
           <template v-slot:body-cell-expediente="props">
-            <q-td @click="onRowClickFile(props.row)" v-if="isRRHH == true">
+            <q-td @click="onRowClickFile(props.row)">
               <q-btn flat round color="primary" icon="folder" />
-            </q-td>
-          </template>
-
-          <template v-slot:body-cell-survey="props">
-            <q-td
-              v-if="props.row.user_id && isEncuestador == true"
-              @click="onRowClickSurvey(props.row)"
-            >
-              <q-btn flat round color="primary" icon="quiz" />
             </q-td>
           </template>
 
@@ -388,32 +378,6 @@
             </q-card>
           </q-card>
         </q-dialog>
-        <!-- -------------------------------------------------------------------------------- -->
-        <q-dialog
-          v-model="showSurvey"
-          transition-show="rotate"
-          transition-hide="rotate"
-          full-width
-          full-height
-          persistent
-        >
-          <q-card>
-            <q-card-section class="d-flex justify-between items-center">
-              <div class="text-h6">
-                Evaluaciones de {{ selectedEmployee.nombre }}
-              </div>
-              <q-card-actions align="right">
-                <q-btn label="Cerrar" color="red" v-close-popup />
-              </q-card-actions>
-            </q-card-section>
-            <q-separator />
-            <q-card class="q-pa-none scroll" flat>
-              <q-card-section>
-                <add-comment-form ref="edit_5" :empleado="selectedEmployee" />
-              </q-card-section>
-            </q-card>
-          </q-card>
-        </q-dialog>
       </div>
     </q-card>
   </div>
@@ -426,19 +390,15 @@ import AddEmployeedtwoForm from "src/components/Employeed/AddEmployeedtwoForm.vu
 import EditEmployeedForm from "src/components/Employeed/EditEmployeedForm.vue";
 import EditEmployeedtwoForm from "src/components/Employeed/EditEmployeedtwoForm.vue";
 import EditEmployeedthreeForm from "src/components/Employeed/EditEmployeedthreeForm.vue";
-import AddCommentForm from "src/components/Survey/AddCommentForm.vue";
 import { sendRequest } from "src/boot/functions";
 import { useQuasar, exportFile } from "quasar";
 import { inject } from "vue";
-import { useAuthStore } from "src/stores/auth";
-import { getNamesRoles } from "src/boot/functions";
 
 const form_1 = ref(null);
 const form_2 = ref(null);
 const edit_1 = ref(null);
 const edit_2 = ref(null);
 const edit_3 = ref(null);
-const edit_5 = ref(null);
 const edit1_valid = ref();
 const edit2_valid = ref();
 
@@ -446,17 +406,11 @@ const $q = useQuasar();
 
 const showDetails = ref(false);
 const showFiles = ref(false);
-const showSurvey = ref(false);
 const selectedEmployee = ref(null);
 const sucursales = ref([]);
 const lineas = ref([]);
 const departamentos = ref([]);
 const puestos = ref([]);
-
-const auth = useAuthStore();
-const nombresRoles = getNamesRoles(auth.user);
-const isRRHH = nombresRoles.includes("RRHH");
-const isEncuestador = nombresRoles.includes("Encuestador");
 
 const bus = inject("bus"); // inside setup()
 
@@ -476,16 +430,8 @@ const visibleColumns = ref([
   "linea",
   "departamento",
   "puesto",
+  "expediente",
 ]);
-
-// Modificar el objeto visibleColumns según un atributo de falso o verdadero
-if (isEncuestador) {
-  visibleColumns.value.push("survey");
-}
-
-if (isRRHH) {
-  visibleColumns.value.push("expediente");
-}
 
 const tab = ref("tab_form_one");
 const tab2 = ref("tab_form_three");
@@ -494,24 +440,13 @@ const showAdd = ref(false);
 const employees = ref([]);
 
 const onRowClick = (row) => {
-  if (isRRHH) {
-    selectedEmployee.value = row;
-    showDetails.value = true;
-  }
+  selectedEmployee.value = row;
+  showDetails.value = true;
 };
 
 const onRowClickFile = (row) => {
-  if (isRRHH) {
-    selectedEmployee.value = row;
-    showFiles.value = true;
-  }
-};
-
-const onRowClickSurvey = (row) => {
-  if (isEncuestador) {
-    selectedEmployee.value = row;
-    showSurvey.value = true;
-  }
+  selectedEmployee.value = row;
+  showFiles.value = true;
 };
 
 const filter = async () => {
@@ -565,26 +500,6 @@ const actualizarEmpleado = async () => {
 const getEmployees = async () => {
   let res = await sendRequest("GET", null, "/api/empleado/all", "");
   employees.value = res;
-};
-
-const getSucursales = async () => {
-  let res = await sendRequest("GET", null, "/api/sucursal/all", "");
-  sucursales.value = res;
-};
-
-const getLineas = async () => {
-  let res = await sendRequest("GET", null, "/api/linea/all", "");
-  lineas.value = res;
-};
-
-const getDepartamentos = async () => {
-  let res = await sendRequest("GET", null, "/api/departamento/all", "");
-  departamentos.value = res;
-};
-
-const getPuestos = async () => {
-  let res = await sendRequest("GET", null, "/api/puesto/all", "");
-  puestos.value = res;
 };
 
 const getAll = async () => {
@@ -869,12 +784,6 @@ const columns = [
     align: "left",
     sortable: true,
   },
-  {
-    name: "survey",
-    label: "Evaluaciones",
-    align: "left",
-    sortable: true,
-  },
 ];
 
 const filteredEmployees = computed(() => {
@@ -955,11 +864,6 @@ bus.on("cargar_empleados", () => {
 });
 
 onMounted(() => {
-  // getEmployees();
-  // getSucursales();
-  // getLineas();
-  // getPuestos();
-  // getDepartamentos();
   getAll();
 });
 </script>
