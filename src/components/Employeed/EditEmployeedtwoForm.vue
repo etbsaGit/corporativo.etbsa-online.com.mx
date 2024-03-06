@@ -151,7 +151,14 @@
           v-model="formEmployeetwo.jefe_directo_id"
           :options="jefesDirectos"
           option-value="id"
-          option-label="nombre"
+          :option-label="
+            (item) =>
+              item.nombre +
+              ' ' +
+              item.apellido_paterno +
+              ' ' +
+              item.apellido_materno
+          "
           label="Jefe directo"
           option-disable="inactive"
           emit-value
@@ -189,6 +196,8 @@
             v-model="formEmployeetwo.comision"
             class="text-grey-7"
             label="Comision"
+            :true-value="1"
+            :false-value="0"
             hint
           />
         </div>
@@ -225,7 +234,7 @@ const formEmployeetwo = ref({
   sucursal_id: empleado.sucursal.id,
   linea_id: empleado.linea.id,
   departamento_id: empleado.departamento.id,
-  jefe_directo_id: empleado.jefe_directo_id ? empleado.jefe_directo.id : null
+  jefe_directo_id: empleado.jefe_directo_id ? empleado.jefe_directo.id : null,
 });
 
 const getLineas = async () => {
@@ -253,16 +262,26 @@ const getJefes = async () => {
   jefesDirectos.value = res;
 };
 
+const getAll = async () => {
+  let res = await sendRequest("GET", null, "/api/empleado/negocios", "");
+  jefesDirectos.value = res.empleados;
+  sucursales.value = res.sucursales;
+  lineas.value = res.lineas;
+  departamentos.value = res.departamentos;
+  puestos.value = res.puestos;
+};
+
 const validate = async () => {
   return await myForm.value.validate();
 };
 
 onMounted(() => {
-  getLineas();
-  getSucursales();
-  getDepartamentos();
-  getPuestos();
-  getJefes();
+  // getLineas();
+  // getSucursales();
+  // getDepartamentos();
+  // getPuestos();
+  // getJefes();
+  getAll();
 });
 
 defineExpose({

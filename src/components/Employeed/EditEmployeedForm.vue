@@ -96,7 +96,7 @@
           hint="Opcional"
           :rules="[
             (val) =>
-              !val || (val && /^\d{10}$/.test(val)) || 'Debe tener 10 dígitos'
+              !val || (val && /^\d{10}$/.test(val)) || 'Debe tener 10 dígitos',
           ]"
         />
       </q-item-section>
@@ -111,7 +111,7 @@
           label="Correo institucional"
           hint="Opcional"
           :rules="[
-            (v) => !v || /.+@.+\..+/.test(v) || 'Formato de correo inválido'
+            (v) => !v || /.+@.+\..+/.test(v) || 'Formato de correo inválido',
           ]"
         />
       </q-item-section>
@@ -216,14 +216,7 @@
         <q-input v-model="formEmployee.curp" hint filled dense label="CURP" />
       </q-item-section>
       <q-item-section>
-        <q-input
-          v-model="formEmployee.rfc"
-          filled
-          dense
-          label="RFC"
-          hint
-
-          />
+        <q-input v-model="formEmployee.rfc" filled dense label="RFC" hint />
         <!-- :rules="[
             (val) => !!val || 'Este campo es obligatorio',
             (val) => (val && val.length === 13) || 'El RFC debe tener exactamente 13 dígitos'
@@ -233,14 +226,7 @@
 
     <q-item>
       <q-item-section>
-        <q-input
-          v-model="formEmployee.ine"
-          filled
-          dense
-          label="INE"
-          hint
-
-          />
+        <q-input v-model="formEmployee.ine" filled dense label="INE" hint />
         <!-- :rules="[
             (val) => !!val || 'Este campo es obligatorio',
             (val) => (val && val.length === 10) || 'El INE debe tener exactamente 10 dígitos'
@@ -257,7 +243,7 @@
             (val) =>
               !val ||
               (val && val.length === 16) ||
-              'La licencia debe tener exactamente 16 caracteres'
+              'La licencia debe tener exactamente 16 caracteres',
           ]"
         />
       </q-item-section>
@@ -427,7 +413,7 @@ const tiposDeSangre = ref([]);
 const escolaridades = ref([]);
 const myForm = ref(null);
 
-const fotografia = ref(null)
+const fotografia = ref(null);
 
 const formEmployee = ref({
   id: empleado.id,
@@ -462,7 +448,7 @@ const formEmployee = ref({
   tipo_de_sangre_id: empleado.tipo_de_sangre_id
     ? empleado.tipo_de_sangre.id
     : null,
-  correo_institucional: empleado.correo_institucional
+  correo_institucional: empleado.correo_institucional,
 });
 
 const uploadPicture = async () => {
@@ -474,9 +460,9 @@ const uploadPicture = async () => {
       formData,
       {
         headers: {
-          "Content-Type": "multipart/form-data"
+          "Content-Type": "multipart/form-data",
         },
-        withCredentials: true
+        withCredentials: true,
       }
     );
     bus.emit("cargar_empleados");
@@ -501,18 +487,26 @@ const getEscolaridades = async () => {
   escolaridades.value = res;
 };
 
+const getAll = async () => {
+  let res = await sendRequest("GET", null, "/api/empleado/personal", "");
+  estadosCiviles.value = res.estados_civiles;
+  tiposDeSangre.value = res.tipos_de_sangre;
+  escolaridades.value = res.escolaridades;
+};
+
 const validate = async () => {
   return await myForm.value.validate();
 };
 
 onMounted(() => {
-  getEstadosCiviles();
-  getTiposDeSangre();
-  getEscolaridades();
+  // getEstadosCiviles();
+  // getTiposDeSangre();
+  // getEscolaridades();
+  getAll();
 });
 
 defineExpose({
   formEmployee,
-  validate
+  validate,
 });
 </script>

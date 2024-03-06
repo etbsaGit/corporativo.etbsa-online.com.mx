@@ -62,21 +62,22 @@
       transition-hide="rotate"
       persistent
       full-width
-      full-height=""
+      full-height
     >
       <q-card>
-        <q-card-section>
+        <q-card-section class="d-flex justify-between items-center">
           <div class="text-h6">Registrar Encuesta</div>
+          <q-card-actions align="right">
+            <q-btn label="Cerrar" color="red" v-close-popup />
+            <q-btn label="Agregar encuesta" color="blue" @click="addSurvey()" />
+          </q-card-actions>
         </q-card-section>
         <q-separator />
         <q-card class="q-pa-none scroll" flat>
-          <add-survey-form ref="add" />
+          <div class="survey-form-container">
+            <add-survey-form ref="add" />
+          </div>
         </q-card>
-        <q-separator />
-        <q-card-actions align="right">
-          <q-btn label="Cancelar" color="red" v-close-popup />
-          <q-btn label="Agregar encuesta" color="blue" @click="addSurvey()" />
-        </q-card-actions>
       </q-card>
     </q-dialog>
 
@@ -89,22 +90,21 @@
       full-height=""
     >
       <q-card>
-        <q-card-section>
+        <q-card-section class="d-flex justify-between items-center">
           <div class="text-h6">Actualizar Encuesta</div>
+          <q-card-actions align="right">
+            <q-btn label="Cerrar" color="red" v-close-popup />
+            <q-btn
+              label="Actualizar encuesta"
+              color="blue"
+              @click="editSurvey()"
+            />
+          </q-card-actions>
         </q-card-section>
         <q-separator />
-        <q-card class="q-pa-none scroll" flat>
+        <div class="survey-form-container">
           <edit-survey-form ref="edit" :survey="selectedSurvey" />
-        </q-card>
-        <q-separator />
-        <q-card-actions align="right">
-          <q-btn label="Cancelar" color="red" v-close-popup />
-          <q-btn
-            label="Actualizar encuesta"
-            color="blue"
-            @click="editSurvey()"
-          />
-        </q-card-actions>
+        </div>
       </q-card>
     </q-dialog>
 
@@ -120,22 +120,18 @@
         <q-card-section class="d-flex justify-between items-center">
           <div class="text-h6">Asignar encuesta {{ selectedSurvey.title }}</div>
           <q-card-actions align="right">
-            <q-btn label="X" color="red" v-close-popup dense />
+            <q-btn label="Cancelar" color="red" v-close-popup />
+            <q-btn
+              label="Asignar encuesta"
+              color="blue"
+              @click="evalueeSurvey()"
+            />
           </q-card-actions>
         </q-card-section>
         <q-separator />
-        <q-card class="q-pa-none scroll" flat>
+        <div class="survey-form-container">
           <add-evaluees-form ref="evaluees" :survey="selectedSurvey" />
-        </q-card>
-        <q-separator />
-        <q-card-actions align="right">
-          <q-btn label="Cancelar" color="red" v-close-popup />
-          <q-btn
-            label="Asignar encuesta"
-            color="blue"
-            @click="evalueeSurvey()"
-          />
-        </q-card-actions>
+        </div>
       </q-card>
     </q-dialog>
   </div>
@@ -143,9 +139,7 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-
 import { sendRequest } from "src/boot/functions";
-import { api } from "src/boot/axios";
 import AddSurveyForm from "src/components/Survey/AddSurveyForm.vue";
 import EditSurveyForm from "src/components/Survey/EditSurveyForm.vue";
 import AddEvalueesForm from "src/components/Survey/AddEvalueesForm.vue";
@@ -259,29 +253,15 @@ const evalueeSurvey = async () => {
   const final = {
     evaluees: evaluees.value.selectedEvaluee,
   };
-  // try {
-  //   let res = await sendRequest("POST", final, "/surveys/evaluees/" + selectedSurvey.value.id, "");
-  //   showEmployees.value = false;
-  //   getSurveys();
-  // } catch (error) {
-  //   console.error("Error al enviar la solicitud:", error);
-  // }
-  try {
-    let res = await api.post(
-      `/surveys/evaluees/${selectedSurvey.value.id}`,
-      final,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-        withCredentials: true,
-      }
-    );
-    showEmployees.value = false;
-    getSurveys();
-  } catch (error) {
-    console.error("Error al enviar la solicitud:", error);
-  }
+  const survey = ref(selectedSurvey.value.id);
+  let res = await sendRequest(
+    "POST",
+    final,
+    "/api/surveys/evaluees/" + survey.value,
+    ""
+  );
+  showEmployees.value = false;
+  getSurveys();
 };
 
 onMounted(() => {
@@ -300,5 +280,10 @@ onMounted(() => {
 
 .items-center {
   align-items: center;
+}
+
+.survey-form-container {
+  max-height: 600px; /* Ajusta este valor según tus necesidades */
+  overflow-y: auto;
 }
 </style>

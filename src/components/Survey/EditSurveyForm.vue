@@ -26,6 +26,26 @@
     </q-item>
     <q-item>
       <q-item-section>
+        <q-select
+          v-model="formSurvey.evaluator_id"
+          :options="evaluators"
+          option-value="id"
+          option-label="email"
+          label="Encuestador"
+          option-disable="inactive"
+          emit-value
+          map-options
+          transition-show="jump-up"
+          transition-hide="jump-up"
+          clearable
+          filled
+          dense
+          hint
+        />
+      </q-item-section>
+    </q-item>
+    <q-item>
+      <q-item-section>
         <q-input
           filled
           dense
@@ -213,10 +233,12 @@
 </template>
 
 <script setup>
-const { survey } = defineProps(["survey"]);
 import { ref, onMounted } from "vue";
+import { sendRequest } from "src/boot/functions";
 import { v4 as uuidv4 } from "uuid";
+const { survey } = defineProps(["survey"]);
 const myForm = ref(null);
+const evaluators = ref([]);
 
 const formSurvey = ref({
   id: survey.id,
@@ -269,14 +291,19 @@ const eliminarOpcion = (preguntaIndex, opcionIndex) => {
 
 const show = (imagen) => {
   window.open(imagen, "_blank");
-  console.log(imagen);
 };
 
 const validate = async () => {
   return await myForm.value.validate();
 };
 
+const getEvaluators = async () => {
+  let res = await sendRequest("GET", null, "/api/user/all", "");
+  evaluators.value = res;
+};
+
 onMounted(() => {
+  getEvaluators();
   for (const pregunta of formSurvey.value.questions) {
     if (pregunta.data) {
       try {

@@ -26,6 +26,26 @@
     </q-item>
     <q-item>
       <q-item-section>
+        <q-select
+          v-model="formSurvey.evaluator_id"
+          :options="evaluators"
+          option-value="id"
+          option-label="email"
+          label="Encuestador"
+          option-disable="inactive"
+          emit-value
+          map-options
+          transition-show="jump-up"
+          transition-hide="jump-up"
+          clearable
+          filled
+          dense
+          hint
+        />
+      </q-item-section>
+    </q-item>
+    <q-item>
+      <q-item-section>
         <q-input
           filled
           dense
@@ -203,13 +223,14 @@ import { storeToRefs } from "pinia";
 const auth = useAuthStore();
 const { user } = storeToRefs(auth);
 const myForm = ref(null);
+const evaluators = ref([]);
 
 const formSurvey = ref({
   title: null,
   status: false,
   description: null,
   expire_date: null,
-  evaluator_id: user.value.id,
+  evaluator_id: null,
   questions: [],
 });
 
@@ -224,6 +245,11 @@ const agregarPregunta = () => {
     data: [],
     file: [],
   });
+};
+
+const getEvaluators = async () => {
+  let res = await sendRequest("GET", null, "/api/user/all", "");
+  evaluators.value = res;
 };
 
 const convertirBase64 = (event, index) => {
@@ -254,6 +280,10 @@ const eliminarOpcion = (preguntaIndex, opcionIndex) => {
 const validate = async () => {
   return await myForm.value.validate();
 };
+
+onMounted(() => {
+  getEvaluators();
+});
 
 defineExpose({
   formSurvey,

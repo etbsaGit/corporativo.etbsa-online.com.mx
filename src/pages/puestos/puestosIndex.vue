@@ -53,7 +53,8 @@
             <q-card-section class="d-flex justify-between items-center">
               <div class="text-h6">Registrar Puesto</div>
               <q-card-actions align="right">
-                <q-btn label="X" color="red" v-close-popup dense />
+                <q-btn label="Cerrar" color="red" v-close-popup />
+                <q-btn label="Registrar" color="blue" @click="crearPuesto" />
               </q-card-actions>
             </q-card-section>
             <q-separator />
@@ -66,13 +67,6 @@
                 </q-tab-panel>
               </q-tab-panels>
             </q-card>
-
-            <q-separator />
-
-            <q-card-actions align="right">
-              <q-btn label="Cancelar" color="red" v-close-popup />
-              <q-btn label="Registrar" color="blue" @click="crearPuesto" />
-            </q-card-actions>
           </q-card>
         </q-dialog>
 
@@ -127,7 +121,12 @@
         <q-card-section class="d-flex justify-between items-center">
           <div class="text-h6">Actualizar Puesto</div>
           <q-card-actions align="right">
-            <q-btn label="X" color="red" v-close-popup dense />
+            <q-btn label="Cerrar" color="red" v-close-popup />
+            <q-btn
+              label="Actualizar"
+              color="blue"
+              @click="actualizarPuesto()"
+            />
           </q-card-actions>
         </q-card-section>
         <q-separator />
@@ -143,13 +142,6 @@
             </q-tab-panel>
           </q-tab-panels>
         </q-card>
-
-        <q-separator />
-
-        <q-card-actions align="right">
-          <q-btn label="Cancelar" color="red" v-close-popup />
-          <q-btn label="Actualizar" color="blue" @click="actualizarPuesto()" />
-        </q-card-actions>
       </q-card>
     </q-dialog>
   </div>

@@ -28,17 +28,13 @@
         <q-card-section class="d-flex justify-between items-center">
           <div class="text-h6">Respuestas de {{ selectedSurvey.title }}</div>
           <q-card-actions align="right">
-            <q-btn label="X" color="red" v-close-popup dense />
+            <q-btn label="Cerrar" color="red" v-close-popup />
           </q-card-actions>
         </q-card-section>
         <q-separator />
         <q-card class="q-pa-none scroll" flat>
           <insert-comment-form ref="answers" :survey="selectedSurvey" />
         </q-card>
-        <q-separator />
-        <q-card-actions align="right">
-          <q-btn label="Cerrar" color="red" v-close-popup />
-        </q-card-actions>
       </q-card>
     </q-dialog>
 
@@ -56,22 +52,19 @@
             Evaluacion final de {{ selectedSurvey.title }}
           </div>
           <q-card-actions align="right">
-            <q-btn label="X" color="red" v-close-popup dense />
+            <q-btn label="Cerrar" color="red" v-close-popup />
+            <q-btn
+              label="Guardar comentarios"
+              color="blue"
+              @click="sendComments"
+            />
           </q-card-actions>
         </q-card-section>
         <q-separator />
-        <q-card class="q-pa-none scroll" flat>
+        <div class="survey-form-container">
           <add-score-form ref="score" :survey="selectedSurvey" />
-        </q-card>
+        </div>
         <q-separator />
-        <q-card-actions align="right">
-          <q-btn label="Cerrar" color="red" v-close-popup />
-          <q-btn
-            label="Guardar comentarios"
-            color="blue"
-            @click="sendComments"
-          />
-        </q-card-actions>
       </q-card>
     </q-dialog>
   </div>
@@ -150,5 +143,10 @@ onMounted(() => {
 
 .items-center {
   align-items: center;
+}
+
+.survey-form-container {
+  max-height: 600px; /* Ajusta este valor según tus necesidades */
+  overflow-y: auto;
 }
 </style>

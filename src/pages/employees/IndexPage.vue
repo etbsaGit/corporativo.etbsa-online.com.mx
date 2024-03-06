@@ -154,7 +154,13 @@
                 <q-card-section class="d-flex justify-between items-center">
                   <div class="text-h6">Registrar Empleado</div>
                   <q-card-actions align="right">
-                    <q-btn label="X" color="red" v-close-popup dense />
+                    <q-btn label="Cerrar" color="red" v-close-popup />
+                    <q-btn
+                      :disable="!form_1 || !form_2"
+                      label="Registrar"
+                      color="blue"
+                      @click="crearEmpleado()"
+                    />
                   </q-card-actions>
                 </q-card-section>
                 <q-separator />
@@ -186,18 +192,6 @@
                     </q-tab-panel>
                   </q-tab-panels>
                 </q-card>
-
-                <q-separator />
-
-                <q-card-actions align="right">
-                  <q-btn label="Cancelar" color="red" v-close-popup />
-                  <q-btn
-                    :disable="!form_1 || !form_2"
-                    label="Registrar"
-                    color="blue"
-                    @click="crearEmpleado()"
-                  />
-                </q-card-actions>
               </q-card>
             </q-dialog>
             <!-- ------------------------------------------------ -->
@@ -316,9 +310,15 @@
         >
           <q-card style="width: 1800px">
             <q-card-section class="d-flex justify-between items-center">
-              <div class="text-h6">Actualizar empleado</div>
+              <div class="text-h6">Actualizar Empleado</div>
               <q-card-actions align="right">
-                <q-btn label="X" color="red" v-close-popup dense />
+                <q-btn label="Cerrar" color="red" v-close-popup />
+                <q-btn
+                  :disable="!edit_1 || !edit_2"
+                  label="Actualizar"
+                  color="blue"
+                  @click="actualizarEmpleado()"
+                />
               </q-card-actions>
             </q-card-section>
             <q-separator />
@@ -354,18 +354,6 @@
                 </q-tab-panel>
               </q-tab-panels>
             </q-card>
-
-            <q-separator />
-
-            <q-card-actions align="right">
-              <q-btn label="Cancelar" color="red" v-close-popup />
-              <q-btn
-                :disable="!edit_1 || !edit_2"
-                label="Actualizar"
-                color="blue"
-                @click="actualizarEmpleado()"
-              />
-            </q-card-actions>
           </q-card>
         </q-dialog>
         <!-- ---------------------------------------------------------------------------- -->
@@ -384,11 +372,11 @@
                 {{ selectedEmployee.apellido_materno }}
               </div>
               <q-card-actions align="right">
-                <q-btn label="X" color="red" v-close-popup dense />
+                <q-btn label="Cerrar" color="red" v-close-popup />
               </q-card-actions>
             </q-card-section>
             <q-separator />
-            <q-card style="height: 70vh" class="q-pa-none scroll" flat>
+            <q-card class="q-pa-none-scroll" flat>
               <q-tab-panels v-model="tab2" animated keep-alive>
                 <q-tab-panel name="tab_form_three">
                   <edit-employeedthree-form
@@ -415,7 +403,7 @@
                 Evaluaciones de {{ selectedEmployee.nombre }}
               </div>
               <q-card-actions align="right">
-                <q-btn label="X" color="red" v-close-popup dense />
+                <q-btn label="Cerrar" color="red" v-close-popup />
               </q-card-actions>
             </q-card-section>
             <q-separator />
@@ -424,10 +412,6 @@
                 <add-comment-form ref="edit_5" :empleado="selectedEmployee" />
               </q-card-section>
             </q-card>
-            <q-separator />
-            <q-card-actions align="right">
-              <q-btn label="Cancelar" color="red" v-close-popup />
-            </q-card-actions>
           </q-card>
         </q-dialog>
       </div>
@@ -492,7 +476,6 @@ const visibleColumns = ref([
   "linea",
   "departamento",
   "puesto",
-  "rfc",
 ]);
 
 // Modificar el objeto visibleColumns según un atributo de falso o verdadero
@@ -597,6 +580,20 @@ const getLineas = async () => {
 const getDepartamentos = async () => {
   let res = await sendRequest("GET", null, "/api/departamento/all", "");
   departamentos.value = res;
+};
+
+const getPuestos = async () => {
+  let res = await sendRequest("GET", null, "/api/puesto/all", "");
+  puestos.value = res;
+};
+
+const getAll = async () => {
+  let res = await sendRequest("GET", null, "/api/empleado/negocios", "");
+  employees.value = res.empleados;
+  sucursales.value = res.sucursales;
+  lineas.value = res.lineas;
+  departamentos.value = res.departamentos;
+  puestos.value = res.puestos;
 };
 
 const columns = [
@@ -958,10 +955,12 @@ bus.on("cargar_empleados", () => {
 });
 
 onMounted(() => {
-  getEmployees();
-  getSucursales();
-  getLineas();
-  getDepartamentos();
+  // getEmployees();
+  // getSucursales();
+  // getLineas();
+  // getPuestos();
+  // getDepartamentos();
+  getAll();
 });
 </script>
 
