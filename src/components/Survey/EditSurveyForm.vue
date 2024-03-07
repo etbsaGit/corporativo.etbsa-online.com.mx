@@ -27,6 +27,7 @@
     <q-item>
       <q-item-section>
         <q-select
+          :disable="isEncuestador == false"
           v-model="formSurvey.evaluator_id"
           :options="evaluators"
           option-value="id"
@@ -94,18 +95,21 @@
     <q-separator />
     <q-item v-for="(pregunta, index) in formSurvey.questions" :key="index">
       <q-item-section>
-        <div class="text-h6">
-          <q-btn
-            icon="delete"
-            size="sm"
-            color="red"
-            label="Eliminar pregunta"
-            filled
-            dense
-            @click="eliminarPregunta(index)"
-          ></q-btn>
-          Pregunta {{ index + 1 }}
-        </div>
+        <q-card-section class="d-flex justify-between items-center">
+          <div class="text-h6">Pregunta {{ index + 1 }}</div>
+          <q-card-actions align="right">
+            <q-btn
+              align="left"
+              icon="delete"
+              size="sm"
+              color="red"
+              label="Eliminar pregunta"
+              filled
+              dense
+              @click="eliminarPregunta(index)"
+            />
+          </q-card-actions>
+        </q-card-section>
         <br />
         <q-input
           v-model="pregunta.question"
@@ -131,18 +135,38 @@
           style="height: 240px; max-width: 250px"
         >
           <q-icon
+            v-if="pregunta.imagen"
             class="absolute all-pointer-events"
-            size="32px"
+            size="20px"
             name="info"
             color="white"
             style="top: 8px; left: 8px"
           >
             <q-btn
               size="10px"
+              color="red"
+              icon="delete"
+              @click="deleteImage(pregunta.id, index)"
+            >
+              <q-tooltip> Borrar imagen </q-tooltip>
+            </q-btn>
+          </q-icon>
+          <q-icon
+            v-if="pregunta.imagen"
+            class="absolute all-pointer-events"
+            size="20px"
+            name="info"
+            color="white"
+            style="top: 8px; left: 190px"
+          >
+            <q-btn
+              size="10px"
               color="blue"
               icon="open_in_full"
               @click="show(pregunta.imagen)"
-            />
+            >
+              <q-tooltip> Ver en nueva pestaña </q-tooltip>
+            </q-btn>
           </q-icon>
         </q-img>
 
@@ -192,7 +216,7 @@
                 hint
                 :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
               >
-                <template v-slot:before>
+                <template v-slot:after>
                   <q-btn
                     @click="eliminarOpcion(index, dataIndex)"
                     icon="delete"
@@ -236,9 +260,24 @@
 import { ref, onMounted } from "vue";
 import { sendRequest } from "src/boot/functions";
 import { v4 as uuidv4 } from "uuid";
+
+import { getNamesRoles } from "src/boot/functions";
+import { useAuthStore } from "src/stores/auth";
+import { storeToRefs } from "pinia";
+import { inject } from "vue";
+
+const bus = inject("bus");
 const { survey } = defineProps(["survey"]);
 const myForm = ref(null);
 const evaluators = ref([]);
+
+const auth = useAuthStore();
+const { user } = storeToRefs(auth);
+
+const nombresRoles = getNamesRoles(user.value);
+const isAdmin = nombresRoles.includes("Admin");
+const isEncuestador = nombresRoles.includes("Encuestador");
+const isEvaluador = nombresRoles.includes("Evaluador");
 
 const formSurvey = ref({
   id: survey.id,
@@ -291,6 +330,24 @@ const eliminarOpcion = (preguntaIndex, opcionIndex) => {
 
 const show = (imagen) => {
   window.open(imagen, "_blank");
+};
+
+const deleteImage = async (idImage, preguntaIndex) => {
+  let res = await sendRequest(
+    "DELETE",
+    null,
+    "/api/survey/question/image/" + idImage,
+    ""
+  );
+  if (res.success) {
+    formSurvey.value.questions[preguntaIndex].imagen = null;
+    formSurvey.value.questions[preguntaIndex].image = null;
+    formSurvey.value.questions[preguntaIndex].base64 = null;
+    console.log(formSurvey.value);
+    bus.emit("imagen-borrada");
+  } else {
+    console.error("Error al eliminar la imagen.");
+  }
 };
 
 const validate = async () => {

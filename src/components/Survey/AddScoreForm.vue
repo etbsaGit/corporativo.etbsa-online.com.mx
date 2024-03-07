@@ -45,7 +45,7 @@ import { ref, onMounted } from "vue";
 import Chart from "chart.js/auto";
 import { sendRequest } from "src/boot/functions";
 
-const { survey } = defineProps(["survey"]);
+const { evaluee, survey } = defineProps(["evaluee", "survey"]);
 
 const myForm = ref(null);
 const ungraded = ref(null);
@@ -98,7 +98,7 @@ const getScore = async () => {
   let res = await sendRequest(
     "GET",
     null,
-    `/api/surveys/grade/${survey.pivot.evaluee_id}/${survey.id}`,
+    `/api/surveys/grade/${evaluee.id}/${survey.id}`,
     ""
   );
   formScore.value.score = res.average_grade;
@@ -106,7 +106,7 @@ const getScore = async () => {
   formScore.value.correct = res.correct_responses;
   formScore.value.incorrect = res.incorrect_responses;
   formScore.value.unanswered = res.unanswered_responses;
-  formScore.value.evaluee_id = survey.pivot.evaluee_id;
+  formScore.value.evaluee_id = evaluee.id;
   formScore.value.survey_id = survey.id;
   ungraded.value = res.ungraded_responses;
 

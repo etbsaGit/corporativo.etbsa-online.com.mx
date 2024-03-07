@@ -27,6 +27,7 @@
     <q-item>
       <q-item-section>
         <q-select
+          :disable="isEncuestador == false"
           v-model="formSurvey.evaluator_id"
           :options="evaluators"
           option-value="id"
@@ -92,18 +93,21 @@
     <q-separator />
     <q-item v-for="(pregunta, index) in formSurvey.questions" :key="index">
       <q-item-section>
-        <div class="text-h6">
-          <q-btn
-            icon="delete"
-            size="sm"
-            color="red"
-            label="Eliminar pregunta"
-            filled
-            dense
-            @click="eliminarPregunta(index)"
-          ></q-btn>
-          Pregunta {{ index + 1 }}
-        </div>
+        <q-card-section class="d-flex justify-between items-center">
+          <div class="text-h6">Pregunta {{ index + 1 }}</div>
+          <q-card-actions align="right">
+            <q-btn
+              align="left"
+              icon="delete"
+              size="sm"
+              color="red"
+              label="Eliminar pregunta"
+              filled
+              dense
+              @click="eliminarPregunta(index)"
+            />
+          </q-card-actions>
+        </q-card-section>
         <br />
         <q-input
           v-model="pregunta.question"
@@ -174,7 +178,7 @@
                 hint
                 :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
               >
-                <template v-slot:before>
+                <template v-slot:after>
                   <q-btn
                     @click="eliminarOpcion(index, dataIndex)"
                     icon="delete"
@@ -217,20 +221,28 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { sendRequest } from "src/boot/functions";
-import { useAuthStore } from "src/stores/auth";
 import { storeToRefs } from "pinia";
+
+const myForm = ref(null);
+const evaluators = ref([]);
+
+import { getNamesRoles } from "src/boot/functions";
+import { useAuthStore } from "src/stores/auth";
 
 const auth = useAuthStore();
 const { user } = storeToRefs(auth);
-const myForm = ref(null);
-const evaluators = ref([]);
+
+const nombresRoles = getNamesRoles(user.value);
+const isAdmin = nombresRoles.includes("Admin");
+const isEncuestador = nombresRoles.includes("Encuestador");
+const isEvaluador = nombresRoles.includes("Evaluador");
 
 const formSurvey = ref({
   title: null,
   status: false,
   description: null,
   expire_date: null,
-  evaluator_id: null,
+  evaluator_id: isEvaluador ? user.value.email : null,
   questions: [],
 });
 

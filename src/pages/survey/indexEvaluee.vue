@@ -16,14 +16,18 @@
             color="primary"
             icon="play_arrow"
             @click="onRowClick(props.row)"
-          />
+          >
+            <q-tooltip>Contestar encuesta</q-tooltip>
+          </q-btn>
           <q-btn
             flat
             round
             color="primary"
             icon="search"
             @click="onRowClickDetail(props.row)"
-          />
+          >
+            <q-tooltip>Ver tus respuestas</q-tooltip>
+          </q-btn>
         </q-td>
       </template>
       <template v-slot:body-cell-status="props">
@@ -42,23 +46,19 @@
       full-width
       full-height
     >
-      <q-card>
+      <q-card style="width: 1800px">
         <q-card-section class="d-flex justify-between items-center">
           <div class="text-h6">
             Responde las preguntas de {{ selectedSurvey.title }}
           </div>
           <q-card-actions align="right">
-            <q-btn label="X" color="red" v-close-popup dense />
+            <q-btn label="Cerrar" color="red" v-close-popup />
           </q-card-actions>
         </q-card-section>
         <q-separator />
-        <q-card class="q-pa-none scroll" flat>
+        <div class="survey-form-container">
           <add-answers-form ref="answers" :survey="selectedSurvey" />
-        </q-card>
-        <q-separator />
-        <q-card-actions align="right">
-          <q-btn label="Cerrar evaluacion" color="blue" v-close-popup />
-        </q-card-actions>
+        </div>
       </q-card>
     </q-dialog>
 
@@ -70,18 +70,17 @@
       full-width
       full-height
     >
-      <q-card>
-        <q-card-section>
+      <q-card style="width: 1800px">
+        <q-card-section class="d-flex justify-between items-center">
           <div class="text-h6">Respuestas de {{ selectedSurvey.title }}</div>
+          <q-card-actions align="right">
+            <q-btn label="Cerrar" color="red" v-close-popup />
+          </q-card-actions>
         </q-card-section>
         <q-separator />
-        <q-card class="q-pa-none scroll" flat>
+        <div class="survey-form-container">
           <show-answers-form ref="answers" :survey="selectedSurvey" />
-        </q-card>
-        <q-separator />
-        <q-card-actions align="right">
-          <q-btn label="Cerrar" color="red" v-close-popup />
-        </q-card-actions>
+        </div>
       </q-card>
     </q-dialog>
 
@@ -225,5 +224,10 @@ onMounted(() => {
 
 .items-center {
   align-items: center;
+}
+
+.survey-form-container {
+  max-height: 600px; /* Ajusta este valor según tus necesidades */
+  overflow-y: auto;
 }
 </style>

@@ -21,6 +21,7 @@
         </q-input>
       </template>
       <template v-slot:top-left>
+        <!-- v-if="isEncuestador == true" -->
         <q-btn
           color="primary"
           icon="add"
@@ -35,16 +36,38 @@
             flat
             round
             color="primary"
+            icon="search"
+            @click="onRowClickShow(props.row)"
+          >
+            <q-tooltip>Vista previa</q-tooltip>
+          </q-btn>
+          <q-btn
+            flat
+            round
+            color="primary"
             icon="menu"
             @click="onRowClick(props.row)"
-          />
+          >
+            <q-tooltip>Modifica la encuesta</q-tooltip>
+          </q-btn>
           <q-btn
             flat
             round
             color="primary"
             icon="people"
             @click="onRowClickAsing(props.row)"
-          />
+          >
+            <q-tooltip>Asigna la encuesta</q-tooltip>
+          </q-btn>
+          <q-btn
+            flat
+            round
+            color="primary"
+            icon="quiz"
+            @click="onRowClickEvaluator(props.row)"
+          >
+            <q-tooltip>Califica la encuesta</q-tooltip>
+          </q-btn>
         </q-td>
       </template>
 
@@ -91,7 +114,9 @@
     >
       <q-card>
         <q-card-section class="d-flex justify-between items-center">
-          <div class="text-h6">Actualizar Encuesta</div>
+          <div class="text-h6">
+            Actualizar Encuesta {{ selectedSurvey.title }}
+          </div>
           <q-card-actions align="right">
             <q-btn label="Cerrar" color="red" v-close-popup />
             <q-btn
@@ -103,7 +128,11 @@
         </q-card-section>
         <q-separator />
         <div class="survey-form-container">
-          <edit-survey-form ref="edit" :survey="selectedSurvey" />
+          <edit-survey-form
+            ref="edit"
+            :survey="selectedSurvey"
+            :key="selectedSurvey.base64"
+          />
         </div>
       </q-card>
     </q-dialog>
@@ -134,6 +163,50 @@
         </div>
       </q-card>
     </q-dialog>
+
+    <q-dialog
+      v-model="showEvaluator"
+      transition-show="rotate"
+      transition-hide="rotate"
+      persistent
+      full-width
+      full-height
+    >
+      <q-card>
+        <q-card-section class="d-flex justify-between items-center">
+          <div class="text-h6">Calificar {{ selectedSurvey.title }}</div>
+          <q-card-actions align="right">
+            <q-btn label="Cerrar" color="red" v-close-popup />
+          </q-card-actions>
+        </q-card-section>
+        <q-separator />
+        <div class="survey-form-container">
+          <add-comment-form ref="evaluator" :survey="selectedSurvey" />
+        </div>
+      </q-card>
+    </q-dialog>
+
+    <q-dialog
+      v-model="showPreview"
+      transition-show="rotate"
+      transition-hide="rotate"
+      persistent
+      full-width
+      full-height
+    >
+      <q-card>
+        <q-card-section class="d-flex justify-between items-center">
+          <div class="text-h6">Vista previa {{ selectedSurvey.title }}</div>
+          <q-card-actions align="right">
+            <q-btn label="Cerrar" color="red" v-close-popup />
+          </q-card-actions>
+        </q-card-section>
+        <q-separator />
+        <div class="survey-form-container">
+          <show-survey-form ref="evaluator" :survey="selectedSurvey" />
+        </div>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
@@ -142,8 +215,25 @@ import { ref, onMounted } from "vue";
 import { sendRequest } from "src/boot/functions";
 import AddSurveyForm from "src/components/Survey/AddSurveyForm.vue";
 import EditSurveyForm from "src/components/Survey/EditSurveyForm.vue";
+import ShowSurveyForm from "src/components/Survey/ShowSurveyForm.vue";
 import AddEvalueesForm from "src/components/Survey/AddEvalueesForm.vue";
+import AddCommentForm from "src/components/Survey/AddCommentForm.vue";
 import { useQuasar } from "quasar";
+
+import { getNamesRoles } from "src/boot/functions";
+import { useAuthStore } from "src/stores/auth";
+import { storeToRefs } from "pinia";
+import { inject } from "vue";
+
+const bus = inject("bus");
+
+const auth = useAuthStore();
+const { user } = storeToRefs(auth);
+
+const nombresRoles = getNamesRoles(user.value);
+const isAdmin = nombresRoles.includes("Admin");
+const isEncuestador = nombresRoles.includes("Encuestador");
+const isEvaluador = nombresRoles.includes("Evaluador");
 
 const filter = ref("");
 const surveys = ref([]);
@@ -151,9 +241,12 @@ const selectedSurvey = ref(null);
 const showAdd = ref(false);
 const showDetails = ref(false);
 const showEmployees = ref(false);
+const showEvaluator = ref(false);
+const showPreview = ref(false);
 const add = ref(null);
 const edit = ref(null);
 const evaluees = ref(null);
+const evaluator = ref(null);
 const $q = useQuasar();
 
 const columns = [
@@ -195,9 +288,18 @@ const columns = [
   },
 ];
 
+bus.on("imagen-borrada", () => {
+  getSurveys();
+});
+
 const onRowClick = (row) => {
   selectedSurvey.value = row;
   showDetails.value = true;
+};
+
+const onRowClickShow = (row) => {
+  selectedSurvey.value = row;
+  showPreview.value = true;
 };
 
 const onRowClickAsing = (row) => {
@@ -205,9 +307,25 @@ const onRowClickAsing = (row) => {
   showEmployees.value = true;
 };
 
+const onRowClickEvaluator = (row) => {
+  selectedSurvey.value = row;
+  showEvaluator.value = true;
+};
+
 const getSurveys = async () => {
-  let res = await sendRequest("GET", null, "/api/survey", "");
-  surveys.value = res;
+  if (isEvaluador == true) {
+    let res = await sendRequest(
+      "GET",
+      null,
+      "/api/survey/user/" + user.value.id,
+      ""
+    );
+    surveys.value = res;
+  }
+  if (isEncuestador == true || isAdmin == true) {
+    let res = await sendRequest("GET", null, "/api/survey", "");
+    surveys.value = res;
+  }
 };
 
 const addSurvey = async () => {
