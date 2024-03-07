@@ -342,7 +342,6 @@ const addSurvey = async () => {
   const final = {
     ...add.value.formSurvey,
   };
-  console.log(final);
   let res = await sendRequest("POST", final, "/api/survey", "");
   showAdd.value = false;
   getSurveys();

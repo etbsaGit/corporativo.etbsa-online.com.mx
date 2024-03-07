@@ -49,7 +49,7 @@
           </q-input>
           <div v-if="pregunta.type === 'select'">
             <q-select
-              placeholder="Sin respuesta"
+              label="Sin respuesta"
               v-model="pregunta.respuesta"
               :options="pregunta.data.map((item) => item.data)"
               disable

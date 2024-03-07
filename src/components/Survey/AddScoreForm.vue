@@ -21,10 +21,10 @@
             Preguntas sin responder: {{ formScore.unanswered }}
           </q-card-section>
           <q-card-section>
-            Calificacion: {{ formScore.score }}/100
+            Respuestas sin revisar: {{ ungraded }}
           </q-card-section>
           <q-card-section>
-            Respuestas sin revisar: {{ ungraded }}
+            Calificacion: {{ formScore.score }}/100
           </q-card-section>
           <q-card-section>
             <q-input
@@ -51,11 +51,11 @@ const myForm = ref(null);
 const ungraded = ref(null);
 
 const data = ref({
-  labels: ["Correctas", "Incorrectas", "Sin responder"],
+  labels: ["Correctas", "Incorrectas", "Sin responder", "Sin calificar"],
   datasets: [
     {
-      data: [1, 1, 1],
-      backgroundColor: ["green", "red", "gray"],
+      data: [1, 1, 1, 1],
+      backgroundColor: ["green", "red", "gray", "yellow"],
     },
   ],
 });
@@ -115,6 +115,7 @@ const getScore = async () => {
     formScore.value.correct,
     formScore.value.incorrect,
     formScore.value.unanswered,
+    ungraded.value,
   ];
   renderChart();
 };

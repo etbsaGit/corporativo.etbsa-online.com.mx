@@ -74,7 +74,7 @@
           </q-input>
           <div v-if="pregunta.type === 'select'">
             <q-select
-              placeholder="Selecciona una respuesta de la lista"
+              label="Selecciona una respuesta de la lista"
               v-model="pregunta.respuesta"
               :options="pregunta.data.map((item) => item.data)"
               :disable="pregunta.respuestaAsignada"
@@ -102,57 +102,63 @@
             <q-item-label caption>
               Selecciona la respuesta correcta
             </q-item-label>
-            <q-option-group
-              v-model="pregunta.respuesta"
-              :options="
-                pregunta.data.map((item) => ({
-                  value: item.data,
-                  label: item.data,
-                }))
-              "
-              :disable="pregunta.respuestaAsignada"
-              inline
-            >
-            </q-option-group>
-            <q-btn
-              class="q-ml-auto"
-              v-if="pregunta.type !== 'hidden' && !pregunta.respuestaAsignada"
-              color="primary"
-              @click="enviarRespuesta(pregunta)"
-              round
-              dense
-              flat
-              icon="send"
-              label="Enviar respuesta"
-            />
+            <q-item-section>
+              <q-option-group
+                v-model="pregunta.respuesta"
+                :options="
+                  pregunta.data.map((item) => ({
+                    value: item.data,
+                    label: item.data,
+                  }))
+                "
+                :disable="pregunta.respuestaAsignada"
+                inline
+              />
+            </q-item-section>
+            <q-item-section>
+              <q-btn
+                class="q-ml-auto"
+                v-if="pregunta.type !== 'hidden' && !pregunta.respuestaAsignada"
+                color="primary"
+                @click="enviarRespuesta(pregunta)"
+                round
+                dense
+                flat
+                icon="send"
+                label="Enviar respuesta"
+              />
+            </q-item-section>
           </div>
 
           <div v-if="pregunta.type === 'checkbox'">
             <q-item-label caption>Selecciona una o mas respuestas</q-item-label>
-            <q-option-group
-              v-model="pregunta.respuesta"
-              :options="
-                pregunta.data.map((item) => ({
-                  value: item.data,
-                  label: item.data,
-                }))
-              "
-              :disable="pregunta.respuestaAsignada"
-              inline
-              type="checkbox"
-            >
-            </q-option-group>
-            <q-btn
-              class="q-ml-auto"
-              v-if="pregunta.type !== 'hidden' && !pregunta.respuestaAsignada"
-              color="primary"
-              @click="enviarRespuestaCheckbox(pregunta)"
-              round
-              dense
-              flat
-              icon="send"
-              label="Enviar respuesta"
-            />
+            <q-item-section>
+              <q-option-group
+                v-model="pregunta.respuesta"
+                :options="
+                  pregunta.data.map((item) => ({
+                    value: item.data,
+                    label: item.data,
+                  }))
+                "
+                :disable="pregunta.respuestaAsignada"
+                inline
+                type="checkbox"
+              />
+            </q-item-section>
+            <q-item-section>
+              <q-btn
+                class="q-ml-auto"
+                v-if="pregunta.type !== 'hidden' && !pregunta.respuestaAsignada"
+                color="primary"
+                @click="enviarRespuestaCheckbox(pregunta)"
+                round
+                dense
+                flat
+                icon="send"
+                label="Enviar respuesta"
+              />
+            </q-item-section>
           </div>
         </q-item-section>
       </q-item>

@@ -1,12 +1,21 @@
 <template>
   <div class="q-pa-md row items-start q-gutter-md">
-    <q-card v-for="evaluee in evaluees" :key="evaluee.id">
+    <q-card
+      v-for="evaluee in evaluees"
+      :key="evaluee.id"
+      :class="{ 'bg-yellow-3': tieneRespuestasSinCalificar(evaluee) }"
+    >
       <q-card-section>
         <div class="text-h6">{{ evaluee.name }}</div>
         <div class="text-subtitle2">{{ evaluee.email }}</div>
+        <q-tooltip
+          v-if="tieneRespuestasSinCalificar(evaluee)"
+          class="bg-purple text-body2"
+        >
+          Tienes nuevas respuestas que calificar a este usuario
+        </q-tooltip>
       </q-card-section>
-      <q-separator dark />
-
+      <q-separator />
       <q-card-actions>
         <q-btn dense color="blue" @click="onRowClick(evaluee)">Preguntas</q-btn>
         <q-btn dense color="green" @click="onRowClickScore(evaluee)"
@@ -27,7 +36,12 @@
         <q-card-section class="d-flex justify-between items-center">
           <div class="text-h6">Respuestas de {{ selectedEvaluee.name }}</div>
           <q-card-actions align="right">
-            <q-btn label="Cerrar" color="red" v-close-popup />
+            <q-btn
+              label="Cerrar"
+              color="red"
+              v-close-popup
+              @click="getEvaluees"
+            />
           </q-card-actions>
         </q-card-section>
         <q-separator />
@@ -47,7 +61,6 @@
       transition-hide="rotate"
       persistent
       full-width
-      full-height
     >
       <q-card>
         <q-card-section class="d-flex justify-between items-center">
@@ -131,6 +144,15 @@ const sendComments = async () => {
   showScore.value = false;
 };
 
+const tieneRespuestasSinCalificar = (evaluee) => {
+  const preguntas = selectedsurvey.value.question;
+  return preguntas.some((pregunta) => {
+    return evaluee.answer.some((respuesta) => {
+      return respuesta.rating === null && respuesta.question_id === pregunta.id;
+    });
+  });
+};
+
 onMounted(() => {
   getEvaluees();
 });
@@ -160,5 +182,14 @@ onMounted(() => {
 .survey-form-container {
   max-height: 600px; /* Ajusta este valor según tus necesidades */
   overflow-y: auto;
+}
+
+.survey-form-container-score {
+  max-height: 400px; /* Ajusta este valor según tus necesidades */
+  overflow-y: auto;
+}
+
+.bg-yellow-3 {
+  background-color: #fff59d !important;
 }
 </style>

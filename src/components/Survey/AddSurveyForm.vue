@@ -136,6 +136,8 @@
           filled
           dense
           hint
+          emit-value
+          map-options
           :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
         />
 
@@ -246,7 +248,12 @@ const formSurvey = ref({
   questions: [],
 });
 
-const types = ["text", "select", "radio", "checkbox"];
+const types = [
+  { label: "Respuesta abierta", value: "text" },
+  { label: "Lista de muchas opciones una sola respuesta", value: "select" },
+  { label: "Boton una sola respuesta", value: "radio" },
+  { label: "Casillas multiples respuestas", value: "checkbox" },
+];
 
 const agregarPregunta = () => {
   formSurvey.value.questions.push({
