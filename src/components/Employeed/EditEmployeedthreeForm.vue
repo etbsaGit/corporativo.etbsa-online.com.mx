@@ -27,7 +27,6 @@
           </template>
 
           <template v-slot:top-left>
-            <q-card></q-card>
             <div class="text-h6">
               <q-btn color="primary" icon="add" @click="showDetails = true" />
               Documentos

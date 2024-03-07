@@ -21,10 +21,10 @@
             Preguntas sin responder: {{ formScore.unanswered }}
           </q-card-section>
           <q-card-section>
-            Calificacion: {{ formScore.score }}/100
+            Respuestas sin revisar: {{ ungraded }}
           </q-card-section>
           <q-card-section>
-            Respuestas sin revisar: {{ ungraded }}
+            Calificacion: {{ formScore.score }}/100
           </q-card-section>
           <q-card-section>
             <q-input
@@ -45,17 +45,17 @@ import { ref, onMounted } from "vue";
 import Chart from "chart.js/auto";
 import { sendRequest } from "src/boot/functions";
 
-const { survey } = defineProps(["survey"]);
+const { evaluee, survey } = defineProps(["evaluee", "survey"]);
 
 const myForm = ref(null);
 const ungraded = ref(null);
 
 const data = ref({
-  labels: ["Correctas", "Incorrectas", "Sin responder"],
+  labels: ["Correctas", "Incorrectas", "Sin responder", "Sin calificar"],
   datasets: [
     {
-      data: [1, 1, 1],
-      backgroundColor: ["green", "red", "gray"],
+      data: [1, 1, 1, 1],
+      backgroundColor: ["green", "red", "gray", "yellow"],
     },
   ],
 });
@@ -98,7 +98,7 @@ const getScore = async () => {
   let res = await sendRequest(
     "GET",
     null,
-    `/api/surveys/grade/${survey.pivot.evaluee_id}/${survey.id}`,
+    `/api/surveys/grade/${evaluee.id}/${survey.id}`,
     ""
   );
   formScore.value.score = res.average_grade;
@@ -106,7 +106,7 @@ const getScore = async () => {
   formScore.value.correct = res.correct_responses;
   formScore.value.incorrect = res.incorrect_responses;
   formScore.value.unanswered = res.unanswered_responses;
-  formScore.value.evaluee_id = survey.pivot.evaluee_id;
+  formScore.value.evaluee_id = evaluee.id;
   formScore.value.survey_id = survey.id;
   ungraded.value = res.ungraded_responses;
 
@@ -115,6 +115,7 @@ const getScore = async () => {
     formScore.value.correct,
     formScore.value.incorrect,
     formScore.value.unanswered,
+    ungraded.value,
   ];
   renderChart();
 };

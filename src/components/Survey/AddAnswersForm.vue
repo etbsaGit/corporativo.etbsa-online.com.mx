@@ -3,8 +3,13 @@
     <q-list bordered separator>
       <q-item v-for="pregunta in survey.question" :key="pregunta.id">
         <q-item-section>
-          <q-item-label overline>{{ pregunta.question }}</q-item-label>
-          <q-item-label caption>{{ pregunta.description }}</q-item-label>
+          <q-item-label overline>
+            <strong>Pregunta:</strong> {{ pregunta.question }}
+          </q-item-label>
+          <q-item-label caption>
+            <strong>Descripcion:</strong>
+            {{ pregunta.description }}</q-item-label
+          >
           <q-img
             v-if="pregunta.imagen"
             :src="pregunta.imagen"
@@ -25,9 +30,8 @@
               />
             </q-icon>
           </q-img>
-          <br />
           <q-input
-            label="Escribe tu respuesta"
+            placeholder="Escribe tu respuesta"
             v-if="pregunta.type === 'textarea'"
             v-model="pregunta.respuesta"
             :disable="pregunta.respuestaAsignada"
@@ -48,7 +52,7 @@
             </template>
           </q-input>
           <q-input
-            label="Escribe tu respuesta"
+            placeholder="Escribe tu respuesta"
             v-if="pregunta.type === 'text'"
             v-model="pregunta.respuesta"
             :disable="pregunta.respuestaAsignada"
@@ -70,9 +74,9 @@
           </q-input>
           <div v-if="pregunta.type === 'select'">
             <q-select
+              label="Selecciona una respuesta de la lista"
               v-model="pregunta.respuesta"
               :options="pregunta.data.map((item) => item.data)"
-              label="Selecciona tu respuesta"
               :disable="pregunta.respuestaAsignada"
               filled
               dense
@@ -95,7 +99,10 @@
           </div>
 
           <div v-if="pregunta.type === 'radio'">
-            <q-item>
+            <q-item-label caption>
+              Selecciona la respuesta correcta
+            </q-item-label>
+            <q-item-section>
               <q-option-group
                 v-model="pregunta.respuesta"
                 :options="
@@ -106,8 +113,9 @@
                 "
                 :disable="pregunta.respuestaAsignada"
                 inline
-              >
-              </q-option-group>
+              />
+            </q-item-section>
+            <q-item-section>
               <q-btn
                 class="q-ml-auto"
                 v-if="pregunta.type !== 'hidden' && !pregunta.respuestaAsignada"
@@ -119,11 +127,12 @@
                 icon="send"
                 label="Enviar respuesta"
               />
-            </q-item>
+            </q-item-section>
           </div>
 
           <div v-if="pregunta.type === 'checkbox'">
-            <q-item>
+            <q-item-label caption>Selecciona una o mas respuestas</q-item-label>
+            <q-item-section>
               <q-option-group
                 v-model="pregunta.respuesta"
                 :options="
@@ -135,8 +144,9 @@
                 :disable="pregunta.respuestaAsignada"
                 inline
                 type="checkbox"
-              >
-              </q-option-group>
+              />
+            </q-item-section>
+            <q-item-section>
               <q-btn
                 class="q-ml-auto"
                 v-if="pregunta.type !== 'hidden' && !pregunta.respuestaAsignada"
@@ -148,7 +158,7 @@
                 icon="send"
                 label="Enviar respuesta"
               />
-            </q-item>
+            </q-item-section>
           </div>
         </q-item-section>
       </q-item>

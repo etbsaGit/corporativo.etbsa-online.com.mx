@@ -147,7 +147,7 @@
 import { ref, onMounted } from "vue";
 import { sendRequest } from "src/boot/functions";
 
-const { survey } = defineProps(["survey"]);
+const { evaluee, survey } = defineProps(["evaluee", "survey"]);
 const myForm = ref(null);
 
 const getColor = (value) => {
@@ -169,7 +169,7 @@ const getAnswers = async () => {
   let res = await sendRequest(
     "GET",
     null,
-    `/api/survey/answer/${survey.id}/${survey.pivot.evaluee_id}`,
+    `/api/survey/answer/${survey.id}/${evaluee.id}`,
     ""
   );
   for (const pregunta of survey.question) {
@@ -193,7 +193,7 @@ const getAnswersfirst = async () => {
   let res = await sendRequest(
     "GET",
     null,
-    `/api/survey/answer/${survey.id}/${survey.pivot.evaluee_id}`,
+    `/api/survey/answer/${survey.id}/${evaluee.id}`,
     ""
   );
   for (const pregunta of survey.question) {
@@ -218,7 +218,6 @@ const getAnswersfirst = async () => {
 
 const show = (imagen) => {
   window.open(imagen, "_blank");
-  console.log(imagen);
 };
 
 const sendComments = async (pregunta) => {

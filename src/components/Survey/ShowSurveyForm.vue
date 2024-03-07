@@ -31,15 +31,15 @@
             </q-icon>
           </q-img>
           <q-input
+            placeholder="Respuesta de tipo texto"
             v-if="pregunta.type === 'textarea'"
             v-model="pregunta.respuesta"
             disable
             outlined
             dense
-          >
-          </q-input>
+          />
           <q-input
-            placeholder="Sin contestar"
+            placeholder="Respuesta de tipo texto"
             v-if="pregunta.type === 'text'"
             v-model="pregunta.respuesta"
             disable
@@ -49,7 +49,7 @@
           </q-input>
           <div v-if="pregunta.type === 'select'">
             <q-select
-              label="Sin respuesta"
+              label="Selecciona una respuesta de la lista"
               v-model="pregunta.respuesta"
               :options="pregunta.data.map((item) => item.data)"
               disable
@@ -59,7 +59,9 @@
           </div>
 
           <div v-if="pregunta.type === 'radio'">
-            <q-item-label caption> Respuesta seleccoinada </q-item-label>
+            <q-item-label caption>
+              Selecciona la respuesta correcta
+            </q-item-label>
             <q-option-group
               v-model="pregunta.respuesta"
               :options="
@@ -75,7 +77,7 @@
           </div>
 
           <div v-if="pregunta.type === 'checkbox'">
-            <q-item-label caption> Respuestas seleccoinada </q-item-label>
+            <q-item-label caption>Selecciona una o mas respuestas</q-item-label>
             <q-option-group
               v-model="pregunta.respuesta"
               :options="
@@ -90,46 +92,6 @@
             >
             </q-option-group>
           </div>
-
-          <!-- Agrega el q-input para comentarios -->
-          <q-item-label v-if="pregunta.comments" caption
-            >Comentarios: {{ pregunta.comments }}</q-item-label
-          >
-          <!-- Checkbox que se marca/desmarca según el valor del ranking -->
-          <q-checkbox
-            v-if="pregunta.respuestaAsignada"
-            v-model="pregunta.rating"
-            :true-value="1"
-            :false-value="0"
-            checked-icon="task_alt"
-            unchecked-icon="highlight_off"
-            :color="getColor(pregunta.rating)"
-            disable
-          >
-            <q-item-label
-              v-if="pregunta.respuestaAsignada && pregunta.rating === 1"
-              caption
-              style="color: green"
-            >
-              La respuesta es correcta
-            </q-item-label>
-
-            <q-item-label
-              v-if="pregunta.respuestaAsignada && pregunta.rating === 0"
-              caption
-              style="color: red"
-            >
-              La respuesta no es correcta
-            </q-item-label>
-
-            <q-item-label
-              v-if="pregunta.respuestaAsignada && pregunta.rating === null"
-              caption
-              style="color: purple"
-            >
-              Sin calificar
-            </q-item-label>
-          </q-checkbox>
         </q-item-section>
       </q-item>
     </q-list>
@@ -158,33 +120,6 @@ for (const pregunta of survey.question) {
   }
 }
 
-const getAnswers = async () => {
-  let res = await sendRequest(
-    "GET",
-    null,
-    `/api/survey/answer/${survey.id}/${survey.pivot.evaluee_id}`,
-    ""
-  );
-  for (const pregunta of survey.question) {
-    const respuesta = res.find((ans) => ans.question_id === pregunta.id);
-    if (respuesta) {
-      pregunta.respuestaAsignada = true;
-      pregunta.comments = respuesta.comments; // Asignar comentarios
-      pregunta.respuesta_id = respuesta.id;
-      pregunta.rating = respuesta.rating;
-      if (pregunta.type === "checkbox") {
-        const respuestasSeleccionadas = respuesta.answer.split(",");
-        pregunta.respuesta = [];
-        for (const respuestaSeleccionada of respuestasSeleccionadas) {
-          pregunta.respuesta.push(respuestaSeleccionada.trim());
-        }
-      } else {
-        pregunta.respuesta = respuesta.answer;
-      }
-    }
-  }
-};
-
 const show = (imagen) => {
   window.open(imagen, "_blank");
   console.log(imagen);
@@ -201,10 +136,5 @@ const sendComments = async (pregunta) => {
   getAnswers();
 };
 
-onMounted(() => {
-  getAnswers();
-});
+onMounted(() => {});
 </script>
-
-
-
