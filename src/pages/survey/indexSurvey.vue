@@ -32,51 +32,80 @@
 
       <template v-slot:body-cell-action="props">
         <q-td>
-          <q-btn
-            flat
-            round
-            color="primary"
-            icon="search"
-            @click="onRowClickShow(props.row)"
-          >
-            <q-tooltip>Vista previa</q-tooltip>
-          </q-btn>
-          <q-btn
-            flat
-            round
-            color="primary"
-            icon="edit"
-            @click="onRowClick(props.row)"
-          >
-            <q-tooltip>Modifica la encuesta</q-tooltip>
-          </q-btn>
-          <q-btn
-            flat
-            round
-            color="primary"
-            icon="people"
-            @click="onRowClickAsing(props.row)"
-          >
-            <q-tooltip>Asigna la encuesta</q-tooltip>
-          </q-btn>
-          <q-btn
-            flat
-            round
-            color="primary"
-            icon="quiz"
-            @click="onRowClickEvaluator(props.row)"
-          >
-            <q-tooltip>Califica la encuesta</q-tooltip>
-          </q-btn>
-          <q-btn
-            flat
-            round
-            color="primary"
-            icon="format_list_numbered"
-            @click="onRowClickGrades(props.row)"
-          >
-            <q-tooltip>Listado de calificaciones</q-tooltip>
-          </q-btn>
+          <q-btn-dropdown flat color="primary" icon="menu">
+            <q-list v-close-popup>
+              <q-item>
+                <q-btn
+                  flat
+                  size="sm"
+                  color="primary"
+                  icon="search"
+                  label="Vista previa"
+                  @click="onRowClickShow(props.row)"
+                />
+              </q-item>
+              <q-item>
+                <q-btn
+                  flat
+                  size="sm"
+                  color="primary"
+                  icon="edit"
+                  label="Editar"
+                  @click="onRowClick(props.row)"
+                />
+              </q-item>
+              <q-item>
+                <q-btn
+                  flat
+                  size="sm"
+                  color="primary"
+                  icon="copy_all"
+                  label="Copiar"
+                  @click="onRowClickClone(props.row)"
+                />
+              </q-item>
+              <q-item>
+                <q-btn
+                  flat
+                  size="sm"
+                  color="primary"
+                  icon="people"
+                  label="Asignar"
+                  @click="onRowClickAsing(props.row)"
+                />
+              </q-item>
+              <q-item>
+                <q-btn
+                  flat
+                  size="sm"
+                  color="primary"
+                  icon="quiz"
+                  label="Calificar"
+                  @click="onRowClickEvaluator(props.row)"
+                />
+              </q-item>
+              <q-item>
+                <q-btn
+                  flat
+                  size="sm"
+                  color="primary"
+                  icon="format_list_numbered"
+                  label="Calificaciones"
+                  @click="onRowClickGrades(props.row)"
+                />
+              </q-item>
+              <q-item v-if="isAdmin == true">
+                <q-btn
+                  flat
+                  size="sm"
+                  color="red"
+                  icon="delete"
+                  label="Borrar"
+                  @click="onRowClickDelete(props.row)"
+                />
+              </q-item>
+            </q-list>
+          </q-btn-dropdown>
         </q-td>
       </template>
 
@@ -238,6 +267,50 @@
         </div>
       </q-card>
     </q-dialog>
+
+    <q-dialog
+      v-model="showClone"
+      transition-show="rotate"
+      transition-hide="rotate"
+      persistent
+    >
+      <q-card>
+        <q-card-section class="d-flex justify-between items-center">
+          <div class="text-h6">
+            ¿Deseas duplicar {{ selectedSurvey.title }}?
+          </div>
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn label="Duplicar" color="blue" @click="clone" v-close-popup />
+          <q-btn label="Cerrar" color="red" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <q-dialog
+      v-model="showDelete"
+      transition-show="rotate"
+      transition-hide="rotate"
+      persistent
+    >
+      <q-card>
+        <q-card-section class="d-flex justify-between items-center">
+          <div class="text-h6">
+            ¿Deseas borrar {{ selectedSurvey.title }} y todo las preguntas y
+            respuestas relacionadas?
+          </div>
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn
+            label="Eliminar"
+            color="orange"
+            @click="deleteSurvey"
+            v-close-popup
+          />
+          <q-btn label="Cerrar" color="red" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
@@ -276,6 +349,8 @@ const showEmployees = ref(false);
 const showEvaluator = ref(false);
 const showPreview = ref(false);
 const showGrades = ref(false);
+const showClone = ref(false);
+const showDelete = ref(false);
 const add = ref(null);
 const edit = ref(null);
 const evaluees = ref(null);
@@ -356,6 +431,38 @@ const onRowClickEvaluator = (row) => {
 const onRowClickGrades = (row) => {
   selectedSurvey.value = row;
   showGrades.value = true;
+};
+
+const onRowClickClone = (row) => {
+  selectedSurvey.value = row;
+  showClone.value = true;
+};
+
+const onRowClickDelete = (row) => {
+  selectedSurvey.value = row;
+  showDelete.value = true;
+};
+
+const clone = async () => {
+  let res = await sendRequest(
+    "POST",
+    null,
+    "/api/survey/clone/" + selectedSurvey.value.id,
+    ""
+  );
+  showClone.value = false;
+  getSurveys();
+};
+
+const deleteSurvey = async () => {
+  let res = await sendRequest(
+    "DELETE",
+    null,
+    "/api/survey/" + selectedSurvey.value.id,
+    ""
+  );
+  showDelete.value = false;
+  getSurveys();
 };
 
 const getSurveys = async () => {
