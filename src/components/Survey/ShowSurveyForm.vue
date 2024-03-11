@@ -122,7 +122,6 @@ for (const pregunta of survey.question) {
 
 const show = (imagen) => {
   window.open(imagen, "_blank");
-  console.log(imagen);
 };
 
 const sendComments = async (pregunta) => {

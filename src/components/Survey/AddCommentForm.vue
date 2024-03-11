@@ -137,6 +137,15 @@ const sendComments = async () => {
     });
     return;
   }
+  if (score.value.formScore.comments === null) {
+    $q.notify({
+      color: "red-5",
+      textColor: "white",
+      icon: "warning",
+      message: "Agregue un comentario",
+    });
+    return;
+  }
   const final = {
     ...score.value.formScore,
   };

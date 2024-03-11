@@ -194,7 +194,6 @@ const isSurveyActive = (survey) => {
 // Método para manejar el clic en el botón
 const onRowClick = (row) => {
   if (!isSurveyActive(row)) {
-    console.log("La encuesta no está activa o ha expirado");
     return;
   }
 

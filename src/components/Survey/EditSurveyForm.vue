@@ -350,7 +350,6 @@ const deleteImage = async (idImage, preguntaIndex) => {
     formSurvey.value.questions[preguntaIndex].imagen = null;
     formSurvey.value.questions[preguntaIndex].image = null;
     formSurvey.value.questions[preguntaIndex].base64 = null;
-    console.log(formSurvey.value);
     bus.emit("imagen-borrada");
   } else {
     console.error("Error al eliminar la imagen.");

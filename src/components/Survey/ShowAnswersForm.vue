@@ -187,7 +187,6 @@ const getAnswers = async () => {
 
 const show = (imagen) => {
   window.open(imagen, "_blank");
-  console.log(imagen);
 };
 
 const sendComments = async (pregunta) => {

@@ -264,7 +264,6 @@ const enviarRespuestaCheckbox = async (pregunta) => {
 
 const show = (imagen) => {
   window.open(imagen, "_blank");
-  console.log(imagen);
 };
 
 const validate = async () => {

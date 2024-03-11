@@ -45,7 +45,7 @@
             flat
             round
             color="primary"
-            icon="menu"
+            icon="edit"
             @click="onRowClick(props.row)"
           >
             <q-tooltip>Modifica la encuesta</q-tooltip>
@@ -67,6 +67,15 @@
             @click="onRowClickEvaluator(props.row)"
           >
             <q-tooltip>Califica la encuesta</q-tooltip>
+          </q-btn>
+          <q-btn
+            flat
+            round
+            color="primary"
+            icon="format_list_numbered"
+            @click="onRowClickGrades(props.row)"
+          >
+            <q-tooltip>Listado de calificaciones</q-tooltip>
           </q-btn>
         </q-td>
       </template>
@@ -207,6 +216,28 @@
         </div>
       </q-card>
     </q-dialog>
+
+    <q-dialog
+      v-model="showGrades"
+      transition-show="rotate"
+      transition-hide="rotate"
+      persistent
+      full-width
+      full-height
+    >
+      <q-card>
+        <q-card-section class="d-flex justify-between items-center">
+          <div class="text-h6">Vista previa {{ selectedSurvey.title }}</div>
+          <q-card-actions align="right">
+            <q-btn label="Cerrar" color="red" v-close-popup />
+          </q-card-actions>
+        </q-card-section>
+        <q-separator />
+        <div class="survey-form-container">
+          <show-grades-form ref="grades" :survey="selectedSurvey" />
+        </div>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
@@ -218,6 +249,7 @@ import EditSurveyForm from "src/components/Survey/EditSurveyForm.vue";
 import ShowSurveyForm from "src/components/Survey/ShowSurveyForm.vue";
 import AddEvalueesForm from "src/components/Survey/AddEvalueesForm.vue";
 import AddCommentForm from "src/components/Survey/AddCommentForm.vue";
+import ShowGradesForm from "src/components/Survey/ShowGradesForm.vue";
 import { useQuasar } from "quasar";
 
 import { getNamesRoles } from "src/boot/functions";
@@ -243,14 +275,16 @@ const showDetails = ref(false);
 const showEmployees = ref(false);
 const showEvaluator = ref(false);
 const showPreview = ref(false);
+const showGrades = ref(false);
 const add = ref(null);
 const edit = ref(null);
 const evaluees = ref(null);
 const evaluator = ref(null);
+const grades = ref(null);
 const $q = useQuasar();
 
 const columns = [
-  { name: "id", label: "ID", align: "left", field: "id", sortable: true },
+  //{ name: "id", label: "ID", align: "left", field: "id", sortable: true },
   {
     name: "title",
     label: "Titulo",
@@ -270,6 +304,13 @@ const columns = [
     label: "Descripcion",
     align: "left",
     field: "description",
+    sortable: true,
+  },
+  {
+    name: "evaluee_count",
+    label: "Evaluados",
+    align: "left",
+    field: "evaluee_count",
     sortable: true,
   },
   {
@@ -312,12 +353,17 @@ const onRowClickEvaluator = (row) => {
   showEvaluator.value = true;
 };
 
+const onRowClickGrades = (row) => {
+  selectedSurvey.value = row;
+  showGrades.value = true;
+};
+
 const getSurveys = async () => {
   if (isEvaluador == true) {
     let res = await sendRequest(
       "GET",
       null,
-      "/api/survey/user/" + user.value.id,
+      "/api/survey/evaluator/" + user.value.id,
       ""
     );
     surveys.value = res;
