@@ -88,7 +88,7 @@
         <q-icon name="quiz" />
       </q-item-section>
 
-      <q-item-section>Evaluaciones</q-item-section>
+      <q-item-section>Mis evaluaciones</q-item-section>
     </q-item>
     <!--
     <q-item

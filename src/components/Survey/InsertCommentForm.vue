@@ -177,7 +177,7 @@ const getAnswers = async () => {
     if (respuesta) {
       pregunta.respuestaAsignada = true;
       if (pregunta.type === "checkbox") {
-        const respuestasSeleccionadas = respuesta.answer.split(",");
+        const respuestasSeleccionadas = respuesta.answer.split("|");
         pregunta.respuesta = [];
         for (const respuestaSeleccionada of respuestasSeleccionadas) {
           pregunta.respuesta.push(respuestaSeleccionada.trim());
@@ -204,7 +204,7 @@ const getAnswersfirst = async () => {
       pregunta.respuesta_id = respuesta.id;
       pregunta.rating = respuesta.rating;
       if (pregunta.type === "checkbox") {
-        const respuestasSeleccionadas = respuesta.answer.split(",");
+        const respuestasSeleccionadas = respuesta.answer.split("|");
         pregunta.respuesta = [];
         for (const respuestaSeleccionada of respuestasSeleccionadas) {
           pregunta.respuesta.push(respuestaSeleccionada.trim());
