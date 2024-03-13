@@ -115,6 +115,14 @@
           <div v-else>Inactiva</div>
         </q-td>
       </template>
+
+      <template v-slot:body-cell-evaluee_count="props">
+        <q-td @click="onRowClickEvaluee(props.row)">
+          <q-btn flat>
+            {{ props.row.evaluee_count }}
+          </q-btn>
+        </q-td>
+      </template>
     </q-table>
 
     <q-dialog
@@ -148,7 +156,7 @@
       transition-hide="rotate"
       persistent
       full-width
-      full-height=""
+      full-height
     >
       <q-card>
         <q-card-section class="d-flex justify-between items-center">
@@ -273,17 +281,30 @@
       transition-show="rotate"
       transition-hide="rotate"
       persistent
+      full-width
+      full-height
     >
       <q-card>
         <q-card-section class="d-flex justify-between items-center">
-          <div class="text-h6">
-            ¿Deseas duplicar {{ selectedSurvey.title }}?
-          </div>
+          <div class="text-h6">Clonar Encuesta {{ selectedSurvey.title }}</div>
+          <q-card-actions align="right">
+            <q-btn label="Cerrar" color="red" v-close-popup />
+            <q-btn
+              label="Clonar encuesta"
+              color="blue"
+              @click="addSurvey()"
+              v-close-popup
+            />
+          </q-card-actions>
         </q-card-section>
-        <q-card-actions align="right">
-          <q-btn label="Duplicar" color="blue" @click="clone" v-close-popup />
-          <q-btn label="Cerrar" color="red" v-close-popup />
-        </q-card-actions>
+        <q-separator />
+        <div class="survey-form-container">
+          <edit-survey-form
+            ref="add"
+            :survey="selectedSurvey"
+            :key="selectedSurvey.base64"
+          />
+        </div>
       </q-card>
     </q-dialog>
 
@@ -311,6 +332,25 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+
+    <q-dialog
+      v-model="showEvaluee"
+      transition-show="rotate"
+      transition-hide="rotate"
+    >
+      <q-card style="width: 400px">
+        <q-card-section class="d-flex justify-between items-center">
+          <div class="text-h6">Evaluados</div>
+          <q-card-actions align="right">
+            <q-btn label="Cerrar" color="red" v-close-popup />
+          </q-card-actions>
+        </q-card-section>
+        <q-separator />
+        <div class="survey-form-container">
+          <show-evaluees-form :survey="selectedSurvey" />
+        </div>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
@@ -323,6 +363,7 @@ import ShowSurveyForm from "src/components/Survey/ShowSurveyForm.vue";
 import AddEvalueesForm from "src/components/Survey/AddEvalueesForm.vue";
 import AddCommentForm from "src/components/Survey/AddCommentForm.vue";
 import ShowGradesForm from "src/components/Survey/ShowGradesForm.vue";
+import ShowEvalueesForm from "src/components/Survey/ShowEvalueesForm.vue";
 import { useQuasar } from "quasar";
 
 import { getNamesRoles } from "src/boot/functions";
@@ -351,6 +392,7 @@ const showPreview = ref(false);
 const showGrades = ref(false);
 const showClone = ref(false);
 const showDelete = ref(false);
+const showEvaluee = ref(false);
 const add = ref(null);
 const edit = ref(null);
 const evaluees = ref(null);
@@ -392,7 +434,7 @@ const columns = [
     name: "expire_date",
     label: "Fecha de expiracion",
     align: "left",
-    field: "expire_date",
+    field: (row) => formatDate(row.expire_date),
     sortable: true,
   },
   {
@@ -403,6 +445,14 @@ const columns = [
     sortable: true,
   },
 ];
+
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  const day = date.getDate().toString().padStart(2, "0");
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const year = date.getFullYear();
+  return `${day}/${month}/${year}`;
+};
 
 bus.on("imagen-borrada", () => {
   getSurveys();
@@ -441,6 +491,11 @@ const onRowClickClone = (row) => {
 const onRowClickDelete = (row) => {
   selectedSurvey.value = row;
   showDelete.value = true;
+};
+
+const onRowClickEvaluee = (row) => {
+  selectedSurvey.value = row;
+  showEvaluee.value = true;
 };
 
 const clone = async () => {

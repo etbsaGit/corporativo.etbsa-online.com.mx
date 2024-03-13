@@ -1,8 +1,7 @@
 <template>
-  <div class="chart-container">
-    <canvas ref="barChart"></canvas>
-  </div>
   <div class="q-pa-md">
+    <canvas ref="barChart"></canvas>
+
     <q-table
       title="Calificaciones"
       :rows="sortedGrades"
@@ -14,6 +13,19 @@
           {{ props.row.evaluee.empleado.nombre }}
           {{ props.row.evaluee.empleado.apellido_paterno }}
           {{ props.row.evaluee.empleado.apellido_materno }}
+        </q-td>
+      </template>
+
+      <template v-slot:body-cell-comments="props">
+        <q-td :props="props">
+          {{
+            props.row.comments.length > 50
+              ? props.row.comments.slice(0, 50) + "..."
+              : props.row.comments
+          }}
+          <q-tooltip class="bg-purple text-body2">
+            {{ props.row.comments }}
+          </q-tooltip>
         </q-td>
       </template>
     </q-table>
@@ -113,42 +125,47 @@ const data = ref({
       data: [],
       backgroundColor: "rgba(0, 255, 0, 0.2)", // Verde con transparencia
       borderColor: "rgba(0, 255, 0, 1)", // Verde sólido
-      borderWidth: 1,
-      stack: 1,
+      // stack: 1,
     },
     {
       label: "Incorrectas",
       data: [],
       backgroundColor: "rgba(255, 0, 0, 0.2)", // Rojo con transparencia
       borderColor: "rgba(255, 0, 0, 1)", // Rojo sólido
-      borderWidth: 1,
-      stack: 0,
+      // stack: 0,
     },
     {
       label: "Sin responder",
       data: [],
       backgroundColor: "rgba(128, 128, 128, 0.2)", // Gris con transparencia
       borderColor: "rgba(128, 128, 128, 1)", // Gris sólido
-      borderWidth: 1,
-      stack: 2,
+      // stack: 2,
     },
   ],
 });
 
 const options = ref({
+  indexAxis: "y",
+  elements: {
+    bar: {
+      borderWidth: 2,
+    },
+  },
   responsive: true,
-  interaction: {
-    intersect: false,
+  plugins: {
+    legend: {
+      position: "top",
+    },
   },
   scales: {
     x: {
       stacked: true,
+      ticks: {
+        precision: 0,
+      },
     },
     y: {
       stacked: true,
-      ticks: {
-        precision: 0, // Define la precisión del valor del tick como 0 para mostrar solo números enteros
-      },
     },
   },
 });
@@ -188,7 +205,8 @@ const getGrades = async () => {
   data.value.datasets[2].data = Array(questions.value.length).fill(0);
 
   questions.value.forEach((question, questionIndex) => {
-    data.value.labels.push(question.question);
+    data.value.labels.push(question.question); // Modificado
+    //data.value.labels.push("Pregunta " + (questionIndex + 1)); // Modificado
 
     let correctCount = 0;
     let incorrectCount = 0;
@@ -224,13 +242,9 @@ onMounted(() => {
 
 <style scoped>
 .chart-container {
-  width: 50%;
+  width: auto;
   /* Hacer que el contenedor del gráfico ocupe todo el ancho disponible */
   height: auto;
   /* Permitir que la altura del contenedor del gráfico se ajuste automáticamente */
-  margin-left: auto;
-  /* Centrar el contenido del contenedor en el lado izquierdo */
-  margin-right: auto;
-  /* Centrar el contenido del contenedor en el lado derecho */
 }
 </style>

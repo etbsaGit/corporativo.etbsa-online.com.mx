@@ -5,7 +5,7 @@
       :key="evaluee.id"
       :class="{
         'bg-yellow-3': tieneRespuestasSinCalificar(evaluee),
-        'bg-orange': sinCalificacion(evaluee),
+        'bg-orange-3': sinCalificacion(evaluee),
       }"
     >
       <q-card-section>
@@ -17,16 +17,24 @@
         >
           Tienes nuevas respuestas que calificar a este usuario
         </q-tooltip>
-        <q-tooltip v-if="sinCalificacion(evaluee)" class="bg-purple text-body2">
+        <q-tooltip
+          v-else-if="sinCalificacion(evaluee)"
+          class="bg-purple text-body2"
+        >
           El usuario no tiene calificacion final
         </q-tooltip>
       </q-card-section>
       <q-separator />
       <q-card-actions>
         <q-btn dense color="blue" @click="onRowClick(evaluee)">Preguntas</q-btn>
-        <q-btn dense color="green" @click="onRowClickScore(evaluee)"
-          >Evaluacion</q-btn
+        <q-btn
+          v-if="survey.status == 0"
+          dense
+          color="green"
+          @click="onRowClickScore(evaluee)"
         >
+          Evaluacion
+        </q-btn>
       </q-card-actions>
     </q-card>
 
