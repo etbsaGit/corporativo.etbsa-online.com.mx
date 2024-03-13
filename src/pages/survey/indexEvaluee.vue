@@ -164,7 +164,7 @@ const columns = [
     name: "expire_date",
     label: "Fecha de expiracion",
     align: "left",
-    field: "expire_date",
+    field: (row) => formatDate(row.expire_date),
     sortable: true,
   },
   {
@@ -175,6 +175,14 @@ const columns = [
     sortable: true,
   },
 ];
+
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  const day = date.getDate().toString().padStart(2, "0");
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const year = date.getFullYear();
+  return `${day}/${month}/${year}`;
+};
 
 const getSurveys = async () => {
   const id = user.value.id;
