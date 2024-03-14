@@ -42,7 +42,6 @@ const getEvalueesPerSurvey = async () => {
     ""
   );
   evaluees.value = res;
-  console.log(evaluees.value);
 };
 
 onMounted(() => {
