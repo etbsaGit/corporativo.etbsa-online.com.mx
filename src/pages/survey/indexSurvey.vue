@@ -111,8 +111,14 @@
 
       <template v-slot:body-cell-status="props">
         <q-td :props="props">
-          <div v-if="props.row.status == 1">Activa</div>
-          <div v-else>Inactiva</div>
+          <q-btn
+            round
+            icon="power_settings_new"
+            :color="props.row.status == 1 ? 'green' : 'grey'"
+            @click="changeStatus(props.row)"
+          />
+          <!-- <div v-if="props.row.status == 1">Activa</div>
+          <div v-else>Inactiva</div> -->
         </q-td>
       </template>
 
@@ -403,17 +409,17 @@ const $q = useQuasar();
 const columns = [
   //{ name: "id", label: "ID", align: "left", field: "id", sortable: true },
   {
-    name: "title",
-    label: "Titulo",
-    align: "left",
-    field: "title",
-    sortable: true,
-  },
-  {
     name: "status",
     label: "Status",
     align: "left",
     field: "status",
+    sortable: true,
+  },
+  {
+    name: "title",
+    label: "Titulo",
+    align: "left",
+    field: "title",
     sortable: true,
   },
   {
@@ -496,6 +502,11 @@ const onRowClickDelete = (row) => {
 const onRowClickEvaluee = (row) => {
   selectedSurvey.value = row;
   showEvaluee.value = true;
+};
+
+const changeStatus = async (row) => {
+  let res = await sendRequest("PUT", null, "/api/survey/status/" + row.id, "");
+  getSurveys();
 };
 
 const clone = async () => {
