@@ -113,6 +113,7 @@
         <q-td :props="props">
           <q-btn
             round
+            size="xs"
             icon="power_settings_new"
             :color="props.row.status == 1 ? 'green' : 'grey'"
             @click="changeStatus(props.row)"
