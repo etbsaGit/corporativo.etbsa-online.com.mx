@@ -94,7 +94,7 @@
                   @click="onRowClickGrades(props.row)"
                 />
               </q-item>
-              <q-item v-if="isAdmin == true">
+              <q-item v-if="checkRole('Admin')">
                 <q-btn
                   flat
                   size="sm"
@@ -363,7 +363,7 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import { sendRequest } from "src/boot/functions";
+import { sendRequest, checkRole } from "src/boot/functions";
 import AddSurveyForm from "src/components/Survey/AddSurveyForm.vue";
 import EditSurveyForm from "src/components/Survey/EditSurveyForm.vue";
 import ShowSurveyForm from "src/components/Survey/ShowSurveyForm.vue";
@@ -373,7 +373,6 @@ import ShowGradesForm from "src/components/Survey/ShowGradesForm.vue";
 import ShowEvalueesForm from "src/components/Survey/ShowEvalueesForm.vue";
 import { useQuasar } from "quasar";
 
-import { getNamesRoles } from "src/boot/functions";
 import { useAuthStore } from "src/stores/auth";
 import { storeToRefs } from "pinia";
 import { inject } from "vue";
@@ -382,11 +381,6 @@ const bus = inject("bus");
 
 const auth = useAuthStore();
 const { user } = storeToRefs(auth);
-
-const nombresRoles = getNamesRoles(user.value);
-const isAdmin = nombresRoles.includes("Admin");
-const isEncuestador = nombresRoles.includes("Encuestador");
-const isEvaluador = nombresRoles.includes("Evaluador");
 
 const filter = ref("");
 const surveys = ref([]);
@@ -533,7 +527,7 @@ const deleteSurvey = async () => {
 };
 
 const getSurveys = async () => {
-  if (isEvaluador == true) {
+  if (checkRole("Evaluador")) {
     let res = await sendRequest(
       "GET",
       null,
@@ -542,7 +536,7 @@ const getSurveys = async () => {
     );
     surveys.value = res;
   }
-  if (isEncuestador == true || isAdmin == true) {
+  if (checkRole("Encuestador") || checkRole("Admin")) {
     let res = await sendRequest("GET", null, "/api/survey", "");
     surveys.value = res;
   }

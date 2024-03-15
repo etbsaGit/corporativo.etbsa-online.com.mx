@@ -27,7 +27,7 @@
     <q-item>
       <q-item-section>
         <q-select
-          :disable="isEncuestador == false"
+          :disable="checkRole('Encuestador') == false"
           v-model="formSurvey.evaluator_id"
           :options="evaluators"
           option-value="id"
@@ -222,29 +222,23 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import { sendRequest } from "src/boot/functions";
+import { sendRequest, checkRole } from "src/boot/functions";
 import { storeToRefs } from "pinia";
 
 const myForm = ref(null);
 const evaluators = ref([]);
 
-import { getNamesRoles } from "src/boot/functions";
 import { useAuthStore } from "src/stores/auth";
 
 const auth = useAuthStore();
 const { user } = storeToRefs(auth);
-
-const nombresRoles = getNamesRoles(user.value);
-const isAdmin = nombresRoles.includes("Admin");
-const isEncuestador = nombresRoles.includes("Encuestador");
-const isEvaluador = nombresRoles.includes("Evaluador");
 
 const formSurvey = ref({
   title: null,
   status: false,
   description: null,
   expire_date: null,
-  evaluator_id: isEvaluador ? user.value.email : null,
+  evaluator_id: checkRole("Evaluador") ? user.value.email : null,
   questions: [],
 });
 

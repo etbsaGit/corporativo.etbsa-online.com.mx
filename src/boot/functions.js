@@ -99,6 +99,12 @@ export function getNamesRoles(usuario) {
   return nameRoles;
 }
 
+export function checkRole(role) {
+  const authStore = useAuthStore();
+  const usuario = authStore.authUser;
+  return usuario.roles.some((usuarioRol) => usuarioRol.name === role);
+}
+
 export function getNamesPermissions(usuario) {
   const namePermissions = [];
   if (usuario && Array.isArray(usuario.permissions)) {
