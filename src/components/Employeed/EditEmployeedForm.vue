@@ -239,13 +239,13 @@
           dense
           label="Licencia de manejo"
           hint="(opcional)"
-          :rules="[
+        />
+        <!-- :rules="[
             (val) =>
               !val ||
               (val && val.length === 16) ||
               'La licencia debe tener exactamente 16 caracteres',
-          ]"
-        />
+          ]" -->
       </q-item-section>
     </q-item>
 
