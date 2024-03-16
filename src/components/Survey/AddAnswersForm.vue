@@ -204,7 +204,7 @@ const getAnswers = async () => {
     if (respuesta) {
       pregunta.respuestaAsignada = true;
       if (pregunta.type === "checkbox") {
-        const respuestasSeleccionadas = respuesta.answer.split(",");
+        const respuestasSeleccionadas = respuesta.answer.split("|");
         pregunta.respuesta = [];
         for (const respuestaSeleccionada of respuestasSeleccionadas) {
           pregunta.respuesta.push(respuestaSeleccionada.trim());
@@ -250,8 +250,8 @@ const enviarRespuestaCheckbox = async (pregunta) => {
     return;
   }
 
-  (formAnswer.value.question_id = pregunta.id),
-    (formAnswer.value.answer = pregunta.respuesta.join(", "));
+  formAnswer.value.question_id = pregunta.id;
+  formAnswer.value.answer = pregunta.respuesta.join("| ");
 
   let res = await sendRequest(
     "POST",
@@ -264,7 +264,6 @@ const enviarRespuestaCheckbox = async (pregunta) => {
 
 const show = (imagen) => {
   window.open(imagen, "_blank");
-  console.log(imagen);
 };
 
 const validate = async () => {

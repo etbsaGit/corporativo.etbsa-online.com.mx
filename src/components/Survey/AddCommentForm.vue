@@ -3,7 +3,10 @@
     <q-card
       v-for="evaluee in evaluees"
       :key="evaluee.id"
-      :class="{ 'bg-yellow-3': tieneRespuestasSinCalificar(evaluee) }"
+      :class="{
+        'bg-yellow-3': tieneRespuestasSinCalificar(evaluee),
+        'bg-orange-3': sinCalificacion(evaluee),
+      }"
     >
       <q-card-section>
         <div class="text-h6">{{ evaluee.name }}</div>
@@ -14,13 +17,24 @@
         >
           Tienes nuevas respuestas que calificar a este usuario
         </q-tooltip>
+        <q-tooltip
+          v-else-if="sinCalificacion(evaluee)"
+          class="bg-purple text-body2"
+        >
+          El usuario no tiene calificacion final
+        </q-tooltip>
       </q-card-section>
       <q-separator />
       <q-card-actions>
         <q-btn dense color="blue" @click="onRowClick(evaluee)">Preguntas</q-btn>
-        <q-btn dense color="green" @click="onRowClickScore(evaluee)"
-          >Evaluacion</q-btn
+        <q-btn
+          v-if="survey.status == 0"
+          dense
+          color="green"
+          @click="onRowClickScore(evaluee)"
         >
+          Evaluacion
+        </q-btn>
       </q-card-actions>
     </q-card>
 
@@ -68,7 +82,12 @@
             Evaluacion final de {{ selectedEvaluee.name }}
           </div>
           <q-card-actions align="right">
-            <q-btn label="Cerrar" color="red" v-close-popup />
+            <q-btn
+              label="Cerrar"
+              color="red"
+              v-close-popup
+              @click="getEvaluees"
+            />
             <q-btn
               label="Guardar comentarios"
               color="blue"
@@ -105,6 +124,7 @@ const showScore = ref(false);
 const selectedEvaluee = ref(null);
 const answers = ref(null);
 const score = ref(null);
+const calificaciones = ref([]);
 const $q = useQuasar();
 
 const onRowClick = (row) => {
@@ -125,6 +145,7 @@ const getEvaluees = async () => {
     ""
   );
   evaluees.value = res;
+  getGrades();
 };
 
 const sendComments = async () => {
@@ -137,11 +158,31 @@ const sendComments = async () => {
     });
     return;
   }
+  if (score.value.formScore.comments === null) {
+    $q.notify({
+      color: "red-5",
+      textColor: "white",
+      icon: "warning",
+      message: "Agregue un comentario",
+    });
+    return;
+  }
   const final = {
     ...score.value.formScore,
   };
   let res = await sendRequest("POST", final, "/api/surveys/grade", "");
   showScore.value = false;
+  getEvaluees();
+};
+
+const getGrades = async () => {
+  let res = await sendRequest(
+    "GET",
+    null,
+    "/api/grades/survey/" + survey.id,
+    ""
+  );
+  calificaciones.value = res.grades;
 };
 
 const tieneRespuestasSinCalificar = (evaluee) => {
@@ -151,6 +192,13 @@ const tieneRespuestasSinCalificar = (evaluee) => {
       return respuesta.rating === null && respuesta.question_id === pregunta.id;
     });
   });
+};
+
+const sinCalificacion = (evaluee) => {
+  const tieneCalificacion = calificaciones.value.some(
+    (calificacion) => calificacion.evaluee_id === evaluee.id
+  );
+  return !tieneCalificacion;
 };
 
 onMounted(() => {

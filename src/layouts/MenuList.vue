@@ -1,7 +1,7 @@
 <template>
   <q-list bordered padding class="rounded-borders text-primary">
     <q-item
-      v-if="isEmpleado == true"
+      v-if="checkRole('Empleado')"
       clickable
       v-ripple
       to="/perfil"
@@ -16,7 +16,7 @@
       <q-item-section>Perfil</q-item-section>
     </q-item>
     <q-item
-      v-if="isAdmin == true"
+      v-if="checkRole('Admin')"
       clickable
       v-ripple
       to="/users"
@@ -31,7 +31,7 @@
       <q-item-section>Usuarios</q-item-section>
     </q-item>
     <q-item
-      v-if="isRRHH == true"
+      v-if="checkRole('RRHH')"
       clickable
       v-ripple
       to="/employees"
@@ -46,7 +46,7 @@
       <q-item-section>Empleados</q-item-section>
     </q-item>
     <q-item
-      v-if="isRRHH == true"
+      v-if="checkRole('RRHH')"
       clickable
       v-ripple
       to="/catalogos"
@@ -61,7 +61,7 @@
       <q-item-section>Catalogos para empleados</q-item-section>
     </q-item>
     <q-item
-      v-if="isEncuestador == true || isEvaluador == true"
+      v-if="checkRole('Encuestador') || checkRole('Evaluador')"
       clickable
       v-ripple
       to="/surveys"
@@ -76,7 +76,7 @@
       <q-item-section>Encuestas para empleados</q-item-section>
     </q-item>
     <q-item
-      v-if="isEmpleado == true"
+      v-if="checkRole('Empleado')"
       clickable
       v-ripple
       to="/encuestas"
@@ -88,7 +88,7 @@
         <q-icon name="quiz" />
       </q-item-section>
 
-      <q-item-section>Evaluaciones</q-item-section>
+      <q-item-section>Mis evaluaciones</q-item-section>
     </q-item>
     <!--
     <q-item
@@ -168,21 +168,10 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from "vue";
-import { getNamesRoles } from "../boot/functions";
-import { useAuthStore } from "src/stores/auth";
-import { storeToRefs } from "pinia";
+import { ref } from "vue";
+import { checkRole } from "../boot/functions";
 
 const link = ref("inbox");
-const auth = useAuthStore();
-const { user } = storeToRefs(auth);
-
-const nombresRoles = getNamesRoles(user.value);
-const isAdmin = nombresRoles.includes("Admin");
-const isRRHH = nombresRoles.includes("RRHH");
-const isEmpleado = nombresRoles.includes("Empleado");
-const isEncuestador = nombresRoles.includes("Encuestador");
-const isEvaluador = nombresRoles.includes("Evaluador");
 </script>
 
 <style lang="sass">

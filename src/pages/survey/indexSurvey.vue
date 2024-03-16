@@ -32,49 +32,102 @@
 
       <template v-slot:body-cell-action="props">
         <q-td>
-          <q-btn
-            flat
-            round
-            color="primary"
-            icon="search"
-            @click="onRowClickShow(props.row)"
-          >
-            <q-tooltip>Vista previa</q-tooltip>
-          </q-btn>
-          <q-btn
-            flat
-            round
-            color="primary"
-            icon="menu"
-            @click="onRowClick(props.row)"
-          >
-            <q-tooltip>Modifica la encuesta</q-tooltip>
-          </q-btn>
-          <q-btn
-            flat
-            round
-            color="primary"
-            icon="people"
-            @click="onRowClickAsing(props.row)"
-          >
-            <q-tooltip>Asigna la encuesta</q-tooltip>
-          </q-btn>
-          <q-btn
-            flat
-            round
-            color="primary"
-            icon="quiz"
-            @click="onRowClickEvaluator(props.row)"
-          >
-            <q-tooltip>Califica la encuesta</q-tooltip>
-          </q-btn>
+          <q-btn-dropdown flat color="primary" icon="menu">
+            <q-list v-close-popup>
+              <q-item>
+                <q-btn
+                  flat
+                  size="sm"
+                  color="primary"
+                  icon="search"
+                  label="Vista previa"
+                  @click="onRowClickShow(props.row)"
+                />
+              </q-item>
+              <q-item>
+                <q-btn
+                  flat
+                  size="sm"
+                  color="primary"
+                  icon="edit"
+                  label="Editar"
+                  @click="onRowClick(props.row)"
+                />
+              </q-item>
+              <q-item>
+                <q-btn
+                  flat
+                  size="sm"
+                  color="primary"
+                  icon="copy_all"
+                  label="Copiar"
+                  @click="onRowClickClone(props.row)"
+                />
+              </q-item>
+              <q-item>
+                <q-btn
+                  flat
+                  size="sm"
+                  color="primary"
+                  icon="people"
+                  label="Asignar"
+                  @click="onRowClickAsing(props.row)"
+                />
+              </q-item>
+              <q-item>
+                <q-btn
+                  flat
+                  size="sm"
+                  color="primary"
+                  icon="quiz"
+                  label="Calificar"
+                  @click="onRowClickEvaluator(props.row)"
+                />
+              </q-item>
+              <q-item>
+                <q-btn
+                  flat
+                  size="sm"
+                  color="primary"
+                  icon="format_list_numbered"
+                  label="Calificaciones"
+                  @click="onRowClickGrades(props.row)"
+                />
+              </q-item>
+              <q-item v-if="checkRole('Admin')">
+                <q-btn
+                  flat
+                  size="sm"
+                  color="red"
+                  icon="delete"
+                  label="Borrar"
+                  @click="onRowClickDelete(props.row)"
+                />
+              </q-item>
+            </q-list>
+          </q-btn-dropdown>
         </q-td>
       </template>
 
       <template v-slot:body-cell-status="props">
         <q-td :props="props">
-          <div v-if="props.row.status == 1">Activa</div>
-          <div v-else>Inactiva</div>
+          <q-btn
+            round
+            size="xs"
+            icon="power_settings_new"
+            :color="props.row.status == 1 ? 'green' : 'grey'"
+            @click="changeStatus(props.row)"
+          />
+          <!-- <div v-if="props.row.status == 1">Activa</div>
+          <div v-else>Inactiva</div> -->
+        </q-td>
+      </template>
+
+      <template v-slot:body-cell-evaluee_count="props">
+        <q-td @click="onRowClickEvaluee(props.row)">
+          <q-btn flat>
+            {{ props.row.evaluee_count }}
+          </q-btn>
         </q-td>
       </template>
     </q-table>
@@ -110,7 +163,7 @@
       transition-hide="rotate"
       persistent
       full-width
-      full-height=""
+      full-height
     >
       <q-card>
         <q-card-section class="d-flex justify-between items-center">
@@ -207,20 +260,119 @@
         </div>
       </q-card>
     </q-dialog>
+
+    <q-dialog
+      v-model="showGrades"
+      transition-show="rotate"
+      transition-hide="rotate"
+      persistent
+      full-width
+      full-height
+    >
+      <q-card>
+        <q-card-section class="d-flex justify-between items-center">
+          <div class="text-h6">Vista previa {{ selectedSurvey.title }}</div>
+          <q-card-actions align="right">
+            <q-btn label="Cerrar" color="red" v-close-popup />
+          </q-card-actions>
+        </q-card-section>
+        <q-separator />
+        <div class="survey-form-container">
+          <show-grades-form ref="grades" :survey="selectedSurvey" />
+        </div>
+      </q-card>
+    </q-dialog>
+
+    <q-dialog
+      v-model="showClone"
+      transition-show="rotate"
+      transition-hide="rotate"
+      persistent
+      full-width
+      full-height
+    >
+      <q-card>
+        <q-card-section class="d-flex justify-between items-center">
+          <div class="text-h6">Clonar Encuesta {{ selectedSurvey.title }}</div>
+          <q-card-actions align="right">
+            <q-btn label="Cerrar" color="red" v-close-popup />
+            <q-btn
+              label="Clonar encuesta"
+              color="blue"
+              @click="addSurvey()"
+              v-close-popup
+            />
+          </q-card-actions>
+        </q-card-section>
+        <q-separator />
+        <div class="survey-form-container">
+          <edit-survey-form
+            ref="add"
+            :survey="selectedSurvey"
+            :key="selectedSurvey.base64"
+          />
+        </div>
+      </q-card>
+    </q-dialog>
+
+    <q-dialog
+      v-model="showDelete"
+      transition-show="rotate"
+      transition-hide="rotate"
+      persistent
+    >
+      <q-card>
+        <q-card-section class="d-flex justify-between items-center">
+          <div class="text-h6">
+            ¿Deseas borrar {{ selectedSurvey.title }} y todo las preguntas y
+            respuestas relacionadas?
+          </div>
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn
+            label="Eliminar"
+            color="orange"
+            @click="deleteSurvey"
+            v-close-popup
+          />
+          <q-btn label="Cerrar" color="red" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <q-dialog
+      v-model="showEvaluee"
+      transition-show="rotate"
+      transition-hide="rotate"
+    >
+      <q-card style="width: 400px">
+        <q-card-section class="d-flex justify-between items-center">
+          <div class="text-h6">Evaluados</div>
+          <q-card-actions align="right">
+            <q-btn label="Cerrar" color="red" v-close-popup />
+          </q-card-actions>
+        </q-card-section>
+        <q-separator />
+        <div class="survey-form-container">
+          <show-evaluees-form :survey="selectedSurvey" />
+        </div>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from "vue";
-import { sendRequest } from "src/boot/functions";
+import { sendRequest, checkRole } from "src/boot/functions";
 import AddSurveyForm from "src/components/Survey/AddSurveyForm.vue";
 import EditSurveyForm from "src/components/Survey/EditSurveyForm.vue";
 import ShowSurveyForm from "src/components/Survey/ShowSurveyForm.vue";
 import AddEvalueesForm from "src/components/Survey/AddEvalueesForm.vue";
 import AddCommentForm from "src/components/Survey/AddCommentForm.vue";
+import ShowGradesForm from "src/components/Survey/ShowGradesForm.vue";
+import ShowEvalueesForm from "src/components/Survey/ShowEvalueesForm.vue";
 import { useQuasar } from "quasar";
 
-import { getNamesRoles } from "src/boot/functions";
 import { useAuthStore } from "src/stores/auth";
 import { storeToRefs } from "pinia";
 import { inject } from "vue";
@@ -230,11 +382,6 @@ const bus = inject("bus");
 const auth = useAuthStore();
 const { user } = storeToRefs(auth);
 
-const nombresRoles = getNamesRoles(user.value);
-const isAdmin = nombresRoles.includes("Admin");
-const isEncuestador = nombresRoles.includes("Encuestador");
-const isEvaluador = nombresRoles.includes("Evaluador");
-
 const filter = ref("");
 const surveys = ref([]);
 const selectedSurvey = ref(null);
@@ -243,26 +390,31 @@ const showDetails = ref(false);
 const showEmployees = ref(false);
 const showEvaluator = ref(false);
 const showPreview = ref(false);
+const showGrades = ref(false);
+const showClone = ref(false);
+const showDelete = ref(false);
+const showEvaluee = ref(false);
 const add = ref(null);
 const edit = ref(null);
 const evaluees = ref(null);
 const evaluator = ref(null);
+const grades = ref(null);
 const $q = useQuasar();
 
 const columns = [
-  { name: "id", label: "ID", align: "left", field: "id", sortable: true },
-  {
-    name: "title",
-    label: "Titulo",
-    align: "left",
-    field: "title",
-    sortable: true,
-  },
+  //{ name: "id", label: "ID", align: "left", field: "id", sortable: true },
   {
     name: "status",
     label: "Status",
     align: "left",
     field: "status",
+    sortable: true,
+  },
+  {
+    name: "title",
+    label: "Titulo",
+    align: "left",
+    field: "title",
     sortable: true,
   },
   {
@@ -273,10 +425,17 @@ const columns = [
     sortable: true,
   },
   {
+    name: "evaluee_count",
+    label: "Evaluados",
+    align: "left",
+    field: "evaluee_count",
+    sortable: true,
+  },
+  {
     name: "expire_date",
     label: "Fecha de expiracion",
     align: "left",
-    field: "expire_date",
+    field: (row) => formatDate(row.expire_date),
     sortable: true,
   },
   {
@@ -287,6 +446,14 @@ const columns = [
     sortable: true,
   },
 ];
+
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  const day = date.getDate().toString().padStart(2, "0");
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const year = date.getFullYear();
+  return `${day}/${month}/${year}`;
+};
 
 bus.on("imagen-borrada", () => {
   getSurveys();
@@ -312,17 +479,64 @@ const onRowClickEvaluator = (row) => {
   showEvaluator.value = true;
 };
 
+const onRowClickGrades = (row) => {
+  selectedSurvey.value = row;
+  showGrades.value = true;
+};
+
+const onRowClickClone = (row) => {
+  selectedSurvey.value = row;
+  showClone.value = true;
+};
+
+const onRowClickDelete = (row) => {
+  selectedSurvey.value = row;
+  showDelete.value = true;
+};
+
+const onRowClickEvaluee = (row) => {
+  selectedSurvey.value = row;
+  showEvaluee.value = true;
+};
+
+const changeStatus = async (row) => {
+  let res = await sendRequest("PUT", null, "/api/survey/status/" + row.id, "");
+  getSurveys();
+};
+
+const clone = async () => {
+  let res = await sendRequest(
+    "POST",
+    null,
+    "/api/survey/clone/" + selectedSurvey.value.id,
+    ""
+  );
+  showClone.value = false;
+  getSurveys();
+};
+
+const deleteSurvey = async () => {
+  let res = await sendRequest(
+    "DELETE",
+    null,
+    "/api/survey/" + selectedSurvey.value.id,
+    ""
+  );
+  showDelete.value = false;
+  getSurveys();
+};
+
 const getSurveys = async () => {
-  if (isEvaluador == true) {
+  if (checkRole("Evaluador")) {
     let res = await sendRequest(
       "GET",
       null,
-      "/api/survey/user/" + user.value.id,
+      "/api/survey/evaluator/" + user.value.id,
       ""
     );
     surveys.value = res;
   }
-  if (isEncuestador == true || isAdmin == true) {
+  if (checkRole("Encuestador") || checkRole("Admin")) {
     let res = await sendRequest("GET", null, "/api/survey", "");
     surveys.value = res;
   }

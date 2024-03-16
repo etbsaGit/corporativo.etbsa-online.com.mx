@@ -197,7 +197,6 @@ const actualizarLinea = async () => {
     ...edit_1.value.formLinea,
   };
   let res = await sendRequest("PUT", final, "/api/linea/" + final.id, "");
-  console.log(res);
 
   showDetails.value = false;
   getLineas();

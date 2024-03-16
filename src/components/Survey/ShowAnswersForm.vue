@@ -173,7 +173,7 @@ const getAnswers = async () => {
       pregunta.respuesta_id = respuesta.id;
       pregunta.rating = respuesta.rating;
       if (pregunta.type === "checkbox") {
-        const respuestasSeleccionadas = respuesta.answer.split(",");
+        const respuestasSeleccionadas = respuesta.answer.split("|");
         pregunta.respuesta = [];
         for (const respuestaSeleccionada of respuestasSeleccionadas) {
           pregunta.respuesta.push(respuestaSeleccionada.trim());
@@ -187,7 +187,6 @@ const getAnswers = async () => {
 
 const show = (imagen) => {
   window.open(imagen, "_blank");
-  console.log(imagen);
 };
 
 const sendComments = async (pregunta) => {

@@ -84,6 +84,7 @@ const renderChart = () => {
 };
 
 const formScore = ref({
+  id: null,
   comments: null,
   score: null,
   questions: null,
@@ -109,6 +110,12 @@ const getScore = async () => {
   formScore.value.evaluee_id = evaluee.id;
   formScore.value.survey_id = survey.id;
   ungraded.value = res.ungraded_responses;
+  if (res.matched_grades.length === 0) {
+    delete formScore.value.id;
+  } else {
+    formScore.value.id = res.matched_grades[0].id;
+    formScore.value.comments = res.matched_grades[0].comments;
+  }
 
   // Actualizar data del gráfico con los valores del formulario
   data.value.datasets[0].data = [
