@@ -130,6 +130,18 @@
           </q-btn>
         </q-td>
       </template>
+      <template v-slot:body-cell-description="props">
+        <q-td :props="props">
+          {{
+            props.row.description.length > 40
+              ? props.row.description.slice(0, 40) + "..."
+              : props.row.description
+          }}
+          <q-tooltip class="bg-purple text-body2">
+            {{ props.row.description }}
+          </q-tooltip>
+        </q-td>
+      </template>
     </q-table>
 
     <q-dialog
