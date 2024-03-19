@@ -15,20 +15,15 @@
             :src="pregunta.imagen"
             style="height: 240px; max-width: 250px"
           >
-            <q-icon
-              class="absolute all-pointer-events"
-              size="32px"
-              name="info"
-              color="white"
-              style="top: 8px; left: 8px"
+            <q-btn
+              class="all-pointer-events"
+              size="10px"
+              color="blue"
+              icon="open_in_full"
+              @click="show(pregunta.imagen)"
             >
-              <q-btn
-                size="10px"
-                color="blue"
-                icon="open_in_full"
-                @click="show(pregunta.imagen)"
-              />
-            </q-icon>
+              <q-tooltip> Ver en nueva pestaña </q-tooltip>
+            </q-btn>
           </q-img>
           <q-input
             placeholder="Escribe tu respuesta"

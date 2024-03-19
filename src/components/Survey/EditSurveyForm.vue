@@ -134,40 +134,24 @@
           :src="pregunta.base64 ? pregunta.base64 : pregunta.imagen"
           style="height: 240px; max-width: 250px"
         >
-          <q-icon
-            v-if="pregunta.imagen"
-            class="absolute all-pointer-events"
-            size="20px"
-            name="info"
-            color="white"
-            style="top: 8px; left: 8px"
+          <q-btn
+            class="all-pointer-events"
+            size="10px"
+            color="red"
+            icon="delete"
+            @click="deleteImage(pregunta.id, index)"
           >
-            <q-btn
-              size="10px"
-              color="red"
-              icon="delete"
-              @click="deleteImage(pregunta.id, index)"
-            >
-              <q-tooltip> Borrar imagen </q-tooltip>
-            </q-btn>
-          </q-icon>
-          <q-icon
-            v-if="pregunta.imagen"
-            class="absolute all-pointer-events"
-            size="20px"
-            name="info"
-            color="white"
-            style="top: 8px; left: 190px"
+            <q-tooltip> Borrar imagen </q-tooltip>
+          </q-btn>
+          <q-btn
+            class="all-pointer-events"
+            size="10px"
+            color="blue"
+            icon="open_in_full"
+            @click="show(pregunta.imagen)"
           >
-            <q-btn
-              size="10px"
-              color="blue"
-              icon="open_in_full"
-              @click="show(pregunta.imagen)"
-            >
-              <q-tooltip> Ver en nueva pestaña </q-tooltip>
-            </q-btn>
-          </q-icon>
+            <q-tooltip> Ver en nueva pestaña </q-tooltip>
+          </q-btn>
         </q-img>
 
         <q-file
