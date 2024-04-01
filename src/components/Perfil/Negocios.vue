@@ -3,7 +3,7 @@
     <q-form ref="myForm" greedy>
       <q-item>
         <q-item-section>
-         <q-input
+          <q-input
             disable
             filled
             dense
@@ -115,7 +115,7 @@
           />
         </q-item-section>
       </q-item>
-  
+
       <q-item>
         <q-item-section>
           <q-select
@@ -191,14 +191,16 @@
               class="text-grey-7"
               label="Comision"
               disable
+              :true-value="1"
+              :false-value="0"
             />
           </div>
         </q-item-section>
       </q-item>
     </q-form>
-    </div>
-  </template>
-  
+  </div>
+</template>
+
 <script setup>
 import { useQuasar } from "quasar";
 import { ref } from "vue";
@@ -226,8 +228,8 @@ const formEmployeetwo = ref({
   sucursal_id: empleado.sucursal.nombre,
   linea_id: empleado.linea.nombre,
   departamento_id: empleado.departamento.nombre,
-  jefe_directo_id: empleado.jefe_directo_id ? empleado.jefe_directo.nombre : null
+  jefe_directo_id: empleado.jefe_directo_id
+    ? empleado.jefe_directo.nombre
+    : null,
 });
-
 </script>
-  
