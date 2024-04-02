@@ -32,8 +32,13 @@
       <q-separator />
 
       <q-card-section horizontal>
-        <q-card-section>
-          {{ employee }}
+        <q-card-section class="col-6">
+          <skill-rating-chart
+            v-if="initial == true"
+            :ratings="skillratings"
+            :key="skillratings"
+          />
+          <div v-else>Cargando.....</div>
         </q-card-section>
 
         <q-separator vertical />
@@ -52,8 +57,29 @@
 </template>
 
 <script setup>
+import { ref, onMounted } from "vue";
+import { sendRequest } from "src/boot/functions";
 const { employee } = defineProps(["employee"]);
 import EmployeeTimeLine from "src/components/Technician/EmployeeTimeLine.vue";
+import SkillRatingChart from "src/components/Skill/SkillRatingChart.vue";
+
+const skillratings = ref([]);
+const initial = ref(false);
+
+const getSkillRating = async () => {
+  let res = await sendRequest(
+    "GET",
+    null,
+    "/api/skillratings/" + employee.id,
+    ""
+  );
+  skillratings.value = res;
+};
+
+onMounted(() => {
+  getSkillRating();
+  initial.value = true;
+});
 </script>
 
 <style scoped>

@@ -242,9 +242,26 @@
             </q-td>
           </template>
 
-          <template v-slot:body-cell-expediente="props">
-            <q-td @click="onRowClickFile(props.row)">
-              <q-btn flat round color="primary" icon="folder" />
+          <template v-slot:body-cell-actions="props">
+            <q-td>
+              <q-btn
+                @click="onRowClickFile(props.row)"
+                flat
+                round
+                color="primary"
+                icon="folder"
+              >
+                <q-tooltip>Expediente</q-tooltip>
+              </q-btn>
+              <q-btn
+                @click="onRowClickSkill(props.row)"
+                flat
+                round
+                color="primary"
+                icon="analytics"
+              >
+                <q-tooltip>Skills</q-tooltip>
+              </q-btn>
             </q-td>
           </template>
 
@@ -380,6 +397,29 @@
         </q-dialog>
       </div>
     </q-card>
+
+    <q-dialog
+      v-model="showSkill"
+      transition-show="rotate"
+      transition-hide="rotate"
+      persistent
+      full-width
+      full-height
+    >
+      <q-card>
+        <q-card-section class="d-flex justify-between items-center">
+          <div class="text-h6">Skill de {{ selectedEmployee.nombre }}</div>
+          <q-card-actions align="right">
+            <q-btn label="Cerrar" color="red" v-close-popup />
+            <q-btn label="Guardar" color="blue" @click="saveSkillRatings" />
+          </q-card-actions>
+        </q-card-section>
+        <q-separator />
+        <div class="survey-form-container">
+          <skill-rating-form :employee="selectedEmployee" ref="skill" />
+        </div>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
@@ -390,6 +430,7 @@ import AddEmployeedtwoForm from "src/components/Employeed/AddEmployeedtwoForm.vu
 import EditEmployeedForm from "src/components/Employeed/EditEmployeedForm.vue";
 import EditEmployeedtwoForm from "src/components/Employeed/EditEmployeedtwoForm.vue";
 import EditEmployeedthreeForm from "src/components/Employeed/EditEmployeedthreeForm.vue";
+import SkillRatingForm from "src/components/Skill/SkillRatingForm.vue";
 import { sendRequest } from "src/boot/functions";
 import { useQuasar, exportFile } from "quasar";
 import { inject } from "vue";
@@ -399,6 +440,8 @@ const form_2 = ref(null);
 const edit_1 = ref(null);
 const edit_2 = ref(null);
 const edit_3 = ref(null);
+const skill = ref(null);
+const skill_valid = ref();
 const edit1_valid = ref();
 const edit2_valid = ref();
 
@@ -406,6 +449,7 @@ const $q = useQuasar();
 
 const showDetails = ref(false);
 const showFiles = ref(false);
+const showSkill = ref(false);
 const selectedEmployee = ref(null);
 const sucursales = ref([]);
 const lineas = ref([]);
@@ -430,7 +474,7 @@ const visibleColumns = ref([
   "linea",
   "departamento",
   "puesto",
-  "expediente",
+  "actions",
 ]);
 
 const tab = ref("tab_form_one");
@@ -442,6 +486,11 @@ const employees = ref([]);
 const onRowClick = (row) => {
   selectedEmployee.value = row;
   showDetails.value = true;
+};
+
+const onRowClickSkill = (row) => {
+  selectedEmployee.value = row;
+  showSkill.value = true;
 };
 
 const onRowClickFile = (row) => {
@@ -495,6 +544,26 @@ const actualizarEmpleado = async () => {
   let res = await sendRequest("PUT", final, "/api/empleado/" + final.id, "");
   showDetails.value = false;
   getEmployees();
+};
+
+const saveSkillRatings = async () => {
+  skill_valid.value = await skill.value.validate();
+  if (!skill_valid.value) {
+    $q.notify({
+      color: "red-5",
+      textColor: "white",
+      icon: "warning",
+      message: "Por favor completa todos los campos obligatorios",
+    });
+    return;
+  }
+  let res = await sendRequest(
+    "PUT",
+    skill.value.skillratings,
+    "/api/skillratings",
+    ""
+  );
+  bus.emit("new-skill");
 };
 
 const getEmployees = async () => {
@@ -779,8 +848,8 @@ const columns = [
     sortable: true,
   },
   {
-    name: "expediente",
-    label: "Expediente",
+    name: "actions",
+    label: "Acciones",
     align: "left",
     sortable: true,
   },
@@ -887,5 +956,10 @@ onMounted(() => {
 
 .items-center {
   align-items: center;
+}
+
+.survey-form-container {
+  max-height: 600px; /* Ajusta este valor según tus necesidades */
+  overflow-y: auto;
 }
 </style>

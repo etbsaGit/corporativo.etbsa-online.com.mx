@@ -177,18 +177,11 @@
         </div>
         <q-card-actions align="right">
           <q-btn label="Cerrar" color="red" v-close-popup />
-          <q-btn
-            label="Agregar"
-            color="blue"
-            @click="addQualifications(employee)"
-          />
         </q-card-actions>
       </q-card-section>
       <q-separator />
       <q-card class="q-pa-none scroll" flat>
-        <div class="survey-form-container">
-          <c-v :employee="empleado"></c-v>
-        </div>
+        <c-v :employee="empleado"></c-v>
       </q-card>
     </q-card>
   </q-dialog>
