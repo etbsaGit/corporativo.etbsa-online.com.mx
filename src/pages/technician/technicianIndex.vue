@@ -31,18 +31,18 @@
         <q-btn
           class="col"
           color="green-3"
-          style="height: 150px; font-size: 40px"
+          style="height: 150px; font-size: 35px"
           @click="onClickQuaAgricola"
         >
-          <span class="text-grey">Esquemas de acenso agricola</span>
+          <span class="text-grey">Escalafon Agricola</span>
         </q-btn>
         <q-btn
           class="col"
           color="amber-3"
-          style="height: 150px; font-size: 40px"
+          style="height: 150px; font-size: 35px"
           @click="onClickQuaConstruccion"
         >
-          <span class="text-grey">Esquemas de acenso Construccion</span>
+          <span class="text-grey">Escalafon Construccion</span>
         </q-btn>
       </div>
     </div>
