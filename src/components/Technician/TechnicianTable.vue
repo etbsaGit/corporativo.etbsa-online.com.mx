@@ -32,16 +32,20 @@
             @click="onRowClickEdit(props.row)"
             flat
             round
-            color="primary"
+            color="blue"
             icon="edit"
-          />
+          >
+            <q-tooltip class="bg-blue">Editar</q-tooltip>
+          </q-btn>
           <q-btn
             @click="onRowClickDelete(props.row)"
             flat
             round
             color="red"
             icon="delete"
-          />
+          >
+            <q-tooltip class="bg-red">Borrar</q-tooltip>
+          </q-btn>
         </q-td>
       </template>
     </q-table>

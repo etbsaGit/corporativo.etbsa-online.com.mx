@@ -45,7 +45,11 @@
             icon="timeline"
             class="bg-indigo-7 text-white"
             @click="openQualificationsDialog"
-          />
+          >
+            <q-tooltip class="bg-indigo"
+              >Asignar cursos completados a tecnico</q-tooltip
+            >
+          </q-btn>
         </q-item-label>
         <q-item-label>
           <q-btn
@@ -55,7 +59,9 @@
             icon="contact_page"
             class="text-white"
             @click="openCV"
-          />
+          >
+            <q-tooltip class="bg-amber">Resumen del tecnico</q-tooltip>
+          </q-btn>
         </q-item-label>
       </q-item-section>
     </q-item>
@@ -80,7 +86,9 @@
             color="green"
             class="text-white"
             @click="openTechnicians(employee)"
-          />
+          >
+            <q-tooltip class="bg-green">Cambiar tipo de tecnico</q-tooltip>
+          </q-btn>
         </q-item-label>
       </q-item-section>
     </q-item>

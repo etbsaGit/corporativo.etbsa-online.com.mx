@@ -221,6 +221,7 @@
 
           <template v-slot:body-cell-nombre="props">
             <q-td @click="onRowClick(props.row)">
+              <q-tooltip>Editar {{ props.row.nombre }}</q-tooltip>
               <q-item class="q-my-none" dense>
                 <q-item-section avatar>
                   <q-avatar
@@ -244,24 +245,30 @@
 
           <template v-slot:body-cell-actions="props">
             <q-td>
-              <q-btn
-                @click="onRowClickFile(props.row)"
-                flat
-                round
-                color="primary"
-                icon="folder"
-              >
-                <q-tooltip>Expediente</q-tooltip>
-              </q-btn>
-              <q-btn
-                @click="onRowClickSkill(props.row)"
-                flat
-                round
-                color="primary"
-                icon="analytics"
-              >
-                <q-tooltip>Skills</q-tooltip>
-              </q-btn>
+              <q-btn-dropdown flat color="primary" icon="menu">
+                <q-list v-close-popup>
+                  <q-item>
+                    <q-btn
+                      @click="onRowClickFile(props.row)"
+                      flat
+                      size="sm"
+                      label="Expediente"
+                      color="amber"
+                      icon="folder"
+                    />
+                  </q-item>
+                  <q-item>
+                    <q-btn
+                      @click="onRowClickSkill(props.row)"
+                      flat
+                      size="sm"
+                      label="Skill"
+                      color="indigo"
+                      icon="analytics"
+                    />
+                  </q-item>
+                </q-list>
+              </q-btn-dropdown>
             </q-td>
           </template>
 
