@@ -1,7 +1,7 @@
 <template>
-  <div class="q-pa-md">
-    <q-splitter v-model="splitterModel" style="height: 585px">
-      <template v-slot:before>
+  <q-splitter v-model="splitterModel" style="height: 585px">
+    <template v-slot:before>
+      <div class="q-pa-md">
         <q-table
           flat
           bordered
@@ -66,9 +66,11 @@
             </q-card>
           </template>
         </q-table>
-      </template>
+      </div>
+    </template>
 
-      <template v-slot:after>
+    <template v-slot:after>
+      <div class="q-pa-md">
         <q-card>
           <q-card-section class="d-flex justify-between items-center">
             <div class="text-h6">Archivos</div>
@@ -91,9 +93,9 @@
           />
           <div v-else>Selecciona un requisito para ver los detalles.</div>
         </q-card>
-      </template>
-    </q-splitter>
-  </div>
+      </div>
+    </template>
+  </q-splitter>
   <q-dialog
     v-model="showDetails"
     transition-show="rotate"

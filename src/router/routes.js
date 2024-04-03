@@ -43,19 +43,6 @@ const routes = [
     ],
   },
   {
-    path: "/career",
-    component: () => import("layouts/MainLayout.vue"),
-    meta: {
-      middlewares: [admin],
-    },
-    children: [
-      {
-        path: "",
-        component: () => import("src/pages/career/careerIndex.vue"),
-      },
-    ],
-  },
-  {
     path: "/technician",
     component: () => import("layouts/MainLayout.vue"),
     meta: {

@@ -1,8 +1,8 @@
 <template>
   <q-page class="q-pa-md">
-    <q-card class="my-card" flat bordered>
+    <q-card flat bordered>
       <q-item>
-        <q-item-section avatar class="flex justify-center items-center">
+        <q-item-section avatar>
           <q-avatar
             size="100px"
             color="primary"
@@ -18,39 +18,49 @@
         </q-item-section>
         <q-item-section>
           <q-item-label>
-            {{ employee.nombre }} {{ employee.segundo_nombre }}
-            {{ employee.apellido_paterno }} {{ employee.apellido_materno }}
+            <strong>
+              {{ employee.nombre }} {{ employee.segundo_nombre }}
+              {{ employee.apellido_paterno }} {{ employee.apellido_materno }}
+            </strong>
           </q-item-label>
           <q-item-label caption>
             <strong>Sucursal: </strong>
             {{ employee.sucursal.nombre }}
           </q-item-label>
+          <q-item-label caption>
+            <strong>Linea: </strong>
+            {{ employee.linea.nombre }}
+          </q-item-label>
+          <q-item-label caption>
+            <strong>Departamento: </strong>
+            {{ employee.departamento.nombre }}
+          </q-item-label>
+          <q-item-label caption>
+            <strong>Puesto: </strong>
+            {{ employee.puesto.nombre }}
+          </q-item-label>
         </q-item-section>
       </q-item>
-
       <q-separator />
+      <q-splitter v-model="splitterModel">
+        <template v-slot:before>
+          <div class="q-pa-md">
+            <div class="text-h4 q-mb-md">Historico</div>
+            <employee-time-line :empleado="employee" :editable="false" />
+          </div>
+        </template>
 
-      <q-card-section horizontal>
-        <q-card-section class="col-6">
-          <skill-rating-chart
-            v-if="initial == true"
-            :ratings="skillratings"
-            :key="skillratings"
-          />
-          <div v-else>Cargando.....</div>
-        </q-card-section>
-
-        <q-separator vertical />
-
-        <q-card-section class="col-6">
-          <employee-time-line
-            :qualifications="employee.qualification"
-            :linea="employee.linea"
-            :disable="true"
-            ref="timeLine"
-          />
-        </q-card-section>
-      </q-card-section>
+        <template v-slot:after>
+          <div class="q-pa-md">
+            <div class="text-h4 q-mb-md">Habilidades</div>
+            <skill-rating-chart
+              v-if="initial == true"
+              :ratings="skillratings"
+              :key="skillratings"
+            />
+          </div>
+        </template>
+      </q-splitter>
     </q-card>
   </q-page>
 </template>
@@ -59,11 +69,12 @@
 import { ref, onMounted } from "vue";
 import { sendRequest } from "src/boot/functions";
 const { employee } = defineProps(["employee"]);
-import EmployeeTimeLine from "src/components/Technician/EmployeeTimeLine.vue";
+import EmployeeTimeLine from "src/components/Employeed/EmployeeTimeLine.vue";
 import SkillRatingChart from "src/components/Skill/SkillRatingChart.vue";
 
 const skillratings = ref([]);
 const initial = ref(false);
+const splitterModel = ref(50);
 
 const getSkillRating = async () => {
   let res = await sendRequest(
@@ -80,10 +91,3 @@ onMounted(() => {
   initial.value = true;
 });
 </script>
-
-<style scoped>
-.my-card {
-  max-width: 1300px;
-  margin: 0 auto;
-}
-</style>

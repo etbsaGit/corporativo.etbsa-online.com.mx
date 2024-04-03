@@ -49,21 +49,6 @@
       v-if="checkRole('Admin')"
       clickable
       v-ripple
-      to="/career"
-      :active="link === 'career'"
-      @click="link = 'career'"
-      active-class="my-menu-link"
-    >
-      <q-item-section avatar>
-        <q-icon name="work" />
-      </q-item-section>
-
-      <q-item-section>Carreras</q-item-section>
-    </q-item>
-    <q-item
-      v-if="checkRole('Admin')"
-      clickable
-      v-ripple
       to="/technician"
       :active="link === 'technician'"
       @click="link = 'technician'"

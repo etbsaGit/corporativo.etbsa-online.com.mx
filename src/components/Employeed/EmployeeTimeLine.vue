@@ -1,6 +1,6 @@
 <template>
   <div class="q-px-lg q-py-md">
-    <q-timeline color="secondary">
+    <q-timeline color="secondary" v-if="careers">
       <q-timeline-entry
         v-for="(career, index) in careers"
         :key="index"
@@ -97,14 +97,15 @@
 </template>
 
 <script setup>
-import { ref, inject } from "vue";
+import { ref, inject, onMounted } from "vue";
 import { sendRequest } from "src/boot/functions";
 
-const { careers } = defineProps(["careers"]);
+const { empleado, editable } = defineProps(["empleado", "editable"]);
 const bus = inject("bus");
 
 const selectedRowIndex = ref(null);
 const preEdit = ref(null);
+const careers = ref([]);
 
 // Objeto para almacenar los cambios en los campos de edición
 const formCareer = ref({
@@ -115,23 +116,39 @@ const formCareer = ref({
 });
 
 const onRowClick = (index) => {
-  selectedRowIndex.value = index;
+  if (editable == true) {
+    selectedRowIndex.value = index;
+  }
 };
+
+bus.on("career", () => {
+  getCareers();
+  preEdit.value = null;
+});
 
 const onRowClickDelete = async (row) => {
   let res = await sendRequest("DELETE", null, "/api/career/" + row, "");
-  bus.emit("new_career");
   selectedRowIndex.value = null;
-  bus.emit("career_empty");
+  getCareers();
+};
+
+const getCareers = async () => {
+  let res = await sendRequest(
+    "GET",
+    null,
+    "/api/career/empleados/new/" + empleado.id,
+    ""
+  );
+  careers.value = res;
 };
 
 const onRowClickEdit = async (index) => {
   preEdit.value = index;
   // Establecemos los valores iniciales del formulario de edición
-  formCareer.value.title = careers[index].title;
-  formCareer.value.date = careers[index].date;
-  formCareer.value.description = careers[index].description;
-  formCareer.value.id = careers[index].id;
+  formCareer.value.title = careers.value[index].title;
+  formCareer.value.date = careers.value[index].date;
+  formCareer.value.description = careers.value[index].description;
+  formCareer.value.id = careers.value[index].id;
 };
 
 const saveChanges = async (id) => {
@@ -141,7 +158,8 @@ const saveChanges = async (id) => {
     "/api/career/" + formCareer.value.id,
     ""
   );
-  bus.emit("new_career");
+  getCareers();
+  selectedRowIndex.value = null;
   preEdit.value = null; // Desactivamos la edición
 };
 
@@ -149,6 +167,10 @@ const cancelEdit = () => {
   selectedRowIndex.value = null;
   preEdit.value = null;
 };
+
+onMounted(() => {
+  getCareers();
+});
 </script>
 
 
