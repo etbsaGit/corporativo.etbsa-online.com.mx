@@ -1,90 +1,89 @@
 <template>
-  <div class="q-pa-md">
-    <q-table
-      title="Encuesta"
-      :rows="surveys"
-      :columns="columns"
-      row-key="id"
-      :rows-per-page-options="[0]"
-    >
-      <template v-slot:body-cell-action="props">
-        <q-td>
-          <q-btn
-            v-if="isSurveyActive(props.row)"
-            flat
-            round
-            color="primary"
-            icon="play_arrow"
-            @click="onRowClick(props.row)"
-          >
-            <q-tooltip>Contestar encuesta</q-tooltip>
-          </q-btn>
-          <q-btn
-            flat
-            round
-            color="primary"
-            icon="search"
-            @click="onRowClickDetail(props.row)"
-          >
-            <q-tooltip>Ver tus respuestas</q-tooltip>
-          </q-btn>
-        </q-td>
-      </template>
-      <template v-slot:body-cell-status="props">
-        <q-td :props="props">
-          <div v-if="props.row.status == 1">Activa</div>
-          <div v-else>Inactiva</div>
-        </q-td>
-      </template>
-    </q-table>
+  <q-table
+    title="Encuesta"
+    :rows="surveys"
+    :columns="columns"
+    row-key="id"
+    :rows-per-page-options="[0]"
+  >
+    <template v-slot:body-cell-action="props">
+      <q-td>
+        <q-btn
+          v-if="isSurveyActive(props.row)"
+          flat
+          round
+          color="primary"
+          icon="play_arrow"
+          @click="onRowClick(props.row)"
+        >
+          <q-tooltip>Contestar encuesta</q-tooltip>
+        </q-btn>
+        <q-btn
+          flat
+          round
+          color="primary"
+          icon="search"
+          @click="onRowClickDetail(props.row)"
+        >
+          <q-tooltip>Ver tus respuestas</q-tooltip>
+        </q-btn>
+      </q-td>
+    </template>
+    <template v-slot:body-cell-status="props">
+      <q-td :props="props">
+        <div v-if="props.row.status == 1">Activa</div>
+        <div v-else>Inactiva</div>
+      </q-td>
+    </template>
+  </q-table>
 
-    <q-dialog
-      v-model="showQuestions"
-      transition-show="rotate"
-      transition-hide="rotate"
-      persistent
-      full-width
-      full-height
-    >
-      <q-card style="width: 1800px">
-        <q-card-section class="d-flex justify-between items-center">
-          <div class="text-h6">
-            Responde las preguntas de {{ selectedSurvey.title }}
-          </div>
-          <q-card-actions align="right">
-            <q-btn label="Cerrar" color="red" v-close-popup />
-          </q-card-actions>
-        </q-card-section>
-        <q-separator />
-        <div class="survey-form-container">
-          <add-answers-form ref="answers" :survey="selectedSurvey" />
+  <q-dialog
+    v-model="showQuestions"
+    transition-show="rotate"
+    transition-hide="rotate"
+    persistent
+    full-width
+    full-height
+  >
+    <q-card style="width: 1800px">
+      <q-card-section class="d-flex justify-between items-center">
+        <div class="text-h6">
+          Responde las preguntas de {{ selectedSurvey.title }}
         </div>
-      </q-card>
-    </q-dialog>
+        <q-card-actions align="right">
+          <q-btn label="Cerrar" color="red" v-close-popup />
+        </q-card-actions>
+      </q-card-section>
+      <q-separator />
+      <div class="survey-form-container">
+        <add-answers-form ref="answers" :survey="selectedSurvey" />
+      </div>
+    </q-card>
+  </q-dialog>
 
-    <q-dialog
-      v-model="showAnswers"
-      transition-show="rotate"
-      transition-hide="rotate"
-      persistent
-      full-width
-      full-height
-    >
-      <q-card style="width: 1800px">
-        <q-card-section class="d-flex justify-between items-center">
-          <div class="text-h6">Respuestas de {{ selectedSurvey.title }}</div>
-          <q-card-actions align="right">
-            <q-btn label="Cerrar" color="red" v-close-popup />
-          </q-card-actions>
-        </q-card-section>
-        <q-separator />
-        <div class="survey-form-container">
-          <show-answers-form ref="answers" :survey="selectedSurvey" />
-        </div>
-      </q-card>
-    </q-dialog>
+  <q-dialog
+    v-model="showAnswers"
+    transition-show="rotate"
+    transition-hide="rotate"
+    persistent
+    full-width
+    full-height
+  >
+    <q-card style="width: 1800px">
+      <q-card-section class="d-flex justify-between items-center">
+        <div class="text-h6">Respuestas de {{ selectedSurvey.title }}</div>
+        <q-card-actions align="right">
+          <q-btn label="Cerrar" color="red" v-close-popup />
+        </q-card-actions>
+      </q-card-section>
+      <q-separator />
+      <div class="survey-form-container">
+        <show-answers-form ref="answers" :survey="selectedSurvey" />
+      </div>
+    </q-card>
+  </q-dialog>
 
-    <!-- <q-dialog v-model="mostrarDialog" persistent>
+  <!-- <q-dialog v-model="mostrarDialog" persistent>
       <q-card>
         <q-card-section>
           <div class="text-h6">¿Empezar prueba {{ selectedSurvey.title }}?</div>
@@ -102,7 +101,7 @@
       </q-card>
     </q-dialog> -->
 
-    <!-- <q-dialog v-model="terminar" persistent>
+  <!-- <q-dialog v-model="terminar" persistent>
       <q-card>
         <q-card-section>
           <div class="text-h6">Enviar prueba {{ selectedSurvey.title }}</div>
@@ -118,7 +117,6 @@
         </q-card-actions>
       </q-card>
     </q-dialog> -->
-  </div>
 </template>
 
 <script setup>

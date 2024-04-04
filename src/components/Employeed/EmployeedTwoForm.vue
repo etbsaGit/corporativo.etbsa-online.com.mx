@@ -224,43 +224,19 @@ const estatus = ["Activo", "Baja", "Pencionado", "Suspendido"];
 const myForm = ref(null);
 
 const formEmployeetwo = ref({
-  sueldo_base: empleado.sueldo_base,
-  comision: empleado.comision,
-  matriz: empleado.matriz,
-  fecha_de_ingreso: empleado.fecha_de_ingreso,
-  status: empleado.status,
-  puesto_id: empleado.puesto.id,
-  descripcion_puesto: empleado.descripcion_puesto,
-  sucursal_id: empleado.sucursal.id,
-  linea_id: empleado.linea.id,
-  departamento_id: empleado.departamento.id,
-  jefe_directo_id: empleado.jefe_directo_id ? empleado.jefe_directo.id : null,
+  sueldo_base: empleado ? empleado.sueldo_base : null,
+  comision: empleado ? empleado.comision : 0,
+  matriz: empleado ? empleado.matriz : false,
+  fecha_de_ingreso: empleado ? empleado.fecha_de_ingreso : null,
+  status: empleado ? empleado.status : estatus[0],
+  puesto_id: empleado ? empleado.puesto.id : null,
+  descripcion_puesto: empleado ? empleado.descripcion_puesto : null,
+  sucursal_id: empleado ? empleado.sucursal.id : null,
+  linea_id: empleado ? empleado.linea.id : null,
+  departamento_id: empleado ? empleado.departamento.id : null,
+  jefe_directo_id:
+    empleado && empleado.jefe_directo_id ? empleado.jefe_directo.id : null,
 });
-
-const getLineas = async () => {
-  let res = await sendRequest("GET", null, "/api/linea/all", "");
-  lineas.value = res;
-};
-
-const getSucursales = async () => {
-  let res = await sendRequest("GET", null, "/api/sucursal/all", "");
-  sucursales.value = res;
-};
-
-const getDepartamentos = async () => {
-  let res = await sendRequest("GET", null, "/api/departamento/all", "");
-  departamentos.value = res;
-};
-
-const getPuestos = async () => {
-  let res = await sendRequest("GET", null, "/api/puesto/all", "");
-  puestos.value = res;
-};
-
-const getJefes = async () => {
-  let res = await sendRequest("GET", null, "/api/empleado/all", "");
-  jefesDirectos.value = res;
-};
 
 const getAll = async () => {
   let res = await sendRequest("GET", null, "/api/empleado/negocios", "");
@@ -276,11 +252,6 @@ const validate = async () => {
 };
 
 onMounted(() => {
-  // getLineas();
-  // getSucursales();
-  // getDepartamentos();
-  // getPuestos();
-  // getJefes();
   getAll();
 });
 

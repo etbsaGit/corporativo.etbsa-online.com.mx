@@ -1,5 +1,74 @@
 <template>
-  <div class="q-px-lg q-py-md">
+  <div class="q-pa-md">
+    <q-btn
+      icon="add"
+      size="sm"
+      dense
+      v-if="editable == true && inputsEnabled == false"
+      label="agregar"
+      color="blue"
+      @click="enableInputs"
+    />
+    <div v-if="inputsEnabled == true">
+      <q-item>
+        <q-item-section>
+          <q-input filled dense v-model="formCareer.title" label="Titulo" />
+        </q-item-section>
+      </q-item>
+      <q-item>
+        <q-item-section>
+          <q-input
+            filled
+            dense
+            v-model="formCareer.date"
+            mask="date"
+            label="Fecha de entrada"
+          >
+            <template v-slot:append>
+              <q-icon name="event" class="cursor-pointer">
+                <q-popup-proxy
+                  cover
+                  transition-show="scale"
+                  transition-hide="scale"
+                >
+                  <q-date v-model="formCareer.date">
+                    <div class="row items-center justify-end">
+                      <q-btn v-close-popup label="Close" color="primary" flat />
+                    </div>
+                  </q-date>
+                </q-popup-proxy>
+              </q-icon>
+            </template>
+          </q-input>
+        </q-item-section>
+      </q-item>
+      <q-item>
+        <q-item-section>
+          <q-input
+            filled
+            dense
+            v-model="formCareer.description"
+            label="Descripcion"
+          />
+        </q-item-section>
+      </q-item>
+      <q-item>
+        <q-btn
+          size="sm"
+          dense
+          label="Cancelar"
+          color="red"
+          @click="inputsEnabled = false"
+        />
+        <q-btn
+          dense
+          size="sm"
+          label="Agregar"
+          color="green"
+          @click="saveCareer"
+        />
+      </q-item>
+    </div>
     <q-timeline color="secondary" v-if="careers">
       <q-timeline-entry
         v-for="(career, index) in careers"
@@ -97,15 +166,15 @@
 </template>
 
 <script setup>
-import { ref, inject, onMounted } from "vue";
+import { ref, onMounted } from "vue";
 import { sendRequest } from "src/boot/functions";
 
 const { empleado, editable } = defineProps(["empleado", "editable"]);
-const bus = inject("bus");
 
 const selectedRowIndex = ref(null);
 const preEdit = ref(null);
 const careers = ref([]);
+const inputsEnabled = ref(false);
 
 // Objeto para almacenar los cambios en los campos de edición
 const formCareer = ref({
@@ -113,6 +182,7 @@ const formCareer = ref({
   date: null,
   description: null,
   id: null,
+  empleado_id: empleado.id,
 });
 
 const onRowClick = (index) => {
@@ -121,16 +191,29 @@ const onRowClick = (index) => {
   }
 };
 
-bus.on("career", () => {
-  getCareers();
+const enableInputs = () => {
+  inputsEnabled.value = true;
   preEdit.value = null;
-});
+  selectedRowIndex.value = null;
+  formCareer.value.title = null;
+  formCareer.value.date = null;
+  formCareer.value.description = null;
+};
 
-const onRowClickDelete = async (row) => {
+const saveCareer = async () => {
+  let res = await sendRequest("POST", formCareer.value, "/api/career", "");
+  inputsEnabled.value = false;
+  formCareer.value.title = null;
+  formCareer.value.date = null;
+  formCareer.value.description = null;
+  getCareers();
+};
+
+async function onRowClickDelete(row) {
   let res = await sendRequest("DELETE", null, "/api/career/" + row, "");
   selectedRowIndex.value = null;
   getCareers();
-};
+}
 
 const getCareers = async () => {
   let res = await sendRequest(
@@ -144,6 +227,7 @@ const getCareers = async () => {
 
 const onRowClickEdit = async (index) => {
   preEdit.value = index;
+  inputsEnabled.value = false;
   // Establecemos los valores iniciales del formulario de edición
   formCareer.value.title = careers.value[index].title;
   formCareer.value.date = careers.value[index].date;
@@ -158,14 +242,20 @@ const saveChanges = async (id) => {
     "/api/career/" + formCareer.value.id,
     ""
   );
-  getCareers();
   selectedRowIndex.value = null;
   preEdit.value = null; // Desactivamos la edición
+  formCareer.value.title = null;
+  formCareer.value.date = null;
+  formCareer.value.description = null;
+  getCareers();
 };
 
 const cancelEdit = () => {
   selectedRowIndex.value = null;
   preEdit.value = null;
+  formCareer.value.title = null;
+  formCareer.value.date = null;
+  formCareer.value.description = null;
 };
 
 onMounted(() => {

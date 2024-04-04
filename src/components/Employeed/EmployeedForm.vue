@@ -1,16 +1,15 @@
 <template>
   <q-form class="q-gutter-y-sm" ref="myForm" greedy>
-    <!-- <q-item>
+    <q-item v-if="empleado">
       <q-item-section>
         <q-file
           filled
           dense
           bottom-slots
-          v-model="formEmployee.fotografia"
+          v-model="fotografia"
           label="Fotografia"
-          max-file-size="2048"
           clearable
-          accept=".jpg"
+          accept=".jpg,.jpeg,.png,.jpg"
           max-files="1"
         >
           <template v-slot:before>
@@ -26,11 +25,11 @@
           <template v-slot:hint>(Opcional)</template>
 
           <template v-slot:after>
-            <q-btn round dense flat icon="send" />
+            <q-btn round dense flat icon="send" @click="uploadPicture" />
           </template>
         </q-file>
       </q-item-section>
-    </q-item> -->
+    </q-item>
     <q-item>
       <q-item-section>
         <q-input
@@ -38,7 +37,6 @@
           filled
           dense
           label="Primer Nombre"
-          lazy-rules
           :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
         />
       </q-item-section>
@@ -60,7 +58,6 @@
           filled
           dense
           label="Apellido paterno"
-          lazy-rules
           :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
         />
       </q-item-section>
@@ -70,7 +67,6 @@
           filled
           dense
           label="Apellido materno"
-          lazy-rules
           :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
         />
       </q-item-section>
@@ -84,7 +80,6 @@
           dense
           label="Telefono"
           mask="##########"
-          lazy-rules
           hint
         />
       </q-item-section>
@@ -115,7 +110,6 @@
           dense
           label="Correo institucional"
           hint="Opcional"
-          lazy-rules
           :rules="[
             (v) => !v || /.+@.+\..+/.test(v) || 'Formato de correo inválido',
           ]"
@@ -125,14 +119,7 @@
 
     <q-item>
       <q-item-section>
-        <q-input
-          filled
-          dense
-          v-model="formEmployee.calle"
-          lazy-rules
-          label="Calle"
-          hint
-        />
+        <q-input filled dense hint v-model="formEmployee.calle" label="Calle" />
       </q-item-section>
       <q-item-section>
         <q-input
@@ -140,7 +127,6 @@
           dense
           v-model="formEmployee.numero_exterior"
           label="# Exterior"
-          lazy-rules
           hint
         />
       </q-item-section>
@@ -159,10 +145,9 @@
         <q-input
           filled
           dense
-          v-model="formEmployee.colonia"
-          lazy-rules
-          label="Colonia"
           hint
+          v-model="formEmployee.colonia"
+          label="Colonia"
         />
       </q-item-section>
       <q-item-section>
@@ -172,7 +157,6 @@
           v-model="formEmployee.codigo_postal"
           label="Codigo postal"
           mask="#####"
-          lazy-rules
           hint
         />
       </q-item-section>
@@ -182,9 +166,8 @@
         <q-input
           filled
           dense
-          v-model="formEmployee.ciudad"
-          lazy-rules
           hint
+          v-model="formEmployee.ciudad"
           label="Ciudad"
         />
       </q-item-section>
@@ -192,10 +175,9 @@
         <q-input
           filled
           dense
-          v-model="formEmployee.estado"
-          lazy-rules
-          label="Estado"
           hint
+          v-model="formEmployee.estado"
+          label="Estado"
         />
       </q-item-section>
     </q-item>
@@ -208,7 +190,6 @@
           v-model="formEmployee.fecha_de_nacimiento"
           mask="date"
           label="Fecha de Nacimiento"
-          lazy-rules
           hint
         >
           <template v-slot:append>
@@ -220,7 +201,7 @@
               >
                 <q-date v-model="formEmployee.fecha_de_nacimiento">
                   <div class="row items-center justify-end">
-                    <q-btn v-close-popup label="Close" color="gray" flat />
+                    <q-btn v-close-popup label="Close" color="primary" flat />
                   </div>
                 </q-date>
               </q-popup-proxy>
@@ -232,44 +213,20 @@
 
     <q-item>
       <q-item-section>
-        <q-input
-          v-model="formEmployee.curp"
-          filled
-          dense
-          label="CURP"
-          lazy-rules
-          hint
-        />
+        <q-input v-model="formEmployee.curp" hint filled dense label="CURP" />
       </q-item-section>
       <q-item-section>
-        <q-input
-          v-model="formEmployee.rfc"
-          filled
-          dense
-          label="RFC"
-          lazy-rules
-          hint
-          :rules="[
+        <q-input v-model="formEmployee.rfc" filled dense label="RFC" hint />
+        <!-- :rules="[
             (val) => !!val || 'Este campo es obligatorio',
-            (val) =>
-              (val && val.length === 13) ||
-              'El RFC debe tener exactamente 13 dígitos',
-          ]"
-        />
+            (val) => (val && val.length === 13) || 'El RFC debe tener exactamente 13 dígitos'
+          ]" -->
       </q-item-section>
     </q-item>
 
     <q-item>
       <q-item-section>
-        <q-input
-          v-model="formEmployee.ine"
-          filled
-          dense
-          label="INE"
-          lazy-rules
-          mask="##########"
-          hint
-        />
+        <q-input v-model="formEmployee.ine" filled dense label="INE" hint />
         <!-- :rules="[
             (val) => !!val || 'Este campo es obligatorio',
             (val) => (val && val.length === 10) || 'El INE debe tener exactamente 10 dígitos'
@@ -283,6 +240,12 @@
           label="Licencia de manejo"
           hint="(opcional)"
         />
+        <!-- :rules="[
+            (val) =>
+              !val ||
+              (val && val.length === 16) ||
+              'La licencia debe tener exactamente 16 caracteres',
+          ]" -->
       </q-item-section>
     </q-item>
 
@@ -304,10 +267,6 @@
           label="Visa"
           hint="(opcional)"
           mask="################"
-          :rules="[
-            (val) =>
-              !val || (val && /^\d{16}$/.test(val)) || 'Debe tener 16 dígitos',
-          ]"
         />
       </q-item-section>
     </q-item>
@@ -327,8 +286,8 @@
           transition-hide="jump-up"
           clearable
           filled
-          dense
           hint
+          dense
         />
       </q-item-section>
     </q-item>
@@ -361,7 +320,6 @@
           dense
           label="Numero de seguridad social"
           mask="###########"
-          lazy-rules
           hint
         />
       </q-item-section>
@@ -434,7 +392,6 @@
           dense
           label="Numero de cuenta bancarias"
           mask="##################"
-          lazy-rules
           hint
         />
       </q-item-section>
@@ -445,58 +402,75 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { sendRequest } from "src/boot/functions";
+import { api } from "src/boot/axios";
+import { inject } from "vue";
+
+const bus = inject("bus"); // inside setup()
+const { empleado } = defineProps(["empleado"]);
 
 const estadosCiviles = ref(null);
 const tiposDeSangre = ref([]);
 const escolaridades = ref([]);
 const myForm = ref(null);
 
+const fotografia = ref(null);
+
 const formEmployee = ref({
-  nombre: null,
-  segundo_nombre: null,
-  apellido_paterno: null,
-  apellido_materno: null,
-  telefono: null,
-  telefono_institucional: null,
-  fecha_de_nacimiento: null,
-  curp: null,
-  rfc: null,
-  ine: null,
-  passaporte: null,
-  visa: null,
-  licencia_de_manejo: null,
-  nss: null,
-  hijos: null,
-  dependientes_economicos: null,
-  escolaridad_id: null,
-  cedula_profecional: null,
-  carrera: null,
-  numero_exterior: null,
-  numero_interior: null,
-  calle: null,
-  colonia: null,
-  codigo_postal: null,
-  ciudad: null,
-  estado: null,
-  cuenta_bancaria: null,
-  estado_civil_id: null,
-  tipo_de_sangre_id: null,
-  correo_institucional: null,
+  id: empleado ? empleado.id : null,
+  nombre: empleado ? empleado.nombre : null,
+  segundo_nombre: empleado ? empleado.segundo_nombre : null,
+  apellido_paterno: empleado ? empleado.apellido_paterno : null,
+  apellido_materno: empleado ? empleado.apellido_materno : null,
+  telefono: empleado ? empleado.telefono : null,
+  telefono_institucional: empleado ? empleado.telefono_institucional : null,
+  fecha_de_nacimiento: empleado ? empleado.fecha_de_nacimiento : null,
+  curp: empleado ? empleado.curp : null,
+  rfc: empleado ? empleado.rfc : null,
+  ine: empleado ? empleado.ine : null,
+  passaporte: empleado ? empleado.passaporte : null,
+  visa: empleado ? empleado.visa : null,
+  licencia_de_manejo: empleado ? empleado.licencia_de_manejo : null,
+  nss: empleado ? empleado.nss : null,
+  hijos: empleado ? empleado.hijos : null,
+  dependientes_economicos: empleado ? empleado.dependientes_economicos : null,
+  escolaridad_id:
+    empleado && empleado.escolaridad_id ? empleado.escolaridad.id : null,
+  cedula_profecional: empleado ? empleado.cedula_profecional : null,
+  carrera: empleado ? empleado.carrera : null,
+  numero_exterior: empleado ? empleado.numero_exterior : null,
+  numero_interior: empleado ? empleado.numero_interior : null,
+  calle: empleado ? empleado.calle : null,
+  colonia: empleado ? empleado.colonia : null,
+  codigo_postal: empleado ? empleado.codigo_postal : null,
+  ciudad: empleado ? empleado.ciudad : null,
+  estado: empleado ? empleado.estado : null,
+  cuenta_bancaria: empleado ? empleado.cuenta_bancaria : null,
+  estado_civil_id:
+    empleado && empleado.estado_civil_id ? empleado.estado_civil.id : null,
+  tipo_de_sangre_id:
+    empleado && empleado.tipo_de_sangre_id ? empleado.tipo_de_sangre.id : null,
+  correo_institucional: empleado ? empleado.correo_institucional : null,
 });
 
-const getEstadosCiviles = async () => {
-  let res = await sendRequest("GET", null, "/api/estadoCivil/all", "");
-  estadosCiviles.value = res;
-};
-
-const getTiposDeSangre = async () => {
-  let res = await sendRequest("GET", null, "/api/tipoDeSangre/all", "");
-  tiposDeSangre.value = res;
-};
-
-const getEscolaridades = async () => {
-  let res = await sendRequest("GET", null, "/api/escolaridad/all", "");
-  escolaridades.value = res;
+const uploadPicture = async () => {
+  const formData = new FormData();
+  formData.append("pic", fotografia.value);
+  try {
+    let res = await api.post(
+      `/empleado/uploadPicture/${empleado.id}`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        withCredentials: true,
+      }
+    );
+    bus.emit("cargar_empleados");
+    formEmployee.value.fotografia = null;
+  } catch (error) {
+    console.error("Error al enviar la solicitud:", error);
+  }
 };
 
 const getAll = async () => {
@@ -511,9 +485,6 @@ const validate = async () => {
 };
 
 onMounted(() => {
-  // getEstadosCiviles();
-  // getTiposDeSangre();
-  // getEscolaridades();
   getAll();
 });
 

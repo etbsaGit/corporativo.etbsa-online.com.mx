@@ -1,75 +1,71 @@
 <template>
-  <div class="q-pa-md">
-    <q-splitter v-model="splitterModel" style="height: 700px">
-      <template v-slot:before>
-        <q-table
-          flat
-          bordered
-          grid
-          :rows="requisitos"
-          :columns="columns"
-          row-key="name"
-          :filter="filter"
-          :rows-per-page-options="[0]"
-        >
-          <template v-slot:top-right>
-            <q-input
-              bordered
-              dense
-              debounce="300"
-              v-model="filter"
-              placeholder="Search"
-            >
-              <template v-slot:append>
-                <q-icon name="search" />
-              </template>
-            </q-input>
-          </template>
-          <template v-slot:top-left>
-            <div class="text-h6">Documentos</div>
-          </template>
+  <q-splitter v-model="splitterModel">
+    <template v-slot:before>
+      <q-table
+        flat
+        bordered
+        grid
+        :rows="requisitos"
+        :columns="columns"
+        row-key="name"
+        :filter="filter"
+        :rows-per-page-options="[0]"
+      >
+        <template v-slot:top-right>
+          <q-input
+            bordered
+            dense
+            debounce="300"
+            v-model="filter"
+            placeholder="Search"
+          >
+            <template v-slot:append>
+              <q-icon name="search" />
+            </template>
+          </q-input>
+        </template>
+        <template v-slot:top-left>
+          <div class="text-h6">Documentos</div>
+        </template>
 
-          <template v-slot:item="props">
-            <q-card
-              @click="onRowClick(props.row)"
-              :class="{ selected: props.row.isSelected }"
-              :style="{
-                backgroundColor: getStatusColor(props.row.pivot.estatus_id),
-                width: '200px',
-                height: '100px',
-                margin: '5px',
-              }"
-            >
-              <q-card-section>
-                <q-item v-for="col in props.cols" :key="col.name">
-                  <q-item-section side>
-                    <q-item-label caption>{{
-                      props.row[col.name]
-                    }}</q-item-label>
-                  </q-item-section>
-                </q-item>
-              </q-card-section>
-            </q-card>
-          </template>
-        </q-table>
-      </template>
+        <template v-slot:item="props">
+          <q-card
+            @click="onRowClick(props.row)"
+            :class="{ selected: props.row.isSelected }"
+            :style="{
+              backgroundColor: getStatusColor(props.row.pivot.estatus_id),
+              width: '150px',
+              height: '75px',
+              margin: '5px',
+            }"
+          >
+            <q-card-section>
+              <q-item-label caption v-for="col in props.cols" :key="col.name">
+                {{ props.row[col.name] }}
+              </q-item-label>
+            </q-card-section>
+          </q-card>
+        </template>
+      </q-table>
+    </template>
 
-      <template v-slot:after>
-        <q-card>
-          <q-card-section class="d-flex justify-between items-center">
-            <div class="text-h6">Archivos</div>
-          </q-card-section>
-          <archivos
-            v-if="selectedRequisito"
-            ref="edit_4"
-            :key="selectedRequisito.id"
-            :requisito="selectedRequisito"
-          />
-          <div v-else>Selecciona un requisito para ver los detalles.</div>
-        </q-card>
-      </template>
-    </q-splitter>
-  </div>
+    <template v-slot:after>
+      <q-card>
+        <q-card-section class="d-flex justify-between items-center">
+          <div class="text-h6">Archivos</div>
+        </q-card-section>
+        <archivos
+          v-if="selectedRequisito"
+          ref="edit_4"
+          :key="selectedRequisito.id"
+          :requisito="selectedRequisito"
+        />
+        <q-item v-else class="text-center">
+          <h5>Selecciona un requisito para ver los detalles.</h5>
+        </q-item>
+      </q-card>
+    </template>
+  </q-splitter>
 </template>
 
 <script setup>
