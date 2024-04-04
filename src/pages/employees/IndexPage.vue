@@ -1,25 +1,23 @@
 <template>
   <div class="q-pa-md">
-    <q-btn
-      label="Registrar Empleado"
-      color="primary"
-      @click="showAdd = true"
-      icon="person_add"
-    />
-
-    <div><br /></div>
-
-    <q-btn
-      color="primary"
-      icon-right="archive"
-      label="Export to csv"
-      no-caps
-      @click="exportTable"
-    />
-
-    <div><br /></div>
-
-    <q-item dense>
+    <q-item v-if="checkRole('RRHH')">
+      <q-btn
+        label="Registrar Empleado"
+        color="primary"
+        @click="showAdd = true"
+        icon="person_add"
+      />
+    </q-item>
+    <q-item>
+      <q-btn
+        color="primary"
+        icon-right="archive"
+        label="Export to csv"
+        no-caps
+        @click="exportTable"
+      />
+    </q-item>
+    <q-item v-if="checkRole('RRHH')">
       <q-item-section>
         <q-select
           v-model="formFilter.sucursal_id"
@@ -99,7 +97,7 @@
         />
       </q-item-section>
     </q-item>
-    <q-item dense>
+    <q-item>
       <q-item-section>
         <q-input
           outlined
@@ -115,8 +113,6 @@
         </q-input>
       </q-item-section>
     </q-item>
-
-    <br />
     <q-table
       flat
       bordered
@@ -137,12 +133,9 @@
           @click="exportTable"
         />
       </template>
-
       <template v-slot:top="props">
         <div class="col-2 q-table__title">Empleados</div>
-
         <q-space />
-
         <q-select
           v-model="visibleColumns"
           multiple
@@ -156,7 +149,6 @@
           style="min-width: 150px"
           option-value="name"
         />
-
         <q-btn
           round
           dense
@@ -165,7 +157,6 @@
           class="q-ml-md"
         />
       </template>
-
       <template v-slot:body-cell-nombre="props">
         <q-td @click="onRowClickCV(props.row)">
           <q-tooltip> Ver detalle {{ props.row.nombre }} </q-tooltip>
@@ -189,12 +180,11 @@
           </q-item>
         </q-td>
       </template>
-
       <template v-slot:body-cell-actions="props">
         <q-td>
           <q-btn-dropdown flat color="primary" icon="menu">
             <q-list v-close-popup>
-              <q-item>
+              <q-item v-if="checkRole('RRHH')">
                 <q-btn
                   color="primary"
                   @click="onRowClick(props.row)"
@@ -204,7 +194,7 @@
                   icon="edit"
                 />
               </q-item>
-              <q-item>
+              <q-item v-if="checkRole('RRHH')">
                 <q-btn
                   color="primary"
                   @click="onRowClickFile(props.row)"
@@ -238,7 +228,6 @@
           </q-btn-dropdown>
         </q-td>
       </template>
-
       <template v-slot:body-cell-puesto="props">
         <q-td :props="props">
           {{ props.row.puesto.nombre }}
@@ -282,7 +271,6 @@
         </q-td>
       </template>
     </q-table>
-    <!-- ------------------------------------------------------------------- -->
     <q-dialog
       v-model="showAdd"
       transition-show="rotate"
@@ -329,7 +317,6 @@
         </div>
       </q-card>
     </q-dialog>
-    <!-- ------------------------------------------------------------------- -->
     <q-dialog
       v-model="showDetails"
       transition-show="rotate"
@@ -351,7 +338,6 @@
           </q-card-actions>
         </q-card-section>
         <q-separator />
-
         <q-tabs
           v-model="tab"
           dense
@@ -364,7 +350,6 @@
           <q-tab name="tab_form_one" label="Datos Personales" />
           <q-tab name="tab_form_two" label="Unidad Negocio" />
         </q-tabs>
-
         <q-separator />
         <div class="survey-form-container">
           <q-tab-panels v-model="tab" animated keep-alive>
@@ -378,7 +363,6 @@
         </div>
       </q-card>
     </q-dialog>
-    <!-- ---------------------------------------------------------------------------- -->
     <q-dialog
       v-model="showFiles"
       transition-show="rotate"
@@ -428,7 +412,6 @@
         </div>
       </q-card>
     </q-dialog>
-    <!-- ------------------------------------------------------------------- -->
     <q-dialog
       v-model="showCareerDialog"
       transition-show="rotate"
@@ -452,7 +435,6 @@
         </div>
       </q-card>
     </q-dialog>
-
     <q-dialog
       v-model="showCV"
       transition-show="rotate"
@@ -481,14 +463,15 @@
 
 <script setup>
 import { ref, onMounted, computed, inject } from "vue";
+import { sendRequest, checkRole } from "src/boot/functions";
+import { useQuasar, exportFile } from "quasar";
+import { useAuthStore } from "src/stores/auth";
 import EmployeedForm from "src/components/Employeed/EmployeedForm.vue";
 import EmployeedTwoForm from "src/components/Employeed/EmployeedTwoForm.vue";
 import EmployeedThreeForm from "src/components/Employeed/EmployeedThreeForm.vue";
 import SkillRatingForm from "src/components/Skill/SkillRatingForm.vue";
 import EmployeeTimeLine from "src/components/Employeed/EmployeeTimeLine.vue";
 import CvEmployee from "src/components/Employeed/CvEmployee.vue";
-import { sendRequest } from "src/boot/functions";
-import { useQuasar, exportFile } from "quasar";
 
 const bus = inject("bus"); // inside setup()
 
@@ -502,17 +485,21 @@ const skill_valid = ref();
 const edit1_valid = ref();
 const edit2_valid = ref();
 const $q = useQuasar();
-
+const auth = useAuthStore();
 const showDetails = ref(false);
 const showFiles = ref(false);
 const showSkill = ref(false);
 const showCareerDialog = ref(false);
 const showCV = ref(false);
+const showAdd = ref(false);
 const selectedEmployee = ref(null);
+const employees = ref([]);
 const sucursales = ref([]);
 const lineas = ref([]);
 const departamentos = ref([]);
 const puestos = ref([]);
+const tab = ref("tab_form_one");
+const searchTerm = ref("");
 
 const formFilter = ref({
   sucursal_id: null,
@@ -520,11 +507,6 @@ const formFilter = ref({
   departamento_id: null,
   puesto_id: null,
 });
-
-const openCareerDialog = (row) => {
-  selectedEmployee.value = row;
-  showCareerDialog.value = true;
-};
 
 const visibleColumns = ref([
   "id",
@@ -537,108 +519,6 @@ const visibleColumns = ref([
   "puesto",
   "actions",
 ]);
-
-const tab = ref("tab_form_one");
-const searchTerm = ref("");
-const showAdd = ref(false);
-const employees = ref([]);
-
-const onRowClick = (row) => {
-  selectedEmployee.value = row;
-  showDetails.value = true;
-};
-
-const onRowClickCV = (row) => {
-  selectedEmployee.value = row;
-  showCV.value = true;
-};
-
-const onRowClickSkill = (row) => {
-  selectedEmployee.value = row;
-  showSkill.value = true;
-};
-
-const onRowClickFile = (row) => {
-  selectedEmployee.value = row;
-  showFiles.value = true;
-};
-
-const filter = async () => {
-  const final = { ...formFilter.value };
-  let res = await sendRequest("POST", final, "/api/empleado/filter", "");
-  employees.value = res;
-};
-
-const crearEmpleado = async () => {
-  const form1_valid = await form_1.value.validate();
-  const form2_valid = await form_2.value.validate();
-  if (!form1_valid || !form2_valid) {
-    $q.notify({
-      color: "red-5",
-      textColor: "white",
-      icon: "warning",
-      message: "Por favor completa todos los campos obligatorios",
-    });
-    return;
-  }
-  const final = {
-    ...form_1.value.formEmployee,
-    ...form_2.value.formEmployeetwo,
-  };
-  let res = await sendRequest("POST", final, "/api/empleado", "");
-  showAdd.value = false;
-  filter();
-};
-
-const actualizarEmpleado = async () => {
-  edit1_valid.value = await edit_1.value.validate();
-  edit2_valid.value = await edit_2.value.validate();
-  if (!edit1_valid.value || !edit2_valid.value) {
-    $q.notify({
-      color: "red-5",
-      textColor: "white",
-      icon: "warning",
-      message: "Por favor completa todos los campos obligatorios",
-    });
-    return;
-  }
-  const final = {
-    ...edit_1.value.formEmployee,
-    ...edit_2.value.formEmployeetwo,
-  };
-  let res = await sendRequest("PUT", final, "/api/empleado/" + final.id, "");
-  showDetails.value = false;
-  filter();
-};
-
-const saveSkillRatings = async () => {
-  skill_valid.value = await skill.value.validate();
-  if (!skill_valid.value) {
-    $q.notify({
-      color: "red-5",
-      textColor: "white",
-      icon: "warning",
-      message: "Por favor completa todos los campos obligatorios",
-    });
-    return;
-  }
-  let res = await sendRequest(
-    "PUT",
-    skill.value.skillratings,
-    "/api/skillratings",
-    ""
-  );
-  bus.emit("new-skill");
-};
-
-const getAll = async () => {
-  let res = await sendRequest("GET", null, "/api/empleado/negocios", "");
-  employees.value = res.empleados;
-  sucursales.value = res.sucursales;
-  lineas.value = res.lineas;
-  departamentos.value = res.departamentos;
-  puestos.value = res.puestos;
-};
 
 const columns = [
   { name: "id", label: "ID", align: "left", field: "id", sortable: true },
@@ -914,6 +794,124 @@ const columns = [
     sortable: true,
   },
 ];
+
+const openCareerDialog = (row) => {
+  selectedEmployee.value = row;
+  showCareerDialog.value = true;
+};
+
+const onRowClick = (row) => {
+  selectedEmployee.value = row;
+  showDetails.value = true;
+};
+
+const onRowClickCV = (row) => {
+  selectedEmployee.value = row;
+  showCV.value = true;
+};
+
+const onRowClickSkill = (row) => {
+  selectedEmployee.value = row;
+  showSkill.value = true;
+};
+
+const onRowClickFile = (row) => {
+  selectedEmployee.value = row;
+  showFiles.value = true;
+};
+
+const filter = async () => {
+  const final = { ...formFilter.value };
+  let res = await sendRequest("POST", final, "/api/empleado/filter", "");
+  employees.value = res;
+};
+
+const crearEmpleado = async () => {
+  const form1_valid = await form_1.value.validate();
+  const form2_valid = await form_2.value.validate();
+  if (!form1_valid || !form2_valid) {
+    $q.notify({
+      color: "red-5",
+      textColor: "white",
+      icon: "warning",
+      message: "Por favor completa todos los campos obligatorios",
+    });
+    return;
+  }
+  const final = {
+    ...form_1.value.formEmployee,
+    ...form_2.value.formEmployeetwo,
+  };
+  let res = await sendRequest("POST", final, "/api/empleado", "");
+  showAdd.value = false;
+  filter();
+};
+
+const actualizarEmpleado = async () => {
+  edit1_valid.value = await edit_1.value.validate();
+  edit2_valid.value = await edit_2.value.validate();
+  if (!edit1_valid.value || !edit2_valid.value) {
+    $q.notify({
+      color: "red-5",
+      textColor: "white",
+      icon: "warning",
+      message: "Por favor completa todos los campos obligatorios",
+    });
+    return;
+  }
+  const final = {
+    ...edit_1.value.formEmployee,
+    ...edit_2.value.formEmployeetwo,
+  };
+  let res = await sendRequest("PUT", final, "/api/empleado/" + final.id, "");
+  showDetails.value = false;
+  filter();
+};
+
+const saveSkillRatings = async () => {
+  skill_valid.value = await skill.value.validate();
+  if (!skill_valid.value) {
+    $q.notify({
+      color: "red-5",
+      textColor: "white",
+      icon: "warning",
+      message: "Por favor completa todos los campos obligatorios",
+    });
+    return;
+  }
+  let res = await sendRequest(
+    "PUT",
+    skill.value.skillratings,
+    "/api/skillratings",
+    ""
+  );
+  bus.emit("new-skill");
+};
+
+const getAll = async () => {
+  if (checkRole("RRHH")) {
+    let res = await sendRequest("GET", null, "/api/empleado/negocios", "");
+    employees.value = res.empleados;
+    sucursales.value = res.sucursales;
+    lineas.value = res.lineas;
+    departamentos.value = res.departamentos;
+    puestos.value = res.puestos;
+  }
+
+  if (checkRole("Jefe")) {
+    let res = await sendRequest(
+      "GET",
+      null,
+      "/api/jefe/" + auth.user.empleado.id,
+      ""
+    );
+    employees.value = res.empleados;
+    sucursales.value = res.sucursales;
+    lineas.value = res.lineas;
+    departamentos.value = res.departamentos;
+    puestos.value = res.puestos;
+  }
+};
 
 const filteredEmployees = computed(() => {
   return employees.value.filter((employee) => {

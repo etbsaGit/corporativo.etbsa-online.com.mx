@@ -43,7 +43,10 @@ export function rrhh({ to, next }) {
   }
 
   if (!checkRole("RRHH")) {
-    return next("/perfil");
+    if (!checkRole("Jefe")) {
+      return next("/perfil");
+    }
+    return next();
   }
 
   return next();

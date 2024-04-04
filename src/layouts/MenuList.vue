@@ -31,7 +31,7 @@
       <q-item-section>Usuarios</q-item-section>
     </q-item>
     <q-item
-      v-if="checkRole('RRHH')"
+      v-if="checkRole('RRHH') || checkRole('Jefe')"
       clickable
       v-ripple
       to="/employees"
