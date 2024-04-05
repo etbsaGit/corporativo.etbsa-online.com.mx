@@ -1,6 +1,6 @@
 <template>
   <div class="q-pa-md">
-    <q-splitter v-model="splitterModel" style="height: 585px">
+    <q-splitter v-model="splitterModel">
       <template v-slot:before>
         <q-table
           flat
@@ -45,24 +45,20 @@
               }"
             >
               <q-card-section>
-                <q-item v-for="col in props.cols" :key="col.name">
-                  <q-item-section side>
-                    <q-item-label caption>{{
-                      props.row[col.name]
-                    }}</q-item-label>
-                  </q-item-section>
-                </q-item>
-                <q-item-section side>
-                  <q-btn
-                    icon="delete"
-                    size="sm"
-                    color="red"
-                    filled
-                    dense
-                    @click="mostrarDialogConfirmacion(props.row.pivot.id)"
-                  />
-                </q-item-section>
+                <q-item-label caption v-for="col in props.cols" :key="col.name">
+                  {{ props.row[col.name] }}
+                </q-item-label>
               </q-card-section>
+              <q-card-actions align="right">
+                <q-btn
+                  icon="delete"
+                  size="sm"
+                  color="red"
+                  filled
+                  dense
+                  @click="mostrarDialogConfirmacion(props.row.pivot.id)"
+                />
+              </q-card-actions>
             </q-card>
           </template>
         </q-table>
@@ -82,14 +78,15 @@
               />
             </q-card-actions>
           </q-card-section>
-          <q-separator />
-          <edit-employeedfour-form
+          <employeed-four-form
             v-if="selectedRequisito"
             ref="edit_4"
             :key="selectedRequisito.id"
             :requisito="selectedRequisito"
           />
-          <div v-else>Selecciona un requisito para ver los detalles.</div>
+          <q-item v-else class="text-center">
+            <h5>Selecciona un requisito para ver los detalles.</h5>
+          </q-item>
         </q-card>
       </template>
     </q-splitter>
@@ -137,7 +134,7 @@
 
 <script setup>
 import { onMounted, ref } from "vue";
-import EditEmployeedfourForm from "./EditEmployeedfourForm.vue";
+import EmployeedFourForm from "./EmployeedFourForm.vue";
 import AddDocumentoForm from "../Documento/AddDocumentoForm.vue";
 import { sendRequest } from "src/boot/functions";
 import { useQuasar } from "quasar";

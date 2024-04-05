@@ -15,6 +15,7 @@
         <q-tab name="sucursales" icon="apartment" label="Sucursales" />
         <q-tab name="lineas" icon="engineering" label="Lineas" />
         <q-tab name="requisitos" icon="folder" label="Requisitos" />
+        <q-tab name="skills" icon="grade" label="Skills" />
       </q-tabs>
 
       <q-separator />
@@ -35,6 +36,9 @@
         <q-tab-panel name="requisitos">
           <requisitos-index></requisitos-index>
         </q-tab-panel>
+        <q-tab-panel name="skills">
+          <skills-index></skills-index>
+        </q-tab-panel>
       </q-tab-panels>
     </q-card>
   </div>
@@ -46,6 +50,7 @@ import puestosIndex from "../puestos/puestosIndex.vue";
 import sucursalIndex from "../sucursales/sucursalIndex.vue";
 import lineasIndex from "../lineas/lineasIndex.vue";
 import requisitosIndex from "../requisitos/requisitosIndex.vue";
+import skillsIndex from "../skills/skillsIndex.vue";
 
 const tab = ref("puestos");
 </script>

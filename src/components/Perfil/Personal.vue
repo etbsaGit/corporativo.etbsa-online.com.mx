@@ -1,5 +1,4 @@
 <template>
-  <div class="q-pa-md">
   <q-form ref="myForm" greedy>
     <q-item>
       <q-item-section>
@@ -9,8 +8,8 @@
           filled
           dense
           label="Primer Nombre"
-          />
-          <!-- input-style="color: black; font-weight: bold;" -->
+        />
+        <!-- input-style="color: black; font-weight: bold;" -->
       </q-item-section>
       <q-item-section>
         <q-input
@@ -73,11 +72,15 @@
       </q-item-section>
     </q-item>
 
-
     <q-item>
       <q-item-section>
         <q-input
-          disable filled dense v-model="formEmployee.calle" label="Calle" />
+          disable
+          filled
+          dense
+          v-model="formEmployee.calle"
+          label="Calle"
+        />
       </q-item-section>
       <q-item-section>
         <q-input
@@ -176,31 +179,16 @@
           filled
           dense
           label="CURP"
-          />
+        />
       </q-item-section>
       <q-item-section>
-
-        <q-input
-          disable 
-          v-model="formEmployee.rfc" 
-          filled
-          dense
-          label="RFC"/>
-
+        <q-input disable v-model="formEmployee.rfc" filled dense label="RFC" />
       </q-item-section>
     </q-item>
 
     <q-item>
       <q-item-section>
-
-        <q-input
-          disable
-          v-model="formEmployee.ine"
-          filled
-          dense
-          label="INE"
-          />
-
+        <q-input disable v-model="formEmployee.ine" filled dense label="INE" />
       </q-item-section>
       <q-item-section>
         <q-input
@@ -361,7 +349,6 @@
       </q-item-section>
     </q-item>
   </q-form>
-  </div>
 </template>
 
 <script setup>
@@ -404,11 +391,12 @@ const formEmployee = ref({
   ciudad: empleado.ciudad,
   estado: empleado.estado,
   cuenta_bancaria: empleado.cuenta_bancaria,
-  estado_civil_id: empleado.estado_civil_id ? empleado.estado_civil.nombre : null,
+  estado_civil_id: empleado.estado_civil_id
+    ? empleado.estado_civil.nombre
+    : null,
   tipo_de_sangre_id: empleado.tipo_de_sangre_id
     ? empleado.tipo_de_sangre.nombre
     : null,
-  correo_institucional: empleado.correo_institucional
+  correo_institucional: empleado.correo_institucional,
 });
-
 </script>

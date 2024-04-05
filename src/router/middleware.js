@@ -43,6 +43,24 @@ export function rrhh({ to, next }) {
   }
 
   if (!checkRole("RRHH")) {
+    if (!checkRole("Jefe")) {
+      return next("/perfil");
+    }
+    return next();
+  }
+
+  return next();
+}
+
+export function servicio({ to, next }) {
+  const auth = useAuthStore();
+
+  if (!auth.user) {
+    auth.returnUrl = to.fullPath;
+    return next("/login");
+  }
+
+  if (!checkRole("Servicio")) {
     return next("/perfil");
   }
 

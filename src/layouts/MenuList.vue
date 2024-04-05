@@ -31,7 +31,7 @@
       <q-item-section>Usuarios</q-item-section>
     </q-item>
     <q-item
-      v-if="checkRole('RRHH')"
+      v-if="checkRole('RRHH') || checkRole('Jefe')"
       clickable
       v-ripple
       to="/employees"
@@ -44,6 +44,21 @@
       </q-item-section>
 
       <q-item-section>Empleados</q-item-section>
+    </q-item>
+    <q-item
+      v-if="checkRole('Servicio')"
+      clickable
+      v-ripple
+      to="/technician"
+      :active="link === 'technician'"
+      @click="link = 'technician'"
+      active-class="my-menu-link"
+    >
+      <q-item-section avatar>
+        <q-icon name="engineering" />
+      </q-item-section>
+
+      <q-item-section>Tecnicos</q-item-section>
     </q-item>
     <q-item
       v-if="checkRole('RRHH')"

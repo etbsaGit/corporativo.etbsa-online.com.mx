@@ -9,6 +9,7 @@
           dense
           label="Nombre"
           lazy-rules
+          :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
         />
       </q-item-section>
       <q-item-section>
@@ -19,19 +20,20 @@
           dense
           label="Descripcion"
           lazy-rules
+          :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
         />
       </q-item-section>
     </q-item>
     <q-item>
       <q-item-section>
         <q-input
-          disable
           filled
           dense
           v-model="formRequisito.fecha_de_vencimiento"
           mask="date"
           label="Fecha de vencimiento"
           lazy-rules
+          hint
           clearable
         >
           <template v-slot:append>
@@ -66,7 +68,7 @@
           clearable
           filled
           dense
-          disable
+          hint
         />
       </q-item-section>
     </q-item>
@@ -78,7 +80,6 @@
           dense
           label="Comentarios"
           lazy-rules
-          disable
         />
       </q-item-section>
     </q-item>
@@ -116,6 +117,11 @@
           <q-td>
             <q-btn-group spread style="width: 100px" flat>
               <q-btn color="blue" icon="visibility" @click="show(props.row)" />
+              <q-btn
+                color="red"
+                icon="delete"
+                @click="mostrarDialogConfirmacion(props.row.id)"
+              />
             </q-btn-group>
           </q-td>
         </template>
@@ -136,6 +142,22 @@
         </template>
       </q-table>
     </q-item>
+    <q-dialog v-model="mostrarDialog" persistent>
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">Confirmar Borrado</div>
+        </q-card-section>
+
+        <q-card-section>
+          ¿Seguro que deseas borrar este archivo?
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn label="Cancelar" color="grey" @click="cerrarDialog" />
+          <q-btn label="Aceptar" color="red" @click="borrarArchivo" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-form>
 </template>
 
@@ -143,22 +165,53 @@
 import { ref, onMounted } from "vue";
 import { sendRequest } from "src/boot/functions";
 import { api } from "boot/axios";
+import { useQuasar } from "quasar";
 import { inject } from "vue";
 
 const bus = inject("bus"); // inside setup()
-const myForm = ref(null);
-const model = ref(null);
-const status = ref([]);
-const archivos = ref([]);
 const { requisito } = defineProps(["requisito"]);
 
-const formRequisito = ref({
-  requisito_id: requisito.pivot.requisito_id,
-  expediente_id: requisito.pivot.expediente_id,
-  fecha_de_vencimiento: requisito.pivot.fecha_de_vencimiento,
-  comentario: requisito.pivot.comentario,
-  estatus_id: requisito.pivot.estatus_id,
-});
+const myForm = ref(null);
+const status = ref([]);
+const model = ref(null);
+const archivoIdBorrar = ref(null);
+const mostrarDialog = ref(false);
+const archivos = ref([]);
+const $q = useQuasar();
+
+const cargarArchivos = async () => {
+  if (!requisito || !requisito.pivot) {
+    $q.notify({
+      color: "red-5",
+      textColor: "white",
+      icon: "warning",
+      message: "Seleccione un a validar",
+    });
+    return;
+  }
+  const id = requisito.pivot.id;
+  let res = await sendRequest("GET", null, "/api/documento/" + id, "");
+  archivos.value = res.asignable;
+};
+
+const mostrarDialogConfirmacion = (archivoId) => {
+  archivoIdBorrar.value = archivoId;
+  mostrarDialog.value = true;
+};
+
+const cerrarDialog = () => {
+  mostrarDialog.value = false;
+};
+
+const borrarArchivo = () => {
+  borrar(archivoIdBorrar.value);
+  mostrarDialog.value = false;
+};
+
+const getEstatus = async () => {
+  let res = await sendRequest("GET", null, "/api/estatus/all", "");
+  status.value = res;
+};
 
 const visibleColumns = ref(["nombre", "created_at", "opciones"]);
 
@@ -208,26 +261,6 @@ const columns = [
   },
 ];
 
-const cargarArchivos = async () => {
-  if (!requisito || !requisito.pivot) {
-    $q.notify({
-      color: "red-5",
-      textColor: "white",
-      icon: "warning",
-      message: "Seleccione un a validar",
-    });
-    return;
-  }
-  const id = requisito.pivot.id;
-  let res = await sendRequest("GET", null, "/api/documento/" + id, "");
-  archivos.value = res.asignable;
-};
-
-const getEstatus = async () => {
-  let res = await sendRequest("GET", null, "/api/estatus/all", "");
-  status.value = res;
-};
-
 const uploadFile = async () => {
   const formData = new FormData();
   formData.append("file", model.value);
@@ -255,8 +288,26 @@ const show = (archivoId) => {
   window.open(archivoId.path_absolute, "_blank");
 };
 
-onMounted(() => {
+const borrar = async (archivoId) => {
+  let res = await sendRequest("DELETE", null, "/api/archivo/" + archivoId, "");
   cargarArchivos();
+  bus.emit("archivo-subido");
+};
+
+const formRequisito = ref({
+  requisito_id: requisito.pivot.requisito_id,
+  expediente_id: requisito.pivot.expediente_id,
+  fecha_de_vencimiento: requisito.pivot.fecha_de_vencimiento,
+  comentario: requisito.pivot.comentario,
+  estatus_id: requisito.pivot.estatus_id,
+});
+
+onMounted(() => {
   getEstatus();
+  cargarArchivos();
+});
+
+defineExpose({
+  formRequisito,
 });
 </script>

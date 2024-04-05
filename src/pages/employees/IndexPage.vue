@@ -1,16 +1,130 @@
 <template>
   <div class="q-pa-md">
-    <q-card>
-      <div class="q-pa-md">
-        <q-btn
-          label="Registrar Empleado"
-          color="primary"
-          @click="showAdd = true"
-          icon="person_add"
+    <q-item v-if="checkRole('RRHH')">
+      <q-btn
+        label="Registrar Empleado"
+        color="primary"
+        @click="showAdd = true"
+        icon="person_add"
+      />
+    </q-item>
+    <q-item>
+      <q-btn
+        color="primary"
+        icon-right="archive"
+        label="Export to csv"
+        no-caps
+        @click="exportTable"
+      />
+    </q-item>
+    <q-item v-if="checkRole('RRHH')">
+      <q-item-section>
+        <q-select
+          v-model="formFilter.sucursal_id"
+          :options="sucursales"
+          label="Sucursal"
+          option-value="id"
+          option-label="nombre"
+          option-disable="inactive"
+          emit-value
+          map-options
+          transition-show="jump-up"
+          transition-hide="jump-up"
+          clearable
+          filled
+          dense
         />
-
-        <div><br /></div>
-
+      </q-item-section>
+      <q-item-section>
+        <q-select
+          v-model="formFilter.linea_id"
+          :options="lineas"
+          label="Linea"
+          option-value="id"
+          option-label="nombre"
+          option-disable="inactive"
+          emit-value
+          map-options
+          transition-show="jump-up"
+          transition-hide="jump-up"
+          clearable
+          filled
+          dense
+        />
+      </q-item-section>
+      <q-item-section>
+        <q-select
+          v-model="formFilter.departamento_id"
+          :options="departamentos"
+          label="Departamentos"
+          option-value="id"
+          option-label="nombre"
+          option-disable="inactive"
+          emit-value
+          map-options
+          transition-show="jump-up"
+          transition-hide="jump-up"
+          clearable
+          filled
+          dense
+        />
+      </q-item-section>
+      <q-item-section>
+        <q-select
+          v-model="formFilter.puesto_id"
+          :options="puestos"
+          label="Puesto"
+          option-value="id"
+          option-label="nombre"
+          option-disable="inactive"
+          emit-value
+          map-options
+          transition-show="jump-up"
+          transition-hide="jump-up"
+          clearable
+          filled
+          dense
+        />
+      </q-item-section>
+      <q-item-section>
+        <q-btn
+          color="primary"
+          icon="search"
+          label="Buscar"
+          dense
+          filled
+          @click="getAll"
+        />
+      </q-item-section>
+    </q-item>
+    <q-item>
+      <q-item-section>
+        <q-input
+          outlined
+          dense
+          class="boton"
+          color="green-9"
+          v-model="searchTerm"
+          label="Buscar empleado"
+        >
+          <template v-slot:prepend>
+            <q-icon name="person_search" />
+          </template>
+        </q-input>
+      </q-item-section>
+    </q-item>
+    <q-table
+      flat
+      bordered
+      title="Empleados"
+      :rows="filteredEmployees"
+      :columns="columns"
+      row-key="name"
+      :visible-columns="visibleColumns"
+      dense
+      :rows-per-page-options="[0]"
+    >
+      <template v-slot:top-right>
         <q-btn
           color="primary"
           icon-right="archive"
@@ -18,401 +132,383 @@
           no-caps
           @click="exportTable"
         />
-
-        <div><br /></div>
-
-        <q-item>
-          <q-item-section>
-            <q-select
-              v-model="formFilter.sucursal_id"
-              :options="sucursales"
-              label="Sucursal"
-              option-value="id"
-              option-label="nombre"
-              option-disable="inactive"
-              emit-value
-              map-options
-              transition-show="jump-up"
-              transition-hide="jump-up"
-              clearable
-              filled
-              dense
-            />
-          </q-item-section>
-          <q-item-section>
-            <q-select
-              v-model="formFilter.linea_id"
-              :options="lineas"
-              label="Linea"
-              option-value="id"
-              option-label="nombre"
-              option-disable="inactive"
-              emit-value
-              map-options
-              transition-show="jump-up"
-              transition-hide="jump-up"
-              clearable
-              filled
-              dense
-            />
-          </q-item-section>
-          <q-item-section>
-            <q-select
-              v-model="formFilter.departamento_id"
-              :options="departamentos"
-              label="Departamentos"
-              option-value="id"
-              option-label="nombre"
-              option-disable="inactive"
-              emit-value
-              map-options
-              transition-show="jump-up"
-              transition-hide="jump-up"
-              clearable
-              filled
-              dense
-            />
-          </q-item-section>
-          <q-item-section>
-            <q-select
-              v-model="formFilter.puesto_id"
-              :options="puestos"
-              label="Puesto"
-              option-value="id"
-              option-label="nombre"
-              option-disable="inactive"
-              emit-value
-              map-options
-              transition-show="jump-up"
-              transition-hide="jump-up"
-              clearable
-              filled
-              dense
-            />
-          </q-item-section>
-          <q-item-section>
-            <q-btn
-              color="primary"
-              icon="search"
-              label="Buscar"
-              dense
-              filled
-              @click="filter"
-            />
-          </q-item-section>
-        </q-item>
-        <q-item>
-          <q-item-section>
-            <q-input
-              outlined
-              dense
-              class="boton"
-              color="green-9"
-              v-model="searchTerm"
-              label="Buscar empleado"
-            >
-              <template v-slot:prepend>
-                <q-icon name="person_search" />
-              </template>
-            </q-input>
-          </q-item-section>
-        </q-item>
-
-        <br />
-        <q-table
-          flat
-          bordered
-          title="Empleados"
-          :rows="filteredEmployees"
-          :columns="columns"
-          row-key="name"
-          :visible-columns="visibleColumns"
+      </template>
+      <template v-slot:top="props">
+        <div class="col-2 q-table__title">Empleados</div>
+        <q-space />
+        <q-select
+          v-model="visibleColumns"
+          multiple
+          borderless
           dense
-          :rows-per-page-options="[0]"
-        >
-          <template v-slot:top-right>
-            <q-btn
-              color="primary"
-              icon-right="archive"
-              label="Export to csv"
-              no-caps
-              @click="exportTable"
-            />
-          </template>
-
-          <template v-slot:top="props">
-            <div class="col-2 q-table__title">Empleados</div>
-
-            <q-dialog
-              v-model="showAdd"
-              transition-show="rotate"
-              transition-hide="rotate"
-              persistent
-            >
-              <q-card style="width: 1800px">
-                <q-card-section class="d-flex justify-between items-center">
-                  <div class="text-h6">Registrar Empleado</div>
-                  <q-card-actions align="right">
-                    <q-btn label="Cerrar" color="red" v-close-popup />
-                    <q-btn
-                      :disable="!form_1 || !form_2"
-                      label="Registrar"
-                      color="blue"
-                      @click="crearEmpleado()"
-                    />
-                  </q-card-actions>
-                </q-card-section>
-                <q-separator />
-
-                <q-tabs
-                  v-model="tab"
-                  dense
-                  class="text-grey"
-                  active-color="primary"
-                  indicator-color="primary"
-                  align="justify"
-                  narrow-indicator
-                >
-                  <q-tab name="tab_form_one" label="Datos Personales" />
-                  <q-tab name="tab_form_two" label="Unidad Negocio" />
-                </q-tabs>
-
-                <q-separator />
-                <q-card style="height: 65vh" class="q-pa-none scroll" flat>
-                  <q-tab-panels v-model="tab" animated keep-alive>
-                    <q-tab-panel name="tab_form_one">
-                      <add-employeed-form ref="form_1"></add-employeed-form>
-                    </q-tab-panel>
-
-                    <q-tab-panel name="tab_form_two">
-                      <add-employeedtwo-form
-                        ref="form_2"
-                      ></add-employeedtwo-form>
-                    </q-tab-panel>
-                  </q-tab-panels>
-                </q-card>
-              </q-card>
-            </q-dialog>
-            <!-- ------------------------------------------------ -->
-            <q-space />
-
-            <q-select
-              v-model="visibleColumns"
-              multiple
-              borderless
-              dense
-              options-dense
-              :display-value="$q.lang.table.columns"
-              emit-value
-              map-options
-              :options="columns"
-              style="min-width: 150px"
-              option-value="name"
-            />
-
-            <q-btn
-              round
-              dense
-              :icon="props.inFullscreen ? 'fullscreen_exit' : 'fullscreen'"
-              @click="props.toggleFullscreen"
-              class="q-ml-md"
-            />
-          </template>
-
-          <template v-slot:body-cell-nombre="props">
-            <q-td @click="onRowClick(props.row)">
-              <q-item class="q-my-none" dense>
-                <q-item-section avatar>
-                  <q-avatar
-                    color="primary"
-                    text-color="white"
-                    v-if="props.row.picture"
-                  >
-                    <img :src="props.row.picture" alt="Foto del empleado" />
-                  </q-avatar>
-                  <q-avatar v-else color="primary" text-color="white">
-                    {{ props.row.nombre.charAt(0).toUpperCase()
-                    }}{{ props.row.apellido_paterno.charAt(0).toUpperCase() }}
-                  </q-avatar>
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label>{{ props.row.nombre }}</q-item-label>
-                </q-item-section>
-              </q-item>
-            </q-td>
-          </template>
-
-          <template v-slot:body-cell-expediente="props">
-            <q-td @click="onRowClickFile(props.row)">
-              <q-btn flat round color="primary" icon="folder" />
-            </q-td>
-          </template>
-
-          <template v-slot:body-cell-puesto="props">
-            <q-td :props="props">
-              {{ props.row.puesto.nombre }}
-            </q-td>
-          </template>
-          <template v-slot:body-cell-sucursal="props">
-            <q-td :props="props">
-              {{ props.row.sucursal.nombre }}
-            </q-td>
-          </template>
-          <template v-slot:body-cell-linea="props">
-            <q-td :props="props">
-              {{ props.row.linea.nombre }}
-            </q-td>
-          </template>
-          <template v-slot:body-cell-departamento="props">
-            <q-td :props="props">
-              {{ props.row.departamento.nombre }}
-            </q-td>
-          </template>
-          <template v-slot:body-cell-estado_civil="props">
-            <q-td :props="props">
-              {{ props.row.estado_civil.nombre }}
-            </q-td>
-          </template>
-          <template v-slot:body-cell-escolaridad="props">
-            <q-td :props="props">
-              {{ props.row.escolaridad.nombre }}
-            </q-td>
-          </template>
-          <template v-slot:body-cell-tipo_de_sangre="props">
-            <q-td :props="props">
-              {{ props.row.tipo_de_sangre.nombre }}
-            </q-td>
-          </template>
-          <template v-slot:body-cell-jefe_directo="props">
-            <q-td :props="props">
-              <template v-if="props.row.jefe_directo">
-                {{ props.row.jefe_directo.nombre }}
-              </template>
-            </q-td>
-          </template>
-        </q-table>
-        <!-- ------------------------------------------------------------------- -->
-        <q-dialog
-          v-model="showDetails"
-          transition-show="rotate"
-          transition-hide="rotate"
-          persistent
-        >
-          <q-card style="width: 1800px">
-            <q-card-section class="d-flex justify-between items-center">
-              <div class="text-h6">Actualizar Empleado</div>
-              <q-card-actions align="right">
-                <q-btn label="Cerrar" color="red" v-close-popup />
+          options-dense
+          :display-value="$q.lang.table.columns"
+          emit-value
+          map-options
+          :options="columns"
+          style="min-width: 150px"
+          option-value="name"
+        />
+        <q-btn
+          round
+          dense
+          :icon="props.inFullscreen ? 'fullscreen_exit' : 'fullscreen'"
+          @click="props.toggleFullscreen"
+          class="q-ml-md"
+        />
+      </template>
+      <template v-slot:body-cell-nombre="props">
+        <q-td>
+          <q-item class="q-my-none" dense>
+            <q-item-section avatar>
+              <q-avatar
+                color="primary"
+                text-color="white"
+                v-if="props.row.picture"
+              >
+                <img :src="props.row.picture" alt="Foto del empleado" />
+              </q-avatar>
+              <q-avatar v-else color="primary" text-color="white">
+                {{ props.row.nombre.charAt(0).toUpperCase()
+                }}{{ props.row.apellido_paterno.charAt(0).toUpperCase() }}
+              </q-avatar>
+            </q-item-section>
+            <q-item-section>
+              <q-item-label>{{ props.row.nombre }}</q-item-label>
+            </q-item-section>
+          </q-item>
+        </q-td>
+      </template>
+      <template v-slot:body-cell-actions="props">
+        <q-td>
+          <q-btn-dropdown flat color="primary" icon="menu">
+            <q-list v-close-popup>
+              <q-item>
                 <q-btn
-                  :disable="!edit_1 || !edit_2"
-                  label="Actualizar"
-                  color="blue"
-                  @click="actualizarEmpleado()"
+                  color="primary"
+                  @click="onRowClickCV(props.row)"
+                  flat
+                  size="sm"
+                  label="Perfil"
+                  icon="face"
                 />
-              </q-card-actions>
-            </q-card-section>
-            <q-separator />
-
-            <q-tabs
-              v-model="tab"
-              dense
-              class="text-grey"
-              active-color="primary"
-              indicator-color="primary"
-              align="justify"
-              narrow-indicator
-            >
-              <q-tab name="tab_form_one" label="Datos Personales" />
-              <q-tab name="tab_form_two" label="Unidad Negocio" />
-            </q-tabs>
-
-            <q-separator />
-            <q-card style="height: 65vh" class="q-pa-none scroll" flat>
-              <q-tab-panels v-model="tab" animated keep-alive>
-                <q-tab-panel name="tab_form_one">
-                  <edit-employeed-form
-                    ref="edit_1"
-                    :empleado="selectedEmployee"
-                  ></edit-employeed-form>
-                </q-tab-panel>
-
-                <q-tab-panel name="tab_form_two">
-                  <edit-employeedtwo-form
-                    ref="edit_2"
-                    :empleado="selectedEmployee"
-                  ></edit-employeedtwo-form>
-                </q-tab-panel>
-              </q-tab-panels>
-            </q-card>
-          </q-card>
-        </q-dialog>
-        <!-- ---------------------------------------------------------------------------- -->
-        <q-dialog
-          v-model="showFiles"
-          transition-show="rotate"
-          transition-hide="rotate"
-          full-width
-          persistent
+              </q-item>
+              <q-item v-if="checkRole('RRHH')">
+                <q-btn
+                  color="primary"
+                  @click="onRowClick(props.row)"
+                  flat
+                  size="sm"
+                  label="Editar"
+                  icon="edit"
+                />
+              </q-item>
+              <q-item v-if="checkRole('RRHH')">
+                <q-btn
+                  color="primary"
+                  @click="onRowClickFile(props.row)"
+                  flat
+                  size="sm"
+                  label="Expediente"
+                  icon="folder"
+                />
+              </q-item>
+              <q-item>
+                <q-btn
+                  color="primary"
+                  @click="onRowClickSkill(props.row)"
+                  flat
+                  size="sm"
+                  label="Skill"
+                  icon="analytics"
+                />
+              </q-item>
+              <q-item>
+                <q-btn
+                  color="primary"
+                  @click="openCareerDialog(props.row)"
+                  flat
+                  size="sm"
+                  label="Carreras"
+                  icon="work"
+                />
+              </q-item>
+            </q-list>
+          </q-btn-dropdown>
+        </q-td>
+      </template>
+      <template v-slot:body-cell-puesto="props">
+        <q-td :props="props">
+          {{ props.row.puesto.nombre }}
+        </q-td>
+      </template>
+      <template v-slot:body-cell-sucursal="props">
+        <q-td :props="props">
+          {{ props.row.sucursal.nombre }}
+        </q-td>
+      </template>
+      <template v-slot:body-cell-linea="props">
+        <q-td :props="props">
+          {{ props.row.linea.nombre }}
+        </q-td>
+      </template>
+      <template v-slot:body-cell-departamento="props">
+        <q-td :props="props">
+          {{ props.row.departamento.nombre }}
+        </q-td>
+      </template>
+      <template v-slot:body-cell-estado_civil="props">
+        <q-td :props="props">
+          {{ props.row.estado_civil.nombre }}
+        </q-td>
+      </template>
+      <template v-slot:body-cell-escolaridad="props">
+        <q-td :props="props">
+          {{ props.row.escolaridad.nombre }}
+        </q-td>
+      </template>
+      <template v-slot:body-cell-tipo_de_sangre="props">
+        <q-td :props="props">
+          {{ props.row.tipo_de_sangre.nombre }}
+        </q-td>
+      </template>
+      <template v-slot:body-cell-jefe_directo="props">
+        <q-td :props="props">
+          <template v-if="props.row.jefe_directo">
+            {{ props.row.jefe_directo.nombre }}
+          </template>
+        </q-td>
+      </template>
+    </q-table>
+    <q-dialog
+      v-model="showAdd"
+      transition-show="rotate"
+      transition-hide="rotate"
+      persistent
+      full-height
+    >
+      <q-card style="width: 1800px">
+        <q-card-section class="d-flex justify-between items-center">
+          <div class="text-h6">Registrar Empleado</div>
+          <q-card-actions align="right">
+            <q-btn label="Cerrar" color="red" v-close-popup />
+            <q-btn
+              :disable="!form_1 || !form_2"
+              label="Registrar"
+              color="blue"
+              @click="crearEmpleado()"
+            />
+          </q-card-actions>
+        </q-card-section>
+        <q-separator />
+        <q-tabs
+          v-model="tab"
+          dense
+          class="text-grey"
+          active-color="primary"
+          indicator-color="primary"
+          align="justify"
+          narrow-indicator
         >
-          <q-card style="width: 1800px">
-            <q-card-section class="d-flex justify-between items-center">
-              <div class="text-h6">
-                Expediente de {{ selectedEmployee.nombre }}
-                {{ selectedEmployee.apellido_paterno }}
-                {{ selectedEmployee.apellido_materno }}
-              </div>
-              <q-card-actions align="right">
-                <q-btn label="Cerrar" color="red" v-close-popup />
-              </q-card-actions>
-            </q-card-section>
-            <q-separator />
-            <q-card class="q-pa-none-scroll" flat>
-              <q-tab-panels v-model="tab2" animated keep-alive>
-                <q-tab-panel name="tab_form_three">
-                  <edit-employeedthree-form
-                    ref="edit_3"
-                    :empleado="selectedEmployee"
-                  />
-                </q-tab-panel>
-              </q-tab-panels>
-            </q-card>
-          </q-card>
-        </q-dialog>
-      </div>
-    </q-card>
+          <q-tab name="tab_form_one" label="Datos Personales" />
+          <q-tab name="tab_form_two" label="Unidad Negocio" />
+        </q-tabs>
+        <q-separator />
+        <div class="survey-form-container">
+          <q-tab-panels v-model="tab" animated keep-alive>
+            <q-tab-panel name="tab_form_one">
+              <employeed-form ref="form_1" :empleado="null" />
+            </q-tab-panel>
+            <q-tab-panel name="tab_form_two">
+              <employeed-two-form ref="form_2" />
+            </q-tab-panel>
+          </q-tab-panels>
+        </div>
+      </q-card>
+    </q-dialog>
+    <q-dialog
+      v-model="showDetails"
+      transition-show="rotate"
+      transition-hide="rotate"
+      persistent
+      full-height
+    >
+      <q-card style="width: 1800px">
+        <q-card-section class="d-flex justify-between items-center">
+          <div class="text-h6">Actualizar Empleado</div>
+          <q-card-actions align="right">
+            <q-btn label="Cerrar" color="red" v-close-popup />
+            <q-btn
+              :disable="!edit_1 || !edit_2"
+              label="Actualizar"
+              color="blue"
+              @click="actualizarEmpleado()"
+            />
+          </q-card-actions>
+        </q-card-section>
+        <q-separator />
+        <q-tabs
+          v-model="tab"
+          dense
+          class="text-grey"
+          active-color="primary"
+          indicator-color="primary"
+          align="justify"
+          narrow-indicator
+        >
+          <q-tab name="tab_form_one" label="Datos Personales" />
+          <q-tab name="tab_form_two" label="Unidad Negocio" />
+        </q-tabs>
+        <q-separator />
+        <div class="survey-form-container">
+          <q-tab-panels v-model="tab" animated keep-alive>
+            <q-tab-panel name="tab_form_one">
+              <employeed-form ref="edit_1" :empleado="selectedEmployee" />
+            </q-tab-panel>
+            <q-tab-panel name="tab_form_two">
+              <employeed-two-form ref="edit_2" :empleado="selectedEmployee" />
+            </q-tab-panel>
+          </q-tab-panels>
+        </div>
+      </q-card>
+    </q-dialog>
+    <q-dialog
+      v-model="showFiles"
+      transition-show="rotate"
+      transition-hide="rotate"
+      full-width
+      full-height
+      persistent
+    >
+      <q-card>
+        <q-card-section class="d-flex justify-between items-center">
+          <div class="text-h6">
+            Expediente de {{ selectedEmployee.nombre }}
+            {{ selectedEmployee.apellido_paterno }}
+            {{ selectedEmployee.apellido_materno }}
+          </div>
+          <q-card-actions align="right">
+            <q-btn label="Cerrar" color="red" v-close-popup />
+          </q-card-actions>
+        </q-card-section>
+        <q-separator />
+        <q-card class="q-pa-none-scroll" flat>
+          <div class="survey-form-container">
+            <employeed-three-form ref="edit_3" :empleado="selectedEmployee" />
+          </div>
+        </q-card>
+      </q-card>
+    </q-dialog>
+    <q-dialog
+      v-model="showSkill"
+      transition-show="rotate"
+      transition-hide="rotate"
+      persistent
+      full-width
+      full-height
+    >
+      <q-card>
+        <q-card-section class="d-flex justify-between items-center">
+          <div class="text-h6">Skill de {{ selectedEmployee.nombre }}</div>
+          <q-card-actions align="right">
+            <q-btn label="Cerrar" color="red" v-close-popup />
+            <q-btn label="Guardar" color="blue" @click="saveSkillRatings" />
+          </q-card-actions>
+        </q-card-section>
+        <q-separator />
+        <div class="survey-form-container">
+          <skill-rating-form :employee="selectedEmployee" ref="skill" />
+        </div>
+      </q-card>
+    </q-dialog>
+    <q-dialog
+      v-model="showCareerDialog"
+      transition-show="rotate"
+      transition-hide="rotate"
+      full-height
+      persistent
+    >
+      <q-card style="width: 500px">
+        <q-card-section class="d-flex justify-between items-center">
+          <div class="text-h6">
+            Carrera de {{ selectedEmployee.nombre }}
+            {{ selectedEmployee.apellido_paterno }}
+          </div>
+          <q-card-actions align="right">
+            <q-btn label="Cerrar" color="red" v-close-popup />
+          </q-card-actions>
+        </q-card-section>
+        <q-separator />
+        <div class="survey-form-container">
+          <employee-time-line :empleado="selectedEmployee" :editable="true" />
+        </div>
+      </q-card>
+    </q-dialog>
+    <q-dialog
+      v-model="showCV"
+      transition-show="rotate"
+      transition-hide="rotate"
+      persistent
+      full-width
+      full-height
+    >
+      <q-card>
+        <q-card-section class="d-flex justify-between items-center">
+          <div class="text-h6">
+            Historico y habilidades de {{ selectedEmployee.nombre }}
+          </div>
+          <q-card-actions align="right">
+            <q-btn label="Cerrar" color="red" v-close-popup />
+          </q-card-actions>
+        </q-card-section>
+        <q-separator />
+        <div class="survey-form-container">
+          <cv-employee :employee="selectedEmployee" />
+        </div>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from "vue";
-import AddEmployeedForm from "src/components/Employeed/AddEmployeedForm.vue";
-import AddEmployeedtwoForm from "src/components/Employeed/AddEmployeedtwoForm.vue";
-import EditEmployeedForm from "src/components/Employeed/EditEmployeedForm.vue";
-import EditEmployeedtwoForm from "src/components/Employeed/EditEmployeedtwoForm.vue";
-import EditEmployeedthreeForm from "src/components/Employeed/EditEmployeedthreeForm.vue";
-import { sendRequest } from "src/boot/functions";
+import { ref, onMounted, computed, inject } from "vue";
+import { sendRequest, checkRole } from "src/boot/functions";
 import { useQuasar, exportFile } from "quasar";
-import { inject } from "vue";
+import { useAuthStore } from "src/stores/auth";
+import EmployeedForm from "src/components/Employeed/EmployeedForm.vue";
+import EmployeedTwoForm from "src/components/Employeed/EmployeedTwoForm.vue";
+import EmployeedThreeForm from "src/components/Employeed/EmployeedThreeForm.vue";
+import SkillRatingForm from "src/components/Skill/SkillRatingForm.vue";
+import EmployeeTimeLine from "src/components/Employeed/EmployeeTimeLine.vue";
+import CvEmployee from "src/components/Employeed/CvEmployee.vue";
+
+const bus = inject("bus"); // inside setup()
 
 const form_1 = ref(null);
 const form_2 = ref(null);
 const edit_1 = ref(null);
 const edit_2 = ref(null);
 const edit_3 = ref(null);
+const skill = ref(null);
+const skill_valid = ref();
 const edit1_valid = ref();
 const edit2_valid = ref();
-
 const $q = useQuasar();
-
+const auth = useAuthStore();
 const showDetails = ref(false);
 const showFiles = ref(false);
+const showSkill = ref(false);
+const showCareerDialog = ref(false);
+const showCV = ref(false);
+const showAdd = ref(false);
 const selectedEmployee = ref(null);
+const employees = ref([]);
 const sucursales = ref([]);
 const lineas = ref([]);
 const departamentos = ref([]);
 const puestos = ref([]);
-
-const bus = inject("bus"); // inside setup()
+const tab = ref("tab_form_one");
+const searchTerm = ref("");
 
 const formFilter = ref({
   sucursal_id: null,
@@ -430,86 +526,8 @@ const visibleColumns = ref([
   "linea",
   "departamento",
   "puesto",
-  "expediente",
+  "actions",
 ]);
-
-const tab = ref("tab_form_one");
-const tab2 = ref("tab_form_three");
-const searchTerm = ref("");
-const showAdd = ref(false);
-const employees = ref([]);
-
-const onRowClick = (row) => {
-  selectedEmployee.value = row;
-  showDetails.value = true;
-};
-
-const onRowClickFile = (row) => {
-  selectedEmployee.value = row;
-  showFiles.value = true;
-};
-
-const filter = async () => {
-  const final = { ...formFilter.value };
-  let res = await sendRequest("POST", final, "/api/empleado/filter", "");
-  employees.value = res;
-};
-
-const crearEmpleado = async () => {
-  const form1_valid = await form_1.value.validate();
-  const form2_valid = await form_2.value.validate();
-  if (!form1_valid || !form2_valid) {
-    $q.notify({
-      color: "red-5",
-      textColor: "white",
-      icon: "warning",
-      message: "Por favor completa todos los campos obligatorios",
-    });
-    return;
-  }
-  const final = {
-    ...form_1.value.formEmployee,
-    ...form_2.value.formEmployeetwo,
-  };
-  let res = await sendRequest("POST", final, "/api/empleado", "");
-  showAdd.value = false;
-  getEmployees();
-};
-
-const actualizarEmpleado = async () => {
-  edit1_valid.value = await edit_1.value.validate();
-  edit2_valid.value = await edit_2.value.validate();
-  if (!edit1_valid.value || !edit2_valid.value) {
-    $q.notify({
-      color: "red-5",
-      textColor: "white",
-      icon: "warning",
-      message: "Por favor completa todos los campos obligatorios",
-    });
-    return;
-  }
-  const final = {
-    ...edit_1.value.formEmployee,
-    ...edit_2.value.formEmployeetwo,
-  };
-  let res = await sendRequest("PUT", final, "/api/empleado/" + final.id, "");
-  showDetails.value = false;
-  getEmployees();
-};
-
-const getEmployees = async () => {
-  let res = await sendRequest("GET", null, "/api/empleado/all", "");
-  employees.value = res;
-};
-
-const getAll = async () => {
-  let res = await sendRequest("GET", null, "/api/empleado/negocios", "");
-  employees.value = res.empleados;
-  sucursales.value = res.sucursales;
-  lineas.value = res.lineas;
-  departamentos.value = res.departamentos;
-  puestos.value = res.puestos;
-};
 
 const columns = [
   { name: "id", label: "ID", align: "left", field: "id", sortable: true },
@@ -779,12 +797,109 @@ const columns = [
     sortable: true,
   },
   {
-    name: "expediente",
-    label: "Expediente",
+    name: "actions",
+    label: "Acciones",
     align: "left",
     sortable: true,
   },
 ];
+
+const openCareerDialog = (row) => {
+  selectedEmployee.value = row;
+  showCareerDialog.value = true;
+};
+
+const onRowClick = (row) => {
+  selectedEmployee.value = row;
+  showDetails.value = true;
+};
+
+const onRowClickCV = (row) => {
+  selectedEmployee.value = row;
+  showCV.value = true;
+};
+
+const onRowClickSkill = (row) => {
+  selectedEmployee.value = row;
+  showSkill.value = true;
+};
+
+const onRowClickFile = (row) => {
+  selectedEmployee.value = row;
+  showFiles.value = true;
+};
+
+const crearEmpleado = async () => {
+  const form1_valid = await form_1.value.validate();
+  const form2_valid = await form_2.value.validate();
+  if (!form1_valid || !form2_valid) {
+    $q.notify({
+      color: "red-5",
+      textColor: "white",
+      icon: "warning",
+      message: "Por favor completa todos los campos obligatorios",
+    });
+    return;
+  }
+  const final = {
+    ...form_1.value.formEmployee,
+    ...form_2.value.formEmployeetwo,
+  };
+  let res = await sendRequest("POST", final, "/api/empleado", "");
+  showAdd.value = false;
+  getAll();
+};
+
+const actualizarEmpleado = async () => {
+  edit1_valid.value = await edit_1.value.validate();
+  edit2_valid.value = await edit_2.value.validate();
+  if (!edit1_valid.value || !edit2_valid.value) {
+    $q.notify({
+      color: "red-5",
+      textColor: "white",
+      icon: "warning",
+      message: "Por favor completa todos los campos obligatorios",
+    });
+    return;
+  }
+  const final = {
+    ...edit_1.value.formEmployee,
+    ...edit_2.value.formEmployeetwo,
+  };
+  let res = await sendRequest("PUT", final, "/api/empleado/" + final.id, "");
+  showDetails.value = false;
+  getAll();
+};
+
+const saveSkillRatings = async () => {
+  skill_valid.value = await skill.value.validate();
+  if (!skill_valid.value) {
+    $q.notify({
+      color: "red-5",
+      textColor: "white",
+      icon: "warning",
+      message: "Por favor completa todos los campos obligatorios",
+    });
+    return;
+  }
+  let res = await sendRequest(
+    "PUT",
+    skill.value.skillratings,
+    "/api/skillratings",
+    ""
+  );
+  bus.emit("new-skill");
+};
+
+const getAll = async () => {
+  const final = { ...formFilter.value };
+  let res = await sendRequest("POST", final, "/api/empleado/negocios", "");
+  employees.value = res.empleados;
+  sucursales.value = res.sucursales;
+  lineas.value = res.lineas;
+  departamentos.value = res.departamentos;
+  puestos.value = res.puestos;
+};
 
 const filteredEmployees = computed(() => {
   return employees.value.filter((employee) => {
@@ -859,7 +974,7 @@ const exportTable = () => {
 };
 
 bus.on("cargar_empleados", () => {
-  getEmployees();
+  getAll();
   showDetails.value = false;
 });
 
@@ -887,5 +1002,10 @@ onMounted(() => {
 
 .items-center {
   align-items: center;
+}
+
+.survey-form-container {
+  max-height: 600px; /* Ajusta este valor según tus necesidades */
+  overflow-y: auto;
 }
 </style>
