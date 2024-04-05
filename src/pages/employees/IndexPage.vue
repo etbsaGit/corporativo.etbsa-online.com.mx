@@ -93,7 +93,7 @@
           label="Buscar"
           dense
           filled
-          @click="filter"
+          @click="getAll"
         />
       </q-item-section>
     </q-item>
@@ -158,8 +158,7 @@
         />
       </template>
       <template v-slot:body-cell-nombre="props">
-        <q-td @click="onRowClickCV(props.row)">
-          <q-tooltip> Ver detalle {{ props.row.nombre }} </q-tooltip>
+        <q-td>
           <q-item class="q-my-none" dense>
             <q-item-section avatar>
               <q-avatar
@@ -184,6 +183,16 @@
         <q-td>
           <q-btn-dropdown flat color="primary" icon="menu">
             <q-list v-close-popup>
+              <q-item>
+                <q-btn
+                  color="primary"
+                  @click="onRowClickCV(props.row)"
+                  flat
+                  size="sm"
+                  label="Perfil"
+                  icon="face"
+                />
+              </q-item>
               <q-item v-if="checkRole('RRHH')">
                 <q-btn
                   color="primary"
@@ -820,12 +829,6 @@ const onRowClickFile = (row) => {
   showFiles.value = true;
 };
 
-const filter = async () => {
-  const final = { ...formFilter.value };
-  let res = await sendRequest("POST", final, "/api/empleado/filter", "");
-  employees.value = res;
-};
-
 const crearEmpleado = async () => {
   const form1_valid = await form_1.value.validate();
   const form2_valid = await form_2.value.validate();
@@ -844,7 +847,7 @@ const crearEmpleado = async () => {
   };
   let res = await sendRequest("POST", final, "/api/empleado", "");
   showAdd.value = false;
-  filter();
+  getAll();
 };
 
 const actualizarEmpleado = async () => {
@@ -865,7 +868,7 @@ const actualizarEmpleado = async () => {
   };
   let res = await sendRequest("PUT", final, "/api/empleado/" + final.id, "");
   showDetails.value = false;
-  filter();
+  getAll();
 };
 
 const saveSkillRatings = async () => {
@@ -889,28 +892,13 @@ const saveSkillRatings = async () => {
 };
 
 const getAll = async () => {
-  if (checkRole("RRHH")) {
-    let res = await sendRequest("GET", null, "/api/empleado/negocios", "");
-    employees.value = res.empleados;
-    sucursales.value = res.sucursales;
-    lineas.value = res.lineas;
-    departamentos.value = res.departamentos;
-    puestos.value = res.puestos;
-  }
-
-  if (checkRole("Jefe")) {
-    let res = await sendRequest(
-      "GET",
-      null,
-      "/api/jefe/" + auth.user.empleado.id,
-      ""
-    );
-    employees.value = res.empleados;
-    sucursales.value = res.sucursales;
-    lineas.value = res.lineas;
-    departamentos.value = res.departamentos;
-    puestos.value = res.puestos;
-  }
+  const final = { ...formFilter.value };
+  let res = await sendRequest("POST", final, "/api/empleado/negocios", "");
+  employees.value = res.empleados;
+  sucursales.value = res.sucursales;
+  lineas.value = res.lineas;
+  departamentos.value = res.departamentos;
+  puestos.value = res.puestos;
 };
 
 const filteredEmployees = computed(() => {
@@ -986,7 +974,7 @@ const exportTable = () => {
 };
 
 bus.on("cargar_empleados", () => {
-  filter();
+  getAll();
   showDetails.value = false;
 });
 

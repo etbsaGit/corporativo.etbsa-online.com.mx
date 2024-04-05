@@ -239,7 +239,8 @@ const formEmployeetwo = ref({
 });
 
 const getAll = async () => {
-  let res = await sendRequest("GET", null, "/api/empleado/negocios", "");
+  const final = null;
+  let res = await sendRequest("POST", final, "/api/empleado/negocios", "");
   jefesDirectos.value = res.empleados;
   sucursales.value = res.sucursales;
   lineas.value = res.lineas;
