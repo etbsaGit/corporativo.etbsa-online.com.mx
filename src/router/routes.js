@@ -1,4 +1,4 @@
-import { auth, guest, admin, rrhh, encuestador } from "./middleware";
+import { auth, guest, admin, rrhh, encuestador, servicio } from "./middleware";
 
 const routes = [
   {
@@ -46,7 +46,7 @@ const routes = [
     path: "/technician",
     component: () => import("layouts/MainLayout.vue"),
     meta: {
-      middlewares: [admin],
+      middlewares: [servicio],
     },
     children: [
       {

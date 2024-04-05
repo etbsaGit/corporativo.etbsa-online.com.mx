@@ -46,7 +46,7 @@
       <q-item-section>Empleados</q-item-section>
     </q-item>
     <q-item
-      v-if="checkRole('Admin')"
+      v-if="checkRole('Servicio')"
       clickable
       v-ripple
       to="/technician"

@@ -52,6 +52,21 @@ export function rrhh({ to, next }) {
   return next();
 }
 
+export function servicio({ to, next }) {
+  const auth = useAuthStore();
+
+  if (!auth.user) {
+    auth.returnUrl = to.fullPath;
+    return next("/login");
+  }
+
+  if (!checkRole("Servicio")) {
+    return next("/perfil");
+  }
+
+  return next();
+}
+
 export function encuestador(/* { to, from, next } */ { to, next }) {
   const auth = useAuthStore();
   if (!auth.user) {
