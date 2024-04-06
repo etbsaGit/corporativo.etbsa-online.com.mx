@@ -46,23 +46,25 @@
         />
       </q-item-section>
     </q-item>
-    <q-separator/>
+    <q-separator />
     <q-item>
       <q-item-section>
         <div class="text-h6">Que roles tendra el usuario</div>
       </q-item-section>
     </q-item>
-    <q-item>
-      <q-item-section v-for="role in roles" :key="role.id">
-        <q-toggle
-          v-model="formUser.roles"
-          :label="role.name"
-          color="primary"
-          dense
-          :val="role.name"
-        />
-      </q-item-section>
-    </q-item>
+    <div class="row items-start">
+      <q-item v-for="role in roles" :key="role.id" class="col-4">
+        <q-item-section>
+          <q-toggle
+            v-model="formUser.roles"
+            :label="role.name"
+            color="primary"
+            dense
+            :val="role.name"
+          />
+        </q-item-section>
+      </q-item>
+    </div>
   </q-form>
 </template>
 
@@ -78,7 +80,7 @@ const formUser = ref({
   email: null,
   password: null,
   confirmPassword: null,
-  roles: []
+  roles: [],
 });
 
 const getRoles = async () => {
@@ -96,6 +98,6 @@ onMounted(() => {
 
 defineExpose({
   formUser,
-  validate
+  validate,
 });
 </script>

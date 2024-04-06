@@ -12,36 +12,42 @@
         />
       </q-item-section>
     </q-item>
-    <q-separator/>
+    <q-separator />
     <q-item>
       <q-item-section>
         <div class="text-h6">Que permisos tendra el rol</div>
       </q-item-section>
     </q-item>
-    <q-item>
-      <q-item-section v-for="permission in permissions" :key="permission.id">
-        <q-toggle
-          v-model="formRole.permissions"
-          :label="permission.name"
-          color="primary"
-          dense
-          :val="permission.name"
-        />
-      </q-item-section>
-    </q-item>
+    <div class="row items-start">
+      <q-item
+        v-for="permission in permissions"
+        :key="permission.id"
+        class="col-4"
+      >
+        <q-item-section>
+          <q-toggle
+            v-model="formRole.permissions"
+            :label="permission.name"
+            color="blue"
+            dense
+            :val="permission.name"
+          />
+        </q-item-section>
+      </q-item>
+    </div>
   </q-form>
 </template>
 
 <script setup>
 import { ref, onMounted } from "vue";
-import { sendRequest } from "src/boot/functions"
+import { sendRequest } from "src/boot/functions";
 
 const myForm = ref(null);
-const permissions = ref([])
+const permissions = ref([]);
 
 const formRole = ref({
   name: null,
-  permissions: []
+  permissions: [],
 });
 
 const getPermissions = async () => {
@@ -59,6 +65,6 @@ onMounted(() => {
 
 defineExpose({
   formRole,
-  validate
+  validate,
 });
 </script>

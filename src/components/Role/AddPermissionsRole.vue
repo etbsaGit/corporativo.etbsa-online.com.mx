@@ -1,56 +1,58 @@
-<template>
-    <div>
-      <q-form ref="myForm" greedy>
-            <q-toggle
-              v-for="permission in permissions" :key="permission.id"
-              v-model="rolePermissions[permission.id]"
-              :label="permission.name"
-              color="primary"
-            />
-      </q-form>
+  <template>
+  <q-form ref="myForm" greedy class="q-gutter-y-sm">
+    <div class="row items-start">
+      <q-item
+        v-for="permission in permissions"
+        :key="permission.id"
+        class="col-4"
+      >
+        <q-item-section>
+          <q-toggle
+            v-model="selectedPermissionNames"
+            :label="permission.name"
+            :val="permission.name"
+            color="blue"
+          />
+        </q-item-section>
+      </q-item>
     </div>
-  </template>
-  
+  </q-form>
+</template>
+
 <script setup>
-import { onMounted, ref, computed } from "vue";
+import { onMounted, ref } from "vue";
 import { sendRequest } from "src/boot/functions";
 
 const { role } = defineProps(["role"]);
 
 const permissions = ref([]);
-const rolePermissions = ref({});
+const selectedPermissionNames = ref([]);
 const myForm = ref(null);
 
 const getPermissions = async () => {
-    let res = await sendRequest("GET", null, "/api/permission", "");
-    permissions.value = res;
-
-    for (const permission of res) {
-        rolePermissions.value[permission.id] = false;
-    }
-
-    for (const rolePermission of role.permissions) {
-        const matchingPermission = res.find(permission => permission.id === rolePermission.id);
-        if (matchingPermission) {
-            rolePermissions.value[matchingPermission.id] = true;
-        }
-    }
+  let res = await sendRequest("GET", null, "/api/permission", "");
+  permissions.value = res;
 };
 
 const validate = async () => {
-    return await myForm.value.validate();
+  return await myForm.value.validate();
+};
+
+const marcarToggles = () => {
+  if (role) {
+    for (const permissions of role.permissions) {
+      selectedPermissionNames.value.push(permissions.name);
+    }
+  }
 };
 
 onMounted(() => {
-    getPermissions();
-});
-
-const selectedPermissionNames = computed(() => {
-    return permissions.value.filter(permission => rolePermissions.value[permission.id]).map(permission => permission.name);
+  getPermissions();
+  marcarToggles();
 });
 
 defineExpose({
-    validate,
-    selectedPermissionNames
+  validate,
+  selectedPermissionNames,
 });
 </script>

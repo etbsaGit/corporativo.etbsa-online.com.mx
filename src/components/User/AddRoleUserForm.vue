@@ -1,57 +1,54 @@
 <template>
-    <div>
-      <q-form ref="myForm" greedy>
-            <q-toggle
-              v-for="role in roles" :key="role.id"
-              v-model="userRoles[role.id]"
-              :label="role.name"
-              color="primary"
-            />
-      </q-form>
+  <q-form ref="myForm" greedy class="q-gutter-y-sm">
+    <div class="row items-start">
+      <q-item v-for="role in roles" :key="role.id" class="col-4">
+        <q-item-section>
+          <q-toggle
+            v-model="selectedRolesNames"
+            :label="role.name"
+            :val="role.name"
+            color="blue"
+          />
+        </q-item-section>
+      </q-item>
     </div>
-  </template>
-  
+  </q-form>
+</template>
+
 <script setup>
-import { onMounted, ref, computed } from "vue";
+import { onMounted, ref } from "vue";
 import { sendRequest } from "src/boot/functions";
 
 const { user } = defineProps(["user"]);
 
-const roles = ref([]);
-const userRoles = ref({});
 const myForm = ref(null);
+const roles = ref([]);
+const selectedRolesNames = ref([]);
 
 const getRoles = async () => {
-    let res = await sendRequest("GET", null, "/api/role", "");
-    roles.value = res;
+  let res = await sendRequest("GET", null, "/api/role", "");
+  roles.value = res;
+};
 
-    for (const role of res) {
-        userRoles.value[role.id] = false;
+const marcarToggles = () => {
+  if (user) {
+    for (const role of user.roles) {
+      selectedRolesNames.value.push(role.name);
     }
-
-    for (const userRole of user.roles) {
-        const matchingRole = res.find(role => role.id === userRole.id);
-        if (matchingRole) {
-            userRoles.value[matchingRole.id] = true;
-        }
-    }
+  }
 };
 
 const validate = async () => {
-    return await myForm.value.validate();
+  return await myForm.value.validate();
 };
 
 onMounted(() => {
-    getRoles();
-});
-
-const selectedRolesNames = computed(() => {
-    return roles.value.filter(role => userRoles.value[role.id]).map(role => role.name);
+  getRoles();
+  marcarToggles();
 });
 
 defineExpose({
-    validate,
-    selectedRolesNames
+  validate,
+  selectedRolesNames,
 });
 </script>
-  
