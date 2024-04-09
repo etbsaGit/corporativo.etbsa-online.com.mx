@@ -238,7 +238,7 @@ const formSurvey = ref({
   status: false,
   description: null,
   expire_date: null,
-  evaluator_id: checkRole("Evaluador") ? user.value.email : null,
+  evaluator_id: checkRole("Evaluador") ? user.value.id : null,
   questions: [],
 });
 

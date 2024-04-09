@@ -133,11 +133,14 @@
       <template v-slot:body-cell-description="props">
         <q-td :props="props">
           {{
-            props.row.description.length > 40
+            props.row.description && props.row.description.length > 40
               ? props.row.description.slice(0, 40) + "..."
               : props.row.description
           }}
-          <q-tooltip class="bg-purple text-body2">
+          <q-tooltip
+            class="bg-purple text-body2"
+            v-if="props.row.description && props.row.description.length > 40"
+          >
             {{ props.row.description }}
           </q-tooltip>
         </q-td>
@@ -516,17 +519,6 @@ const changeStatus = async (row) => {
   getSurveys();
 };
 
-const clone = async () => {
-  let res = await sendRequest(
-    "POST",
-    null,
-    "/api/survey/clone/" + selectedSurvey.value.id,
-    ""
-  );
-  showClone.value = false;
-  getSurveys();
-};
-
 const deleteSurvey = async () => {
   let res = await sendRequest(
     "DELETE",
@@ -540,12 +532,7 @@ const deleteSurvey = async () => {
 
 const getSurveys = async () => {
   if (checkRole("Evaluador")) {
-    let res = await sendRequest(
-      "GET",
-      null,
-      "/api/survey/evaluator/" + user.value.id,
-      ""
-    );
+    let res = await sendRequest("GET", null, "/api/survey/evaluator", "");
     surveys.value = res;
   }
   if (checkRole("Encuestador") || checkRole("Admin")) {

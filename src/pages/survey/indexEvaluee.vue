@@ -35,6 +35,21 @@
         <div v-else>Inactiva</div>
       </q-td>
     </template>
+    <template v-slot:body-cell-description="props">
+      <q-td :props="props">
+        {{
+          props.row.description && props.row.description.length > 40
+            ? props.row.description.slice(0, 40) + "..."
+            : props.row.description
+        }}
+        <q-tooltip
+          class="bg-purple text-body2"
+          v-if="props.row.description && props.row.description.length > 40"
+        >
+          {{ props.row.description }}
+        </q-tooltip>
+      </q-td>
+    </template>
   </q-table>
 
   <q-dialog
@@ -122,8 +137,6 @@
 <script setup>
 import { sendRequest } from "src/boot/functions";
 import { ref, onMounted } from "vue";
-import { useAuthStore } from "src/stores/auth";
-import { storeToRefs } from "pinia";
 import AddAnswersForm from "src/components/Survey/AddAnswersForm.vue";
 import ShowAnswersForm from "src/components/Survey/ShowAnswersForm.vue";
 
@@ -131,8 +144,6 @@ const showQuestions = ref(false);
 const showAnswers = ref(false);
 const answers = ref(null);
 const selectedSurvey = ref(null);
-const auth = useAuthStore();
-const { user } = storeToRefs(auth);
 const surveys = ref([]);
 
 const columns = [
@@ -183,8 +194,7 @@ const formatDate = (dateString) => {
 };
 
 const getSurveys = async () => {
-  const id = user.value.id;
-  let res = await sendRequest("GET", null, "/api/survey/user/" + id, "");
+  let res = await sendRequest("GET", null, "/api/survey/user", "");
   surveys.value = res;
 };
 
