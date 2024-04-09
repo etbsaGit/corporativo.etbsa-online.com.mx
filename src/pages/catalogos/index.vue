@@ -20,26 +20,28 @@
 
       <q-separator />
 
-      <q-tab-panels v-model="tab" animated keep-alive>
-        <q-tab-panel name="departamentos">
-          <departamentos-index></departamentos-index>
-        </q-tab-panel>
-        <q-tab-panel name="puestos">
-          <puestos-index></puestos-index>
-        </q-tab-panel>
-        <q-tab-panel name="sucursales">
-          <sucursal-index></sucursal-index>
-        </q-tab-panel>
-        <q-tab-panel name="lineas">
-          <lineas-index></lineas-index>
-        </q-tab-panel>
-        <q-tab-panel name="requisitos">
-          <requisitos-index></requisitos-index>
-        </q-tab-panel>
-        <q-tab-panel name="skills">
-          <skills-index></skills-index>
-        </q-tab-panel>
-      </q-tab-panels>
+      <div class="survey-form-container">
+        <q-tab-panels v-model="tab" animated keep-alive>
+          <q-tab-panel name="departamentos">
+            <departamentos-index />
+          </q-tab-panel>
+          <q-tab-panel name="puestos">
+            <puestos-index />
+          </q-tab-panel>
+          <q-tab-panel name="sucursales">
+            <sucursal-index />
+          </q-tab-panel>
+          <q-tab-panel name="lineas">
+            <lineas-index />
+          </q-tab-panel>
+          <q-tab-panel name="requisitos">
+            <requisitos-index />
+          </q-tab-panel>
+          <q-tab-panel name="skills">
+            <skills-index />
+          </q-tab-panel>
+        </q-tab-panels>
+      </div>
     </q-card>
   </div>
 </template>
@@ -54,3 +56,9 @@ import skillsIndex from "../skills/skillsIndex.vue";
 
 const tab = ref("puestos");
 </script>
+<style>
+.survey-form-container {
+  max-height: 600px; /* Ajusta este valor según tus necesidades */
+  overflow-y: auto;
+}
+</style>
