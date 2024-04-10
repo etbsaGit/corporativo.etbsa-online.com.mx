@@ -1,217 +1,138 @@
 <template>
-  <div class="q-pa-md">
+  <q-item>
     <q-btn
       label="Registrar role"
       color="primary"
       @click="showAdd = true"
       icon="add_circle"
     />
+  </q-item>
+  <q-item>
+    <q-item-section>
+      <q-input
+        dense
+        outlined
+        class="boton"
+        color="green-9"
+        v-model="searchTerm"
+        label="Buscar"
+      >
+        <template v-slot:prepend>
+          <q-icon name="search" />
+        </template>
+      </q-input>
+    </q-item-section>
+  </q-item>
+  <q-table
+    flat
+    bordered
+    title="Roles"
+    :rows="filteredRoles"
+    :columns="columns"
+    row-key="name"
+    dense
+    :rows-per-page-options="[0]"
+  >
+    <template v-slot:top="props">
+      <div class="col-2 q-table__title">Roles</div>
+      <q-space />
+      <q-btn
+        round
+        dense
+        :icon="props.inFullscreen ? 'fullscreen_exit' : 'fullscreen'"
+        @click="props.toggleFullscreen"
+        class="q-ml-md"
+      />
+    </template>
+    <template v-slot:body-cell-actions="props">
+      <q-td>
+        <q-btn-dropdown flat color="primary" icon="menu" dense>
+          <q-list v-close-popup>
+            <q-item>
+              <q-btn
+                color="primary"
+                @click="onRowClick(props.row)"
+                flat
+                size="sm"
+                label="Editar"
+                icon="edit"
+              />
+            </q-item>
+          </q-list>
+        </q-btn-dropdown>
+      </q-td>
+    </template>
+  </q-table>
 
-    <div><br /></div>
-
-    <q-input
-      outlined
-      class="boton"
-      color="green-9"
-      v-model="searchTerm"
-      label="Buscar"
-    >
-      <template v-slot:prepend>
-        <q-icon name="search" />
-      </template>
-    </q-input>
-
-    <br />
-
-    <q-table
-      flat
-      bordered
-      title="Roles"
-      :rows="filteredRoles"
-      :columns="columns"
-      row-key="name"
-      :visible-columns="visibleColumns"
-      dense
-    >
-      <template v-slot:top="props">
-        <div class="col-2 q-table__title">Roles</div>
-
-        <q-dialog
-          v-model="showAdd"
-          transition-show="rotate"
-          transition-hide="rotate"
-        >
-          <q-card style="width: 2000px">
-            <q-card-section class="d-flex justify-between items-center">
-              <div class="text-h6">Registrar Roles</div>
-              <q-card-actions align="right">
-                <q-btn label="Cerrar" color="red" v-close-popup />
-                <q-btn label="Registrar" color="blue" @click="crearRole" />
-              </q-card-actions>
-            </q-card-section>
-            <q-separator />
-
-            <q-separator />
-            <q-card style="max-height: 1000px" class="q-pa-none scroll" flat>
-              <q-tab-panels v-model="tab" animated keep-alive>
-                <q-tab-panel name="tab_form_one">
-                  <add-role-form ref="form_1"></add-role-form>
-                </q-tab-panel>
-              </q-tab-panels>
-            </q-card>
-          </q-card>
-        </q-dialog>
-
-        <q-space />
-
-        <q-select
-          v-model="visibleColumns"
-          multiple
-          borderless
-          dense
-          options-dense
-          :display-value="$q.lang.table.columns"
-          emit-value
-          map-options
-          :options="columns"
-          style="min-width: 150px"
-          option-value="name"
-        />
-
-        <q-btn
-          round
-          dense
-          :icon="props.inFullscreen ? 'fullscreen_exit' : 'fullscreen'"
-          @click="props.toggleFullscreen"
-          class="q-ml-md"
-        />
-      </template>
-
-      <template v-slot:body-cell-name="props">
-        <q-td @click="onRowClick(props.row)">
-          <q-item class="q-my-none" dense>
-            <q-item-section avatar>
-              <q-avatar color="primary" text-color="white">{{
-                props.row.name.charAt(0).toUpperCase()
-              }}</q-avatar>
-            </q-item-section>
-
-            <q-item-section>
-              <q-item-label>{{ props.row.name }}</q-item-label>
-            </q-item-section>
-          </q-item>
-        </q-td>
-      </template>
-      <template v-slot:body-cell-permisos="props">
-        <q-td>
-          <q-btn
-            @click="onRowClickFile(props.row)"
-            flat
-            round
-            color="primary"
-            icon="key"
-          />
-          <!-- <q-btn flat round color="primary" icon="key" /> -->
-        </q-td>
-      </template>
-    </q-table>
-
-    <q-dialog
-      v-model="showDetails"
-      transition-show="rotate"
-      transition-hide="rotate"
-    >
-      <q-card style="width: 2000px">
-        <q-card-section class="d-flex justify-between items-center">
-          <div class="text-h6">Actualizar roles</div>
-          <q-card-actions align="right">
-            <q-btn label="Cerrar" color="red" v-close-popup />
-            <q-btn label="Actualizar" color="blue" @click="actualizarRole()" />
-          </q-card-actions>
-        </q-card-section>
-        <q-separator />
-
-        <q-separator />
-        <q-card style="max-height: 1000px" class="q-pa-none scroll" flat>
-          <q-tab-panels v-model="tab" animated keep-alive>
-            <q-tab-panel name="tab_form_one">
-              <edit-role-form
-                ref="edit_1"
-                :role="selectedRole"
-              ></edit-role-form>
-            </q-tab-panel>
-          </q-tab-panels>
-        </q-card>
+  <q-dialog
+    v-model="showAdd"
+    transition-show="rotate"
+    transition-hide="rotate"
+    persistent
+  >
+    <q-card>
+      <q-card-section class="d-flex justify-between items-center">
+        <div class="text-h6">Registrar Roles</div>
+        <q-card-actions align="right">
+          <q-btn label="Cerrar" color="red" v-close-popup />
+          <q-btn label="Registrar" color="blue" @click="crearRole" />
+        </q-card-actions>
+      </q-card-section>
+      <q-separator />
+      <q-card class="q-pa-none scroll" flat>
+        <div class="survey-form-container">
+          <role-form ref="form_1" />
+        </div>
       </q-card>
-    </q-dialog>
+    </q-card>
+  </q-dialog>
 
-    <q-dialog
-      v-model="showPermissions"
-      transition-show="rotate"
-      transition-hide="rotate"
-      persistent
-    >
-      <q-card>
-        <q-card-section>
-          <div class="text-h6">Permisos del rol {{ selectedRole.name }}</div>
-        </q-card-section>
-        <q-separator />
-        <q-card class="q-pa-none scroll" flat>
-          <q-tab-panels v-model="tab2" animated keep-alive>
-            <q-tab-panel name="tab_form_two">
-              <add-permissions-role ref="edit" :role="selectedRole" />
-            </q-tab-panel>
-          </q-tab-panels>
-          <q-separator />
-          <q-card-actions align="right">
-            <q-btn label="Cancelar" color="red" v-close-popup />
-            <q-btn
-              label="Actualizar permisos"
-              color="blue"
-              @click="asignPermissionsRole()"
-            />
-          </q-card-actions>
-        </q-card>
+  <q-dialog
+    v-model="showDetails"
+    transition-show="rotate"
+    transition-hide="rotate"
+    persistent
+  >
+    <q-card>
+      <q-card-section class="d-flex justify-between items-center">
+        <div class="text-h6">Actualizar rol {{ selectedRole.name }}</div>
+        <q-card-actions align="right">
+          <q-btn label="Cerrar" color="red" v-close-popup />
+          <q-btn label="Actualizar" color="blue" @click="actualizarRole()" />
+        </q-card-actions>
+      </q-card-section>
+      <q-separator />
+      <q-card class="q-pa-none scroll" flat>
+        <div class="survey-form-container">
+          <role-form ref="edit_1" :role="selectedRole" />
+        </div>
       </q-card>
-    </q-dialog>
-  </div>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script setup>
 import { ref, onMounted, computed } from "vue";
-import AddRoleForm from "src/components/Role/AddRoleForm.vue";
-import EditRoleForm from "src/components/Role/EditRoleForm.vue";
-import AddPermissionsRole from "src/components/Role/AddPermissionsRole.vue";
+import RoleForm from "src/components/Role/RoleForm.vue";
 
 import { sendRequest } from "src/boot/functions";
 import { useQuasar } from "quasar";
 
 const form_1 = ref(null);
 const edit_1 = ref(null);
-const edit = ref(null);
 
 const $q = useQuasar();
 
 const showDetails = ref(false);
 const selectedRole = ref(null);
 
-const visibleColumns = ref(["id", "name", "permisos"]);
-
-const tab = ref("tab_form_one");
-const tab2 = ref("tab_form_two");
 const searchTerm = ref("");
 const showAdd = ref(false);
-const showPermissions = ref(false);
 const roles = ref([]);
 
 const onRowClick = (row) => {
   selectedRole.value = row;
   showDetails.value = true;
-};
-
-const onRowClickFile = (row) => {
-  selectedRole.value = row;
-  showPermissions.value = true;
 };
 
 const crearRole = async () => {
@@ -252,17 +173,6 @@ const actualizarRole = async () => {
   getRoles();
 };
 
-const asignPermissionsRole = async () => {
-  const final = {
-    id: selectedRole.value.id,
-    name: selectedRole.value.name,
-    permissions: edit.value.selectedPermissionNames,
-  };
-  let res = await sendRequest("PUT", final, "/api/role/" + final.id, "");
-  showPermissions.value = false;
-  getRoles();
-};
-
 const getRoles = async () => {
   let res = await sendRequest("GET", null, "/api/role", "");
   roles.value = res;
@@ -278,10 +188,9 @@ const columns = [
     sortable: true,
   },
   {
-    name: "permisos",
-    label: "Permisos",
+    name: "actions",
+    label: "Acciones",
     align: "left",
-    field: "permisos",
     sortable: true,
   },
 ];
@@ -316,6 +225,16 @@ onMounted(() => {
 
 .items-center {
   align-items: center;
+}
+
+.survey-form-container {
+  max-height: 600px; /* Ajusta este valor según tus necesidades */
+  overflow-y: auto;
+}
+
+.survey-form-container {
+  max-height: 600px; /* Ajusta este valor según tus necesidades */
+  overflow-y: auto;
 }
 </style>
 

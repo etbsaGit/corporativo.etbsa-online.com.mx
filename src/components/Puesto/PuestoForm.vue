@@ -18,18 +18,20 @@
 <script setup>
 import { ref } from "vue";
 
+const { puesto } = defineProps(["puesto"]);
 const myForm = ref(null);
+
+const formPuesto = ref({
+  id: puesto ? puesto.id : null,
+  nombre: puesto ? puesto.nombre : null,
+});
 
 const validate = async () => {
   return await myForm.value.validate();
 };
 
-const formPuesto = ref({
-  nombre: null
-});
-
 defineExpose({
   formPuesto,
-  validate
+  validate,
 });
 </script>

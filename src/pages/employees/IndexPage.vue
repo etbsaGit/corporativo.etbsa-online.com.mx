@@ -335,7 +335,10 @@
     >
       <q-card style="width: 1800px">
         <q-card-section class="d-flex justify-between items-center">
-          <div class="text-h6">Actualizar Empleado</div>
+          <div class="text-h6">
+            Actualizar Empleado {{ selectedEmployee.nombre }}
+            {{ selectedEmployee.apellido_paterno }}
+          </div>
           <q-card-actions align="right">
             <q-btn label="Cerrar" color="red" v-close-popup />
             <q-btn

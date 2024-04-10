@@ -62,6 +62,11 @@ export async function sendRequest(method, params, url, redirect = "") {
   } catch (err) {
     Loading.hide();
     const errorMessage = err.response.data;
+    if (err.response.status === 401 || errorMessage === "Unauthorized") {
+      localStorage.clear();
+      location.reload();
+      await sleep(2000);
+    }
     if (typeof errorMessage === "object" && errorMessage !== null) {
       let errorMessages = [];
       for (const key in errorMessage) {

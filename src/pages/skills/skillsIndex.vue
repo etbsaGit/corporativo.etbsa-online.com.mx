@@ -1,65 +1,68 @@
 <template>
-  <div class="q-pa-md">
+  <q-item>
     <q-btn
       label="Registrar Skill"
       color="primary"
       @click="addSkill = true"
       icon="add_circle"
     />
-
-    <div><br /></div>
-
-    <q-input
-      outlined
-      class="boton"
-      color="green-9"
-      v-model="searchTerm"
-      label="Buscar"
-    >
-      <template v-slot:prepend>
-        <q-icon name="search" />
-      </template>
-    </q-input>
-
-    <br />
-
-    <q-table
-      flat
-      bordered
-      title="Departamentos"
-      :rows="filteredSkills"
-      :columns="columns"
-      row-key="name"
-      dense
-    >
-      <template v-slot:top="props">
-        <div class="col-2 q-table__title">Skill</div>
-        <q-space />
-        <q-btn
-          round
-          dense
-          :icon="props.inFullscreen ? 'fullscreen_exit' : 'fullscreen'"
-          @click="props.toggleFullscreen"
-          class="q-ml-md"
-        />
-      </template>
-      <template v-slot:body-cell-name="props">
-        <q-td @click="onRowClick(props.row)">
-          <q-item class="q-my-none" dense>
-            <q-item-section avatar>
-              <q-avatar color="primary" text-color="white">{{
-                props.row.name.charAt(0).toUpperCase()
-              }}</q-avatar>
-            </q-item-section>
-
-            <q-item-section>
-              <q-item-label>{{ props.row.name }}</q-item-label>
-            </q-item-section>
-          </q-item>
-        </q-td>
-      </template>
-    </q-table>
-  </div>
+  </q-item>
+  <q-item>
+    <q-item-section>
+      <q-input
+        outlined
+        dense
+        class="boton"
+        color="green-9"
+        v-model="searchTerm"
+        label="Buscar"
+      >
+        <template v-slot:prepend>
+          <q-icon name="search" />
+        </template>
+      </q-input>
+    </q-item-section>
+  </q-item>
+  <q-table
+    flat
+    bordered
+    title="Departamentos"
+    :rows="filteredSkills"
+    :columns="columns"
+    row-key="name"
+    dense
+    :rows-per-page-options="[0]"
+  >
+    <template v-slot:top="props">
+      <div class="col-2 q-table__title">Skill</div>
+      <q-space />
+      <q-btn
+        round
+        dense
+        :icon="props.inFullscreen ? 'fullscreen_exit' : 'fullscreen'"
+        @click="props.toggleFullscreen"
+        class="q-ml-md"
+      />
+    </template>
+    <template v-slot:body-cell-actions="props">
+      <q-td>
+        <q-btn-dropdown flat color="primary" icon="menu" dense>
+          <q-list v-close-popup>
+            <q-item>
+              <q-btn
+                color="primary"
+                @click="onRowClick(props.row)"
+                flat
+                size="sm"
+                label="Editar"
+                icon="edit"
+              />
+            </q-item>
+          </q-list>
+        </q-btn-dropdown>
+      </q-td>
+    </template>
+  </q-table>
   <q-dialog
     v-model="addSkill"
     transition-show="rotate"
@@ -131,6 +134,12 @@ const columns = [
     label: "Nombre",
     align: "left",
     field: "name",
+    sortable: true,
+  },
+  {
+    name: "actions",
+    label: "Acciones",
+    align: "left",
     sortable: true,
   },
 ];

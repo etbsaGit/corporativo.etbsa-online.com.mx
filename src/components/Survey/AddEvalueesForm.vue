@@ -124,26 +124,6 @@ const filter = async () => {
   evaluees.value = evalueesConUserId;
 };
 
-const getSucursales = async () => {
-  let res = await sendRequest("GET", null, "/api/sucursal/all", "");
-  sucursales.value = res;
-};
-
-const getLineas = async () => {
-  let res = await sendRequest("GET", null, "/api/linea/all", "");
-  lineas.value = res;
-};
-
-const getDepartamentos = async () => {
-  let res = await sendRequest("GET", null, "/api/departamento/all", "");
-  departamentos.value = res;
-};
-
-const getPuestos = async () => {
-  let res = await sendRequest("GET", null, "/api/puesto/all", "");
-  puestos.value = res;
-};
-
 const marcarToggles = () => {
   // Verificar si existe la propiedad evaluee en survey y si tiene usuarios asociados
   if (survey.evaluee) {
@@ -156,7 +136,7 @@ const marcarToggles = () => {
 };
 
 const getAll = async () => {
-  let res = await sendRequest("GET", null, "/api/empleado/negocios", "");
+  let res = await sendRequest("POST", null, "/api/empleado/negocios", "");
   sucursales.value = res.sucursales;
   lineas.value = res.lineas;
   departamentos.value = res.departamentos;
@@ -168,10 +148,6 @@ const getAll = async () => {
 };
 
 onMounted(() => {
-  // getSucursales();
-  // getLineas();
-  // getDepartamentos();
-  // getPuestos();
   getAll();
   marcarToggles();
 });

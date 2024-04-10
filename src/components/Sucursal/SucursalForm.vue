@@ -3,12 +3,23 @@
     <q-item>
       <q-item-section>
         <q-input
-          v-model="formPuesto.nombre"
+          v-model="formSucursal.nombre"
           filled
           dense
           label="Nombre"
           lazy-rules
           :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
+        />
+      </q-item-section>
+    </q-item>
+    <q-item>
+      <q-item-section>
+        <q-input
+          v-model="formSucursal.direccion"
+          filled
+          dense
+          label="Dirección"
+          lazy-rules
         />
       </q-item-section>
     </q-item>
@@ -18,12 +29,13 @@
 <script setup>
 import { ref } from "vue";
 
-const { puesto } = defineProps(["puesto"]);
+const { sucursal } = defineProps(["sucursal"]);
 const myForm = ref(null);
 
-const formPuesto = ref({
-  id: puesto.id,
-  nombre: puesto.nombre
+const formSucursal = ref({
+  id: sucursal ? sucursal.id : null,
+  nombre: sucursal.nombre,
+  direccion: sucursal ? sucursal.direccion : null,
 });
 
 const validate = async () => {
@@ -31,7 +43,7 @@ const validate = async () => {
 };
 
 defineExpose({
-  formPuesto,
-  validate
+  formSucursal,
+  validate,
 });
 </script>

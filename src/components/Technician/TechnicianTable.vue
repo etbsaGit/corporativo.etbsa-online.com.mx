@@ -1,55 +1,65 @@
 <template>
-  <div class="q-pa-md">
+  <q-item>
     <q-btn
       color="primary"
       label="Agregar tipo de tecnico"
       icon="add"
       @click="onRowClickAdd"
     />
-    <div><br /></div>
-    <q-table
-      :rows="technicians"
-      :columns="columns"
-      dense
-      :rows-per-page-options="[0]"
-    >
-      <template v-slot:body-cell-lineas="props">
-        <q-td :props="props">
-          <template
-            v-for="(linea, index) in props.row.linea_technician"
-            :key="index"
-          >
-            <div>
-              {{ linea.linea.nombre }}
-            </div>
-          </template>
-        </q-td>
-      </template>
+  </q-item>
+  <q-item>
+    <q-item-section>
+      <q-table
+        :rows="technicians"
+        :columns="columns"
+        dense
+        :rows-per-page-options="[0]"
+      >
+        <template v-slot:body-cell-lineas="props">
+          <q-td :props="props">
+            <template
+              v-for="(linea, index) in props.row.linea_technician"
+              :key="index"
+            >
+              <div>
+                {{ linea.linea.nombre }}
+              </div>
+            </template>
+          </q-td>
+        </template>
 
-      <template v-slot:body-cell-actions="props">
-        <q-td>
-          <q-btn
-            @click="onRowClickEdit(props.row)"
-            flat
-            round
-            color="blue"
-            icon="edit"
-          >
-            <q-tooltip class="bg-blue">Editar</q-tooltip>
-          </q-btn>
-          <q-btn
-            @click="onRowClickDelete(props.row)"
-            flat
-            round
-            color="red"
-            icon="delete"
-          >
-            <q-tooltip class="bg-red">Borrar</q-tooltip>
-          </q-btn>
-        </q-td>
-      </template>
-    </q-table>
-  </div>
+        <template v-slot:body-cell-actions="props">
+          <q-td>
+            <q-btn-dropdown flat color="primary" icon="menu" dense>
+              <q-list v-close-popup>
+                <q-item>
+                  <q-btn
+                    @click="onRowClickEdit(props.row)"
+                    flat
+                    size="sm"
+                    label="Editar"
+                    color="blue"
+                    icon="edit"
+                  />
+                </q-item>
+                <q-item>
+                  <q-btn
+                    @click="onRowClickDelete(props.row)"
+                    flat
+                    size="sm"
+                    label="Borrar"
+                    color="red"
+                    icon="delete"
+                  />
+                </q-item>
+              </q-list>
+            </q-btn-dropdown>
+          </q-td>
+        </template>
+      </q-table>
+    </q-item-section>
+  </q-item>
+
   <q-dialog
     v-model="editTechnician"
     transition-show="rotate"

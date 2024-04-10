@@ -60,24 +60,19 @@ export const useAuthStore = defineStore("auth", {
           });
         });
     },
-    // async logout() {
-    //   axios.defaults.headers.common[
-    //     "Authorization"
-    //   ] = `Bearer ${this.authToken}`;
-    //   await axios.post("/api/auth/logout");
-    //   this.authToken = null;
-    //   this.authUser = null;
+    async logout() {
+      axios.defaults.headers.common[
+        "Authorization"
+      ] = `Bearer ${this.authToken}`;
+      await axios.post("/api/auth/logout");
+      this.authToken = null;
+      this.authUser = null;
 
-    //   LocalStorage.remove("auth");
-    //   this.router.push("/login");
-    //   // localStorage.clear()
-    //   // this.router.push({ path: '/login', replace: true })
-    // },
-
-    logout() {
-      localStorage.clear()
+      LocalStorage.remove("auth");
+      this.router.push("/login");
+      localStorage.clear();
       location.reload();
-    }
+    },
   },
   persist: true,
 });

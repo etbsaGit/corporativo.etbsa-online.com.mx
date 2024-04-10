@@ -1,9 +1,9 @@
 <template>
   <q-form class="q-gutter-y-sm" ref="myForm" greedy>
     <q-item>
-      <q-item-section>
+      <q-item-section style="max-width: 800px">
         <q-input
-          v-model="formLinea.nombre"
+          v-model="formPermission.name"
           filled
           dense
           label="Nombre"
@@ -14,16 +14,15 @@
     </q-item>
   </q-form>
 </template>
-
 <script setup>
 import { ref } from "vue";
 
-const { linea } = defineProps(["linea"]);
+const { permission } = defineProps(["permission"]);
 const myForm = ref(null);
 
-const formLinea = ref({
-  id: linea.id,
-  nombre: linea.nombre
+const formPermission = ref({
+  id: permission ? permission.id : null,
+  name: permission ? permission.name : null,
 });
 
 const validate = async () => {
@@ -31,7 +30,7 @@ const validate = async () => {
 };
 
 defineExpose({
-  formLinea,
-  validate
+  formPermission,
+  validate,
 });
 </script>

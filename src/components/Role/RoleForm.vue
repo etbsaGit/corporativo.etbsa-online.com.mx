@@ -1,9 +1,9 @@
 <template>
   <q-form class="q-gutter-y-sm" ref="myForm" greedy>
     <q-item>
-      <q-item-section>
+      <q-item-section style="max-width: 800px">
         <q-input
-          v-model="formDepartamento.nombre"
+          v-model="formRole.name"
           filled
           dense
           label="Nombre"
@@ -18,20 +18,21 @@
 <script setup>
 import { ref } from "vue";
 
-const { departamento } = defineProps(["departamento"]);
-const myForm = ref(null);
+const { role } = defineProps(["role"]);
 
-const formDepartamento = ref({
-  id: departamento.id,
-  nombre: departamento.nombre
-});
+const myForm = ref(null);
 
 const validate = async () => {
   return await myForm.value.validate();
 };
 
+const formRole = ref({
+  id: role ? role.id : null,
+  name: role ? role.name : null,
+});
+
 defineExpose({
-  formDepartamento,
-  validate
+  formRole,
+  validate,
 });
 </script>

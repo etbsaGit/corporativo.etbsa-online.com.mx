@@ -34,9 +34,9 @@ const { requisito } = defineProps(["requisito"]);
 const myForm = ref(null);
 
 const formRequisito = ref({
-  id: requisito.id,
-  nombre: requisito.nombre,
-  descripcion: requisito.descripcion
+  id: requisito ? requisito.id : null,
+  nombre: requisito ? requisito.nombre : null,
+  descripcion: requisito ? requisito.descripcion : null,
 });
 
 const validate = async () => {
@@ -45,6 +45,6 @@ const validate = async () => {
 
 defineExpose({
   formRequisito,
-  validate
+  validate,
 });
 </script>
