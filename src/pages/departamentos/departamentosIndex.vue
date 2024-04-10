@@ -95,7 +95,7 @@
   >
     <q-card>
       <q-card-section class="d-flex justify-between items-center">
-        <div class="text-h6">Actualizar Departamento</div>
+        <div class="text-h6">Actualizar {{ selectedDepartamento.nombre }}</div>
         <q-card-actions align="right">
           <q-btn label="Cerrar" color="red" v-close-popup />
           <q-btn

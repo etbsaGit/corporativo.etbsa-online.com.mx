@@ -104,7 +104,7 @@
   >
     <q-card>
       <q-card-section class="d-flex justify-between items-center">
-        <div class="text-h6">Actualizar Puesto</div>
+        <div class="text-h6">Actualizar Puesto {{ selectedPuesto.nombre }}</div>
         <q-card-actions align="right">
           <q-btn label="Cerrar" color="red" v-close-popup />
           <q-btn label="Actualizar" color="blue" @click="actualizarPuesto()" />
