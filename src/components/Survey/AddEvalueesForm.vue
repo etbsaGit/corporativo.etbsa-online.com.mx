@@ -75,7 +75,7 @@
         label="Buscar"
         dense
         filled
-        @click="filter"
+        @click="getAll"
       />
     </q-item-section>
   </q-item>
@@ -117,13 +117,6 @@ const formFilter = ref({
   puesto_id: null,
 });
 
-const filter = async () => {
-  const final = { ...formFilter.value };
-  let res = await sendRequest("POST", final, "/api/empleado/filter", "");
-  const evalueesConUserId = res.filter((empleado) => empleado.user_id);
-  evaluees.value = evalueesConUserId;
-};
-
 const marcarToggles = () => {
   // Verificar si existe la propiedad evaluee en survey y si tiene usuarios asociados
   if (survey.evaluee) {
@@ -136,7 +129,8 @@ const marcarToggles = () => {
 };
 
 const getAll = async () => {
-  let res = await sendRequest("POST", null, "/api/empleado/negocios", "");
+  const final = { ...formFilter.value };
+  let res = await sendRequest("POST", final, "/api/empleado/negocios", "");
   sucursales.value = res.sucursales;
   lineas.value = res.lineas;
   departamentos.value = res.departamentos;

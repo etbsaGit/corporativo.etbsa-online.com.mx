@@ -119,8 +119,6 @@ import { useQuasar } from "quasar";
 
 const form_1 = ref(null);
 const edit_1 = ref(null);
-const edit = ref(null);
-const edit2 = ref(null);
 
 const $q = useQuasar();
 
@@ -130,22 +128,10 @@ const selectedUser = ref(null);
 const searchTerm = ref("");
 const showAdd = ref(false);
 const users = ref([]);
-const showRoles = ref(false);
-const showPermissions = ref(false);
 
 const onRowClick = (row) => {
   selectedUser.value = row;
   showDetails.value = true;
-};
-
-const onRowClickFile = (row) => {
-  selectedUser.value = row;
-  showRoles.value = true;
-};
-
-const onRowClickPermissions = (row) => {
-  selectedUser.value = row;
-  showPermissions.value = true;
 };
 
 const crearUser = async () => {
