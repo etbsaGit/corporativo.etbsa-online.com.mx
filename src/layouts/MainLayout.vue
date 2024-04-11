@@ -62,7 +62,11 @@
       <q-expansion-item
         expand-separator
         icon="perm_identity"
-        :label="user.empleado.nombreCompleto"
+        :label="
+          user && user.empleado && user.empleado.nombreCompleto
+            ? user.empleado.nombreCompleto
+            : user.name
+        "
         caption="Opciones de usuario"
       >
         <q-card>
