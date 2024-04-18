@@ -26,70 +26,68 @@
         <q-item-label caption>
           <strong>Fecha de ingreso: </strong>{{ employee.fecha_de_ingreso }}
         </q-item-label>
-        <!-- <q-item-label caption>
-          <strong>Linea: </strong>{{ employee.linea.nombre }}
-        </q-item-label>
         <q-item-label caption>
-          <strong>Departamento: </strong>{{ employee.departamento.nombre }}
-        </q-item-label>
-        <q-item-label caption>
-          <strong>Puesto: </strong>{{ employee.puesto.nombre }}
-        </q-item-label> -->
-      </q-item-section>
-      <q-item-section side>
-        <q-item-label>
-          <q-btn
-            size="sm"
-            flat
-            round
-            icon="timeline"
-            class="bg-indigo-7 text-white"
-            @click="openQualificationsDialog"
-          >
-            <q-tooltip class="bg-indigo"
-              >Asignar cursos completados a tecnico</q-tooltip
-            >
-          </q-btn>
-        </q-item-label>
-        <q-item-label>
-          <q-btn
-            size="sm"
-            round
-            color="amber"
-            icon="contact_page"
-            class="text-white"
-            @click="openCV"
-          >
-            <q-tooltip class="bg-amber">Resumen del tecnico</q-tooltip>
-          </q-btn>
-        </q-item-label>
-      </q-item-section>
-    </q-item>
-    <q-separator></q-separator>
-    <q-item>
-      <q-item-section>
-        <div v-if="employee.technician">
-          <div>
+          <div v-if="employee.technician">
             <strong>Tipo de tecnico: </strong>{{ employee.technician.name }}
           </div>
-        </div>
-        <div v-else>
-          <p>No tiene asignado un tipo de tecnico.</p>
-        </div>
+          <div v-else>
+            <strong>Sin tipo de tecnico</strong>
+          </div>
+        </q-item-label>
+        <q-item-label caption>
+          <div v-if="employee.usuario_x">
+            <div><strong>Usuario X: </strong>{{ employee.usuario_x }}</div>
+          </div>
+          <div v-else>
+            <strong>No tiene usuario X</strong>
+          </div>
+        </q-item-label>
       </q-item-section>
       <q-item-section side>
-        <q-item-label>
-          <q-btn
-            size="sm"
-            round
-            icon="edit"
-            color="green"
-            class="text-white"
-            @click="openTechnicians(employee)"
-          >
-            <q-tooltip class="bg-green">Cambiar tipo de tecnico</q-tooltip>
-          </q-btn>
-        </q-item-label>
+        <q-btn-dropdown flat color="primary" icon="menu">
+          <q-list v-close-popup>
+            <q-item>
+              <q-btn
+                flat
+                size="sm"
+                color="primary"
+                icon="timeline"
+                label="Asignar cursos completados a tecnico"
+                @click="openQualificationsDialog"
+              />
+            </q-item>
+            <q-item>
+              <q-btn
+                flat
+                label="Resumen del tecnico"
+                size="sm"
+                color="primary"
+                icon="contact_page"
+                @click="openCV"
+              />
+            </q-item>
+            <q-item>
+              <q-btn
+                flat
+                label="Cambiar tipo de tecnico"
+                size="sm"
+                color="primary"
+                icon="edit"
+                @click="openTechnicians(employee)"
+              />
+            </q-item>
+            <q-item>
+              <q-btn
+                flat
+                label="Asignar usuario X"
+                size="sm"
+                color="primary"
+                icon="badge"
+                @click="openUserX(employee)"
+              />
+            </q-item>
+          </q-list>
+        </q-btn-dropdown>
       </q-item-section>
     </q-item>
   </q-card>
@@ -193,10 +191,39 @@
       </q-card>
     </q-card>
   </q-dialog>
+
+  <q-dialog
+    v-model="showUserX"
+    transition-show="rotate"
+    transition-hide="rotate"
+    persistent
+  >
+    <q-card>
+      <q-card-section class="d-flex justify-between items-center">
+        <div class="text-h6">
+          Asignar usuario X a: {{ employee.nombre }}
+          {{ employee.apellido_paterno }}
+        </div>
+        <q-card-actions align="right">
+          <q-btn label="Cerrar" color="red" v-close-popup />
+          <q-btn label="Asignar" color="blue" @click="setUserX(employee)" />
+        </q-card-actions>
+      </q-card-section>
+      <q-separator />
+      <q-card class="q-pa-md" flat>
+        <q-input
+          dense
+          outlined
+          v-model="userX"
+          label="Asignar el usuario x al empleado"
+        />
+      </q-card>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script setup>
-import { ref, inject, onMounted } from "vue";
+import { ref, inject } from "vue";
 import { sendRequest } from "src/boot/functions";
 
 import EmployeeTimeLine from "src/components/Technician/EmployeeTimeLine.vue";
@@ -207,6 +234,8 @@ const bus = inject("bus");
 
 const showQualifications = ref(false);
 const showTechnicians = ref(false);
+const showUserX = ref(false);
+const userX = ref(null);
 const showCV = ref(false);
 const tecnicos = ref(null);
 const timeLine = ref(null);
@@ -221,6 +250,11 @@ const openTechnicians = (employee) => {
   getTechnicians(employee.linea_id);
   selectedTechnician.value = employee.technician_id;
   showTechnicians.value = true;
+};
+
+const openUserX = (employee) => {
+  userX.value = employee.usuario_x;
+  showUserX.value = true;
 };
 
 const openCV = () => {
@@ -254,6 +288,20 @@ const asignarTechnician = async () => {
   bus.emit("new_qualifications");
   selectedTechnician.value = null;
   showTechnicians.value = false;
+};
+
+const setUserX = async () => {
+  const final = { usuario_x: userX.value };
+  let res = await sendRequest(
+    "POST",
+    final,
+    "/api/technician/userx/" + employee.id,
+    ""
+  );
+  bus.emit("new_qualifications");
+  selectedTechnician.value = null;
+  userX.value = null;
+  showUserX.value = false;
 };
 </script>
 

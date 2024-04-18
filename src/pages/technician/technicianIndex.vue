@@ -11,39 +11,35 @@
       </div>
       <div class="row">
         <q-btn
-          class="col"
+          class="col text-black"
+          label="Tecnicos Agricola"
           color="green"
-          style="height: 450px; font-size: 60px"
+          style="height: 450px; font-size: 60px; margin-right: 10px"
           @click="onClickAcricola"
-        >
-          <span class="text-black">Tecnicos Agricola</span>
-        </q-btn>
+        />
         <q-btn
-          class="col"
+          class="col text-black"
+          label="Tecnicos Construccion"
           color="amber"
           style="height: 450px; font-size: 60px"
           @click="onClickConstruccion"
-        >
-          <span class="text-black">Tecnicos Construccion</span>
-        </q-btn>
+        />
       </div>
       <div class="row">
         <q-btn
-          class="col"
+          class="col text-grey"
+          label="Escalafon Agricola"
           color="green-3"
-          style="height: 150px; font-size: 35px"
+          style="height: 150px; font-size: 35px; margin-right: 10px"
           @click="onClickQuaAgricola"
-        >
-          <span class="text-grey">Escalafon Agricola</span>
-        </q-btn>
+        />
         <q-btn
-          class="col"
+          class="col text-grey"
+          label="Escalafon Construccion"
           color="amber-3"
           style="height: 150px; font-size: 35px"
           @click="onClickQuaConstruccion"
-        >
-          <span class="text-grey">Escalafon Construccion</span>
-        </q-btn>
+        />
       </div>
     </div>
   </q-page>
