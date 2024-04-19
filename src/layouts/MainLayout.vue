@@ -1,5 +1,5 @@
 <template>
-  <q-layout view="lHh Lpr lFf">
+  <q-layout view="hHh LpR fFf">
     <q-header elevated>
       <q-toolbar>
         <q-btn
@@ -22,7 +22,7 @@
         <q-space />
 
         <div v-if="user.empleado">
-          {{ user.empleado.nombre }} {{ user.empleado.apellido_paterno }}
+          {{ user.empleado.nombreCompleto }}
         </div>
 
         <q-btn
@@ -36,8 +36,6 @@
     </q-header>
 
     <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
-      <q-item-label header> Perfil </q-item-label>
-      <q-separator />
       <div class="avatar-container">
         <div v-if="user.empleado">
           <q-item>
