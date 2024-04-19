@@ -1,5 +1,5 @@
 <template>
-  <q-form class="q-gutter-y-sm" ref="myForm" greedy>
+  <q-form ref="myForm" greedy>
     <q-list bordered separator>
       <q-item v-for="pregunta in survey.question" :key="pregunta.id">
         <q-item-section>

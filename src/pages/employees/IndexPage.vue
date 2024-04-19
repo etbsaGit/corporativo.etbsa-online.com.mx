@@ -1,5 +1,5 @@
 <template>
-  <div class="q-pa-md">
+  <div class="q-pa-sm">
     <q-item v-if="checkRole('RRHH')">
       <q-btn
         label="Registrar Empleado"
@@ -123,6 +123,7 @@
       :visible-columns="visibleColumns"
       dense
       :rows-per-page-options="[0]"
+      class="my-sticky-last-column-table"
     >
       <template v-slot:top-right>
         <q-btn
@@ -181,7 +182,7 @@
       </template>
       <template v-slot:body-cell-actions="props">
         <q-td>
-          <q-btn-dropdown flat color="primary" icon="menu">
+          <q-btn-dropdown dense flat color="primary" icon="menu">
             <q-list v-close-popup>
               <q-item>
                 <q-btn
@@ -288,7 +289,7 @@
       full-height
     >
       <q-card style="width: 1800px">
-        <q-card-section class="d-flex justify-between items-center">
+        <q-card-section class="d-flex justify-between items-center q-pa-sm">
           <div class="text-h6">Registrar Empleado</div>
           <q-card-actions align="right">
             <q-btn label="Cerrar" color="red" v-close-popup />
@@ -333,20 +334,25 @@
       persistent
       full-height
     >
-      <q-card style="width: 1800px">
-        <q-card-section class="d-flex justify-between items-center">
+      <q-card>
+        <q-card-section class="d-flex justify-between items-center q-pa-sm">
           <div class="text-h6">
-            Actualizar Empleado {{ selectedEmployee.nombre }}
-            {{ selectedEmployee.apellido_paterno }}
+            Actualizar {{ selectedEmployee.nombreCompleto }}
           </div>
           <q-card-actions align="right">
-            <q-btn label="Cerrar" color="red" v-close-popup />
-            <q-btn
-              :disable="!edit_1 || !edit_2"
-              label="Actualizar"
-              color="blue"
-              @click="actualizarEmpleado()"
-            />
+            <q-item>
+              <q-item-section>
+                <q-btn label="Cerrar" color="red" v-close-popup />
+              </q-item-section>
+              <q-item-section>
+                <q-btn
+                  :disable="!edit_1 || !edit_2"
+                  label="Actualizar"
+                  color="blue"
+                  @click="actualizarEmpleado()"
+                />
+              </q-item-section>
+            </q-item>
           </q-card-actions>
         </q-card-section>
         <q-separator />
@@ -384,11 +390,9 @@
       persistent
     >
       <q-card>
-        <q-card-section class="d-flex justify-between items-center">
+        <q-card-section class="d-flex justify-between items-center q-pa-sm">
           <div class="text-h6">
-            Expediente de {{ selectedEmployee.nombre }}
-            {{ selectedEmployee.apellido_paterno }}
-            {{ selectedEmployee.apellido_materno }}
+            Expediente de {{ selectedEmployee.nombreCompleto }}
           </div>
           <q-card-actions align="right">
             <q-btn label="Cerrar" color="red" v-close-popup />
@@ -411,8 +415,10 @@
       full-height
     >
       <q-card>
-        <q-card-section class="d-flex justify-between items-center">
-          <div class="text-h6">Skill de {{ selectedEmployee.nombre }}</div>
+        <q-card-section class="d-flex justify-between items-center q-pa-sm">
+          <div class="text-h6">
+            Skill de {{ selectedEmployee.nombreCompleto }}
+          </div>
           <q-card-actions align="right">
             <q-btn label="Cerrar" color="red" v-close-popup />
             <q-btn label="Guardar" color="blue" @click="saveSkillRatings" />
@@ -432,10 +438,9 @@
       persistent
     >
       <q-card style="width: 500px">
-        <q-card-section class="d-flex justify-between items-center">
+        <q-card-section class="d-flex justify-between items-center q-pa-sm">
           <div class="text-h6">
-            Carrera de {{ selectedEmployee.nombre }}
-            {{ selectedEmployee.apellido_paterno }}
+            Carrera de {{ selectedEmployee.nombreCompleto }}
           </div>
           <q-card-actions align="right">
             <q-btn label="Cerrar" color="red" v-close-popup />
@@ -456,9 +461,9 @@
       full-height
     >
       <q-card>
-        <q-card-section class="d-flex justify-between items-center">
+        <q-card-section class="d-flex justify-between items-center q-pa-sm">
           <div class="text-h6">
-            Historico y habilidades de {{ selectedEmployee.nombre }}
+            Historico y habilidades de {{ selectedEmployee.nombreCompleto }}
           </div>
           <q-card-actions align="right">
             <q-btn label="Cerrar" color="red" v-close-popup />
@@ -1010,5 +1015,18 @@ onMounted(() => {
 .survey-form-container {
   max-height: 600px; /* Ajusta este valor según tus necesidades */
   overflow-y: auto;
+}
+
+.my-sticky-last-column-table thead tr:last-child th:last-child,
+.my-sticky-last-column-table td:last-child {
+  /* El color de fondo es importante para th; solo especifica uno */
+  background-color: #f0f0f0;
+}
+
+.my-sticky-last-column-table th:last-child,
+.my-sticky-last-column-table td:last-child {
+  position: sticky;
+  right: 0;
+  z-index: 1;
 }
 </style>

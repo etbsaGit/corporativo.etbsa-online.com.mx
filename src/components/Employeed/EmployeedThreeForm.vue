@@ -1,5 +1,5 @@
 <template>
-  <div class="q-pa-md">
+  <div class="q-pa-sm">
     <q-splitter v-model="splitterModel">
       <template v-slot:before>
         <q-table
@@ -66,7 +66,7 @@
 
       <template v-slot:after>
         <q-card>
-          <q-card-section class="d-flex justify-between items-center">
+          <q-card-section class="d-flex justify-between items-center q-pa-sm">
             <div class="text-h6">Archivos</div>
             <q-card-actions align="right">
               <q-btn
@@ -85,7 +85,7 @@
             :requisito="selectedRequisito"
           />
           <q-item v-else class="text-center">
-            <h5>Selecciona un requisito para ver los detalles.</h5>
+            <h6>Selecciona un requisito para ver los detalles.</h6>
           </q-item>
         </q-card>
       </template>

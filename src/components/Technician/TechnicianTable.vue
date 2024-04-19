@@ -67,7 +67,7 @@
     persistent
   >
     <q-card>
-      <q-card-section class="d-flex justify-between items-center">
+      <q-card-section class="d-flex justify-between items-center q-pa-sm">
         <div class="text-h6">Modificar {{ selectedTechnician.name }}</div>
         <q-card-actions align="right">
           <q-btn label="Cerrar" color="red" v-close-popup />
@@ -97,7 +97,7 @@
     persistent
   >
     <q-card>
-      <q-card-section class="d-flex justify-between items-center">
+      <q-card-section class="d-flex justify-between items-center q-pa-sm">
         <div class="text-h6">Agregar tipo de tecnico</div>
         <q-card-actions align="right">
           <q-btn label="Cerrar" color="red" v-close-popup />
@@ -123,7 +123,7 @@
     persistent
   >
     <q-card>
-      <q-card-section class="d-flex justify-between items-center">
+      <q-card-section class="d-flex justify-between items-center q-pa-sm">
         <div class="text-h6">Borrar tipo de tecnico</div>
         <q-card-actions align="right">
           <q-btn label="Cerrar" color="red" v-close-popup />

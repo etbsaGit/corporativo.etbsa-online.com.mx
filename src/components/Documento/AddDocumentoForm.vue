@@ -1,5 +1,5 @@
 <template>
-  <q-form class="q-gutter-y-sm" ref="myForm" greedy>
+  <q-form ref="myForm" greedy>
     <q-item>
       <q-item-section>
         <q-select
@@ -33,7 +33,7 @@ const myForm = ref(null);
 
 const formDocumento = ref({
   requisito_id: null,
-  expediente_id: empleado.archivable[0].id
+  expediente_id: empleado.archivable[0].id,
 });
 
 const obtenerRequisitos = async () => {
@@ -51,6 +51,6 @@ onMounted(() => {
 
 defineExpose({
   formDocumento,
-  validate
+  validate,
 });
 </script>

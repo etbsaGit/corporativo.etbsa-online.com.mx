@@ -1,5 +1,5 @@
 <template>
-  <div class="q-pa-md">
+  <div class="q-pa-sm">
     <q-form>
       <q-item v-if="!empleado">
         <q-item-section>
@@ -66,7 +66,7 @@
       </q-item>
 
       <q-item>
-        <q-item-section class="q-pa-md example-col-gutter-size">
+        <q-item-section class="q-pa-sm example-col-gutter-size">
           <div class="row q-col-gutter-md">
             <div
               v-for="requisito in requisitos"

@@ -1,5 +1,5 @@
 <template>
-  <div class="q-pa-md">
+  <div class="q-pa-sm">
     <q-table
       title="Encuesta"
       :rows="surveys"
@@ -143,7 +143,7 @@
       full-height
     >
       <q-card>
-        <q-card-section class="d-flex justify-between items-center">
+        <q-card-section class="d-flex justify-between items-center q-pa-sm">
           <div class="text-h6">Registrar Encuesta</div>
           <q-card-actions align="right">
             <q-btn label="Cerrar" color="red" v-close-popup />
@@ -168,7 +168,7 @@
       full-height
     >
       <q-card>
-        <q-card-section class="d-flex justify-between items-center">
+        <q-card-section class="d-flex justify-between items-center q-pa-sm">
           <div class="text-h6">
             Actualizar Encuesta {{ selectedSurvey.title }}
           </div>
@@ -201,7 +201,7 @@
       full-height
     >
       <q-card>
-        <q-card-section class="d-flex justify-between items-center">
+        <q-card-section class="d-flex justify-between items-center q-pa-sm">
           <div class="text-h6">Asignar encuesta {{ selectedSurvey.title }}</div>
           <q-card-actions align="right">
             <q-btn label="Cancelar" color="red" v-close-popup />
@@ -228,7 +228,7 @@
       full-height
     >
       <q-card>
-        <q-card-section class="d-flex justify-between items-center">
+        <q-card-section class="d-flex justify-between items-center q-pa-sm">
           <div class="text-h6">Calificar {{ selectedSurvey.title }}</div>
           <q-card-actions align="right">
             <q-btn label="Cerrar" color="red" v-close-popup />
@@ -250,7 +250,7 @@
       full-height
     >
       <q-card>
-        <q-card-section class="d-flex justify-between items-center">
+        <q-card-section class="d-flex justify-between items-center q-pa-sm">
           <div class="text-h6">Vista previa {{ selectedSurvey.title }}</div>
           <q-card-actions align="right">
             <q-btn label="Cerrar" color="red" v-close-popup />
@@ -272,7 +272,7 @@
       full-height
     >
       <q-card>
-        <q-card-section class="d-flex justify-between items-center">
+        <q-card-section class="d-flex justify-between items-center q-pa-sm">
           <div class="text-h6">Vista previa {{ selectedSurvey.title }}</div>
           <q-card-actions align="right">
             <q-btn label="Cerrar" color="red" v-close-popup />
@@ -294,7 +294,7 @@
       full-height
     >
       <q-card>
-        <q-card-section class="d-flex justify-between items-center">
+        <q-card-section class="d-flex justify-between items-center q-pa-sm">
           <div class="text-h6">Clonar Encuesta {{ selectedSurvey.title }}</div>
           <q-card-actions align="right">
             <q-btn label="Cerrar" color="red" v-close-popup />
@@ -324,7 +324,7 @@
       persistent
     >
       <q-card>
-        <q-card-section class="d-flex justify-between items-center">
+        <q-card-section class="d-flex justify-between items-center q-pa-sm">
           <div class="text-h6">
             ¿Deseas borrar {{ selectedSurvey.title }} y todo las preguntas y
             respuestas relacionadas?
@@ -348,7 +348,7 @@
       transition-hide="rotate"
     >
       <q-card style="width: 400px">
-        <q-card-section class="d-flex justify-between items-center">
+        <q-card-section class="d-flex justify-between items-center q-pa-sm">
           <div class="text-h6">Evaluados</div>
           <q-card-actions align="right">
             <q-btn label="Cerrar" color="red" v-close-popup />

@@ -1,5 +1,5 @@
 <template>
-  <div class="row q-pa-md q-gutter-sm">
+  <div class="row q-pa-sm q-gutter-sm">
     <q-card class="col-12">
       <!-- <div class="q-pr-md"> -->
       <!-- <div class="q-pb-sm text-h5">Model: {{ model }}</div>
@@ -99,7 +99,7 @@ const model = ref({ from: "2023/12/08", to: "2023/012/17" });
 const events = [
   { event: "2023/12/12", to_count: true },
   { event: "2023/12/28", to_count: false },
-  { event: "2023/12/06", to_count: false }
+  { event: "2023/12/06", to_count: false },
 ];
 
 const eventsFn = computed(() => {

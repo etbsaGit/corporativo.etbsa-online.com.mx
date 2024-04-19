@@ -1,5 +1,5 @@
 <template>
-  <div class="row q-pa-md fit wrap justify-evenly items-start content-start">
+  <div class="row q-pa-sm fit wrap justify-evenly items-start content-start">
     <q-card class="my-card bg-blue text-white q-ma-xs">
       <q-card-section>
         <div class="text-h6">Direct store</div>
@@ -77,9 +77,9 @@ export default {
       // Option 3: pass the destructed state, getters and actions to the template
       counter,
       increment,
-      doubleCount
+      doubleCount,
     };
-  }
+  },
 };
 </script>
 

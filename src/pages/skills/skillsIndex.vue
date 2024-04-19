@@ -70,7 +70,7 @@
     persistent
   >
     <q-card>
-      <q-card-section class="d-flex justify-between items-center">
+      <q-card-section class="d-flex justify-between items-center q-pa-sm">
         <div class="text-h6">Registrar Skill</div>
         <q-card-actions align="right">
           <q-btn label="Cerrar" color="red" v-close-popup />
@@ -93,7 +93,7 @@
     persistent
   >
     <q-card>
-      <q-card-section class="d-flex justify-between items-center">
+      <q-card-section class="d-flex justify-between items-center q-pa-sm">
         <div class="text-h6">Modificar Skill</div>
         <q-card-actions align="right">
           <q-btn label="Cerrar" color="red" v-close-popup />

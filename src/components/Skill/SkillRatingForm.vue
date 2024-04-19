@@ -1,12 +1,21 @@
 <template>
-  <q-form class="q-gutter-y-sm" ref="myForm" greedy>
+  <q-form ref="myForm" greedy>
     <q-splitter v-model="splitterModel">
       <template v-slot:before>
-        <div class="q-pa-md">
+        <div class="q-pa-sm">
           <div class="text-h4 q-mb-md">Skills</div>
-          <q-item v-for="(skillrating, index) in skillratings" :key="index">
-            <q-item-section>
-              <q-input v-model="skillrating.skill.name" disable filled dense />
+          <q-item
+            v-for="(skillrating, index) in skillratings"
+            :key="index"
+            class="row"
+          >
+            <q-item-section class="col-10">
+              <q-input
+                v-model="skillrating.skill.name"
+                disable
+                outlined
+                dense
+              />
             </q-item-section>
             <q-item-section>
               <q-input
@@ -22,7 +31,7 @@
       </template>
 
       <template v-slot:after>
-        <div class="q-pa-md">
+        <div class="q-pa-sm">
           <div class="text-h4 q-mb-md">Grafica</div>
           <skill-rating-chart
             v-if="initial == true"
@@ -42,7 +51,7 @@ import { sendRequest } from "src/boot/functions";
 import SkillRatingChart from "src/components/Skill/SkillRatingChart.vue";
 const { employee } = defineProps(["employee"]);
 const bus = inject("bus");
-const splitterModel = ref(50);
+const splitterModel = ref(30);
 const skillratings = ref([]);
 const myForm = ref(null);
 const initial = ref(false);

@@ -105,7 +105,7 @@
     persistent
   >
     <q-card>
-      <q-card-section class="d-flex justify-between items-center">
+      <q-card-section class="d-flex justify-between items-center q-pa-sm">
         <div class="text-h6">Cambiar contraseña de {{ user.name }}</div>
         <q-card-actions align="right">
           <q-btn label="Cerrar" color="red" v-close-popup />

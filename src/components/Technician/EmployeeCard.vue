@@ -17,8 +17,7 @@
       </q-item-section>
       <q-item-section>
         <q-item-label class="text-grey-8 text-weight-bold">
-          {{ employee.nombre }} {{ employee.segundo_nombre }}
-          {{ employee.apellido_paterno }} {{ employee.apellido_materno }}
+          {{ employee.nombreCompleto }}
         </q-item-label>
         <q-item-label caption>
           <strong>Sucursal: </strong>{{ employee.sucursal.nombre }}
@@ -100,17 +99,21 @@
     full-height
   >
     <q-card>
-      <q-card-section class="d-flex justify-between items-center">
-        <div class="text-h6">
-          Carrera de {{ employee.nombre }} {{ employee.apellido_paterno }}
-        </div>
+      <q-card-section class="d-flex flex-center justify-between q-pa-sm">
+        <div class="text-h6">Carrera de {{ employee.nombreCompleto }}</div>
         <q-card-actions align="right">
-          <q-btn label="Cerrar" color="red" v-close-popup />
-          <q-btn
-            label="Agregar"
-            color="blue"
-            @click="addQualifications(employee)"
-          />
+          <q-item>
+            <q-item-section>
+              <q-btn label="Cerrar" color="red" v-close-popup />
+            </q-item-section>
+            <q-item-section>
+              <q-btn
+                label="Agregar"
+                color="blue"
+                @click="addQualifications(employee)"
+              />
+            </q-item-section>
+          </q-item>
         </q-card-actions>
       </q-card-section>
       <q-separator />
@@ -134,10 +137,9 @@
     persistent
   >
     <q-card>
-      <q-card-section class="d-flex justify-between items-center">
+      <q-card-section class="d-flex justify-between items-center q-pa-sm">
         <div class="text-h6">
-          Asignar tecnico a: {{ employee.nombre }}
-          {{ employee.apellido_paterno }}
+          Asignar tecnico a: {{ employee.nombreCompleto }}
         </div>
         <q-card-actions align="right">
           <q-btn label="Cerrar" color="red" v-close-popup />
@@ -149,7 +151,7 @@
         </q-card-actions>
       </q-card-section>
       <q-separator />
-      <q-card class="q-pa-md" flat>
+      <q-card class="q-pa-sm" flat>
         <q-select
           v-model="selectedTechnician"
           :options="tecnicos"
@@ -177,17 +179,17 @@
     full-height
   >
     <q-card>
-      <q-card-section class="d-flex justify-between items-center">
-        <div class="text-h6">
-          Carrera de {{ employee.nombre }} {{ employee.apellido_paterno }}
-        </div>
+      <q-card-section class="flex flex-center justify-between q-pa-sm">
+        <div class="text-h6">Carrera de {{ employee.nombreCompleto }}</div>
         <q-card-actions align="right">
           <q-btn label="Cerrar" color="red" v-close-popup />
         </q-card-actions>
       </q-card-section>
       <q-separator />
       <q-card class="q-pa-none scroll" flat>
-        <c-v :employee="empleado"></c-v>
+        <div class="survey-form-container">
+          <c-v :employee="empleado"></c-v>
+        </div>
       </q-card>
     </q-card>
   </q-dialog>
@@ -199,7 +201,7 @@
     persistent
   >
     <q-card>
-      <q-card-section class="d-flex justify-between items-center">
+      <q-card-section class="d-flex justify-between items-center q-pa-sm">
         <div class="text-h6">
           Asignar usuario X a: {{ employee.nombre }}
           {{ employee.apellido_paterno }}
@@ -210,7 +212,7 @@
         </q-card-actions>
       </q-card-section>
       <q-separator />
-      <q-card class="q-pa-md" flat>
+      <q-card class="q-pa-sm" flat>
         <q-input
           dense
           outlined

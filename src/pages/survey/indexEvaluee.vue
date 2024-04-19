@@ -61,7 +61,7 @@
     full-height
   >
     <q-card style="width: 1800px">
-      <q-card-section class="d-flex justify-between items-center">
+      <q-card-section class="d-flex justify-between items-center q-pa-sm">
         <div class="text-h6">
           Responde las preguntas de {{ selectedSurvey.title }}
         </div>
@@ -85,7 +85,7 @@
     full-height
   >
     <q-card style="width: 1800px">
-      <q-card-section class="d-flex justify-between items-center">
+      <q-card-section class="d-flex justify-between items-center q-pa-sm">
         <div class="text-h6">Respuestas de {{ selectedSurvey.title }}</div>
         <q-card-actions align="right">
           <q-btn label="Cerrar" color="red" v-close-popup />

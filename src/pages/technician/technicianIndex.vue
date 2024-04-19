@@ -1,5 +1,5 @@
 <template>
-  <q-page class="q-pa-md">
+  <q-page class="q-pa-sm">
     <div class="q-gutter-md">
       <div class="row">
         <q-btn
@@ -52,7 +52,7 @@
     full-height
   >
     <q-card>
-      <q-card-section class="d-flex justify-between items-center">
+      <q-card-section class="d-flex justify-between items-center q-pa-sm">
         <div class="text-h6">Tecnicos de Agricola</div>
         <q-card-actions align="right">
           <q-btn label="Cerrar" color="red" v-close-popup />
@@ -81,7 +81,7 @@
     full-height
   >
     <q-card>
-      <q-card-section class="d-flex justify-between items-center">
+      <q-card-section class="d-flex justify-between items-center q-pa-sm">
         <div class="text-h6">Tecnicos de Construccion</div>
         <q-card-actions align="right">
           <q-btn label="Cerrar" color="red" v-close-popup />
@@ -116,7 +116,7 @@
     persistent
   >
     <q-card>
-      <q-card-section class="d-flex justify-between items-center">
+      <q-card-section class="d-flex justify-between items-center q-pa-sm">
         <div class="text-h6">Cursos de Construccion</div>
         <q-card-actions align="right">
           <q-btn label="Cerrar" color="red" v-close-popup />
@@ -139,7 +139,7 @@
     persistent
   >
     <q-card>
-      <q-card-section class="d-flex justify-between items-center">
+      <q-card-section class="d-flex justify-between items-center q-pa-sm">
         <div class="text-h6">Cursos de Agricola</div>
         <q-card-actions align="right">
           <q-btn label="Cerrar" color="red" v-close-popup />
@@ -164,7 +164,7 @@
     full-height
   >
     <q-card>
-      <q-card-section class="d-flex justify-between items-center">
+      <q-card-section class="d-flex justify-between items-center q-pa-sm">
         <div class="text-h6">Administrar tipos de tecnicos</div>
         <q-card-actions align="right">
           <q-btn label="Cerrar" color="red" v-close-popup />

@@ -71,7 +71,7 @@
     persistent
   >
     <q-card>
-      <q-card-section class="d-flex justify-between items-center">
+      <q-card-section class="d-flex justify-between items-center q-pa-sm">
         <div class="text-h6">Registrar Linea</div>
         <q-card-actions align="right">
           <q-btn label="Cerrar" color="red" v-close-popup />
@@ -94,7 +94,7 @@
     persistent
   >
     <q-card>
-      <q-card-section class="d-flex justify-between items-center">
+      <q-card-section class="d-flex justify-between items-center q-pa-sm">
         <div class="text-h6">Actualizar linea {{ selectedLinea.nombre }}</div>
         <q-card-actions align="right">
           <q-btn label="Cerrar" color="red" v-close-popup />

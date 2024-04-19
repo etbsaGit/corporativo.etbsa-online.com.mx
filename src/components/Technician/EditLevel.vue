@@ -1,5 +1,5 @@
 <template>
-  <div class="q-pa-md">
+  <div class="q-pa-sm">
     <div v-for="(qualification, index) in qualifications" :key="index">
       <q-toolbar class="bg-primary text-white shadow-2">
         <q-toolbar-title>{{ qualification.technician.name }}</q-toolbar-title>
