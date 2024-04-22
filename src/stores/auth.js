@@ -23,7 +23,7 @@ export const useAuthStore = defineStore("auth", {
             color: "green",
             position: "top",
             message: res.data.message,
-            icon: "info",
+            icon: "check",
           });
           this.router.push("/");
         })
@@ -31,8 +31,7 @@ export const useAuthStore = defineStore("auth", {
           Notify.create({
             color: "negative",
             position: "top",
-            //message: errors.response.data.message,
-            message: "Error al iniciar la sesion",
+            message: errors.response.data,
             icon: "report_problem",
           });
         });

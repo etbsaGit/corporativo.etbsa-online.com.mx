@@ -5,6 +5,7 @@
       color="primary"
       @click="showAdd = true"
       icon="add_circle"
+      dense
     />
   </q-item>
   <q-item>
@@ -13,6 +14,7 @@
       icon-right="archive"
       label="Export to csv"
       no-caps
+      dense
       @click="exportTable"
     />
   </q-item>
@@ -32,46 +34,52 @@
       </q-input>
     </q-item-section>
   </q-item>
-  <q-table
-    flat
-    bordered
-    title="Puestos"
-    :rows="filteredPuestos"
-    :columns="columns"
-    row-key="name"
-    dense
-    :rows-per-page-options="[0]"
-  >
-    <template v-slot:top="props">
-      <div class="col-2 q-table__title">Puestos</div>
-      <q-space />
-      <q-btn
-        round
+  <q-item>
+    <q-item-section>
+      <q-table
+        flat
+        bordered
+        title="Puestos"
+        :rows="filteredPuestos"
+        :columns="columns"
+        row-key="name"
         dense
-        :icon="props.inFullscreen ? 'fullscreen_exit' : 'fullscreen'"
-        @click="props.toggleFullscreen"
-        class="q-ml-md"
-      />
-    </template>
-    <template v-slot:body-cell-actions="props">
-      <q-td>
-        <q-btn-dropdown flat color="primary" icon="menu" dense>
-          <q-list v-close-popup>
-            <q-item>
-              <q-btn
-                color="primary"
-                @click="onRowClick(props.row)"
-                flat
-                size="sm"
-                label="Editar"
-                icon="edit"
-              />
-            </q-item>
-          </q-list>
-        </q-btn-dropdown>
-      </q-td>
-    </template>
-  </q-table>
+        virtual-scroll
+        style="height: 100%"
+        :rows-per-page-options="[0]"
+      >
+        <template v-slot:top="props">
+          <div class="col-2 q-table__title">Puestos</div>
+          <q-space />
+          <q-btn
+            round
+            dense
+            :icon="props.inFullscreen ? 'fullscreen_exit' : 'fullscreen'"
+            @click="props.toggleFullscreen"
+            class="q-ml-md"
+          />
+        </template>
+        <template v-slot:body-cell-actions="props">
+          <q-td>
+            <q-btn-dropdown flat color="primary" icon="menu" dense>
+              <q-list v-close-popup>
+                <q-item>
+                  <q-btn
+                    color="primary"
+                    @click="onRowClick(props.row)"
+                    flat
+                    size="sm"
+                    label="Editar"
+                    icon="edit"
+                  />
+                </q-item>
+              </q-list>
+            </q-btn-dropdown>
+          </q-td>
+        </template>
+      </q-table>
+    </q-item-section>
+  </q-item>
 
   <q-dialog
     v-model="showAdd"
@@ -80,7 +88,7 @@
     persistent
   >
     <q-card>
-      <q-card-section class="d-flex justify-between items-center">
+      <q-card-section class="d-flex justify-between items-center q-pa-sm">
         <div class="text-h6">Registrar Puesto</div>
         <q-card-actions align="right">
           <q-btn label="Cerrar" color="red" v-close-popup />
@@ -103,7 +111,7 @@
     persistent
   >
     <q-card>
-      <q-card-section class="d-flex justify-between items-center">
+      <q-card-section class="d-flex justify-between items-center q-pa-sm">
         <div class="text-h6">Actualizar Puesto {{ selectedPuesto.nombre }}</div>
         <q-card-actions align="right">
           <q-btn label="Cerrar" color="red" v-close-popup />

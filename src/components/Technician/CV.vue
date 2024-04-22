@@ -1,5 +1,5 @@
 <template>
-  <q-page class="q-pa-md">
+  <q-page class="q-pa-sm">
     <q-card class="my-card" flat bordered>
       <q-item>
         <q-item-section avatar class="flex justify-center items-center">

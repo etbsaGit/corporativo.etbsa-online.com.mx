@@ -1,6 +1,6 @@
 <template>
   <q-page class="flex flex-center bg-grey-2">
-    <q-card class="q-pa-md shadow-2 my_card" bordered>
+    <q-card class="q-pa-sm shadow-2 my_card" bordered>
       <q-card-section class="text-center">
         <q-img src="../../assets/Logo.png" alt="Logo" class="my-logo-image" />
         <div class="text-grey-9 text-h5 text-weight-bold">

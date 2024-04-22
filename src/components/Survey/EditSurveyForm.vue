@@ -1,5 +1,5 @@
 <template>
-  <q-form class="q-gutter-y-sm" ref="myForm" greedy>
+  <q-form ref="myForm" greedy>
     <q-item>
       <q-item-section>
         <q-input
@@ -95,7 +95,7 @@
     <q-separator />
     <q-item v-for="(pregunta, index) in formSurvey.questions" :key="index">
       <q-item-section>
-        <q-card-section class="d-flex justify-between items-center">
+        <q-card-section class="d-flex justify-between items-center q-pa-sm">
           <div class="text-h6">Pregunta {{ index + 1 }}</div>
           <q-card-actions align="right">
             <q-btn

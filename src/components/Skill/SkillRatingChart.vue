@@ -1,5 +1,5 @@
 <template>
-  <div class="q-pa-md">
+  <div class="q-pa-sm">
     <canvas ref="radarChart" class="chart-container"></canvas>
   </div>
 </template>

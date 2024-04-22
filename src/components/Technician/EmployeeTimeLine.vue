@@ -10,14 +10,17 @@
           v-for="qualification in technician.qualification"
           :key="qualification.id"
         >
-          <q-item-section>
+          <q-item-section avatar>
             <q-toggle
               v-model="qualificationSelected"
-              :label="qualification.name"
               :val="qualification.id"
               color="blue"
               :disable="disable"
             />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>{{ qualification.name }}</q-item-label>
+            <q-item-label caption>{{ qualification.clave }}</q-item-label>
           </q-item-section>
         </q-item>
       </q-timeline-entry>

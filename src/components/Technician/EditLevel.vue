@@ -1,20 +1,30 @@
 <template>
-  <div class="q-pa-md">
+  <div class="q-pa-sm">
     <div v-for="(qualification, index) in qualifications" :key="index">
       <q-toolbar class="bg-primary text-white shadow-2">
         <q-toolbar-title>{{ qualification.technician.name }}</q-toolbar-title>
-        <q-btn
-          color="green"
-          dense
-          icon="add"
-          @click="activateInput(index)"
-        ></q-btn>
+        <q-btn color="green" dense icon="add" @click="activateInput(index)" />
       </q-toolbar>
-      <q-list bordered>
+      <q-list bordered separator dense>
+        <q-item>
+          <q-item-section>
+            <q-item-label><strong>Clave</strong></q-item-label>
+          </q-item-section>
+          <q-item-section class="col-9">
+            <q-item-label><strong>Nombre</strong></q-item-label>
+          </q-item-section>
+        </q-item>
         <q-item v-for="quali in qualification.qualification" :key="quali.id">
           <q-item-section>
             <template v-if="quali.id !== editIndex">
-              <q-item-label>{{ quali.name }}</q-item-label>
+              <q-item>
+                <q-item-section>
+                  <q-item-label>{{ quali.clave }}</q-item-label>
+                </q-item-section>
+                <q-item-section class="col-9">
+                  <q-item-label>{{ quali.name }}</q-item-label>
+                </q-item-section>
+              </q-item>
             </template>
             <template v-else>
               <q-input
@@ -22,6 +32,13 @@
                 filled
                 dense
                 label="Titulo"
+                lazy-rules
+              />
+              <q-input
+                v-model="qualificationForm.clave"
+                filled
+                dense
+                label="Clave unica del curso (opcional)"
                 lazy-rules
               />
             </template>
@@ -54,23 +71,38 @@
           </q-item-section>
         </q-item>
         <q-item v-if="addIndex === index">
-          <q-item-section>
-            <q-input
-              v-model="qualificationForm.name"
-              filled
-              dense
-              label="Titulo"
-              lazy-rules
-            >
-              <template v-slot:after>
-                <q-btn
-                  label="Agregar"
-                  icon="send"
+          <q-item-section class="col-10">
+            <q-item>
+              <q-item-section>
+                <q-input
+                  v-model="qualificationForm.name"
+                  filled
                   dense
-                  @click="addQualification(qualification)"
-                ></q-btn>
-              </template>
-            </q-input>
+                  label="Titulo"
+                  lazy-rules
+                />
+              </q-item-section>
+            </q-item>
+            <q-item>
+              <q-item-section>
+                <q-input
+                  v-model="qualificationForm.clave"
+                  filled
+                  dense
+                  label="Clave unica del curso (opcional)"
+                  lazy-rules
+                />
+              </q-item-section>
+            </q-item>
+          </q-item-section>
+          <q-item-section>
+            <q-btn
+              label="Agregar"
+              icon="send"
+              color="green"
+              dense
+              @click="addQualification(qualification)"
+            />
           </q-item-section>
         </q-item>
       </q-list>
@@ -91,6 +123,7 @@ const editIndex = ref(null);
 
 const qualificationForm = ref({
   name: null,
+  clave: null,
   linea_id: null,
   technician_id: null,
   linea_technician_id: null,
@@ -105,12 +138,14 @@ const activateInput = (index) => {
   editIndex.value = null;
   addIndex.value = index;
   qualificationForm.value.name = null;
+  qualificationForm.value.clave = null;
 };
 
 const editQualification = (item) => {
   addIndex.value = null;
   editIndex.value = item.id;
   qualificationForm.value.name = item.name;
+  qualificationForm.value.clave = item.clave;
   qualificationForm.value.linea_technician_id = item.linea_technician_id;
 };
 

@@ -110,6 +110,14 @@ export function checkRole(role) {
   return usuario.roles.some((usuarioRol) => usuarioRol.name === role);
 }
 
+export function checkPermissions(permission) {
+  const authStore = useAuthStore();
+  const usuario = authStore.authUser;
+  return usuario.permissions.some(
+    (usuarioPermission) => usuarioPermission.name === permission
+  );
+}
+
 export function getNamesPermissions(usuario) {
   const namePermissions = [];
   if (usuario && Array.isArray(usuario.permissions)) {

@@ -1,5 +1,5 @@
 <template>
-  <div class="row q-pa-md q-gutter-sm">
+  <div class="row q-pa-sm q-gutter-sm">
     <div class="col-3">
       <q-card class="my-card" style="min-height: 400px">
         <!-- <img src="https://cdn.quasar.dev/img/parallax2.jpg" /> -->
@@ -264,26 +264,26 @@ const contacts = [
     id: 1,
     name: "Ruddy Jedrzej",
     email: "rjedrzej0@discuz.net",
-    letter: "R"
+    letter: "R",
   },
   {
     id: 2,
     name: "Mallorie Alessandrini",
     email: "malessandrini1@marketwatch.com",
-    letter: "M"
+    letter: "M",
   },
   {
     id: 3,
     name: "Elisabetta Wicklen",
     email: "ewicklen2@microsoft.com",
-    letter: "E"
+    letter: "E",
   },
   {
     id: 4,
     name: "Seka Fawdrey",
     email: "sfawdrey3@wired.com",
-    letter: "S"
-  }
+    letter: "S",
+  },
 ];
 export default {
   setup() {
@@ -291,9 +291,9 @@ export default {
       contacts,
       tab: ref("one"),
       info: ref("mails"),
-      splitterModel: ref(20)
+      splitterModel: ref(20),
     };
-  }
+  },
 };
 </script>
 <style></style>
