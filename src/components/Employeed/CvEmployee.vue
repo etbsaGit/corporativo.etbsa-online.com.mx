@@ -27,9 +27,7 @@
               <q-item-section>
                 <q-item-label>
                   <strong>
-                    {{ employee.nombre }} {{ employee.segundo_nombre }}
-                    {{ employee.apellido_paterno }}
-                    {{ employee.apellido_materno }}
+                    {{ employee.nombreCompleto }}
                   </strong>
                 </q-item-label>
                 <q-item-label caption>

@@ -1,36 +1,31 @@
 <template>
-  <div class="q-pa-sm">
-    <q-card>
-      <q-tabs
-        v-model="tab"
-        dense
-        class="text-grey"
-        active-color="primary"
-        indicator-color="primary"
-        align="justify"
-        narrow-indicator
-      >
-        <q-tab name="users" icon="manage_accounts" label="users" />
-        <q-tab name="roles" icon="shield" label="Roles" />
-        <q-tab name="permissions" icon="key" label="Permisos" />
-      </q-tabs>
+  <q-tabs
+    v-model="tab"
+    dense
+    class="text-grey"
+    active-color="primary"
+    indicator-color="primary"
+    align="justify"
+  >
+    <q-tab name="users" icon="manage_accounts" label="users" />
+    <q-tab name="roles" icon="shield" label="Roles" />
+    <q-tab name="permissions" icon="key" label="Permisos" />
+  </q-tabs>
 
-      <q-separator />
+  <q-separator />
 
-      <div class="survey-form-container">
-        <q-tab-panels v-model="tab" animated keep-alive>
-          <q-tab-panel name="users">
-            <user-index />
-          </q-tab-panel>
-          <q-tab-panel name="roles">
-            <roles-index />
-          </q-tab-panel>
-          <q-tab-panel name="permissions">
-            <permissions-index />
-          </q-tab-panel>
-        </q-tab-panels>
-      </div>
-    </q-card>
+  <div class="survey-form-container">
+    <q-tab-panels v-model="tab" animated keep-alive>
+      <q-tab-panel name="users" class="q-pa-none">
+        <user-index />
+      </q-tab-panel>
+      <q-tab-panel name="roles" class="q-pa-none">
+        <roles-index />
+      </q-tab-panel>
+      <q-tab-panel name="permissions" class="q-pa-none">
+        <permissions-index />
+      </q-tab-panel>
+    </q-tab-panels>
   </div>
 </template>
 
