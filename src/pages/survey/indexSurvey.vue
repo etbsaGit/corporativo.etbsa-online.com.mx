@@ -197,7 +197,6 @@
     transition-show="rotate"
     transition-hide="rotate"
     persistent
-    full-width
     full-height
   >
     <q-card>
