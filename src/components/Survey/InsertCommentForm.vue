@@ -88,13 +88,11 @@
           >
             <template v-slot:after>
               <q-btn
-                color="primary"
+                :color="colorBoton"
                 @click="sendComments(pregunta)"
-                round
                 dense
-                flat
                 icon="send"
-                label="Enviar retroalimentacion"
+                :label="labelBoton"
               />
             </template>
           </q-input>
@@ -144,6 +142,8 @@ import { sendRequest } from "src/boot/functions";
 
 const { evaluee, survey } = defineProps(["evaluee", "survey"]);
 const myForm = ref(null);
+const labelBoton = ref("Enviar respuesta");
+const colorBoton = ref("orange");
 
 const getColor = (value) => {
   return value === 1 ? "green" : "red"; // Cambia el color a verde cuando el valor es 1, de lo contrario, a rojo
@@ -170,6 +170,10 @@ const getAnswers = async () => {
   for (const pregunta of survey.question) {
     const respuesta = res.find((ans) => ans.question_id === pregunta.id);
     if (respuesta) {
+      if (respuesta.rating) {
+        labelBoton.value = "Enviada";
+        colorBoton.value = "green";
+      }
       pregunta.respuestaAsignada = true;
       if (pregunta.type === "checkbox") {
         const respuestasSeleccionadas = respuesta.answer.split("|");
@@ -194,6 +198,10 @@ const getAnswersfirst = async () => {
   for (const pregunta of survey.question) {
     const respuesta = res.find((ans) => ans.question_id === pregunta.id);
     if (respuesta) {
+      if (respuesta.rating) {
+        labelBoton.value = "Enviada";
+        colorBoton.value = "green";
+      }
       pregunta.respuestaAsignada = true;
       pregunta.comments = respuesta.comments; // Asignar comentarios
       pregunta.respuesta_id = respuesta.id;

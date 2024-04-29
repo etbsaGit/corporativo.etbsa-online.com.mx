@@ -147,7 +147,7 @@ const selectedSurvey = ref(null);
 const surveys = ref([]);
 
 const columns = [
-  { name: "id", label: "ID", align: "left", field: "id", sortable: true },
+  // { name: "id", label: "ID", align: "left", field: "id", sortable: true },
   {
     name: "title",
     label: "Titulo",

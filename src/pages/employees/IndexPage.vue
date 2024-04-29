@@ -161,7 +161,7 @@
             class="q-ml-md"
           />
         </template>
-        <template v-slot:body-cell-nombre="props">
+        <template v-slot:body-cell-id="props">
           <q-td>
             <q-item class="q-my-none" dense>
               <q-item-section avatar>
@@ -176,9 +176,6 @@
                   {{ props.row.nombre.charAt(0).toUpperCase()
                   }}{{ props.row.apellido_paterno.charAt(0).toUpperCase() }}
                 </q-avatar>
-              </q-item-section>
-              <q-item-section>
-                <q-item-label>{{ props.row.nombre }}</q-item-label>
               </q-item-section>
             </q-item>
           </q-td>
@@ -553,7 +550,7 @@ const visibleColumns = ref([
 ]);
 
 const columns = [
-  { name: "id", label: "ID", align: "left", field: "id", sortable: true },
+  { name: "id", label: "Foto", align: "left", field: "id", sortable: false },
   {
     name: "nombre",
     label: "Nombre",

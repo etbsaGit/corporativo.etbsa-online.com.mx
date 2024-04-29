@@ -216,7 +216,7 @@ const getEstatus = async () => {
 const visibleColumns = ref(["nombre", "created_at", "opciones"]);
 
 const columns = [
-  { name: "id", label: "ID", align: "left", field: "id", sortable: true },
+  // { name: "id", label: "ID", align: "left", field: "id", sortable: true },
   {
     name: "nombre",
     label: "Nombre",

@@ -189,7 +189,7 @@ const getRequisitos = async () => {
 };
 
 const columns = [
-  { name: "id", label: "ID", align: "left", field: "id", sortable: true },
+  // { name: "id", label: "ID", align: "left", field: "id", sortable: true },
   {
     name: "nombre",
     label: "Nombre",
