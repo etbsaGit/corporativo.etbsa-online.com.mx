@@ -88,11 +88,11 @@
           >
             <template v-slot:after>
               <q-btn
-                :color="colorBoton"
+                :color="pregunta.respuestaEnviada ? 'green' : colorBoton"
                 @click="sendComments(pregunta)"
                 dense
                 icon="send"
-                :label="labelBoton"
+                :label="pregunta.respuestaEnviada ? 'Enviada' : labelBoton"
               />
             </template>
           </q-input>
@@ -170,10 +170,7 @@ const getAnswers = async () => {
   for (const pregunta of survey.question) {
     const respuesta = res.find((ans) => ans.question_id === pregunta.id);
     if (respuesta) {
-      if (respuesta.rating) {
-        labelBoton.value = "Enviada";
-        colorBoton.value = "green";
-      }
+      pregunta.respuestaEnviada = respuesta.rating !== null;
       pregunta.respuestaAsignada = true;
       if (pregunta.type === "checkbox") {
         const respuestasSeleccionadas = respuesta.answer.split("|");
@@ -198,10 +195,7 @@ const getAnswersfirst = async () => {
   for (const pregunta of survey.question) {
     const respuesta = res.find((ans) => ans.question_id === pregunta.id);
     if (respuesta) {
-      if (respuesta.rating) {
-        labelBoton.value = "Enviada";
-        colorBoton.value = "green";
-      }
+      pregunta.respuestaEnviada = respuesta.rating !== null;
       pregunta.respuestaAsignada = true;
       pregunta.comments = respuesta.comments; // Asignar comentarios
       pregunta.respuesta_id = respuesta.id;
@@ -231,6 +225,7 @@ const sendComments = async (pregunta) => {
     "/api/survey/answer/" + pregunta.respuesta_id,
     ""
   );
+  pregunta.respuestaEnviada = true;
   getAnswers();
 };
 
@@ -238,5 +233,3 @@ onMounted(() => {
   getAnswersfirst();
 });
 </script>
-
-
