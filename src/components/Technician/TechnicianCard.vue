@@ -23,6 +23,40 @@
         />
       </q-item-section>
     </q-item>
+    <q-item>
+      <q-item-section>
+        <q-input
+          v-model="formTech.antiguedad_minima"
+          filled
+          dense
+          label="Antigüedad minima"
+          mask="##"
+          hint
+        />
+      </q-item-section>
+    </q-item>
+    <q-item>
+      <q-item-section>
+        <q-input
+          v-model="formTech.jobcode"
+          filled
+          dense
+          label="Job Code"
+          hint
+        />
+      </q-item-section>
+    </q-item>
+    <q-item>
+      <q-item-section>
+        <q-input
+          v-model="formTech.levelcap"
+          filled
+          dense
+          label="Level Cap"
+          hint
+        />
+      </q-item-section>
+    </q-item>
     <q-item v-for="linea in lineas" :key="linea.id">
       <q-item-section>
         <q-toggle
@@ -45,6 +79,9 @@ const myForm = ref(null);
 const formTech = ref({
   name: technician ? technician.name : null,
   level: technician ? technician.level : null,
+  antiguedad_minima: technician ? technician.antiguedad_minima : null,
+  jobcode: technician ? technician.jobcode : null,
+  levelcap: technician ? technician.levelcap : null,
   lineas: [],
 });
 

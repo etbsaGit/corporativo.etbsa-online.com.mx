@@ -157,7 +157,7 @@
           :options="tecnicos"
           label="Tipo de tecnico"
           option-value="id"
-          option-label="name"
+          option-label="concepto"
           emit-value
           map-options
           transition-show="jump-up"

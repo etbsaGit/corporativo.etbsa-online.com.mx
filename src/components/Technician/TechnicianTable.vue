@@ -235,6 +235,27 @@ const columns = [
     align: "left",
   },
   {
+    name: "antiguedad_minima",
+    label: "Antigüedad minima",
+    field: "antiguedad_minima",
+    sortable: true,
+    align: "left",
+  },
+  {
+    name: "jobcode",
+    label: "Job Code",
+    field: "jobcode",
+    sortable: true,
+    align: "left",
+  },
+  {
+    name: "levelcap",
+    label: "Level Cap",
+    field: "levelcap",
+    sortable: true,
+    align: "left",
+  },
+  {
     name: "lineas",
     label: "Lineas",
     field: "linea",
