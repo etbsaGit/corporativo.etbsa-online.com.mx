@@ -5,6 +5,7 @@
         v-for="(technician, index) in allQualifications"
         :key="index"
         :title="technician.technician.name"
+        :subtitle="technician.technician.concepto"
       >
         <q-item
           v-for="qualification in technician.qualification"
