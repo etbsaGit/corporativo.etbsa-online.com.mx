@@ -24,10 +24,11 @@
           <q-input
             v-if="pregunta.type === 'text'"
             v-model="pregunta.respuesta"
-            disable
+            readonly
             outlined
             dense
             placeholder="Sin respuesta aun"
+            type="textarea"
           >
           </q-input>
           <div v-if="pregunta.type === 'select'">
