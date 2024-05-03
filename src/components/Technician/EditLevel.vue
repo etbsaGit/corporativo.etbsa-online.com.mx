@@ -2,7 +2,12 @@
   <div class="q-pa-sm">
     <div v-for="(qualification, index) in qualifications" :key="index">
       <q-toolbar class="bg-primary text-white shadow-2">
-        <q-toolbar-title>{{ qualification.technician.name }}</q-toolbar-title>
+        <q-toolbar-title>
+          <q-item-label>{{ qualification.technician.name }}</q-item-label>
+          <q-item-label caption class="text-white">{{
+            qualification.technician.concepto
+          }}</q-item-label>
+        </q-toolbar-title>
         <q-btn color="green" dense icon="add" @click="activateInput(index)" />
       </q-toolbar>
       <q-list bordered separator dense>

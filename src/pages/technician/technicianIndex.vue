@@ -60,15 +60,48 @@
       </q-card-section>
       <q-separator />
       <div class="q-pa-sm">
-        <div class="row q-col-gutter-sm">
-          <div
-            class="col-lg-4 col-md-4 col-xs-12 col-sm-12"
-            v-for="(employee, index) in tecAgricola"
+        <q-list separator>
+          <q-expansion-item
+            v-for="(level, index) in tecAgricola"
             :key="index"
+            :label="level.technician.concepto"
+            expand-separator
+            default-opened
+            class="shadow-1 overflow-hidden"
+            header-class="bg-green text-white"
+            style="border-radius: 30px"
           >
-            <employee-card :employee="employee" :key="employee"></employee-card>
-          </div>
-        </div>
+            <div class="row q-col-gutter-sm">
+              <div
+                class="col-lg-4 col-md-4 col-xs-12 col-sm-12"
+                v-for="(employee, index) in level.technician.empleado"
+                :key="index"
+              >
+                <employee-card :employee="employee" :key="employee">
+                </employee-card>
+              </div>
+            </div>
+          </q-expansion-item>
+          <q-expansion-item
+            label="Sin tipo de tecnico"
+            expand-separator
+            default-opened
+            class="shadow-1 overflow-hidden"
+            header-class="bg-green text-white"
+            style="border-radius: 30px"
+          >
+            <div class="row q-col-gutter-sm">
+              <div
+                class="col-lg-4 col-md-4 col-xs-12 col-sm-12"
+                v-for="(employee, index) in tecSinAsignarAgricola"
+                :key="index"
+              >
+                <employee-card :employee="employee" :key="employee">
+                </employee-card>
+              </div>
+            </div>
+          </q-expansion-item>
+        </q-list>
       </div>
     </q-card>
   </q-dialog>
@@ -85,26 +118,52 @@
         <div class="text-h6">Tecnicos de Construccion</div>
         <q-card-actions align="right">
           <q-btn label="Cerrar" color="red" v-close-popup />
-          <!-- <q-btn
-              label="Clonar encuesta"
-              color="blue"
-              @click="addSurvey()"
-              v-close-popup
-            /> -->
         </q-card-actions>
       </q-card-section>
       <q-separator />
       <div class="q-pa-sm">
-        <div class="row q-col-gutter-sm">
-          <div
-            class="col-lg-4 col-md-4 col-xs-12 col-sm-12"
-            v-for="(employee, index) in tecConstruccion"
+        <q-list separator>
+          <q-expansion-item
+            v-for="(level, index) in tecConstruccion"
             :key="index"
+            :label="level.technician.concepto"
+            expand-separator
+            default-opened
+            class="shadow-1 overflow-hidden"
+            header-class="bg-amber text-black"
+            style="border-radius: 30px"
           >
-            <employee-card :employee="employee" :key="employee">
-            </employee-card>
-          </div>
-        </div>
+            <div class="row q-col-gutter-sm">
+              <div
+                class="col-lg-4 col-md-4 col-xs-12 col-sm-12"
+                v-for="(employee, index) in level.technician.empleado"
+                :key="index"
+              >
+                <employee-card :employee="employee" :key="employee">
+                </employee-card>
+              </div>
+            </div>
+          </q-expansion-item>
+          <q-expansion-item
+            label="Sin tipo de tecnico"
+            expand-separator
+            default-opened
+            class="shadow-1 overflow-hidden"
+            header-class="bg-amber text-black"
+            style="border-radius: 30px"
+          >
+            <div class="row q-col-gutter-sm">
+              <div
+                class="col-lg-4 col-md-4 col-xs-12 col-sm-12"
+                v-for="(employee, index) in tecSinAsignarConstruccion"
+                :key="index"
+              >
+                <employee-card :employee="employee" :key="employee">
+                </employee-card>
+              </div>
+            </div>
+          </q-expansion-item>
+        </q-list>
       </div>
     </q-card>
   </q-dialog>
@@ -198,6 +257,8 @@ bus.on("edit_qualifications", () => {
 
 const tecAgricola = ref(null);
 const tecConstruccion = ref(null);
+const tecSinAsignarAgricola = ref(null);
+const tecSinAsignarConstruccion = ref(null);
 const qualificationsAgricola = ref(null);
 const qualificationsConstruccion = ref(null);
 const showTecAgricola = ref(false);
@@ -230,6 +291,8 @@ const getTecnicos = async () => {
   let res = await sendRequest("GET", null, "/api/technician/all", "");
   tecAgricola.value = res.agricola;
   tecConstruccion.value = res.construccion;
+  tecSinAsignarAgricola.value = res.sinAsignar.agricola;
+  tecSinAsignarConstruccion.value = res.sinAsignar.construccion;
 };
 
 const getQualifications = async () => {
