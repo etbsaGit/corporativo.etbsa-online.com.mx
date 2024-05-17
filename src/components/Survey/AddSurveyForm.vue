@@ -296,6 +296,7 @@ const validate = async () => {
 
 onMounted(() => {
   getEvaluators();
+  agregarPregunta();
 });
 
 defineExpose({

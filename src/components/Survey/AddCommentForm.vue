@@ -1,16 +1,38 @@
 <template>
-  <div class="q-pa-sm row items-start q-gutter-md">
+  <div class="q-pa-sm row q-gutter-lg">
     <q-card
       v-for="evaluee in evaluees"
       :key="evaluee.id"
       :class="{
         'bg-yellow-3': tieneRespuestasSinCalificar(evaluee),
         'bg-orange-3': sinCalificacion(evaluee),
+        'col-3': true,
       }"
     >
-      <q-card-section>
-        <div class="text-h6">{{ evaluee.name }}</div>
-        <div class="text-subtitle2">{{ evaluee.email }}</div>
+      <q-item>
+        <q-item-section avatar>
+          <q-avatar
+            color="primary"
+            text-color="white"
+            v-if="evaluee.empleado.picture"
+            size="60px"
+          >
+            <img :src="evaluee.empleado.picture" alt="Foto del empleado" />
+          </q-avatar>
+          <q-avatar v-else color="primary" text-color="white" size="60px">
+            {{ evaluee.empleado.nombre.charAt(0).toUpperCase()
+            }}{{ evaluee.empleado.apellido_paterno.charAt(0).toUpperCase() }}
+          </q-avatar>
+        </q-item-section>
+        <q-item-section>
+          <q-item-label class="text-grey-8 text-weight-bold">
+            {{ evaluee.empleado.nombreCompleto }}
+          </q-item-label>
+
+          <q-item-label class="text-grey-8">
+            {{ evaluee.email }}
+          </q-item-label>
+        </q-item-section>
         <q-tooltip
           v-if="tieneRespuestasSinCalificar(evaluee)"
           class="bg-purple text-body2"
@@ -23,9 +45,9 @@
         >
           El usuario no tiene calificacion final
         </q-tooltip>
-      </q-card-section>
+      </q-item>
       <q-separator />
-      <q-card-actions>
+      <q-card-actions vertical>
         <q-btn dense color="blue" @click="onRowClick(evaluee)">Preguntas</q-btn>
         <q-btn
           v-if="survey.status == 0"
@@ -43,30 +65,33 @@
       transition-show="rotate"
       transition-hide="rotate"
       persistent
-      full-width
-      full-height
+      :maximized="true"
     >
-      <q-card>
-        <q-card-section class="d-flex justify-between items-center q-pa-sm">
-          <div class="text-h6">Respuestas de {{ selectedEvaluee.name }}</div>
-          <q-card-actions align="right">
-            <q-btn
-              label="Cerrar"
-              color="red"
-              v-close-popup
-              @click="getEvaluees"
-            />
-          </q-card-actions>
-        </q-card-section>
-        <q-separator />
-        <div class="survey-form-container">
+      <q-layout view="hHh Lpr fff">
+        <q-header elevated class="bg-primary text-white" height-hint="98">
+          <q-toolbar>
+            <q-toolbar-title>
+              Respuestas de {{ selectedEvaluee.name }}
+            </q-toolbar-title>
+            <q-card-actions align="right">
+              <q-btn
+                label="Cerrar"
+                color="red"
+                v-close-popup
+                @click="getEvaluees"
+              />
+            </q-card-actions>
+          </q-toolbar>
+        </q-header>
+
+        <q-page-container class="bg-white">
           <insert-comment-form
             ref="answers"
             :evaluee="selectedEvaluee"
             :survey="selectedsurvey"
           />
-        </div>
-      </q-card>
+        </q-page-container>
+      </q-layout>
     </q-dialog>
 
     <q-dialog

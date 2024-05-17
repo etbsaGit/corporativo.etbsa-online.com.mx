@@ -4,11 +4,43 @@
     :rows="sortedScores"
     :columns="columns"
     row-key="name"
+    :rows-per-page-options="[0]"
   >
     <template v-slot:body-cell-survey="props">
       <q-td :props="props">
-        {{ props.row.survey.title }}
+        <q-item-label>
+          {{ props.row.survey.title }}
+        </q-item-label>
+        <q-tooltip class="bg-purple text-body2" :offset="[10, 10]">
+          {{ props.row.comments }}
+        </q-tooltip>
       </q-td>
+    </template>
+    <template v-slot:body-cell-score="props">
+      <q-td :props="props">
+        <q-item-label>
+          {{ props.row.score.toFixed(2) }}<strong>/100</strong>
+        </q-item-label>
+      </q-td>
+    </template>
+    <template v-slot:pagination>
+      <q-item class="q-pr-xl">
+        <q-item-section class="text-subtitle2">
+          <strong> El promedio de todas tus evaluaciones es: </strong>
+        </q-item-section>
+        <q-item-section class="text-h5">
+          <q-item-label
+            :class="{
+              'text-green': average_score >= 90,
+              'text-orange': average_score >= 70 && average_score < 90,
+              'text-red': average_score < 70,
+            }"
+          >
+            {{ average_score.toFixed(2) }}
+            <strong class="text-black">/100</strong>
+          </q-item-label>
+        </q-item-section>
+      </q-item>
     </template>
   </q-table>
 </template>
@@ -23,10 +55,13 @@ const auth = useAuthStore();
 const { user } = storeToRefs(auth);
 
 const scores = ref([]);
+const average_score = ref(null);
 
 const getScores = async () => {
   let res = await sendRequest("GET", null, "/api/grades/" + auth.user.id, "");
-  scores.value = res;
+  scores.value = res.grades;
+  // average_score.value = res.average_score;
+  average_score.value = res.average_score;
 };
 
 const columns = [
@@ -39,19 +74,20 @@ const columns = [
     sortable: true,
   },
   {
-    name: "comments",
-    label: "Comentarios",
+    name: "created_at",
+    label: "Cuando se califico",
     align: "left",
-    field: "comments",
+    field: (row) => formatDate(row.created_at),
     sortable: true,
   },
-  {
-    name: "score",
-    label: "Calificacion",
-    align: "left",
-    field: "score",
-    sortable: true,
-  },
+  // {
+  //   name: "comments",
+  //   label: "Comentarios",
+  //   align: "left",
+  //   field: "comments",
+  //   sortable: true,
+  // },
+
   {
     name: "questions",
     label: "Preguntas",
@@ -81,10 +117,10 @@ const columns = [
     sortable: true,
   },
   {
-    name: "created_at",
-    label: "Cuando se califico",
+    name: "score",
+    label: "Calificacion",
     align: "left",
-    field: (row) => formatDate(row.created_at),
+    field: "score",
     sortable: true,
   },
 ];

@@ -139,24 +139,23 @@
     transition-show="rotate"
     transition-hide="rotate"
     persistent
-    full-width
-    full-height
+    :maximized="true"
   >
-    <q-card>
-      <q-card-section class="d-flex justify-between items-center q-pa-sm">
-        <div class="text-h6">Registrar Encuesta</div>
-        <q-card-actions align="right">
-          <q-btn label="Cerrar" color="red" v-close-popup />
-          <q-btn label="Agregar encuesta" color="blue" @click="addSurvey()" />
-        </q-card-actions>
-      </q-card-section>
-      <q-separator />
-      <q-card class="q-pa-none scroll" flat>
-        <div class="survey-form-container">
-          <add-survey-form ref="add" />
-        </div>
-      </q-card>
-    </q-card>
+    <q-layout view="hHh Lpr fff">
+      <q-header elevated class="bg-primary text-white" height-hint="98">
+        <q-toolbar>
+          <q-toolbar-title> Registrar encuesta </q-toolbar-title>
+          <q-card-actions align="right">
+            <q-btn label="Cerrar" color="red" v-close-popup />
+            <q-btn label="Agregar encuesta" color="blue" @click="addSurvey()" />
+          </q-card-actions>
+        </q-toolbar>
+      </q-header>
+
+      <q-page-container class="bg-white">
+        <add-survey-form ref="add" />
+      </q-page-container>
+    </q-layout>
   </q-dialog>
 
   <q-dialog
@@ -164,32 +163,33 @@
     transition-show="rotate"
     transition-hide="rotate"
     persistent
-    full-width
-    full-height
+    :maximized="true"
   >
-    <q-card>
-      <q-card-section class="d-flex justify-between items-center q-pa-sm">
-        <div class="text-h6">
-          Actualizar Encuesta {{ selectedSurvey.title }}
-        </div>
-        <q-card-actions align="right">
-          <q-btn label="Cerrar" color="red" v-close-popup />
-          <q-btn
-            label="Actualizar encuesta"
-            color="blue"
-            @click="editSurvey()"
-          />
-        </q-card-actions>
-      </q-card-section>
-      <q-separator />
-      <div class="survey-form-container">
+    <q-layout view="hHh Lpr fff">
+      <q-header elevated class="bg-primary text-white" height-hint="98">
+        <q-toolbar>
+          <q-toolbar-title>
+            Actualizar Encuesta {{ selectedSurvey.title }}
+          </q-toolbar-title>
+          <q-card-actions align="right">
+            <q-btn label="Cerrar" color="red" v-close-popup />
+            <q-btn
+              label="Actualizar encuesta"
+              color="blue"
+              @click="editSurvey()"
+            />
+          </q-card-actions>
+        </q-toolbar>
+      </q-header>
+
+      <q-page-container class="bg-white">
         <edit-survey-form
           ref="edit"
           :survey="selectedSurvey"
           :key="selectedSurvey.base64"
         />
-      </div>
-    </q-card>
+      </q-page-container>
+    </q-layout>
   </q-dialog>
 
   <q-dialog
@@ -218,23 +218,49 @@
     </q-card>
   </q-dialog>
 
+  <!-- <q-dialog
+    v-model="showEvaluator"
+    transition-show="rotate"
+    transition-hide="rotate"
+    persistent
+    :maximized="true"
+  >
+    <q-layout view="hHh Lpr fff">
+      <q-header elevated class="bg-primary text-white" height-hint="98">
+        <q-toolbar>
+          <q-toolbar-title>
+            Calificar {{ selectedSurvey.title }}
+          </q-toolbar-title>
+          <q-card-actions align="right">
+            <q-btn label="Cerrar" color="red" v-close-popup />
+          </q-card-actions>
+        </q-toolbar>
+      </q-header>
+
+      <q-page-container class="bg-white">
+        <add-comment-form ref="evaluator" :survey="selectedSurvey" />
+      </q-page-container>
+    </q-layout>
+  </q-dialog> -->
+
   <q-dialog
     v-model="showEvaluator"
     transition-show="rotate"
     transition-hide="rotate"
     persistent
-    full-width
-    full-height
+    :maximized="true"
   >
     <q-card>
-      <q-card-section class="d-flex justify-between items-center q-pa-sm">
+      <q-card-section
+        class="d-flex bg-primary text-white justify-between items-center q-pa-sm"
+      >
         <div class="text-h6">Calificar {{ selectedSurvey.title }}</div>
         <q-card-actions align="right">
           <q-btn label="Cerrar" color="red" v-close-popup />
         </q-card-actions>
       </q-card-section>
       <q-separator />
-      <div class="survey-form-container">
+      <div>
         <add-comment-form ref="evaluator" :survey="selectedSurvey" />
       </div>
     </q-card>
@@ -245,21 +271,24 @@
     transition-show="rotate"
     transition-hide="rotate"
     persistent
-    full-width
-    full-height
+    :maximized="true"
   >
-    <q-card>
-      <q-card-section class="d-flex justify-between items-center q-pa-sm">
-        <div class="text-h6">Vista previa {{ selectedSurvey.title }}</div>
-        <q-card-actions align="right">
-          <q-btn label="Cerrar" color="red" v-close-popup />
-        </q-card-actions>
-      </q-card-section>
-      <q-separator />
-      <div class="survey-form-container">
+    <q-layout view="hHh Lpr fff">
+      <q-header elevated class="bg-primary text-white" height-hint="98">
+        <q-toolbar>
+          <q-toolbar-title>
+            Vista previa {{ selectedSurvey.title }}
+          </q-toolbar-title>
+          <q-card-actions align="right">
+            <q-btn label="Cerrar" color="red" v-close-popup />
+          </q-card-actions>
+        </q-toolbar>
+      </q-header>
+
+      <q-page-container class="bg-white">
         <show-survey-form ref="evaluator" :survey="selectedSurvey" />
-      </div>
-    </q-card>
+      </q-page-container>
+    </q-layout>
   </q-dialog>
 
   <q-dialog
@@ -267,21 +296,24 @@
     transition-show="rotate"
     transition-hide="rotate"
     persistent
-    full-width
-    full-height
+    :maximized="true"
   >
-    <q-card>
-      <q-card-section class="d-flex justify-between items-center q-pa-sm">
-        <div class="text-h6">Vista previa {{ selectedSurvey.title }}</div>
-        <q-card-actions align="right">
-          <q-btn label="Cerrar" color="red" v-close-popup />
-        </q-card-actions>
-      </q-card-section>
-      <q-separator />
-      <div class="survey-form-container">
+    <q-layout view="hHh Lpr fff">
+      <q-header elevated class="bg-primary text-white" height-hint="98">
+        <q-toolbar>
+          <q-toolbar-title>
+            Calificaciones {{ selectedSurvey.title }}
+          </q-toolbar-title>
+          <q-card-actions align="right">
+            <q-btn label="Cerrar" color="red" v-close-popup />
+          </q-card-actions>
+        </q-toolbar>
+      </q-header>
+
+      <q-page-container class="bg-white">
         <show-grades-form ref="grades" :survey="selectedSurvey" />
-      </div>
-    </q-card>
+      </q-page-container>
+    </q-layout>
   </q-dialog>
 
   <q-dialog
@@ -289,31 +321,34 @@
     transition-show="rotate"
     transition-hide="rotate"
     persistent
-    full-width
-    full-height
+    :maximized="true"
   >
-    <q-card>
-      <q-card-section class="d-flex justify-between items-center q-pa-sm">
-        <div class="text-h6">Clonar Encuesta {{ selectedSurvey.title }}</div>
-        <q-card-actions align="right">
-          <q-btn label="Cerrar" color="red" v-close-popup />
-          <q-btn
-            label="Clonar encuesta"
-            color="blue"
-            @click="addSurvey()"
-            v-close-popup
-          />
-        </q-card-actions>
-      </q-card-section>
-      <q-separator />
-      <div class="survey-form-container">
+    <q-layout view="hHh Lpr fff">
+      <q-header elevated class="bg-primary text-white" height-hint="98">
+        <q-toolbar>
+          <q-toolbar-title>
+            Clonar Encuesta {{ selectedSurvey.title }}
+          </q-toolbar-title>
+          <q-card-actions align="right">
+            <q-btn label="Cerrar" color="red" v-close-popup />
+            <q-btn
+              label="Clonar encuesta"
+              color="blue"
+              @click="addSurvey()"
+              v-close-popup
+            />
+          </q-card-actions>
+        </q-toolbar>
+      </q-header>
+
+      <q-page-container class="bg-white">
         <edit-survey-form
           ref="add"
           :survey="selectedSurvey"
           :key="selectedSurvey.base64"
         />
-      </div>
-    </q-card>
+      </q-page-container>
+    </q-layout>
   </q-dialog>
 
   <q-dialog

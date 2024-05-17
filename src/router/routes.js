@@ -118,7 +118,7 @@ const routes = [
     children: [
       {
         path: "",
-        component: () => import("src/pages/survey/indexSurvey.vue"),
+        component: () => import("src/pages/survey/dashboard.vue"),
       },
     ],
   },
