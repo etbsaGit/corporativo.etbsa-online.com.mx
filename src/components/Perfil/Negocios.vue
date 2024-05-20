@@ -2,8 +2,8 @@
   <q-item>
     <q-item-section>
       <q-input
-        disable
-        filled
+        readonly
+        outlined
         dense
         v-model="formEmployeetwo.fecha_de_ingreso"
         mask="date"
@@ -34,7 +34,7 @@
             :class="$q.dark.isActive ? 'bg-grey-9' : 'bg-grey-3'"
           >
             <q-toggle
-              filled
+
               dense
               v-model="formEmployeetwo.matriz"
               class="text-grey-7"
@@ -51,15 +51,14 @@
         label="Sucursal"
         option-value="id"
         option-label="nombre"
-        option-disable="inactive"
         emit-value
         map-options
         transition-show="jump-up"
         transition-hide="jump-up"
         clearable
-        filled
         dense
-        disable
+        readonly
+        outlined
       />
     </q-item-section>
     <q-item-section>
@@ -69,15 +68,14 @@
         label="Departamento"
         option-value="id"
         option-label="nombre"
-        option-disable="inactive"
         emit-value
         map-options
         transition-show="jump-up"
         transition-hide="jump-up"
         clearable
-        filled
         dense
-        disable
+        readonly
+        outlined
       />
     </q-item-section>
   </q-item>
@@ -89,15 +87,14 @@
         label="Linea"
         option-value="id"
         option-label="nombre"
-        option-disable="inactive"
         emit-value
         map-options
         transition-show="jump-up"
         transition-hide="jump-up"
         clearable
-        filled
         dense
-        disable
+        readonly
+        outlined
       />
     </q-item-section>
     <q-item-section>
@@ -107,9 +104,9 @@
         transition-show="jump-up"
         transition-hide="jump-up"
         label="Status"
-        filled
         dense
-        disable
+        readonly
+        outlined
       />
     </q-item-section>
   </q-item>
@@ -122,25 +119,24 @@
         label="Puesto a desempeñar"
         option-value="id"
         option-label="nombre"
-        option-disable="inactive"
         emit-value
         map-options
         transition-show="jump-up"
         transition-hide="jump-up"
         clearable
-        filled
         dense
-        disable
+        readonly
+        outlined
       />
     </q-item-section>
     <q-item-section>
       <q-input
-        filled
         dense
         v-model="formEmployeetwo.descripcion_puesto"
         lazy-rules
         label="Descripcion del puesto"
-        disable
+        readonly
+        outlined
       />
     </q-item-section>
   </q-item>
@@ -152,42 +148,37 @@
         option-value="id"
         option-label="nombre"
         label="Jefe directo"
-        option-disable="inactive"
         emit-value
         map-options
         transition-show="jump-up"
         transition-hide="jump-up"
         clearable
-        filled
         dense
-        disable
+        readonly
+        outlined
       />
     </q-item-section>
   </q-item>
   <q-item>
     <q-item-section>
       <q-input
-        filled
         dense
         v-model="formEmployeetwo.sueldo_base"
         label="Sueldo Base"
         mask="######"
-        disable
+        readonly
+        outlined
       />
     </q-item-section>
-  </q-item>
-  <q-item>
     <q-item-section>
-      <div
-        class="q-pa-sm rounded-borders"
-        :class="$q.dark.isActive ? 'bg-grey-9' : 'bg-grey-3'"
-      >
+      <div class="q-pa-sm rounded-borders">
         <q-toggle
-          filled
           dense
           v-model="formEmployeetwo.comision"
-          class="text-grey-7"
+          class="text-black"
           label="Comision"
+          readonly
+          outlined
           disable
           :true-value="1"
           :false-value="0"

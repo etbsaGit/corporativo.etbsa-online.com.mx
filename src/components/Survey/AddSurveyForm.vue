@@ -45,6 +45,28 @@
         />
       </q-item-section>
     </q-item>
+
+    <q-item>
+      <q-item-section>
+        <q-select
+          v-model="formSurvey.puesto_id"
+          :options="puestos"
+          option-value="id"
+          option-label="nombre"
+          label="Para que puesto es la evaluacion"
+          option-disable="inactive"
+          emit-value
+          map-options
+          transition-show="jump-up"
+          transition-hide="jump-up"
+          clearable
+          filled
+          dense
+          hint
+        />
+      </q-item-section>
+    </q-item>
+
     <q-item>
       <q-item-section>
         <q-input
@@ -227,6 +249,7 @@ import { storeToRefs } from "pinia";
 
 const myForm = ref(null);
 const evaluators = ref([]);
+const puestos = ref([]);
 
 import { useAuthStore } from "src/stores/auth";
 
@@ -239,6 +262,7 @@ const formSurvey = ref({
   description: null,
   expire_date: null,
   evaluator_id: checkRole("Evaluador") ? user.value.id : null,
+  puesto_id: null,
   questions: [],
 });
 
@@ -263,6 +287,11 @@ const agregarPregunta = () => {
 const getEvaluators = async () => {
   let res = await sendRequest("GET", null, "/api/user/all", "");
   evaluators.value = res;
+};
+
+const getPuestos = async () => {
+  let res = await sendRequest("GET", null, "/api/puesto/all", "");
+  puestos.value = res;
 };
 
 const convertirBase64 = (event, index) => {
@@ -296,6 +325,7 @@ const validate = async () => {
 
 onMounted(() => {
   getEvaluators();
+  getPuestos();
   agregarPregunta();
 });
 

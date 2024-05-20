@@ -2,7 +2,7 @@
   <q-page class="flex flex-center">
     <img
       alt="Quasar logo"
-      src="~assets/quasar-logo-vertical.svg"
+      src="~assets/logo2.jpg"
       style="width: 200px; height: 200px"
     />
   </q-page>
@@ -19,6 +19,6 @@ export default {
     onMounted(() => {
       // auth.getToken();
     });
-  }
+  },
 };
 </script>

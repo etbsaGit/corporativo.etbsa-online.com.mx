@@ -17,6 +17,25 @@
       />
     </template>
 
+    <template v-slot:body-cell-title="props">
+      <q-td :props="props">
+        <q-item-label>
+          {{ props.row.title }}
+        </q-item-label>
+        <q-tooltip class="bg-purple text-body2" :offset="[10, 10]">
+          {{ props.row.description }}
+        </q-tooltip>
+      </q-td>
+    </template>
+
+    <template v-slot:body-cell-puesto="props">
+      <q-td :props="props">
+        <q-item-label>
+          {{ props.row.puesto ? props.row.puesto.nombre : null }}
+        </q-item-label>
+      </q-td>
+    </template>
+
     <template v-slot:body-cell-action="props">
       <q-td>
         <q-btn-dropdown flat color="primary" icon="menu">
@@ -407,17 +426,10 @@ import AddCommentForm from "src/components/Survey/AddCommentForm.vue";
 import ShowGradesForm from "src/components/Survey/ShowGradesForm.vue";
 import ShowEvalueesForm from "src/components/Survey/ShowEvalueesForm.vue";
 import { useQuasar } from "quasar";
-
-import { useAuthStore } from "src/stores/auth";
-import { storeToRefs } from "pinia";
 import { inject } from "vue";
 
 const bus = inject("bus");
 
-const auth = useAuthStore();
-const { user } = storeToRefs(auth);
-
-const filter = ref("");
 const surveys = ref([]);
 const selectedSurvey = ref(null);
 const showAdd = ref(false);
@@ -452,11 +464,18 @@ const columns = [
     field: "title",
     sortable: true,
   },
+  // {
+  //   name: "description",
+  //   label: "Descripcion",
+  //   align: "left",
+  //   field: "description",
+  //   sortable: true,
+  // },
   {
-    name: "description",
-    label: "Descripcion",
+    name: "puesto",
+    label: "Puesto",
     align: "left",
-    field: "description",
+    field: "puesto",
     sortable: true,
   },
   {
