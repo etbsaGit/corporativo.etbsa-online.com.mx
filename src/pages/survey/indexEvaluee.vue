@@ -57,23 +57,24 @@
     transition-show="rotate"
     transition-hide="rotate"
     persistent
-    full-width
-    full-height
+    :maximized="true"
   >
-    <q-card style="width: 1800px">
-      <q-card-section class="d-flex justify-between items-center q-pa-sm">
-        <div class="text-h6">
-          Responde las preguntas de {{ selectedSurvey.title }}
-        </div>
-        <q-card-actions align="right">
-          <q-btn label="Cerrar" color="red" v-close-popup />
-        </q-card-actions>
-      </q-card-section>
-      <q-separator />
-      <div class="survey-form-container">
+    <q-layout view="hHh Lpr fff">
+      <q-header elevated class="bg-primary text-white" height-hint="98">
+        <q-toolbar>
+          <q-toolbar-title>
+            Responde las preguntas de {{ selectedSurvey.title }}
+          </q-toolbar-title>
+          <q-card-actions align="right">
+            <q-btn label="Cerrar" color="red" v-close-popup />
+          </q-card-actions>
+        </q-toolbar>
+      </q-header>
+
+      <q-page-container class="bg-white">
         <add-answers-form ref="answers" :survey="selectedSurvey" />
-      </div>
-    </q-card>
+      </q-page-container>
+    </q-layout>
   </q-dialog>
 
   <q-dialog
@@ -81,21 +82,24 @@
     transition-show="rotate"
     transition-hide="rotate"
     persistent
-    full-width
-    full-height
+    :maximized="true"
   >
-    <q-card style="width: 1800px">
-      <q-card-section class="d-flex justify-between items-center q-pa-sm">
-        <div class="text-h6">Respuestas de {{ selectedSurvey.title }}</div>
-        <q-card-actions align="right">
-          <q-btn label="Cerrar" color="red" v-close-popup />
-        </q-card-actions>
-      </q-card-section>
-      <q-separator />
-      <div class="survey-form-container">
+    <q-layout view="hHh Lpr fff">
+      <q-header elevated class="bg-primary text-white" height-hint="98">
+        <q-toolbar>
+          <q-toolbar-title>
+            Respuestas de {{ selectedSurvey.title }}
+          </q-toolbar-title>
+          <q-card-actions align="right">
+            <q-btn label="Cerrar" color="red" v-close-popup />
+          </q-card-actions>
+        </q-toolbar>
+      </q-header>
+
+      <q-page-container class="bg-white">
         <show-answers-form ref="answers" :survey="selectedSurvey" />
-      </div>
-    </q-card>
+      </q-page-container>
+    </q-layout>
   </q-dialog>
 
   <!-- <q-dialog v-model="mostrarDialog" persistent>

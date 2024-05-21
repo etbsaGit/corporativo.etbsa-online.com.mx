@@ -7,6 +7,7 @@
       :rows="sortedGrades"
       :columns="columns"
       row-key="name"
+      :rows-per-page-options="[0]"
     >
       <template v-slot:body-cell-empleado="props">
         <q-td :props="props">

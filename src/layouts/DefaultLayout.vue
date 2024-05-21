@@ -2,10 +2,24 @@
   <q-layout view="lHh Lpr lFf">
     <q-header elevated>
       <q-toolbar>
-        <q-toolbar-title> ETBSA </q-toolbar-title>
+        <q-toolbar-title>
+          <q-img
+            src="../assets/logo.png"
+            spinner-color="white"
+            style="max-width: 10%"
+          />
+          Corporativo ETBSA
+        </q-toolbar-title>
 
         <!-- <div>ETBSA v{{ $q.version }}</div> -->
-        <q-btn v-if="!auth.user" label="Login" class="q-ml-md" size="sm" color="blue" to="/login"></q-btn>
+        <q-btn
+          v-if="!auth.user"
+          label="Login"
+          class="q-ml-md"
+          size="sm"
+          color="blue"
+          to="/login"
+        ></q-btn>
       </q-toolbar>
     </q-header>
 

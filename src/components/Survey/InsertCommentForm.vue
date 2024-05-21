@@ -89,11 +89,15 @@
           >
             <template v-slot:after>
               <q-btn
-                :color="pregunta.respuestaEnviada ? 'green' : colorBoton"
+                :color="pregunta.respuestaEnviada ? 'green' : 'orange'"
                 @click="sendComments(pregunta)"
                 dense
                 icon="send"
-                :label="pregunta.respuestaEnviada ? 'Enviada' : labelBoton"
+                :label="
+                  pregunta.respuestaEnviada
+                    ? 'Calificada'
+                    : 'Calificar pregunta'
+                "
               />
             </template>
           </q-input>
@@ -143,8 +147,6 @@ import { sendRequest } from "src/boot/functions";
 
 const { evaluee, survey } = defineProps(["evaluee", "survey"]);
 const myForm = ref(null);
-const labelBoton = ref("Enviar respuesta");
-const colorBoton = ref("orange");
 
 const getColor = (value) => {
   return value === 1 ? "green" : "red"; // Cambia el color a verde cuando el valor es 1, de lo contrario, a rojo

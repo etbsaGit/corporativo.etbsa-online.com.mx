@@ -2,36 +2,36 @@
   <q-item>
     <q-item-section>
       <q-input
-        disable
+        readonly
+        outlined
         v-model="formEmployee.nombre"
-        filled
         dense
         label="Primer Nombre"
       />
     </q-item-section>
     <q-item-section>
       <q-input
-        disable
+        readonly
+        outlined
         v-model="formEmployee.segundo_nombre"
-        filled
         dense
         label="Segundo Nombre"
       />
     </q-item-section>
     <q-item-section>
       <q-input
-        disable
+        readonly
+        outlined
         v-model="formEmployee.apellido_paterno"
-        filled
         dense
         label="Apellido paterno"
       />
     </q-item-section>
     <q-item-section>
       <q-input
-        disable
+        readonly
+        outlined
         v-model="formEmployee.apellido_materno"
-        filled
         dense
         label="Apellido materno"
       />
@@ -41,9 +41,9 @@
   <q-item>
     <q-item-section>
       <q-input
-        disable
+        readonly
+        outlined
         v-model="formEmployee.telefono"
-        filled
         dense
         label="Telefono"
         mask="##########"
@@ -51,9 +51,9 @@
     </q-item-section>
     <q-item-section>
       <q-input
-        disable
+        readonly
+        outlined
         v-model="formEmployee.telefono_institucional"
-        filled
         dense
         label="Telefono Institucional"
         mask="##########"
@@ -61,9 +61,9 @@
     </q-item-section>
     <q-item-section>
       <q-input
-        disable
+        readonly
+        outlined
         v-model="formEmployee.correo_institucional"
-        filled
         dense
         label="Correo institucional"
       />
@@ -73,8 +73,8 @@
   <q-item>
     <q-item-section>
       <q-input
-        disable
-        filled
+        readonly
+        outlined
         dense
         v-model="formEmployee.calle"
         label="Calle"
@@ -82,8 +82,8 @@
     </q-item-section>
     <q-item-section>
       <q-input
-        disable
-        filled
+        readonly
+        outlined
         dense
         v-model="formEmployee.numero_exterior"
         label="# Exterior"
@@ -91,8 +91,8 @@
     </q-item-section>
     <q-item-section>
       <q-input
-        disable
-        filled
+        readonly
+        outlined
         dense
         v-model="formEmployee.numero_interior"
         label="# Interior"
@@ -100,8 +100,8 @@
     </q-item-section>
     <q-item-section>
       <q-input
-        disable
-        filled
+        readonly
+        outlined
         dense
         v-model="formEmployee.colonia"
         label="Colonia"
@@ -109,8 +109,8 @@
     </q-item-section>
     <q-item-section>
       <q-input
-        disable
-        filled
+        readonly
+        outlined
         dense
         v-model="formEmployee.codigo_postal"
         label="Codigo postal"
@@ -122,8 +122,8 @@
   <q-item>
     <q-item-section>
       <q-input
-        disable
-        filled
+        readonly
+        outlined
         dense
         v-model="formEmployee.ciudad"
         label="Ciudad"
@@ -131,8 +131,8 @@
     </q-item-section>
     <q-item-section>
       <q-input
-        disable
-        filled
+        readonly
+        outlined
         dense
         v-model="formEmployee.estado"
         label="Estado"
@@ -143,8 +143,8 @@
   <q-item>
     <q-item-section>
       <q-input
-        disable
-        filled
+        readonly
+        outlined
         dense
         v-model="formEmployee.fecha_de_nacimiento"
         mask="date"
@@ -171,22 +171,28 @@
 
   <q-item>
     <q-item-section>
-      <q-input disable v-model="formEmployee.curp" filled dense label="CURP" />
+      <q-input
+        readonly
+        outlined
+        v-model="formEmployee.curp"
+        dense
+        label="CURP"
+      />
     </q-item-section>
     <q-item-section>
-      <q-input disable v-model="formEmployee.rfc" filled dense label="RFC" />
+      <q-input readonly outlined v-model="formEmployee.rfc" dense label="RFC" />
     </q-item-section>
   </q-item>
 
   <q-item>
     <q-item-section>
-      <q-input disable v-model="formEmployee.ine" filled dense label="INE" />
+      <q-input readonly outlined v-model="formEmployee.ine" dense label="INE" />
     </q-item-section>
     <q-item-section>
       <q-input
-        disable
+        readonly
+        outlined
         v-model="formEmployee.licencia_de_manejo"
-        filled
         dense
         label="Licencia de manejo"
       />
@@ -196,18 +202,18 @@
   <q-item>
     <q-item-section>
       <q-input
-        disable
+        readonly
+        outlined
         v-model="formEmployee.passaporte"
-        filled
         dense
         label="Pasaporte"
       />
     </q-item-section>
     <q-item-section>
       <q-input
-        disable
+        readonly
+        outlined
         v-model="formEmployee.visa"
-        filled
         dense
         label="Visa"
         mask="################"
@@ -223,33 +229,32 @@
         label="Escolaridad"
         option-value="id"
         option-label="nombre"
-        option-disable="inactive"
         emit-value
         map-options
         transition-show="jump-up"
         transition-hide="jump-up"
         clearable
-        filled
         dense
-        disable
+        readonly
+        outlined
       />
     </q-item-section>
   </q-item>
   <q-item v-if="[4, 5, 6].includes(formEmployee.escolaridad_id)">
     <q-item-section>
       <q-input
-        disable
+        readonly
+        outlined
         v-model="formEmployee.cedula_profecional"
-        filled
         dense
         label="Cedula Profesional"
       />
     </q-item-section>
     <q-item-section>
       <q-input
-        disable
+        readonly
+        outlined
         v-model="formEmployee.carrera"
-        filled
         dense
         label="Carrera"
       />
@@ -259,9 +264,9 @@
   <q-item>
     <q-item-section>
       <q-input
-        disable
+        readonly
+        outlined
         v-model="formEmployee.nss"
-        filled
         dense
         label="Numero de seguridad social"
         mask="###########"
@@ -269,9 +274,9 @@
     </q-item-section>
     <q-item-section>
       <q-input
-        disable
+        readonly
+        outlined
         v-model="formEmployee.hijos"
-        filled
         dense
         label="Numero de hijos"
         mask="###"
@@ -279,9 +284,9 @@
     </q-item-section>
     <q-item-section>
       <q-input
-        disable
+        readonly
+        outlined
         v-model="formEmployee.dependientes_economicos"
-        filled
         dense
         label="Numero de dependientes economicos"
         mask="###"
@@ -297,15 +302,14 @@
         label="Estado civil"
         option-value="id"
         option-label="nombre"
-        option-disable="inactive"
         emit-value
         map-options
         transition-show="jump-up"
         transition-hide="jump-up"
         clearable
-        filled
         dense
-        disable
+        readonly
+        outlined
       />
     </q-item-section>
     <q-item-section>
@@ -315,15 +319,14 @@
         label="Tipo de sangre"
         option-value="id"
         option-label="nombre"
-        option-disable="inactive"
         emit-value
         map-options
         transition-show="jump-up"
         transition-hide="jump-up"
         clearable
-        filled
         dense
-        disable
+        readonly
+        outlined
       />
     </q-item-section>
   </q-item>
@@ -331,9 +334,9 @@
   <q-item>
     <q-item-section>
       <q-input
-        disable
+        readonly
+        outlined
         v-model="formEmployee.cuenta_bancaria"
-        filled
         dense
         label="Numero de cuenta bancarias"
         mask="##################"

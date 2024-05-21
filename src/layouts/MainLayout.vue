@@ -16,7 +16,7 @@
             spinner-color="white"
             style="max-width: 20%"
           />
-          Departamento de RH
+          Corporativo ETBSA
         </q-toolbar-title>
 
         <q-space />
@@ -35,14 +35,14 @@
       </q-toolbar>
     </q-header>
 
-    <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
+    <q-drawer v-model="leftDrawerOpen" bordered :width="250" :breakpoint="250">
       <div class="avatar-container">
         <div v-if="user.empleado">
           <q-item>
-            <q-avatar size="200px" v-if="user.empleado.picture">
+            <q-avatar size="150px" v-if="user.empleado.picture">
               <img :src="user.empleado.picture" />
             </q-avatar>
-            <q-avatar size="200px" v-else color="primary" text-color="white">
+            <q-avatar size="150px" v-else color="primary" text-color="white">
               {{ user.empleado.nombre.charAt(0).toUpperCase()
               }}{{ user.empleado.apellido_paterno.charAt(0).toUpperCase() }}
             </q-avatar>
@@ -50,7 +50,7 @@
         </div>
         <div v-else>
           <q-avatar
-            size="200px"
+            size="150px"
             color="primary"
             text-color="white"
             icon="admin_panel_settings"

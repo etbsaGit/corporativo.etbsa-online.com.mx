@@ -2,7 +2,7 @@
   "name": "quasar-project",
   "version": "0.0.1",
   "description": "A Quasar Project",
-  "productName": "Recursos Humanos",
+  "productName": "Corporativo ETBSA",
   "author": "AbrahamMZ <mga.abraham@gmail.com>",
   "private": true,
   "scripts": {
@@ -13,7 +13,9 @@
     "build": "quasar build"
   },
   "dependencies": {
+    "@quasar/app": "^3.3.3",
     "@quasar/extras": "^1.16.4",
+    "@quasar/quasar-app-extension-qcalendar": "^4.0.0-beta.16",
     "axios": "^1.2.1",
     "chart.js": "^4.4.1",
     "pinia": "^2.0.11",
@@ -31,8 +33,7 @@
     "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-vue": "^9.0.0",
     "postcss": "^8.4.14",
-    "prettier": "^2.5.1",
-    "quasar-app-extension-qhierarchy": "^1.0.14"
+    "prettier": "^2.5.1"
   },
   "engines": {
     "node": "^18 || ^16 || ^14.19",

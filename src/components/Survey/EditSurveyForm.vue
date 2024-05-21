@@ -45,6 +45,28 @@
         />
       </q-item-section>
     </q-item>
+
+    <q-item>
+      <q-item-section>
+        <q-select
+          v-model="formSurvey.puesto_id"
+          :options="puestos"
+          option-value="id"
+          option-label="nombre"
+          label="Para que puesto es la evaluacion"
+          option-disable="inactive"
+          emit-value
+          map-options
+          transition-show="jump-up"
+          transition-hide="jump-up"
+          clearable
+          filled
+          dense
+          hint
+        />
+      </q-item-section>
+    </q-item>
+
     <q-item>
       <q-item-section>
         <q-input
@@ -54,7 +76,7 @@
           mask="date"
           label="Cuando expira"
           lazy-rules
-          hint="Si no tiene fecha de expiracion dejar en blanco"
+          :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
         >
           <template v-slot:append>
             <q-icon name="event" class="cursor-pointer">
@@ -252,6 +274,7 @@ const bus = inject("bus");
 const { survey } = defineProps(["survey"]);
 const myForm = ref(null);
 const evaluators = ref([]);
+const puestos = ref([]);
 
 const formSurvey = ref({
   id: survey.id,
@@ -260,6 +283,7 @@ const formSurvey = ref({
   description: survey.description,
   expire_date: survey.expire_date,
   evaluator_id: survey.evaluator_id,
+  puesto_id: survey.puesto_id,
   questions: survey.question,
 });
 
@@ -337,7 +361,13 @@ const getEvaluators = async () => {
   evaluators.value = res;
 };
 
+const getPuestos = async () => {
+  let res = await sendRequest("GET", null, "/api/puesto/all", "");
+  puestos.value = res;
+};
+
 onMounted(() => {
+  getPuestos();
   getEvaluators();
   for (const pregunta of formSurvey.value.questions) {
     if (pregunta.data) {
