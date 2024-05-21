@@ -16,7 +16,7 @@
             spinner-color="white"
             style="max-width: 20%"
           />
-          Departamento de RH
+          Corporativo ETBSA
         </q-toolbar-title>
 
         <q-space />

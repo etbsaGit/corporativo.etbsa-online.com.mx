@@ -2,8 +2,13 @@
   <q-layout view="lHh Lpr lFf">
     <q-header elevated>
       <q-toolbar>
-        <q-toolbar-title class="center-text">
-          ETBSA Recursos Humanos: Sistema para carga de archivos
+        <q-toolbar-title>
+          <q-img
+            src="../assets/logo.png"
+            spinner-color="white"
+            style="max-width: 10%"
+          />
+          Corporativo ETBSA
         </q-toolbar-title>
       </q-toolbar>
     </q-header>
@@ -22,7 +27,7 @@ export default defineComponent({
 
   setup() {
     return {};
-  }
+  },
 });
 </script>
 
