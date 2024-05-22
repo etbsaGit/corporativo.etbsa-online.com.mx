@@ -110,6 +110,12 @@ export function checkRole(role) {
   return usuario.roles.some((usuarioRol) => usuarioRol.name === role);
 }
 
+export function checkUserId(userId) {
+  const authStore = useAuthStore();
+  const usuario = authStore.authUser;
+  return usuario.empleado.id === userId;
+}
+
 export function checkPermissions(permission) {
   const authStore = useAuthStore();
   const usuario = authStore.authUser;

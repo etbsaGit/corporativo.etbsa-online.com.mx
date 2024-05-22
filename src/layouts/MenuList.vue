@@ -16,6 +16,21 @@
       <q-item-section>Perfil</q-item-section>
     </q-item>
     <q-item
+      v-if="checkRole('Empleado')"
+      clickable
+      v-ripple
+      to="/calendar"
+      :active="link === 'calendar'"
+      @click="link = 'calendar'"
+      active-class="my-menu-link"
+    >
+      <q-item-section avatar>
+        <q-icon name="calendar_month" />
+      </q-item-section>
+
+      <q-item-section>Calendario</q-item-section>
+    </q-item>
+    <q-item
       v-if="checkRole('Admin')"
       clickable
       v-ripple
