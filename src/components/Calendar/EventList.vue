@@ -49,7 +49,38 @@
               icon="edit"
               class="bg-indigo-7 text-white"
               @click="openEdit(event)"
-            />
+            >
+              <q-tooltip class="text-body2 bg-indigo-7">Editar</q-tooltip>
+            </q-btn>
+          </q-item-label>
+          <q-item-label>
+            <q-btn
+              icon="event"
+              round
+              color="brown"
+              size="sm"
+              v-if="checkUserId(event.empleado.id)"
+            >
+              <q-popup-proxy
+                cover
+                transition-show="scale"
+                transition-hide="scale"
+              >
+                <q-date v-model="newDate" mask="YYYY-MM-DD">
+                  <div class="row items-center justify-end q-gutter-sm">
+                    <q-btn label="Cancelar" color="red" dense v-close-popup />
+                    <q-btn
+                      dense
+                      label="Cambiar"
+                      color="green"
+                      @click="changeDate(event.id)"
+                      v-close-popup
+                    />
+                  </div>
+                </q-date>
+              </q-popup-proxy>
+              <q-tooltip class="text-body2 bg-brown">Cambiar fecha</q-tooltip>
+            </q-btn>
           </q-item-label>
           <q-item-label>
             <q-btn
@@ -60,17 +91,38 @@
               icon="delete"
               class="bg-red text-white"
               @click="deleteEvent(event.id)"
-            />
+            >
+              <q-tooltip class="text-body2 bg-red">Borrar</q-tooltip>
+            </q-btn>
           </q-item-label>
         </q-item-section>
       </q-item>
 
       <q-separator></q-separator>
       <q-card-section>
-        <div class="q-pa-xs text-grey-8">
-          <strong> Descripcion de actividades: </strong>
-          {{ event.description }}
-        </div>
+        <q-item>
+          <q-item-section>
+            <q-item-label class="q-pa-none text-grey-8">
+              <strong> Descripcion de actividades: </strong>
+              {{ event.description }}
+            </q-item-label>
+          </q-item-section>
+          <q-item-section side>
+            <q-item-label>
+              <q-btn
+                v-if="checkUserId(event.empleado.id)"
+                flat
+                round
+                icon="list_alt"
+                class="bg-blue-grey-10 text-white"
+              >
+                <q-tooltip class="text-body2 bg-blue-grey-10">
+                  Lista de actividades
+                </q-tooltip>
+              </q-btn>
+            </q-item-label>
+          </q-item-section>
+        </q-item>
       </q-card-section>
     </q-card>
   </div>
@@ -133,6 +185,7 @@ const events = ref([]);
 const selectedEvent = ref(null);
 const edit = ref(null);
 const editForm = ref(false);
+const newDate = ref(currentDay);
 
 function formatDate(currentDay) {
   const nextDay = date.addToDate(currentDay, { days: 1 });
@@ -174,9 +227,16 @@ const putEvent = async (id) => {
   const final = {
     ...edit.value.formEvent,
   };
-  console.log(final);
   let res = await sendRequest("PUT", final, "/api/events/" + id, "");
   editForm.value = false;
+  getEventsPerDate();
+};
+
+const changeDate = async (id) => {
+  const final = {
+    date: newDate.value,
+  };
+  let res = await sendRequest("PUT", final, "/api/event/change/" + id, "");
   getEventsPerDate();
 };
 

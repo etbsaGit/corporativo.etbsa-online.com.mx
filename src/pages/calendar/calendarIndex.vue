@@ -59,7 +59,7 @@
                   </q-item-label>
                 </q-item-section>
               </q-item>
-              <q-tooltip>{{ event.title }}</q-tooltip>
+              <q-tooltip class="text-body2">{{ event.title }}</q-tooltip>
             </div>
           </div>
         </template>
