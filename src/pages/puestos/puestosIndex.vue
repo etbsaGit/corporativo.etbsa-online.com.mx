@@ -15,7 +15,7 @@
       label="Export to csv"
       no-caps
       dense
-      @click="exportTable"
+      @click="exportTableCSV(columns, filteredPuestos)"
     />
   </q-item>
   <q-item>
@@ -133,7 +133,8 @@ import { ref, onMounted, computed } from "vue";
 import PuestoForm from "src/components/Puesto/PuestoForm.vue";
 
 import { sendRequest } from "src/boot/functions";
-import { useQuasar, exportFile } from "quasar";
+import { exportTableCSV } from "src/boot/exportData";
+import { useQuasar } from "quasar";
 
 const form_1 = ref(null);
 const edit_1 = ref(null);
@@ -218,51 +219,6 @@ const filteredPuestos = computed(() => {
   });
 });
 
-const wrapCsvValue = (val, formatFn, row) => {
-  let formatted = formatFn !== undefined ? formatFn(val, row) : val;
-
-  formatted =
-    formatted === undefined || formatted === null ? "" : String(formatted);
-
-  formatted = formatted.split('"').join('""');
-
-  if (typeof val === "object" && val !== null) {
-    // Si val es un objeto, intentamos acceder a una propiedad específica
-    const propertyName = "nombre"; // Cambia 'nombre' por la propiedad que deseas mostrar
-    formatted = val[propertyName] || ""; // Utilizamos 'nombre' como ejemplo
-  }
-  return `"${formatted}"`;
-};
-
-const exportTable = () => {
-  const content = [columns.map((col) => wrapCsvValue(col.label))]
-    .concat(
-      filteredPuestos.value.map((row) =>
-        columns
-          .map((col) =>
-            wrapCsvValue(
-              typeof col.field === "function"
-                ? col.field(row)
-                : row[col.field === undefined ? col.name : col.field],
-              col.format,
-              row
-            )
-          )
-          .join(",")
-      )
-    )
-    .join("\r\n");
-
-  const status = exportFile("puestos-export.csv", content, "text/csv");
-
-  if (status !== true) {
-    $q.notify({
-      message: "Browser denied file download...",
-      color: "negative",
-      icon: "warning",
-    });
-  }
-};
 onMounted(() => {
   getPuestos();
 });

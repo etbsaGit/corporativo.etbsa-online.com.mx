@@ -34,7 +34,7 @@ const myForm = ref(null);
 
 const formSucursal = ref({
   id: sucursal ? sucursal.id : null,
-  nombre: sucursal.nombre,
+  nombre: sucursal ? sucursal.nombre : null,
   direccion: sucursal ? sucursal.direccion : null,
 });
 

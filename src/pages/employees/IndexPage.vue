@@ -15,7 +15,7 @@
       icon-right="archive"
       label="Export to csv"
       no-caps
-      @click="exportTable"
+      @click="exportTableCSV(columns, filteredEmployees)"
     />
   </q-item>
   <q-item v-if="checkRole('RRHH')">
@@ -128,15 +128,6 @@
         :rows-per-page-options="[0]"
         class="my-sticky-last-column-table"
       >
-        <template v-slot:top-right>
-          <q-btn
-            color="primary"
-            icon-right="archive"
-            label="Export to csv"
-            no-caps
-            @click="exportTable"
-          />
-        </template>
         <template v-slot:top="props">
           <div class="col-2 q-table__title">Empleados</div>
           <q-space />
@@ -495,6 +486,7 @@
 <script setup>
 import { ref, onMounted, computed, inject } from "vue";
 import { sendRequest, checkRole } from "src/boot/functions";
+import { exportTableCSV } from "src/boot/exportData";
 import { useQuasar, exportFile } from "quasar";
 import EmployeedForm from "src/components/Employeed/EmployeedForm.vue";
 import EmployeedTwoForm from "src/components/Employeed/EmployeedTwoForm.vue";
@@ -946,52 +938,6 @@ const filteredEmployees = computed(() => {
     );
   });
 });
-
-const wrapCsvValue = (val, formatFn, row) => {
-  let formatted = formatFn !== undefined ? formatFn(val, row) : val;
-
-  formatted =
-    formatted === undefined || formatted === null ? "" : String(formatted);
-
-  formatted = formatted.split('"').join('""');
-
-  if (typeof val === "object" && val !== null) {
-    // Si val es un objeto, intentamos acceder a una propiedad específica
-    const propertyName = "nombre"; // Cambia 'nombre' por la propiedad que deseas mostrar
-    formatted = val[propertyName] || ""; // Utilizamos 'nombre' como ejemplo
-  }
-  return `"${formatted}"`;
-};
-
-const exportTable = () => {
-  const content = [columns.map((col) => wrapCsvValue(col.label))]
-    .concat(
-      filteredEmployees.value.map((row) =>
-        columns
-          .map((col) =>
-            wrapCsvValue(
-              typeof col.field === "function"
-                ? col.field(row)
-                : row[col.field === undefined ? col.name : col.field],
-              col.format,
-              row
-            )
-          )
-          .join(",")
-      )
-    )
-    .join("\r\n");
-
-  const status = exportFile("employees-export.csv", content, "text/csv");
-
-  if (status !== true) {
-    $q.notify({
-      message: "Browser denied file download...",
-      color: "negative",
-      icon: "warning",
-    });
-  }
-};
 
 bus.on("cargar_empleados", () => {
   getAll();

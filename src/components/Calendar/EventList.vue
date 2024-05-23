@@ -174,6 +174,7 @@
 import { ref, onMounted } from "vue";
 import { date, useQuasar } from "quasar";
 import { sendRequest, checkUserId } from "src/boot/functions";
+import { formatTime, formatDate } from "src/boot/formatFunctions";
 
 import EventForm from "src/components/Calendar/EventForm.vue";
 
@@ -186,17 +187,6 @@ const selectedEvent = ref(null);
 const edit = ref(null);
 const editForm = ref(false);
 const newDate = ref(currentDay);
-
-function formatDate(currentDay) {
-  const nextDay = date.addToDate(currentDay, { days: 1 });
-  return date.formatDate(nextDay, "dddd D [de] MMMM [del] YYYY");
-}
-
-const formatTime = (time) => {
-  if (!time) return "No definido";
-  const timeArray = time.split(":");
-  return `${timeArray[0]}:${timeArray[1]}`;
-};
 
 const openEdit = (event) => {
   selectedEvent.value = event;

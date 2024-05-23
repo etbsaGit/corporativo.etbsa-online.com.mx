@@ -160,6 +160,7 @@ import { ref, watch, onMounted, computed } from "vue";
 import { date, useQuasar } from "quasar";
 
 import { sendRequest } from "src/boot/functions";
+import { formatTime, formatDate } from "src/boot/formatFunctions";
 
 import EventForm from "src/components/Calendar/EventForm.vue";
 import EventList from "src/components/Calendar/EventList.vue";
@@ -173,20 +174,6 @@ const showDay = ref(null);
 const currentDay = ref(null);
 
 const events = ref(null);
-
-function formatDate(currentDay) {
-  // Suma un día a la fecha actual
-  const nextDay = date.addToDate(currentDay, { days: 1 });
-
-  // Formatea la fecha en el formato deseado
-  return date.formatDate(nextDay, "dddd D [de] MMMM [del] YYYY");
-}
-
-const formatTime = (time) => {
-  if (!time) return "No definido";
-  const timeArray = time.split(":");
-  return `${timeArray[0]}:${timeArray[1]}`;
-};
 
 const getMonthYear = (dateString) => {
   const dateObject = new Date(dateString);

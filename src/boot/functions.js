@@ -4,7 +4,7 @@ import axios from "axios";
 import { useAuthStore } from "src/stores/auth";
 import { Loading, QSpinnerGears, Notify } from "quasar";
 
-export function show_notify(msj, icon, color, focus) {
+export function show_notify(msj, icon, color, focus = "") {
   if (focus !== "") {
     nextTick(() => focus.value.focus());
   }
