@@ -6,6 +6,8 @@
       <q-btn icon="arrow_right" @click="nextMonth" />
     </div>
     <q-calendar-month
+      :weekdays="[1, 2, 3, 4, 5, 6]"
+      :disabled-weekdays="[0]"
       ref="calendar"
       v-model="selectedDate"
       locale="es"
@@ -21,10 +23,14 @@
     >
       <template v-if="events != null" #day="{ scope: { timestamp } }">
         <template v-for="event in eventsMap[timestamp.date]" :key="event.id">
-          <div class="my-event text-white bg-primary rounded-border">
+          <div
+            class="my-event rounded-border"
+            style="position: relative"
+            :style="{ backgroundColor: event.color }"
+          >
             <div class="q-calendar__ellipsis">
               <q-item>
-                <q-item-section avatar>
+                <!-- <q-item-section avatar>
                   <q-avatar
                     color="primary"
                     text-color="white"
@@ -36,12 +42,12 @@
                     />
                   </q-avatar>
                   <q-avatar v-else color="white" text-color="primary">
-                    {{ event.empleado.nombre.charAt(0).toUpperCase()
-                    }}{{
+                    {{ event.empleado.nombre.charAt(0).toUpperCase() }}
+                    {{
                       event.empleado.apellido_paterno.charAt(0).toUpperCase()
                     }}
                   </q-avatar>
-                </q-item-section>
+                </q-item-section> -->
 
                 <q-item-section>
                   <q-item-label>
@@ -49,14 +55,18 @@
                     {{ event.empleado.apellido_paterno }}
                   </q-item-label>
                   <q-item-label>{{ event.sucursal.nombre }}</q-item-label>
-                  <q-item-label
-                    class="text-cyan"
-                    caption
-                    v-if="event.start_time"
-                  >
+                  <q-item-label caption v-if="event.start_time">
                     {{ formatTime(event.start_time) }} -
                     {{ formatTime(event.end_time) }}
                   </q-item-label>
+                </q-item-section>
+                <q-item-section side>
+                  <q-avatar size="sm" color="green" text-color="white">
+                    {{ event.countActivities.completed_count }}
+                  </q-avatar>
+                  <q-avatar size="sm" color="red" text-color="white">
+                    {{ event.countActivities.incomplete_count }}
+                  </q-avatar>
                 </q-item-section>
               </q-item>
               <q-tooltip class="text-body2">{{ event.title }}</q-tooltip>

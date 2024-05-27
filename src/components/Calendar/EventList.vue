@@ -115,6 +115,7 @@
                 round
                 icon="list_alt"
                 class="bg-blue-grey-10 text-white"
+                @click="openList(event)"
               >
                 <q-tooltip class="text-body2 bg-blue-grey-10">
                   Lista de actividades
@@ -168,6 +169,47 @@
       </q-card>
     </q-card>
   </q-dialog>
+
+  <q-dialog
+    v-model="listForm"
+    transition-show="rotate"
+    transition-hide="rotate"
+    persistent
+    full-height
+  >
+    <q-card style="max-width: 900px">
+      <q-card-section
+        class="bg-primary text-white d-flex justify-between items-center q-pa-sm"
+      >
+        <q-item>
+          <q-item-section>
+            <div class="text-h6">{{ formatDate(currentDay) }}</div>
+          </q-item-section>
+          <q-item-section side>
+            <q-item>
+              <q-item-section>
+                <q-btn dense label="Cerrar" color="red" v-close-popup />
+              </q-item-section>
+              <q-item-section>
+                <q-btn
+                  dense
+                  label="Finalizar"
+                  color="blue"
+                  @click="setList(selectedEvent.id)"
+                />
+              </q-item-section>
+            </q-item>
+          </q-item-section>
+        </q-item>
+      </q-card-section>
+      <q-separator />
+      <q-card class="q-pa-none scroll" flat>
+        <div>
+          <list-form ref="list" :event="selectedEvent" />
+        </div>
+      </q-card>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script setup>
@@ -177,6 +219,7 @@ import { sendRequest, checkUserId } from "src/boot/functions";
 import { formatTime, formatDate } from "src/boot/formatFunctions";
 
 import EventForm from "src/components/Calendar/EventForm.vue";
+import ListForm from "src/components/Calendar/ListForm.vue";
 
 const { currentDay } = defineProps(["currentDay"]);
 
@@ -187,10 +230,17 @@ const selectedEvent = ref(null);
 const edit = ref(null);
 const editForm = ref(false);
 const newDate = ref(currentDay);
+const listForm = ref(false);
+const list = ref(null);
 
 const openEdit = (event) => {
   selectedEvent.value = event;
   editForm.value = true;
+};
+
+const openList = (event) => {
+  selectedEvent.value = event;
+  listForm.value = true;
 };
 
 const getEventsPerDate = async () => {
@@ -227,6 +277,27 @@ const changeDate = async (id) => {
     date: newDate.value,
   };
   let res = await sendRequest("PUT", final, "/api/event/change/" + id, "");
+  getEventsPerDate();
+};
+
+const setList = async (id) => {
+  const list_valid = await list.value.validate();
+  if (!list_valid) {
+    $q.notify({
+      color: "red-5",
+      textColor: "white",
+      icon: "warning",
+      message: "Por favor completa todos los campos obligatorios",
+    });
+    return;
+  }
+  let res = await sendRequest(
+    "PUT",
+    list.value.formActivities,
+    "/api/event/activity/" + id,
+    ""
+  );
+  listForm.value = false;
   getEventsPerDate();
 };
 

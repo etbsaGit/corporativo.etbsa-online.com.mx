@@ -113,7 +113,16 @@ export function checkRole(role) {
 export function checkUserId(userId) {
   const authStore = useAuthStore();
   const usuario = authStore.authUser;
-  return usuario.empleado.id === userId;
+
+  // Verificar si el usuario tiene el rol de administrador
+  const isAdmin = usuario.roles.some((role) => role.name === "Admin");
+
+  // Verificar si el usuario es administrador o si el id del empleado coincide con userId
+  if (!usuario.empleado && isAdmin) {
+    return true;
+  }
+
+  return usuario.empleado && usuario.empleado.id === userId;
 }
 
 export function checkPermissions(permission) {
