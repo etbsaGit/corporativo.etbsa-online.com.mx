@@ -34,15 +34,29 @@ const routes = [
     ],
   },
   {
-    path: "/technician",
+    path: "",
     component: () => import("layouts/MainLayout.vue"),
     meta: {
       middlewares: [servicio],
     },
     children: [
       {
-        path: "",
+        path: "/technician",
         component: () => import("src/pages/technician/technicianIndex.vue"),
+      },
+    ],
+  },
+  {
+    path: "",
+    component: () => import("src/layouts/ConstruccionLayout.vue"),
+    meta: {
+      middlewares: [servicio],
+    },
+    children: [
+      {
+        path: "/presentation/construccion",
+        component: () =>
+          import("src/pages/technician/technicianConstruccion.vue"),
       },
     ],
   },

@@ -118,6 +118,12 @@
         <div class="text-h6">Tecnicos de Construccion</div>
         <q-card-actions align="right">
           <q-btn label="Cerrar" color="red" v-close-popup />
+          <q-btn
+            label="Presentación técnicos"
+            color="blue"
+            @click="openPresentationConstruccion"
+            v-close-popup
+          />
         </q-card-actions>
       </q-card-section>
       <q-separator />
@@ -244,6 +250,12 @@ import { sendRequest } from "src/boot/functions";
 import EmployeeCard from "src/components/Technician/EmployeeCard.vue";
 import EditLevel from "src/components/Technician/EditLevel.vue";
 import TechnicianTable from "src/components/Technician/TechnicianTable.vue";
+
+const openPresentationConstruccion = () => {
+  const baseUrl = window.location.origin + "/#/";
+  const newUrl = `${baseUrl}presentation/construccion`;
+  window.open(newUrl, "_blank");
+};
 
 const bus = inject("bus");
 
