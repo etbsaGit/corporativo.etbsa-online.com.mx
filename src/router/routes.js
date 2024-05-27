@@ -61,6 +61,10 @@ const routes = [
         path: "/encuestas",
         component: () => import("src/pages/survey/index.vue"),
       },
+      {
+        path: "/calendar",
+        component: () => import("src/pages/calendar/calendarIndex.vue"),
+      },
     ],
   },
   {

@@ -4,7 +4,7 @@ import axios from "axios";
 import { useAuthStore } from "src/stores/auth";
 import { Loading, QSpinnerGears, Notify } from "quasar";
 
-export function show_notify(msj, icon, color, focus) {
+export function show_notify(msj, icon, color, focus = "") {
   if (focus !== "") {
     nextTick(() => focus.value.focus());
   }
@@ -108,6 +108,21 @@ export function checkRole(role) {
   const authStore = useAuthStore();
   const usuario = authStore.authUser;
   return usuario.roles.some((usuarioRol) => usuarioRol.name === role);
+}
+
+export function checkUserId(userId) {
+  const authStore = useAuthStore();
+  const usuario = authStore.authUser;
+
+  // Verificar si el usuario tiene el rol de administrador
+  const isAdmin = usuario.roles.some((role) => role.name === "Admin");
+
+  // Verificar si el usuario es administrador o si el id del empleado coincide con userId
+  if (!usuario.empleado && isAdmin) {
+    return true;
+  }
+
+  return usuario.empleado && usuario.empleado.id === userId;
 }
 
 export function checkPermissions(permission) {
