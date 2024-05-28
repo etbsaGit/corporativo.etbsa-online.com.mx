@@ -56,6 +56,12 @@
         <div class="text-h6">Tecnicos de Agricola</div>
         <q-card-actions align="right">
           <q-btn label="Cerrar" color="red" v-close-popup />
+          <q-btn
+            label="Presentación técnicos"
+            color="blue"
+            @click="openPresentationAgricola"
+            v-close-popup
+          />
         </q-card-actions>
       </q-card-section>
       <q-separator />
@@ -254,6 +260,12 @@ import TechnicianTable from "src/components/Technician/TechnicianTable.vue";
 const openPresentationConstruccion = () => {
   const baseUrl = window.location.origin + "/#/";
   const newUrl = `${baseUrl}presentation/construccion`;
+  window.open(newUrl, "_blank");
+};
+
+const openPresentationAgricola = () => {
+  const baseUrl = window.location.origin + "/#/";
+  const newUrl = `${baseUrl}presentation/agricola`;
   window.open(newUrl, "_blank");
 };
 

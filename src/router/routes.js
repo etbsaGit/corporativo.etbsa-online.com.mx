@@ -62,6 +62,19 @@ const routes = [
   },
   {
     path: "",
+    component: () => import("src/layouts/AgricolaLayout.vue"),
+    meta: {
+      middlewares: [servicio],
+    },
+    children: [
+      {
+        path: "/presentation/agricola",
+        component: () => import("src/pages/technician/technicianAgricola.vue"),
+      },
+    ],
+  },
+  {
+    path: "",
     component: () => import("layouts/MainLayout.vue"),
     meta: {
       middlewares: [auth],
