@@ -137,10 +137,30 @@ const lineas = ref([]);
 const tecnicos = ref([]);
 
 const status = [
-  { nombre: "Activo", color: "verde" },
-  { nombre: "Inactivo", color: "rojo" },
-  { nombre: "Pendiente", color: "amarillo" },
-  { nombre: "En proceso", color: "azul" },
+  {
+    name: "Trabajo Pendiente",
+    color: "Rojo",
+  },
+  {
+    name: "En Proceso",
+    color: "Amarillo",
+  },
+  {
+    name: "En Espera de Piezas",
+    color: "Azul",
+  },
+  {
+    name: "Fecha de Entrega Expirada",
+    color: "Naranja",
+  },
+  {
+    name: "Trabajo Completo",
+    color: "Verde",
+  },
+  {
+    name: "En Espera de Diagnóstico",
+    color: "Morado",
+  },
   // Puedes agregar más objetos según sea necesario
 ];
 

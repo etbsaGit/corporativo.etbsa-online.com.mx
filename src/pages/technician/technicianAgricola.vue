@@ -175,14 +175,18 @@ const tab = ref("Tecnicos");
 
 const getStatusColor = (status) => {
   switch (status) {
-    case "Activo":
-      return "green";
-    case "Inactivo":
+    case "Trabajo Pendiente":
       return "red";
-    case "Pendiente":
+    case "En Proceso":
       return "yellow";
-    case "En proceso":
+    case "En Espera de Piezas":
       return "blue";
+    case "Fecha de Entrega Expirada":
+      return "orange";
+    case "Trabajo Completo":
+      return "green";
+    case "En Espera de Diagnóstico":
+      return "purple";
     default:
       return "primary"; // Color predeterminado si el estado no coincide con ninguno de los anteriores
   }
