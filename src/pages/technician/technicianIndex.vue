@@ -6,6 +6,7 @@
           color="primary"
           class="col"
           label="Administrar tipos de tecnicos"
+          style="margin-right: 10px"
           @click="onClickTable"
         />
         <q-btn
