@@ -1,11 +1,50 @@
 <template>
-  <q-item>
-    <q-btn
-      color="primary"
-      label="Agregar bahia"
-      icon="add"
-      @click="onRowClickAdd"
-    />
+  <q-item class="row">
+    <q-item-section class="col-2">
+      <q-btn
+        color="primary"
+        label="Agregar bahia"
+        icon="add"
+        @click="onRowClickAdd"
+      />
+    </q-item-section>
+    <q-item-section>
+      <q-select
+        v-model="formFilter.linea_id"
+        :options="lineas"
+        label="Linea"
+        option-value="id"
+        option-label="nombre"
+        option-disable="inactive"
+        emit-value
+        map-options
+        transition-show="jump-up"
+        transition-hide="jump-up"
+        clearable
+        filled
+        dense
+      />
+    </q-item-section>
+    <q-item-section>
+      <q-select
+        v-model="formFilter.sucursal_id"
+        :options="sucursales"
+        label="Sucursal"
+        option-value="id"
+        option-label="nombre"
+        option-disable="inactive"
+        emit-value
+        map-options
+        transition-show="jump-up"
+        transition-hide="jump-up"
+        clearable
+        filled
+        dense
+      />
+    </q-item-section>
+    <q-item-section class="col-1">
+      <q-btn dense color="primary" label="buscar" @click="getAll" />
+    </q-item-section>
   </q-item>
   <q-item>
     <q-item-section>
@@ -137,16 +176,23 @@
   </q-dialog>
 </template>
 <script setup>
-import { ref, onMounted, inject } from "vue";
+import { ref, onMounted, inject, watch } from "vue";
 import { sendRequest } from "src/boot/functions";
 import { useQuasar } from "quasar";
 
 import BayCard from "src/components/Technician/BayCard.vue";
 
+const formFilter = ref({
+  sucursal_id: null,
+  linea_id: null,
+});
+
 const bus = inject("bus");
 const $q = useQuasar();
 
 const bays = ref([]);
+const sucursales = ref(null);
+const lineas = ref(null);
 const selectedBay = ref(null);
 const editBay = ref(false);
 const addBay = ref(false);
@@ -168,9 +214,13 @@ const onRowClickAdd = () => {
   addBay.value = true;
 };
 
-const getBays = async () => {
-  let res = await sendRequest("GET", null, "/api/bay", "");
-  bays.value = res;
+const getAll = async () => {
+  const final = { ...formFilter.value };
+  let res = await sendRequest("POST", final, "/api/bays/getAll", "");
+  bays.value = res.bays;
+  sucursales.value = res.sucursales;
+  lineas.value = res.lineas;
+  console.log(res);
 };
 
 const postBay = async () => {
@@ -189,7 +239,7 @@ const postBay = async () => {
   };
   let res = await sendRequest("POST", final, "/api/bay", "");
 
-  getBays();
+  getAll();
   // bus.emit("edit_qualifications");
   addBay.value = false;
 };
@@ -216,7 +266,7 @@ const putBay = async () => {
   );
   selectedBay.value = null;
   editBay.value = false;
-  getBays();
+  getAll();
   // bus.emit("edit_qualifications");
 };
 
@@ -229,7 +279,7 @@ const supBay = async () => {
   );
   selectedBay.value = null;
   deleteBay.value = false;
-  getBays();
+  getAll();
   // bus.emit("edit_qualifications");
 };
 
@@ -293,6 +343,14 @@ const columns = [
 ];
 
 onMounted(() => {
-  getBays();
+  getAll();
 });
 </script>
+
+<style>
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  grid-gap: 10px;
+}
+</style>
