@@ -29,22 +29,22 @@
 
     <q-tab-panels v-model="tab" animated>
       <q-tab-panel name="Tecnicos">
-        <div class="row">
+        <div class="card-container">
           <q-card
-            class="col-4"
+            class="card"
             v-for="(employee, index) in technicians"
             :key="index"
           >
             <q-card-section align="center">
               <q-avatar
-                size="100px"
+                size="70px"
                 color="primary"
                 text-color="white"
                 v-if="employee.picture"
               >
                 <img :src="employee.picture" alt="Foto del empleado" />
               </q-avatar>
-              <q-avatar size="100px" v-else color="primary" text-color="white">
+              <q-avatar size="70px" v-else color="primary" text-color="white">
                 {{ employee.nombre.charAt(0).toUpperCase()
                 }}{{ employee.apellido_paterno.charAt(0).toUpperCase() }}
               </q-avatar>
@@ -63,8 +63,8 @@
               </q-item-label>
               <q-item-label caption>
                 <div v-if="employee.technician">
-                  <strong>Tipo de tecnico: </strong
-                  >{{ employee.technician.name }}
+                  <strong>Tipo de tecnico: </strong>
+                  {{ employee.technician.name }}
                 </div>
                 <div v-else>
                   <strong>Sin tipo de tecnico</strong>
@@ -86,8 +86,77 @@
       </q-tab-panel>
 
       <q-tab-panel name="Bahia">
-        <div class="text-h6">Bahia</div>
-        Lorem ipsum dolor sit amet consectetur adipisicing elit.
+        <div class="card-container">
+          <q-card
+            flat
+            bordered
+            v-for="(bay, index) in bays"
+            :key="index"
+            class="card"
+          >
+            <q-item>
+              <q-item-section><strong>Bahia: </strong></q-item-section>
+              <q-item-section>{{ bay.nombre }}</q-item-section>
+            </q-item>
+
+            <q-separator />
+
+            <q-card-section horizontal>
+              <q-card-section class="col-8 text-center">
+                <q-item>
+                  <q-item-section>
+                    <q-item-label><strong>Maquina: </strong></q-item-label>
+                    <q-item-label>{{ bay.maquina }}</q-item-label>
+                  </q-item-section>
+                </q-item>
+                <q-item>
+                  <q-item-section>
+                    <q-item-label><strong>Tecnico: </strong></q-item-label>
+                    <q-item-label>
+                      <q-chip v-if="bay.tecnico">
+                        <q-avatar v-if="bay.tecnico.picture">
+                          <img :src="bay.tecnico.picture" alt />
+                        </q-avatar>
+                        <q-avatar v-else color="primary" text-color="white">
+                          {{ bay.tecnico.nombre.charAt(0).toUpperCase()
+                          }}{{
+                            bay.tecnico.apellido_paterno.charAt(0).toUpperCase()
+                          }}
+                        </q-avatar>
+                        {{ bay.tecnico.nombre }}
+                      </q-chip>
+                    </q-item-label>
+                  </q-item-section>
+                </q-item>
+              </q-card-section>
+
+              <q-separator vertical />
+
+              <q-card-section class="col-4 text-center">
+                <q-item>
+                  <q-item-section>
+                    <q-item-label><strong>Status</strong></q-item-label>
+                    <q-item-label>
+                      <q-avatar :color="getStatusColor(bay.status)" />
+                    </q-item-label>
+                    <q-item-label>
+                      {{ bay.status }}
+                    </q-item-label>
+                  </q-item-section>
+                </q-item>
+              </q-card-section>
+            </q-card-section>
+            <q-separator />
+            <q-card-section>
+              <q-item>
+                <q-item-section>
+                  <q-item-label><strong>Descripcion: </strong></q-item-label>
+                  <q-item-label>{{ bay.descripcion }}</q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-card-section>
+          </q-card>
+        </div>
       </q-tab-panel>
     </q-tab-panels>
   </q-card>
@@ -95,14 +164,29 @@
   <!-- ------------------------------ -->
 </template>
 
-
 <script setup>
 import { ref, onMounted, onUnmounted } from "vue";
 import { sendRequest } from "src/boot/functions";
 
 const technicians = ref(null);
+const bays = ref(null);
 const sucursales = ref(null);
 const tab = ref("Tecnicos");
+
+const getStatusColor = (status) => {
+  switch (status) {
+    case "Activo":
+      return "green";
+    case "Inactivo":
+      return "red";
+    case "Pendiente":
+      return "yellow";
+    case "En proceso":
+      return "blue";
+    default:
+      return "primary"; // Color predeterminado si el estado no coincide con ninguno de los anteriores
+  }
+};
 
 const switchTab = () => {
   tab.value = tab.value === "Tecnicos" ? "Bahia" : "Tecnicos";
@@ -116,18 +200,20 @@ const getSucursales = async () => {
 };
 
 const clickSucursal = async (id) => {
-  let res = await sendRequest(
+  let resp = await sendRequest(
     "GET",
     null,
     "/api/technicians/agricola/" + id,
     ""
   );
-  technicians.value = res;
+  technicians.value = resp;
+  let res = await sendRequest("GET", null, "/api/bays/agricola/" + id, "");
+  bays.value = res;
 };
 
 onMounted(() => {
   getSucursales();
-  intervalId = setInterval(switchTab, 1000); // Cambia cada 1 segundos
+  // intervalId = setInterval(switchTab, 1000); // Cambia cada 1 segundos
 });
 
 onUnmounted(() => {
@@ -140,5 +226,36 @@ onUnmounted(() => {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
   grid-gap: 10px;
+}
+
+.card-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px; /* Espacio entre tarjetas */
+  justify-content: space-between;
+}
+
+.card {
+  flex: 1 1 calc(25% - 16px); /* Para mostrar 4 tarjetas por fila */
+  box-sizing: border-box;
+  min-width: 250px; /* Ancho mínimo para asegurar que las tarjetas no sean demasiado pequeñas */
+}
+
+@media (max-width: 1200px) {
+  .card {
+    flex: 1 1 calc(33.33% - 16px); /* Para mostrar 3 tarjetas por fila en pantallas más pequeñas */
+  }
+}
+
+@media (max-width: 900px) {
+  .card {
+    flex: 1 1 calc(50% - 16px); /* Para mostrar 2 tarjetas por fila en pantallas más pequeñas */
+  }
+}
+
+@media (max-width: 600px) {
+  .card {
+    flex: 1 1 100%; /* Para mostrar 1 tarjeta por fila en pantallas pequeñas */
+  }
 }
 </style>

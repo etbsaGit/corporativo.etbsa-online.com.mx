@@ -2,7 +2,7 @@
   <q-item>
     <q-btn
       color="primary"
-      label="Agregar tipo de tecnico"
+      label="Agregar bahia"
       icon="add"
       @click="onRowClickAdd"
     />
@@ -10,24 +10,32 @@
   <q-item>
     <q-item-section>
       <q-table
-        :rows="technicians"
+        :rows="bays"
         :columns="columns"
         dense
         :rows-per-page-options="[0]"
       >
-        <template v-slot:body-cell-lineas="props">
+        <template v-slot:body-cell-tecnico="props">
           <q-td :props="props">
-            <template
-              v-for="(linea, index) in props.row.linea_technician"
-              :key="index"
-            >
-              <div>
-                {{ linea.linea.nombre }}
-              </div>
-            </template>
+            {{ props.row.tecnico ? props.row.tecnico.nombreCompleto : null }}
           </q-td>
         </template>
-
+        <template v-slot:body-cell-sucursal="props">
+          <q-td :props="props">
+            {{ props.row.sucursal.nombre }}
+          </q-td>
+        </template>
+        <template v-slot:body-cell-linea="props">
+          <q-td :props="props">
+            {{ props.row.linea.nombre }}
+          </q-td>
+        </template>
+        <template v-slot:body-cell-maquina="props">
+          <q-td :props="props">
+            {{ props.row.maquina }}
+            <q-tooltip>{{ props.row.descripcion }}</q-tooltip>
+          </q-td>
+        </template>
         <template v-slot:body-cell-actions="props">
           <q-td>
             <q-btn-dropdown flat color="primary" icon="menu" dense>
@@ -61,128 +69,112 @@
   </q-item>
 
   <q-dialog
-    v-model="editTechnician"
+    v-model="editBay"
     transition-show="rotate"
     transition-hide="rotate"
     persistent
   >
     <q-card>
       <q-card-section class="d-flex justify-between items-center q-pa-sm">
-        <div class="text-h6">Modificar {{ selectedTechnician.name }}</div>
+        <div class="text-h6">Modificar bahia {{ selectedBay.num }}</div>
         <q-card-actions align="right">
           <q-btn label="Cerrar" color="red" v-close-popup />
-          <q-btn
-            label="Modificar tecnico"
-            color="blue"
-            @click="putTechnicians()"
-          />
+          <q-btn label="Modificar bahia" color="blue" @click="putBay()" />
         </q-card-actions>
       </q-card-section>
       <q-separator />
       <div class="q-pa-sm">
-        <technician-card
-          :technician="selectedTechnician"
-          :lineas="lineas"
-          ref="editTech"
-        />
+        <bay-card :bay="selectedBay" ref="edit" />
       </div>
     </q-card>
   </q-dialog>
 
   <q-dialog
-    v-model="addTechnician"
+    v-model="addBay"
     transition-show="rotate"
     transition-hide="rotate"
     persistent
   >
     <q-card>
       <q-card-section class="d-flex justify-between items-center q-pa-sm">
-        <div class="text-h6">Agregar tipo de tecnico</div>
+        <div class="text-h6">Agregar bahia</div>
         <q-card-actions align="right">
           <q-btn label="Cerrar" color="red" v-close-popup />
-          <q-btn
-            label="Agregar tecnico"
-            color="blue"
-            @click="postTechnicians()"
-          />
+          <q-btn label="Agregar bahia" color="blue" @click="postBay()" />
         </q-card-actions>
       </q-card-section>
       <q-separator />
       <div class="q-pa-sm">
-        <technician-card :technician="null" :lineas="lineas" ref="addTech" />
+        <bay-card ref="add" />
       </div>
     </q-card>
   </q-dialog>
 
   <q-dialog
-    v-model="deleteTechnician"
+    v-model="deleteBay"
     transition-show="rotate"
     transition-hide="rotate"
     persistent
   >
     <q-card>
       <q-card-section class="d-flex justify-between items-center q-pa-sm">
-        <div class="text-h6">Borrar tipo de tecnico</div>
+        <div class="text-h6">Borrar bahia</div>
         <q-card-actions align="right">
           <q-btn label="Cerrar" color="red" v-close-popup />
           <q-btn
-            label="Borrar tecnico"
+            label="Borrar bahia"
             color="orange"
-            @click="deleteTechnicians()"
+            @click="supBay()"
             v-close-popup
           />
         </q-card-actions>
       </q-card-section>
       <q-separator />
       <div class="q-pa-sm">
-        <h6>Se borrara el tipo de tecnico y todo lo relacionado</h6>
+        <h6>Se borrara la bahia y todo lo relacionado</h6>
       </div>
     </q-card>
   </q-dialog>
 </template>
-
 <script setup>
 import { ref, onMounted, inject } from "vue";
 import { sendRequest } from "src/boot/functions";
-import { useQuasar, exportFile } from "quasar";
+import { useQuasar } from "quasar";
+
+import BayCard from "src/components/Technician/BayCard.vue";
 
 const bus = inject("bus");
-
-import TechnicianCard from "src/components/Technician/TechnicianCard.vue";
-
-const technicians = ref([]);
-const lineas = ref([]);
-const selectedTechnician = ref(null);
-const editTechnician = ref(false);
-const addTechnician = ref(false);
-const deleteTechnician = ref(false);
-const editTech = ref(null);
-const addTech = ref(null);
-
 const $q = useQuasar();
 
+const bays = ref([]);
+const selectedBay = ref(null);
+const editBay = ref(false);
+const addBay = ref(false);
+const deleteBay = ref(false);
+const edit = ref(null);
+const add = ref(null);
+
 const onRowClickEdit = (row) => {
-  selectedTechnician.value = row;
-  editTechnician.value = true;
+  selectedBay.value = row;
+  editBay.value = true;
 };
 
 const onRowClickDelete = (row) => {
-  selectedTechnician.value = row;
-  deleteTechnician.value = true;
+  selectedBay.value = row;
+  deleteBay.value = true;
 };
 
 const onRowClickAdd = () => {
-  addTechnician.value = true;
+  addBay.value = true;
 };
 
-const getTechnicians = async () => {
-  let res = await sendRequest("GET", null, "/api/technician", "");
-  technicians.value = res.technicians;
-  lineas.value = res.lineas;
+const getBays = async () => {
+  let res = await sendRequest("GET", null, "/api/bay", "");
+  bays.value = res;
 };
 
-const postTechnicians = async () => {
-  const add_valid = await addTech.value.validate();
+const postBay = async () => {
+  const add_valid = await add.value.validate();
   if (!add_valid) {
     $q.notify({
       color: "red-5",
@@ -192,20 +184,18 @@ const postTechnicians = async () => {
     });
     return;
   }
-  let res = await sendRequest(
-    "POST",
-    addTech.value.formTech,
-    "/api/technician",
-    ""
-  );
+  const final = {
+    ...add.value.formBay,
+  };
+  let res = await sendRequest("POST", final, "/api/bay", "");
 
-  getTechnicians();
-  bus.emit("edit_qualifications");
-  addTechnician.value = false;
+  getBays();
+  // bus.emit("edit_qualifications");
+  addBay.value = false;
 };
 
-const putTechnicians = async () => {
-  const edit_valid = await editTech.value.validate();
+const putBay = async () => {
+  const edit_valid = await edit.value.validate();
   if (!edit_valid) {
     $q.notify({
       color: "red-5",
@@ -215,70 +205,80 @@ const putTechnicians = async () => {
     });
     return;
   }
+  const final = {
+    ...edit.value.formBay,
+  };
   let res = await sendRequest(
     "PUT",
-    editTech.value.formTech,
-    "/api/technician/" + selectedTechnician.value.id,
+    final,
+    "/api/bay/" + selectedBay.value.id,
     ""
   );
-  selectedTechnician.value = null;
-  editTechnician.value = false;
-  getTechnicians();
-  bus.emit("edit_qualifications");
+  selectedBay.value = null;
+  editBay.value = false;
+  getBays();
+  // bus.emit("edit_qualifications");
 };
 
-const deleteTechnicians = async () => {
+const supBay = async () => {
   let res = await sendRequest(
     "DELETE",
     null,
-    "/api/technician/" + selectedTechnician.value.id,
+    "/api/bay/" + selectedBay.value.id,
     ""
   );
-  selectedTechnician.value = null;
-  deleteTechnician.value = false;
-  getTechnicians();
-  bus.emit("edit_qualifications");
+  selectedBay.value = null;
+  deleteBay.value = false;
+  getBays();
+  // bus.emit("edit_qualifications");
 };
 
 const columns = [
   {
-    name: "name",
-    label: "Nombre",
-    field: "name",
+    name: "nombre",
+    label: "Bahia",
+    field: "nombre",
     sortable: true,
     align: "left",
   },
   {
-    name: "level",
-    label: "Nivel",
-    field: "level",
+    name: "cliente",
+    label: "Cliente",
+    field: "cliente",
     sortable: true,
     align: "left",
   },
   {
-    name: "antiguedad_minima",
-    label: "Antigüedad minima",
-    field: "antiguedad_minima",
+    name: "maquina",
+    label: "Maquina",
+    field: "maquina",
     sortable: true,
     align: "left",
   },
   {
-    name: "jobcode",
-    label: "Job Code",
-    field: "jobcode",
+    name: "tecnico",
+    label: "Tecnico",
+    field: "tecnico",
     sortable: true,
     align: "left",
   },
   {
-    name: "levelcap",
-    label: "Level Cap",
-    field: "levelcap",
+    name: "status",
+    label: "Status",
+    field: "status",
     sortable: true,
     align: "left",
   },
   {
-    name: "lineas",
-    label: "Lineas",
+    name: "sucursal",
+    label: "Sucursal",
+    field: "sucursal",
+    sortable: true,
+    align: "left",
+  },
+  {
+    name: "linea",
+    label: "Linea",
     field: "linea",
     sortable: true,
     align: "left",
@@ -293,7 +293,6 @@ const columns = [
 ];
 
 onMounted(() => {
-  getTechnicians();
+  getBays();
 });
 </script>
-

@@ -8,7 +8,14 @@
           label="Administrar tipos de tecnicos"
           @click="onClickTable"
         />
+        <q-btn
+          color="primary"
+          class="col"
+          label="Administrar Bahias"
+          @click="onClickTableBays"
+        />
       </div>
+
       <div class="row">
         <q-btn
           class="col text-black"
@@ -247,6 +254,28 @@
       </div>
     </q-card>
   </q-dialog>
+
+  <q-dialog
+    v-model="showTableBays"
+    transition-show="rotate"
+    transition-hide="rotate"
+    persistent
+    full-width
+    full-height
+  >
+    <q-card>
+      <q-card-section class="d-flex justify-between items-center q-pa-sm">
+        <div class="text-h6">Administrar Bahias</div>
+        <q-card-actions align="right">
+          <q-btn label="Cerrar" color="red" v-close-popup />
+        </q-card-actions>
+      </q-card-section>
+      <q-separator />
+      <div class="survey-form-container">
+        <bay-table />
+      </div>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script setup>
@@ -256,6 +285,7 @@ import { sendRequest } from "src/boot/functions";
 import EmployeeCard from "src/components/Technician/EmployeeCard.vue";
 import EditLevel from "src/components/Technician/EditLevel.vue";
 import TechnicianTable from "src/components/Technician/TechnicianTable.vue";
+import BayTable from "src/components/Technician/BayTable.vue";
 
 const openPresentationConstruccion = () => {
   const baseUrl = window.location.origin + "/#/";
@@ -290,6 +320,7 @@ const showTecConstruccion = ref(false);
 const showQualificationsConstruccion = ref(false);
 const showQualificationsAgricola = ref(false);
 const showTable = ref(null);
+const showTableBays = ref(false);
 
 const onClickAcricola = () => {
   showTecAgricola.value = true;
@@ -309,6 +340,10 @@ const onClickQuaAgricola = () => {
 
 const onClickTable = () => {
   showTable.value = true;
+};
+
+const onClickTableBays = () => {
+  showTableBays.value = true;
 };
 
 const getTecnicos = async () => {
