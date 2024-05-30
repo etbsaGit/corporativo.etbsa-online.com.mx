@@ -41,6 +41,16 @@
             <strong>No tiene usuario X</strong>
           </div>
         </q-item-label>
+        <q-item-label caption>
+          <div v-if="employee.productividad">
+            <div>
+              <strong>Productividad: </strong>{{ employee.productividad }}
+            </div>
+          </div>
+          <div v-else>
+            <strong>Sin productividad</strong>
+          </div>
+        </q-item-label>
       </q-item-section>
       <q-item-section side>
         <q-btn-dropdown flat color="primary" icon="menu">
@@ -83,6 +93,16 @@
                 color="primary"
                 icon="badge"
                 @click="openUserX(employee)"
+              />
+            </q-item>
+            <q-item>
+              <q-btn
+                flat
+                label="Asignar Productividad"
+                size="sm"
+                color="primary"
+                icon="trending_up"
+                @click="openProductividad(employee)"
               />
             </q-item>
           </q-list>
@@ -222,6 +242,38 @@
       </q-card>
     </q-card>
   </q-dialog>
+
+  <q-dialog
+    v-model="showProductividad"
+    transition-show="rotate"
+    transition-hide="rotate"
+    persistent
+  >
+    <q-card>
+      <q-card-section class="d-flex justify-between items-center q-pa-sm">
+        <div class="text-h6">
+          Asignar productividad a: {{ employee.nombreCompleto }}
+        </div>
+        <q-card-actions align="right">
+          <q-btn label="Cerrar" color="red" v-close-popup />
+          <q-btn
+            label="Asignar"
+            color="blue"
+            @click="setProductividad(employee)"
+          />
+        </q-card-actions>
+      </q-card-section>
+      <q-separator />
+      <q-card class="q-pa-sm" flat>
+        <q-input
+          dense
+          outlined
+          v-model="productividad"
+          label="Asignar productividad al empleado"
+        />
+      </q-card>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script setup>
@@ -238,6 +290,8 @@ const showQualifications = ref(false);
 const showTechnicians = ref(false);
 const showUserX = ref(false);
 const userX = ref(null);
+const showProductividad = ref(false);
+const productividad = ref(null);
 const showCV = ref(false);
 const tecnicos = ref(null);
 const timeLine = ref(null);
@@ -257,6 +311,11 @@ const openTechnicians = (employee) => {
 const openUserX = (employee) => {
   userX.value = employee.usuario_x;
   showUserX.value = true;
+};
+
+const openProductividad = (employee) => {
+  productividad.value = employee.productividad;
+  showProductividad.value = true;
 };
 
 const openCV = () => {
@@ -304,6 +363,20 @@ const setUserX = async () => {
   selectedTechnician.value = null;
   userX.value = null;
   showUserX.value = false;
+};
+
+const setProductividad = async () => {
+  const final = { productividad: productividad.value };
+  let res = await sendRequest(
+    "POST",
+    final,
+    "/api/technician/productividad/" + employee.id,
+    ""
+  );
+  bus.emit("new_qualifications");
+  selectedTechnician.value = null;
+  productividad.value = null;
+  showProductividad.value = false;
 };
 </script>
 

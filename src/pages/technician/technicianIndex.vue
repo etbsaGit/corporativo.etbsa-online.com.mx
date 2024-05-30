@@ -1,47 +1,83 @@
 <template>
-  <q-page class="q-pa-sm">
-    <div class="q-gutter-md">
-      <div class="row">
+  <q-page>
+    <q-item>
+      <q-item-section v-if="checkRole('Servicio')">
         <q-btn
           color="primary"
-          class="col"
           label="Administrar tipos de tecnicos"
           @click="onClickTable"
         />
-      </div>
-      <div class="row">
+      </q-item-section>
+      <q-item-section>
         <q-btn
-          class="col text-black"
-          label="Tecnicos Agricola"
-          color="green"
-          style="height: 450px; font-size: 60px; margin-right: 10px"
-          @click="onClickAcricola"
+          color="primary"
+          label="Administrar Bahias"
+          @click="onClickTableBays"
         />
-        <q-btn
-          class="col text-black"
-          label="Tecnicos Construccion"
-          color="amber"
-          style="height: 450px; font-size: 60px"
-          @click="onClickConstruccion"
-        />
-      </div>
-      <div class="row">
-        <q-btn
-          class="col text-grey"
-          label="Escalafon Agricola"
-          color="green-3"
-          style="height: 150px; font-size: 35px; margin-right: 10px"
-          @click="onClickQuaAgricola"
-        />
-        <q-btn
-          class="col text-grey"
-          label="Escalafon Construccion"
-          color="amber-3"
-          style="height: 150px; font-size: 35px"
-          @click="onClickQuaConstruccion"
-        />
-      </div>
-    </div>
+      </q-item-section>
+    </q-item>
+    <q-item>
+      <q-item-section>
+        <div class="img-container">
+          <q-img class="imagen" src="../../assets/agricola.jpeg">
+            <div class="absolute-bottom text-h2 text-center">Agricola</div>
+            <div class="button-overlay">
+              <q-item>
+                <q-item-section v-if="checkRole('Servicio')">
+                  <q-btn label="Tecnicos" @click="onClickAgricola" outline />
+                </q-item-section>
+                <q-item-section v-if="checkRole('Servicio')">
+                  <q-btn
+                    label="Escalafon"
+                    @click="onClickQuaAgricola"
+                    outline
+                  />
+                </q-item-section>
+                <q-item-section>
+                  <q-btn
+                    label="Presentacion"
+                    @click="openPresentationAgricola"
+                    outline
+                  />
+                </q-item-section>
+              </q-item>
+            </div>
+          </q-img>
+        </div>
+      </q-item-section>
+      <q-item-section>
+        <div class="img-container">
+          <q-img class="imagen" src="../../assets/construccion.jpg">
+            <div class="absolute-bottom text-h2 text-center">Construccion</div>
+            <div class="button-overlay">
+              <q-item>
+                <q-item-section v-if="checkRole('Servicio')">
+                  <q-btn
+                    label="Tecnicos"
+                    @click="onClickConstruccion"
+                    outline
+                  />
+                </q-item-section>
+                <q-item-section v-if="checkRole('Servicio')">
+                  <q-btn
+                    label="Escalafon"
+                    @click="onClickQuaConstruccion"
+                    outline
+                  />
+                </q-item-section>
+                <q-item-section>
+                  <q-btn
+                    label="Presentacion"
+                    @click="openPresentationConstruccion"
+                    outline
+                  />
+                </q-item-section>
+              </q-item>
+            </div>
+          </q-img>
+        </div>
+      </q-item-section>
+    </q-item>
   </q-page>
   <q-dialog
     v-model="showTecAgricola"
@@ -176,7 +212,7 @@
   >
     <q-card>
       <q-card-section class="d-flex justify-between items-center q-pa-sm">
-        <div class="text-h6">Cursos de Construccion</div>
+        <div class="text-h6">Escalafon de Construccion</div>
         <q-card-actions align="right">
           <q-btn label="Cerrar" color="red" v-close-popup />
         </q-card-actions>
@@ -199,7 +235,7 @@
   >
     <q-card>
       <q-card-section class="d-flex justify-between items-center q-pa-sm">
-        <div class="text-h6">Cursos de Agricola</div>
+        <div class="text-h6">Escalafon de Agricola</div>
         <q-card-actions align="right">
           <q-btn label="Cerrar" color="red" v-close-popup />
         </q-card-actions>
@@ -235,15 +271,51 @@
       </div>
     </q-card>
   </q-dialog>
+
+  <q-dialog
+    v-model="showTableBays"
+    transition-show="rotate"
+    transition-hide="rotate"
+    persistent
+    full-width
+    full-height
+  >
+    <q-card>
+      <q-card-section class="d-flex justify-between items-center q-pa-sm">
+        <div class="text-h6">Administrar Bahias</div>
+        <q-card-actions align="right">
+          <q-btn label="Cerrar" color="red" v-close-popup />
+        </q-card-actions>
+      </q-card-section>
+      <q-separator />
+      <div class="survey-form-container">
+        <bay-table />
+      </div>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script setup>
 import { ref, onMounted, inject } from "vue";
 import { sendRequest } from "src/boot/functions";
+import { checkRole } from "src/boot/functions";
 
 import EmployeeCard from "src/components/Technician/EmployeeCard.vue";
 import EditLevel from "src/components/Technician/EditLevel.vue";
 import TechnicianTable from "src/components/Technician/TechnicianTable.vue";
+import BayTable from "src/components/Technician/BayTable.vue";
+
+const openPresentationConstruccion = () => {
+  const baseUrl = window.location.origin + "/#/";
+  const newUrl = `${baseUrl}presentation/construccion`;
+  window.open(newUrl, "_blank");
+};
+
+const openPresentationAgricola = () => {
+  const baseUrl = window.location.origin + "/#/";
+  const newUrl = `${baseUrl}presentation/agricola`;
+  window.open(newUrl, "_blank");
+};
 
 const bus = inject("bus");
 
@@ -266,8 +338,9 @@ const showTecConstruccion = ref(false);
 const showQualificationsConstruccion = ref(false);
 const showQualificationsAgricola = ref(false);
 const showTable = ref(null);
+const showTableBays = ref(false);
 
-const onClickAcricola = () => {
+const onClickAgricola = () => {
   showTecAgricola.value = true;
 };
 
@@ -285,6 +358,10 @@ const onClickQuaAgricola = () => {
 
 const onClickTable = () => {
   showTable.value = true;
+};
+
+const onClickTableBays = () => {
+  showTableBays.value = true;
 };
 
 const getTecnicos = async () => {
@@ -323,6 +400,38 @@ onMounted(() => {
 .survey-form-container {
   max-height: 600px; /* Ajusta este valor según tus necesidades */
   overflow-y: auto;
+  height: 100vh;
+}
+
+.imagen {
+  height: 80vh;
+  border-radius: 10px;
+}
+
+.img-container {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.button-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  gap: 10px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  border-radius: 10px;
+}
+
+.img-container:hover .button-overlay {
+  opacity: 1;
+}
+
+.q-btn {
+  padding: 10px 20px;
 }
 </style>
 

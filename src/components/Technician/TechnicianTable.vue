@@ -75,7 +75,6 @@
             label="Modificar tecnico"
             color="blue"
             @click="putTechnicians()"
-            v-close-popup
           />
         </q-card-actions>
       </q-card-section>
@@ -105,7 +104,6 @@
             label="Agregar tecnico"
             color="blue"
             @click="postTechnicians()"
-            v-close-popup
           />
         </q-card-actions>
       </q-card-section>
@@ -146,6 +144,7 @@
 <script setup>
 import { ref, onMounted, inject } from "vue";
 import { sendRequest } from "src/boot/functions";
+import { useQuasar, exportFile } from "quasar";
 
 const bus = inject("bus");
 
@@ -159,6 +158,8 @@ const addTechnician = ref(false);
 const deleteTechnician = ref(false);
 const editTech = ref(null);
 const addTech = ref(null);
+
+const $q = useQuasar();
 
 const onRowClickEdit = (row) => {
   selectedTechnician.value = row;
@@ -181,6 +182,16 @@ const getTechnicians = async () => {
 };
 
 const postTechnicians = async () => {
+  const add_valid = await addTech.value.validate();
+  if (!add_valid) {
+    $q.notify({
+      color: "red-5",
+      textColor: "white",
+      icon: "warning",
+      message: "Por favor completa todos los campos obligatorios",
+    });
+    return;
+  }
   let res = await sendRequest(
     "POST",
     addTech.value.formTech,
@@ -194,6 +205,16 @@ const postTechnicians = async () => {
 };
 
 const putTechnicians = async () => {
+  const edit_valid = await editTech.value.validate();
+  if (!edit_valid) {
+    $q.notify({
+      color: "red-5",
+      textColor: "white",
+      icon: "warning",
+      message: "Por favor completa todos los campos obligatorios",
+    });
+    return;
+  }
   let res = await sendRequest(
     "PUT",
     editTech.value.formTech,
