@@ -220,7 +220,7 @@ const clickSucursal = async (id) => {
 
 onMounted(() => {
   getSucursales();
-  // intervalId = setInterval(switchTab, 1000); // Cambia cada 1 segundos
+  intervalId = setInterval(switchTab, 60000);
 });
 
 onUnmounted(() => {
