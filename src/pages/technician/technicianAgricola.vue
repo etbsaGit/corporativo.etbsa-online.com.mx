@@ -48,7 +48,7 @@
                 {{ employee.nombre.charAt(0).toUpperCase()
                 }}{{ employee.apellido_paterno.charAt(0).toUpperCase() }}
               </q-avatar>
-              <q-item-label class="q-pa-xs">
+              <q-item-label class="q-pa-xs text-h6">
                 {{ employee.nombreCompleto }}
               </q-item-label>
             </q-card-section>
@@ -102,7 +102,7 @@
             <q-separator />
 
             <q-card-section horizontal>
-              <q-card-section class="col-8 text-center">
+              <q-card-section class="col-8 text-center q-pa-none">
                 <q-item>
                   <q-item-section>
                     <q-item-label><strong>Maquina: </strong></q-item-label>
@@ -132,12 +132,15 @@
 
               <q-separator vertical />
 
-              <q-card-section class="col-4 text-center">
+              <q-card-section class="col-4 text-center q-pa-none">
                 <q-item>
                   <q-item-section>
                     <q-item-label><strong>Status</strong></q-item-label>
                     <q-item-label>
-                      <q-avatar :color="getStatusColor(bay.status)" />
+                      <q-avatar
+                        size="30px"
+                        :color="getStatusColor(bay.status)"
+                      />
                     </q-item-label>
                     <q-item-label>
                       {{ bay.status }}
@@ -164,6 +167,7 @@
   <!-- ------------------------------ -->
 </template>
 
+
 <script setup>
 import { ref, onMounted, onUnmounted } from "vue";
 import { sendRequest } from "src/boot/functions";
@@ -175,18 +179,17 @@ const tab = ref("Tecnicos");
 
 const getStatusColor = (status) => {
   switch (status) {
-    case "Trabajo Pendiente":
-      return "red";
-    case "En Proceso":
-      return "yellow";
-    case "En Espera de Piezas":
-      return "blue";
-    case "Fecha de Entrega Expirada":
-      return "orange";
-    case "Trabajo Completo":
+    case "en diagnóstico":
+    case "en armando":
+    case "en espera de piezas":
       return "green";
-    case "En Espera de Diagnóstico":
-      return "purple";
+    case "en pruebas finales":
+      return "yellow";
+    case "fuera de tiempo de entrega":
+    case "urgencia de entrega":
+      return "red";
+    case "retrabajo":
+      return "black";
     default:
       return "primary"; // Color predeterminado si el estado no coincide con ninguno de los anteriores
   }
@@ -235,14 +238,15 @@ onUnmounted(() => {
 .card-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px; /* Espacio entre tarjetas */
+  gap: 10px; /* Espacio entre tarjetas */
   justify-content: space-between;
 }
 
 .card {
-  flex: 1 1 calc(25% - 16px); /* Para mostrar 4 tarjetas por fila */
+  flex: 1 1 calc(16.66% - 16px); /* Para mostrar 6 tarjetas por fila */
   box-sizing: border-box;
-  min-width: 250px; /* Ancho mínimo para asegurar que las tarjetas no sean demasiado pequeñas */
+  min-width: 150px; /* Ancho mínimo para asegurar que las tarjetas no sean demasiado pequeñas */
+  font-size: 0.85em; /* Tamaño de fuente más pequeño */
 }
 
 @media (max-width: 1200px) {

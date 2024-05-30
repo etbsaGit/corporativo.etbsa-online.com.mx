@@ -60,11 +60,11 @@ export function servicio({ to, next }) {
     return next("/login");
   }
 
-  if (!checkRole("Servicio")) {
-    return next("/perfil");
+  if (checkRole("Servicio") || checkRole("Taller")) {
+    return next();
   }
-
-  return next();
+  auth.returnUrl = to.fullPath;
+  return next("/perfil");
 }
 
 export function encuestador(/* { to, from, next } */ { to, next }) {

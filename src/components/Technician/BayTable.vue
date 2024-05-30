@@ -2,6 +2,7 @@
   <q-item class="row">
     <q-item-section class="col-2">
       <q-btn
+        dense
         color="primary"
         label="Agregar bahia"
         icon="add"
@@ -10,6 +11,7 @@
     </q-item-section>
     <q-item-section>
       <q-select
+        v-if="!checkRole('Taller')"
         v-model="formFilter.linea_id"
         :options="lineas"
         label="Linea"
@@ -27,6 +29,7 @@
     </q-item-section>
     <q-item-section>
       <q-select
+        v-if="!checkRole('Taller')"
         v-model="formFilter.sucursal_id"
         :options="sucursales"
         label="Sucursal"
@@ -43,7 +46,13 @@
       />
     </q-item-section>
     <q-item-section class="col-1">
-      <q-btn dense color="primary" label="buscar" @click="getAll" />
+      <q-btn
+        v-if="!checkRole('Taller')"
+        dense
+        color="primary"
+        label="buscar"
+        @click="getAll"
+      />
     </q-item-section>
   </q-item>
   <q-item>
@@ -178,6 +187,8 @@
 <script setup>
 import { ref, onMounted, inject, watch } from "vue";
 import { sendRequest } from "src/boot/functions";
+import { checkRole } from "src/boot/functions";
+
 import { useQuasar } from "quasar";
 
 import BayCard from "src/components/Technician/BayCard.vue";
@@ -220,7 +231,6 @@ const getAll = async () => {
   bays.value = res.bays;
   sucursales.value = res.sucursales;
   lineas.value = res.lineas;
-  console.log(res);
 };
 
 const postBay = async () => {

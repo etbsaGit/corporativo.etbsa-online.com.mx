@@ -107,8 +107,8 @@
           v-model="formBay.status"
           :options="status"
           label="status"
-          option-value="nombre"
-          option-label="nombre"
+          option-value="name"
+          option-label="name"
           option-disable="inactive"
           emit-value
           map-options
@@ -138,30 +138,33 @@ const tecnicos = ref([]);
 
 const status = [
   {
-    name: "Trabajo Pendiente",
-    color: "Rojo",
-  },
-  {
-    name: "En Proceso",
-    color: "Amarillo",
-  },
-  {
-    name: "En Espera de Piezas",
-    color: "Azul",
-  },
-  {
-    name: "Fecha de Entrega Expirada",
-    color: "Naranja",
-  },
-  {
-    name: "Trabajo Completo",
+    name: "en diagnóstico",
     color: "Verde",
   },
   {
-    name: "En Espera de Diagnóstico",
-    color: "Morado",
+    name: "en armando",
+    color: "Verde",
   },
-  // Puedes agregar más objetos según sea necesario
+  {
+    name: "en espera de piezas",
+    color: "Verde",
+  },
+  {
+    name: "en pruebas finales",
+    color: "Amarillo",
+  },
+  {
+    name: "fuera de tiempo de entrega",
+    color: "Rojo",
+  },
+  {
+    name: "urgencia de entrega",
+    color: "Rojo",
+  },
+  {
+    name: "retrabajo",
+    color: "Negro",
+  },
 ];
 
 const formBay = ref({
