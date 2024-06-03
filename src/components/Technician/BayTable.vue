@@ -193,6 +193,8 @@ import { useQuasar } from "quasar";
 
 import BayCard from "src/components/Technician/BayCard.vue";
 
+const channel = new BroadcastChannel("method-execution-channel");
+
 const formFilter = ref({
   sucursal_id: null,
   linea_id: null,
@@ -248,10 +250,9 @@ const postBay = async () => {
     ...add.value.formBay,
   };
   let res = await sendRequest("POST", final, "/api/bay", "");
-
   getAll();
-  // bus.emit("edit_qualifications");
   addBay.value = false;
+  channel.postMessage({ action: "executeMethod" });
 };
 
 const putBay = async () => {
@@ -277,7 +278,7 @@ const putBay = async () => {
   selectedBay.value = null;
   editBay.value = false;
   getAll();
-  // bus.emit("edit_qualifications");
+  channel.postMessage({ action: "executeMethod" });
 };
 
 const supBay = async () => {
@@ -290,7 +291,7 @@ const supBay = async () => {
   selectedBay.value = null;
   deleteBay.value = false;
   getAll();
-  // bus.emit("edit_qualifications");
+  channel.postMessage({ action: "executeMethod" });
 };
 
 const columns = [

@@ -286,6 +286,8 @@ import CV from "src/components/Technician/CV.vue";
 const { employee } = defineProps(["employee"]);
 const bus = inject("bus");
 
+const channel = new BroadcastChannel("method-execution-channel");
+
 const showQualifications = ref(false);
 const showTechnicians = ref(false);
 const showUserX = ref(false);
@@ -377,6 +379,7 @@ const setProductividad = async () => {
   selectedTechnician.value = null;
   productividad.value = null;
   showProductividad.value = false;
+  channel.postMessage({ action: "executeMethod" });
 };
 </script>
 

@@ -1,6 +1,6 @@
 <template>
   <q-page class="q-pa-xs bg-white">
-    <q-item>
+    <!-- <q-item>
       <q-item-section>
         <q-btn
           color="primary"
@@ -9,7 +9,7 @@
           @click="kardex = true"
         />
       </q-item-section>
-    </q-item>
+    </q-item> -->
     <div class="q-pa-xs flex justify-between items-center">
       <q-btn icon="arrow_left" @click="prevMonth" />
       <div class="highlight">{{ currentMonthYear }}</div>
