@@ -37,14 +37,14 @@
           >
             <q-card-section align="center">
               <q-avatar
-                size="100px"
+                size="150px"
                 color="primary"
                 text-color="white"
                 v-if="employee.picture"
               >
                 <img :src="employee.picture" alt="Foto del empleado" />
               </q-avatar>
-              <q-avatar size="100px" v-else color="primary" text-color="white">
+              <q-avatar size="150px" v-else color="primary" text-color="white">
                 {{ employee.nombre.charAt(0).toUpperCase()
                 }}{{ employee.apellido_paterno.charAt(0).toUpperCase() }}
               </q-avatar>
