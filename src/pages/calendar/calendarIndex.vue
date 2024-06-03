@@ -1,6 +1,16 @@
 <template>
-  <q-page class="q-pa-sm bg-white">
-    <div class="q-pa-md flex justify-between items-center">
+  <q-page class="q-pa-xs bg-white">
+    <q-item>
+      <q-item-section>
+        <q-btn
+          color="primary"
+          outline
+          label="Kardex visitas"
+          @click="kardex = true"
+        />
+      </q-item-section>
+    </q-item>
+    <div class="q-pa-xs flex justify-between items-center">
       <q-btn icon="arrow_left" @click="prevMonth" />
       <div class="highlight">{{ currentMonthYear }}</div>
       <q-btn icon="arrow_right" @click="nextMonth" />
@@ -159,6 +169,27 @@
       </q-card>
     </q-card>
   </q-dialog>
+
+  <q-dialog
+    v-model="kardex"
+    transition-show="slide-up"
+    transition-hide="slide-down"
+    persistent
+    :maximized="true"
+  >
+    <q-card>
+      <q-item class="bg-primary text-white">
+        <q-item-section>
+          <q-item-label class="text-h6"> Kardex </q-item-label>
+        </q-item-section>
+        <q-item-section side>
+          <q-btn label="Cerrar" color="red" v-close-popup />
+        </q-item-section>
+      </q-item>
+      <q-separator />
+      <Kardex />
+    </q-card>
+  </q-dialog>
 </template>
 
 <script setup>
@@ -174,11 +205,13 @@ import { formatTime, formatDate } from "src/boot/formatFunctions";
 
 import EventForm from "src/components/Calendar/EventForm.vue";
 import EventList from "src/components/Calendar/EventList.vue";
+import Kardex from "src/components/Calendar/kardex.vue";
 
 const $q = useQuasar();
 const calendar = ref(null);
 const selectedDate = ref(today());
 const addForm = ref(false);
+const kardex = ref(false);
 const store = ref(null);
 const showDay = ref(null);
 const currentDay = ref(null);
