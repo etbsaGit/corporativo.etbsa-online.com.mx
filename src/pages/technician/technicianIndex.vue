@@ -17,7 +17,7 @@
       </q-item-section>
     </q-item>
     <q-item>
-      <q-item-section>
+      <q-item-section v-if="checkLine('Agricola')">
         <div class="img-container">
           <q-img class="imagen" src="../../assets/agricola.jpeg">
             <div class="absolute-bottom text-h2 text-center">Agricola</div>
@@ -45,7 +45,7 @@
           </q-img>
         </div>
       </q-item-section>
-      <q-item-section>
+      <q-item-section v-if="checkLine('Construccion')">
         <div class="img-container">
           <q-img class="imagen" src="../../assets/construccion.jpg">
             <div class="absolute-bottom text-h2 text-center">Construccion</div>
@@ -298,7 +298,7 @@
 <script setup>
 import { ref, onMounted, inject } from "vue";
 import { sendRequest } from "src/boot/functions";
-import { checkRole } from "src/boot/functions";
+import { checkRole, checkLine } from "src/boot/functions";
 
 import EmployeeCard from "src/components/Technician/EmployeeCard.vue";
 import EditLevel from "src/components/Technician/EditLevel.vue";

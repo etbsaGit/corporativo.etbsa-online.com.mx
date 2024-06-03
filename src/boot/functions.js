@@ -110,6 +110,28 @@ export function checkRole(role) {
   return usuario.roles.some((usuarioRol) => usuarioRol.name === role);
 }
 
+export function checkLine(linea) {
+  const authStore = useAuthStore();
+  const usuario = authStore.authUser;
+  if (
+    usuario &&
+    usuario.roles &&
+    usuario.roles.some((usuarioRol) => usuarioRol.name === "Admin")
+  ) {
+    // Si el usuario tiene el rol de "admin", devuelve true
+    return true;
+  }
+  if (
+    usuario &&
+    usuario.empleado &&
+    usuario.empleado.linea &&
+    usuario.empleado.linea.nombre
+  ) {
+    return usuario.empleado.linea.nombre === linea;
+  }
+  return false;
+}
+
 export function checkUserId(userId) {
   const authStore = useAuthStore();
   const usuario = authStore.authUser;
