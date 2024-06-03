@@ -6,7 +6,7 @@
       dense
       :label="sucursal.nombre"
       class="fixed-height-btn text-caption"
-      @click="clickSucursal(sucursal)"
+      @click="clickSucursal(sucursal.id)"
     />
   </div>
   <!-- ------------------- -->
@@ -37,14 +37,14 @@
           >
             <q-card-section align="center">
               <q-avatar
-                size="100px"
+                size="70px"
                 color="primary"
                 text-color="white"
                 v-if="employee.picture"
               >
                 <img :src="employee.picture" alt="Foto del empleado" />
               </q-avatar>
-              <q-avatar size="100px" v-else color="primary" text-color="white">
+              <q-avatar size="70px" v-else color="primary" text-color="white">
                 {{ employee.nombre.charAt(0).toUpperCase()
                 }}{{ employee.apellido_paterno.charAt(0).toUpperCase() }}
               </q-avatar>
@@ -163,17 +163,18 @@
       </q-tab-panel>
     </q-tab-panels>
   </q-card>
+
+  <!-- ------------------------------ -->
 </template>
+
 
 <script setup>
 import { ref, onMounted, onUnmounted } from "vue";
 import { sendRequest } from "src/boot/functions";
 
-const channel = new BroadcastChannel("method-execution-channel");
 const technicians = ref(null);
 const bays = ref(null);
 const sucursales = ref(null);
-const selectedSucursal = ref(null);
 const tab = ref("Tecnicos");
 
 const getStatusColor = (status) => {
@@ -205,33 +206,21 @@ const getSucursales = async () => {
   sucursales.value = res;
 };
 
-const clickSucursal = async (sucursal) => {
-  selectedSucursal.value = sucursal;
+const clickSucursal = async (id) => {
   let resp = await sendRequest(
     "GET",
     null,
-    "/api/technicians/agricola/" + selectedSucursal.value.id,
+    "/api/technicians/agricola/" + id,
     ""
   );
   technicians.value = resp;
-  let res = await sendRequest(
-    "GET",
-    null,
-    "/api/bays/agricola/" + selectedSucursal.value.id,
-    ""
-  );
+  let res = await sendRequest("GET", null, "/api/bays/agricola/" + id, "");
   bays.value = res;
-};
-
-channel.onmessage = (event) => {
-  if (event.data.action === "executeMethod") {
-    clickSucursal(selectedSucursal.value);
-  }
 };
 
 onMounted(() => {
   getSucursales();
-  intervalId = setInterval(switchTab, 30000);
+  intervalId = setInterval(switchTab, 60000);
 });
 
 onUnmounted(() => {
@@ -252,7 +241,6 @@ onUnmounted(() => {
 .card {
   height: 100%; /* Para asegurar que todas las tarjetas tengan la misma altura */
   box-sizing: border-box;
-  font-size: 1em; /* Tamaño de fuente más pequeño */
-  min-height: 300px; /* Ajusta esta propiedad para aumentar el largo de las tarjetas */
+  font-size: 0.85em; /* Tamaño de fuente más pequeño */
 }
 </style>
