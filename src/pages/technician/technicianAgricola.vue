@@ -37,14 +37,14 @@
           >
             <q-card-section align="center">
               <q-avatar
-                size="70px"
+                size="150px"
                 color="primary"
                 text-color="white"
                 v-if="employee.picture"
               >
                 <img :src="employee.picture" alt="Foto del empleado" />
               </q-avatar>
-              <q-avatar size="70px" v-else color="primary" text-color="white">
+              <q-avatar size="150px" v-else color="primary" text-color="white">
                 {{ employee.nombre.charAt(0).toUpperCase()
                 }}{{ employee.apellido_paterno.charAt(0).toUpperCase() }}
               </q-avatar>
@@ -220,7 +220,7 @@ const clickSucursal = async (id) => {
 
 onMounted(() => {
   getSucursales();
-  intervalId = setInterval(switchTab, 60000);
+  intervalId = setInterval(switchTab, 30000);
 });
 
 onUnmounted(() => {
@@ -241,6 +241,6 @@ onUnmounted(() => {
 .card {
   height: 100%; /* Para asegurar que todas las tarjetas tengan la misma altura */
   box-sizing: border-box;
-  font-size: 0.85em; /* Tamaño de fuente más pequeño */
+  font-size: 1em; /* Tamaño de fuente más pequeño */
 }
 </style>

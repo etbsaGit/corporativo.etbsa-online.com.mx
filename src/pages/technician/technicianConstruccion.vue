@@ -220,7 +220,7 @@ const clickSucursal = async (id) => {
 
 onMounted(() => {
   getSucursales();
-  intervalId = setInterval(switchTab, 60000);
+  intervalId = setInterval(switchTab, 30000);
 });
 
 onUnmounted(() => {
@@ -241,6 +241,6 @@ onUnmounted(() => {
 .card {
   height: 100%; /* Para asegurar que todas las tarjetas tengan la misma altura */
   box-sizing: border-box;
-  font-size: 0.85em; /* Tamaño de fuente más pequeño */
+  font-size: 1em; /* Tamaño de fuente más pequeño */
 }
 </style>
