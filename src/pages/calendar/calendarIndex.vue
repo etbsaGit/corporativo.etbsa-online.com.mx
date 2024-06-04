@@ -1,6 +1,6 @@
 <template>
   <q-page class="q-pa-xs bg-white">
-    <!-- <q-item>
+    <q-item v-if="checkRole('Calendar')">
       <q-item-section>
         <q-btn
           color="primary"
@@ -9,7 +9,7 @@
           @click="kardex = true"
         />
       </q-item-section>
-    </q-item> -->
+    </q-item>
     <div class="q-pa-xs flex justify-between items-center">
       <q-btn icon="arrow_left" @click="prevMonth" />
       <div class="highlight">{{ currentMonthYear }}</div>
@@ -200,7 +200,7 @@ import "@quasar/quasar-ui-qcalendar/src/QCalendarMonth.sass";
 import { ref, watch, onMounted, computed } from "vue";
 import { date, useQuasar } from "quasar";
 
-import { sendRequest } from "src/boot/functions";
+import { sendRequest, checkRole } from "src/boot/functions";
 import { formatTime, formatDate } from "src/boot/formatFunctions";
 
 import EventForm from "src/components/Calendar/EventForm.vue";
