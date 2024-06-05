@@ -212,7 +212,6 @@ const getKardex = async (mes = null, anio = null) => {
 const clickRow = (events) => {
   openDialog.value = true;
   selectedEvents.value = events;
-  console.log(selectedEvents.value);
 };
 
 onMounted(() => {

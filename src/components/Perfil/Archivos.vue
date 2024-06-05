@@ -234,7 +234,7 @@ const uploadFile = async () => {
   formData.append("asignableId", requisito.pivot.id);
   try {
     let res = await api.post(
-      `/documento/uploadFile/${requisito.pivot.id}`,
+      `api/documento/uploadFile/${requisito.pivot.id}`,
       formData,
       {
         headers: {
@@ -245,7 +245,7 @@ const uploadFile = async () => {
     );
     model.value = null;
     cargarArchivos();
-    bus.emit("archivo-subido");
+    bus.emit("documento-subido");
   } catch (error) {
     console.error("Error al enviar la solicitud:", error);
   }

@@ -11,6 +11,7 @@
           clearable
           accept=".jpg,.jpeg,.png,.jpg"
           max-files="1"
+          @input="convertirBase64($event, index)"
         >
           <template v-slot:before>
             <q-avatar
@@ -414,6 +415,7 @@ const escolaridades = ref([]);
 const myForm = ref(null);
 
 const fotografia = ref(null);
+const base64 = ref(null);
 
 const formEmployee = ref({
   id: empleado ? empleado.id : null,
@@ -453,24 +455,15 @@ const formEmployee = ref({
 });
 
 const uploadPicture = async () => {
-  const formData = new FormData();
-  formData.append("pic", fotografia.value);
-  try {
-    let res = await api.post(
-      `/empleado/uploadPicture/${empleado.id}`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-        withCredentials: true,
-      }
-    );
-    bus.emit("cargar_empleados");
-    formEmployee.value.fotografia = null;
-  } catch (error) {
-    console.error("Error al enviar la solicitud:", error);
-  }
+  const final = { base64: base64.value };
+  let res = await sendRequest(
+    "POST",
+    final,
+    "/api/empleado/uploadPicture/" + empleado.id,
+    ""
+  );
+  fotografia.value = null;
+  bus.emit("cargar_empleados");
 };
 
 const getAll = async () => {
@@ -478,6 +471,19 @@ const getAll = async () => {
   estadosCiviles.value = res.estados_civiles;
   tiposDeSangre.value = res.tipos_de_sangre;
   escolaridades.value = res.escolaridades;
+};
+
+const convertirBase64 = (event, index) => {
+  const archivo = event.target.files[0];
+  if (archivo) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const base64Data = e.target.result;
+      // Asignar el valor base64 al campo 'image' de la pregunta específica
+      base64.value = base64Data;
+    };
+    reader.readAsDataURL(archivo);
+  }
 };
 
 const validate = async () => {

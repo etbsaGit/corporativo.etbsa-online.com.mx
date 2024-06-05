@@ -110,7 +110,7 @@ const getStatusColor = (status) => {
   }
 };
 
-bus.on("archivo-subido", () => {
+bus.on("documento-subido", () => {
   selectedRequisito.value = null;
   obtenerEmpleado();
 });
