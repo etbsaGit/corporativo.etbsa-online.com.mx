@@ -29,7 +29,7 @@
 
     <q-tab-panels v-model="tab" animated>
       <q-tab-panel name="Tecnicos">
-        <div class="card-container">
+        <div class="grid-container">
           <q-card
             class="card"
             v-for="(employee, index) in technicians"
@@ -37,14 +37,14 @@
           >
             <q-card-section align="center">
               <q-avatar
-                size="70px"
+                size="150px"
                 color="primary"
                 text-color="white"
                 v-if="employee.picture"
               >
                 <img :src="employee.picture" alt="Foto del empleado" />
               </q-avatar>
-              <q-avatar size="70px" v-else color="primary" text-color="white">
+              <q-avatar size="150px" v-else color="primary" text-color="white">
                 {{ employee.nombre.charAt(0).toUpperCase()
                 }}{{ employee.apellido_paterno.charAt(0).toUpperCase() }}
               </q-avatar>
@@ -86,7 +86,7 @@
       </q-tab-panel>
 
       <q-tab-panel name="Bahia">
-        <div class="card-container">
+        <div class="grid-container">
           <q-card
             flat
             bordered
@@ -220,7 +220,7 @@ const clickSucursal = async (id) => {
 
 onMounted(() => {
   getSucursales();
-  intervalId = setInterval(switchTab, 60000);
+  intervalId = setInterval(switchTab, 30000);
 });
 
 onUnmounted(() => {
@@ -231,39 +231,16 @@ onUnmounted(() => {
 <style>
 .grid-container {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-  grid-gap: 10px;
-}
-
-.card-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px; /* Espacio entre tarjetas */
-  justify-content: space-between;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(200px, 1fr)
+  ); /* Ajusta el tamaño mínimo aquí */
+  gap: 10px;
 }
 
 .card {
-  flex: 1 1 calc(16.66% - 16px); /* Para mostrar 6 tarjetas por fila */
+  height: 100%; /* Para asegurar que todas las tarjetas tengan la misma altura */
   box-sizing: border-box;
-  min-width: 150px; /* Ancho mínimo para asegurar que las tarjetas no sean demasiado pequeñas */
-  font-size: 0.85em; /* Tamaño de fuente más pequeño */
-}
-
-@media (max-width: 1200px) {
-  .card {
-    flex: 1 1 calc(33.33% - 16px); /* Para mostrar 3 tarjetas por fila en pantallas más pequeñas */
-  }
-}
-
-@media (max-width: 900px) {
-  .card {
-    flex: 1 1 calc(50% - 16px); /* Para mostrar 2 tarjetas por fila en pantallas más pequeñas */
-  }
-}
-
-@media (max-width: 600px) {
-  .card {
-    flex: 1 1 100%; /* Para mostrar 1 tarjeta por fila en pantallas pequeñas */
-  }
+  font-size: 1em; /* Tamaño de fuente más pequeño */
 }
 </style>

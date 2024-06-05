@@ -161,7 +161,6 @@ const changePassword = async () => {
     ...password.value.formUser,
   };
   let res = await sendRequest("POST", final, "/api/auth/change", "");
-  console.log(res);
   showChangePassword.value == false;
   logout();
 };
