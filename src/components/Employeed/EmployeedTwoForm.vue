@@ -103,11 +103,17 @@
       </q-item-section>
       <q-item-section>
         <q-select
-          v-model="formEmployeetwo.status"
+          v-model="formEmployeetwo.estatus_id"
           :options="estatus"
+          label="Estatus"
+          option-value="id"
+          option-label="nombre"
+          option-disable="inactive"
+          emit-value
+          map-options
           transition-show="jump-up"
           transition-hide="jump-up"
-          label="Status"
+          clearable
           filled
           dense
           :rules="[(val) => val !== null || 'Obligatorio']"
@@ -220,7 +226,7 @@ const sucursales = ref([]);
 const departamentos = ref([]);
 const puestos = ref([]);
 const jefesDirectos = ref([]);
-const estatus = ["Activo", "Baja", "Pencionado", "Suspendido"];
+const estatus = ref([]);
 const myForm = ref(null);
 
 const formEmployeetwo = ref({
@@ -228,7 +234,7 @@ const formEmployeetwo = ref({
   comision: empleado ? empleado.comision : 0,
   matriz: empleado ? empleado.matriz : false,
   fecha_de_ingreso: empleado ? empleado.fecha_de_ingreso : null,
-  status: empleado ? empleado.status : estatus[0],
+  estatus_id: empleado ? empleado.estatus_id : null,
   puesto_id: empleado ? empleado.puesto.id : null,
   descripcion_puesto: empleado ? empleado.descripcion_puesto : null,
   sucursal_id: empleado ? empleado.sucursal.id : null,
@@ -246,6 +252,7 @@ const getAll = async () => {
   lineas.value = res.lineas;
   departamentos.value = res.departamentos;
   puestos.value = res.puestos;
+  estatus.value = res.estatus;
 };
 
 const validate = async () => {

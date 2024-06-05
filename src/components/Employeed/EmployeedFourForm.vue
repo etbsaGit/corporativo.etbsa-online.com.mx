@@ -209,7 +209,7 @@ const borrarArchivo = () => {
 };
 
 const getEstatus = async () => {
-  let res = await sendRequest("GET", null, "/api/estatus/all", "");
+  let res = await sendRequest("GET", null, "/api/estatus/archivo", "");
   status.value = res;
 };
 
