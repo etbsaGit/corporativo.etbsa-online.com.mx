@@ -9,14 +9,59 @@
     />
   </q-item>
   <q-item>
-    <q-btn
-      dense
-      color="primary"
-      icon-right="archive"
-      label="Export to csv"
-      no-caps
-      @click="exportTableCSV(columns, filteredEmployees)"
-    />
+    <q-item-section avatar>
+      <q-btn
+        dense
+        color="primary"
+        icon-right="archive"
+        label="Export to csv"
+        no-caps
+        @click="exportTableCSV(columns, filteredEmployees)"
+      />
+    </q-item-section>
+    <q-space></q-space>
+    <q-item-section side>
+      <q-select
+        v-model="mes"
+        :options="months"
+        label="Mes"
+        option-value="id"
+        option-label="name"
+        emit-value
+        map-options
+        transition-show="jump-up"
+        transition-hide="jump-up"
+        clearable
+        filled
+        dense
+      />
+    </q-item-section>
+
+    <q-item-section side>
+      <q-select
+        v-model="anio"
+        :options="years"
+        label="Año"
+        option-value="id"
+        option-label="name"
+        emit-value
+        map-options
+        transition-show="jump-up"
+        transition-hide="jump-up"
+        clearable
+        filled
+        dense
+      >
+        <template v-slot:after>
+          <q-btn
+            icon="search"
+            label="Buscar bajas"
+            color="primary"
+            @click="getKardex(mes, anio)"
+          />
+        </template>
+      </q-select>
+    </q-item-section>
   </q-item>
   <q-item v-if="checkRole('RRHH')">
     <q-item-section>
@@ -229,6 +274,18 @@
             </q-btn-dropdown>
           </q-td>
         </template>
+        <template v-slot:body-cell-estatus="props">
+          <q-td :props="props">
+            <q-badge
+              text-color="black"
+              :style="{ backgroundColor: props.row.estatus.color }"
+            >
+              <div class="text-subtitle1">
+                {{ props.row.estatus.nombre }}
+              </div>
+            </q-badge>
+          </q-td>
+        </template>
         <template v-slot:body-cell-puesto="props">
           <q-td :props="props">
             {{ props.row.puesto.nombre }}
@@ -289,7 +346,12 @@
         <q-card-actions align="right">
           <q-item>
             <q-item-section>
-              <q-btn label="Cerrar" color="red" v-close-popup />
+              <q-btn
+                label="Cerrar"
+                color="red"
+                v-close-popup
+                @click="tab = 'tab_form_one'"
+              />
             </q-item-section>
             <q-item-section>
               <q-btn
@@ -313,6 +375,11 @@
       >
         <q-tab name="tab_form_one" label="Datos Personales" />
         <q-tab name="tab_form_two" label="Unidad Negocio" />
+        <q-tab
+          name="tab_form_three"
+          label="Desvinculacion"
+          v-if="form_2 && form_2.formEmployeetwo.estatus_id == 6"
+        />
       </q-tabs>
       <q-separator />
       <div class="survey-form-container">
@@ -322,6 +389,9 @@
           </q-tab-panel>
           <q-tab-panel name="tab_form_two" class="q-pa-none">
             <employeed-two-form ref="form_2" />
+          </q-tab-panel>
+          <q-tab-panel name="tab_form_three" class="q-pa-none">
+            <employeed-termination ref="form_t" />
           </q-tab-panel>
         </q-tab-panels>
       </div>
@@ -334,7 +404,7 @@
     persistent
     full-height
   >
-    <q-card>
+    <q-card style="width: 1800px">
       <q-card-section
         class="d-flex bg-primary text-white justify-between items-center q-pa-sm"
       >
@@ -344,7 +414,12 @@
         <q-card-actions align="right">
           <q-item>
             <q-item-section>
-              <q-btn label="Cerrar" color="red" v-close-popup />
+              <q-btn
+                label="Cerrar"
+                color="red"
+                v-close-popup
+                @click="tab = 'tab_form_one'"
+              />
             </q-item-section>
             <q-item-section>
               <q-btn
@@ -368,6 +443,14 @@
       >
         <q-tab name="tab_form_one" label="Datos Personales" />
         <q-tab name="tab_form_two" label="Unidad Negocio" />
+        <q-tab
+          name="tab_form_three"
+          label="Desvinculacion"
+          v-if="
+            selectedEmployee.estatus_id == 6 ||
+            (edit_2 && edit_2.formEmployeetwo.estatus_id == 6)
+          "
+        />
       </q-tabs>
       <q-separator />
       <div class="survey-form-container">
@@ -377,6 +460,9 @@
           </q-tab-panel>
           <q-tab-panel name="tab_form_two" class="q-pa-none">
             <employeed-two-form ref="edit_2" :empleado="selectedEmployee" />
+          </q-tab-panel>
+          <q-tab-panel name="tab_form_three" class="q-pa-none">
+            <employeed-termination ref="edit_t" :empleado="selectedEmployee" />
           </q-tab-panel>
         </q-tab-panels>
       </div>
@@ -487,25 +573,29 @@
 import { ref, onMounted, computed, inject } from "vue";
 import { sendRequest, checkRole } from "src/boot/functions";
 import { exportTableCSV } from "src/boot/exportData";
-import { useQuasar, exportFile } from "quasar";
+import { useQuasar } from "quasar";
 import EmployeedForm from "src/components/Employeed/EmployeedForm.vue";
 import EmployeedTwoForm from "src/components/Employeed/EmployeedTwoForm.vue";
 import EmployeedThreeForm from "src/components/Employeed/EmployeedThreeForm.vue";
 import SkillRatingForm from "src/components/Skill/SkillRatingForm.vue";
 import EmployeeTimeLine from "src/components/Employeed/EmployeeTimeLine.vue";
 import CvEmployee from "src/components/Employeed/CvEmployee.vue";
+import EmployeedTermination from "src/components/Employeed/EmployeedTermination.vue";
 
 const bus = inject("bus"); // inside setup()
 
 const form_1 = ref(null);
 const form_2 = ref(null);
+const form_t = ref(null);
 const edit_1 = ref(null);
 const edit_2 = ref(null);
 const edit_3 = ref(null);
+const edit_t = ref(null);
 const skill = ref(null);
 const skill_valid = ref();
 const edit1_valid = ref();
 const edit2_valid = ref();
+const editt_valid = ref();
 const $q = useQuasar();
 const showDetails = ref(false);
 const showFiles = ref(false);
@@ -522,6 +612,9 @@ const puestos = ref([]);
 const tab = ref("tab_form_one");
 const searchTerm = ref("");
 
+const mes = ref(new Date().getMonth() + 1); // getMonth() devuelve el mes 0-11, por eso sumamos 1
+const anio = ref(new Date().getFullYear());
+
 const formFilter = ref({
   sucursal_id: null,
   linea_id: null,
@@ -531,9 +624,8 @@ const formFilter = ref({
 
 const visibleColumns = ref([
   "id",
-  "nombre",
-  "apellido_paterno",
-  "apellido_materno",
+  "estatus",
+  "nombreCompleto",
   "sucursal",
   "linea",
   "departamento",
@@ -543,6 +635,13 @@ const visibleColumns = ref([
 
 const columns = [
   { name: "id", label: "Foto", align: "left", field: "id", sortable: false },
+  {
+    name: "nombreCompleto",
+    label: "Nombre Completo",
+    align: "left",
+    field: "nombreCompleto",
+    sortable: true,
+  },
   {
     name: "nombre",
     label: "Nombre",
@@ -809,6 +908,13 @@ const columns = [
     sortable: true,
   },
   {
+    name: "estatus",
+    label: "Estatus",
+    align: "left",
+    field: "estatus",
+    sortable: true,
+  },
+  {
     name: "actions",
     label: "Acciones",
     align: "left",
@@ -844,6 +950,7 @@ const onRowClickFile = (row) => {
 const crearEmpleado = async () => {
   const form1_valid = await form_1.value.validate();
   const form2_valid = await form_2.value.validate();
+  const formt_valid = await form_t.value.validate();
   if (!form1_valid || !form2_valid) {
     $q.notify({
       color: "red-5",
@@ -856,15 +963,18 @@ const crearEmpleado = async () => {
   const final = {
     ...form_1.value.formEmployee,
     ...form_2.value.formEmployeetwo,
+    desvinculacion: form_t.value.formTermination,
   };
   let res = await sendRequest("POST", final, "/api/empleado", "");
   showAdd.value = false;
+  tab.value = "tab_form_one";
   getAll();
 };
 
 const actualizarEmpleado = async () => {
   edit1_valid.value = await edit_1.value.validate();
   edit2_valid.value = await edit_2.value.validate();
+  editt_valid.value = await edit_t.value.validate();
   if (!edit1_valid.value || !edit2_valid.value) {
     $q.notify({
       color: "red-5",
@@ -877,9 +987,11 @@ const actualizarEmpleado = async () => {
   const final = {
     ...edit_1.value.formEmployee,
     ...edit_2.value.formEmployeetwo,
+    desvinculacion: edit_t.value.formTermination,
   };
   let res = await sendRequest("PUT", final, "/api/empleado/" + final.id, "");
   showDetails.value = false;
+  tab.value = "tab_form_one";
   getAll();
 };
 
@@ -944,9 +1056,56 @@ bus.on("cargar_empleados", () => {
   showDetails.value = false;
 });
 
+const getKardex = async (mes = null, anio = null) => {
+  let url;
+  if (mes === null && anio !== null) {
+    // Solo se proporciona el año
+    url = `/api/empleado/baja/${anio}`;
+  } else if (mes === null && anio === null) {
+    // No se proporcionan ni el mes ni el año
+    url = `/api/empleado/baja`;
+  } else {
+    // Se proporcionan tanto el mes como el año
+    url = `/api/empleado/baja/${anio}/${mes}`;
+  }
+  let res = await sendRequest("GET", null, url, "");
+  employees.value = res;
+};
+
 onMounted(() => {
   getAll();
 });
+
+// JSON
+
+const months = [
+  { id: 1, name: "Enero" },
+  { id: 2, name: "Febrero" },
+  { id: 3, name: "Marzo" },
+  { id: 4, name: "Abril" },
+  { id: 5, name: "Mayo" },
+  { id: 6, name: "Junio" },
+  { id: 7, name: "Julio" },
+  { id: 8, name: "Agosto" },
+  { id: 9, name: "Septiembre" },
+  { id: 10, name: "Octubre" },
+  { id: 11, name: "Noviembre" },
+  { id: 12, name: "Diciembre" },
+];
+
+const years = [
+  { id: 2020, name: 2020 },
+  { id: 2021, name: 2021 },
+  { id: 2022, name: 2022 },
+  { id: 2023, name: 2023 },
+  { id: 2024, name: 2024 },
+  { id: 2025, name: 2025 },
+  { id: 2026, name: 2026 },
+  { id: 2027, name: 2027 },
+  { id: 2028, name: 2028 },
+  { id: 2029, name: 2029 },
+  { id: 2030, name: 2030 },
+];
 </script>
 
 <style>
@@ -986,5 +1145,10 @@ onMounted(() => {
   position: sticky;
   right: 0;
   z-index: 1;
+}
+
+.red-row {
+  background-color: red;
+  color: white; /* Para asegurar que el texto sea legible */
 }
 </style>

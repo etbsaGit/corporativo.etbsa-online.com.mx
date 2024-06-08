@@ -97,27 +97,28 @@
       <q-separator />
       <div class="q-pa-sm">
         <q-list separator>
-          <q-expansion-item
-            v-for="(level, index) in tecAgricola"
-            :key="index"
-            :label="level.technician.concepto"
-            expand-separator
-            default-opened
-            class="shadow-1 overflow-hidden"
-            header-class="bg-green text-white"
-            style="border-radius: 30px"
-          >
-            <div class="row q-col-gutter-sm">
-              <div
-                class="col-lg-4 col-md-4 col-xs-12 col-sm-12"
-                v-for="(employee, index) in level.technician.empleado"
-                :key="index"
-              >
-                <employee-card :employee="employee" :key="employee">
-                </employee-card>
+          <div v-for="(level, index) in tecAgricola" :key="index">
+            <q-expansion-item
+              v-if="level.technician"
+              :label="level.technician.concepto"
+              expand-separator
+              default-opened
+              class="shadow-1 overflow-hidden"
+              header-class="bg-green text-white"
+              style="border-radius: 30px"
+            >
+              <div class="row q-col-gutter-sm">
+                <div
+                  class="col-lg-4 col-md-4 col-xs-12 col-sm-12"
+                  v-for="(employee, index) in level.technician.empleado"
+                  :key="index"
+                >
+                  <employee-card :employee="employee" :key="employee">
+                  </employee-card>
+                </div>
               </div>
-            </div>
-          </q-expansion-item>
+            </q-expansion-item>
+          </div>
           <q-expansion-item
             label="Sin tipo de tecnico"
             expand-separator
@@ -159,39 +160,40 @@
       <q-separator />
       <div class="q-pa-sm">
         <q-list separator>
-          <q-expansion-item
-            v-for="(level, index) in tecConstruccion"
-            :key="index"
-            :label="level.technician.concepto"
-            expand-separator
-            default-opened
-            class="shadow-1 overflow-hidden"
-            header-class="bg-amber text-black"
-            style="border-radius: 30px"
-          >
-            <div class="row q-col-gutter-sm">
-              <div
-                class="col-lg-4 col-md-4 col-xs-12 col-sm-12"
-                v-for="(employee, index) in level.technician.empleado"
-                :key="index"
-              >
-                <employee-card :employee="employee" :key="employee">
-                </employee-card>
+          <div v-for="(level, index) in tecConstruccion" :key="index">
+            <q-expansion-item
+              v-if="level.technician"
+              :label="level.technician.concepto"
+              expand-separator
+              default-opened
+              class="shadow-1 overflow-hidden"
+              header-class="bg-yellow text-black"
+              style="border-radius: 30px"
+            >
+              <div class="row q-col-gutter-sm">
+                <div
+                  class="col-lg-4 col-md-4 col-xs-12 col-sm-12"
+                  v-for="(employee, index) in level.technician.empleado"
+                  :key="index"
+                >
+                  <employee-card :employee="employee" :key="employee">
+                  </employee-card>
+                </div>
               </div>
-            </div>
-          </q-expansion-item>
+            </q-expansion-item>
+          </div>
           <q-expansion-item
             label="Sin tipo de tecnico"
             expand-separator
             default-opened
             class="shadow-1 overflow-hidden"
-            header-class="bg-amber text-black"
+            header-class="bg-yellow text-black"
             style="border-radius: 30px"
           >
             <div class="row q-col-gutter-sm">
               <div
                 class="col-lg-4 col-md-4 col-xs-12 col-sm-12"
-                v-for="(employee, index) in tecSinAsignarConstruccion"
+                v-for="(employee, index) in tecSinAsignarAgricola"
                 :key="index"
               >
                 <employee-card :employee="employee" :key="employee">
@@ -370,6 +372,8 @@ const getTecnicos = async () => {
   tecConstruccion.value = res.construccion;
   tecSinAsignarAgricola.value = res.sinAsignar.agricola;
   tecSinAsignarConstruccion.value = res.sinAsignar.construccion;
+  console.log(tecAgricola.value);
+  console.log(tecConstruccion.value);
 };
 
 const getQualifications = async () => {
