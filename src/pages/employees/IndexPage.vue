@@ -950,7 +950,10 @@ const onRowClickFile = (row) => {
 const crearEmpleado = async () => {
   const form1_valid = await form_1.value.validate();
   const form2_valid = await form_2.value.validate();
-  const formt_valid = await form_t.value.validate();
+  if (form_t.value !== null && form_t.value !== undefined) {
+    const formt_valid = await form_t.value.validate();
+    // Continuar con el código utilizando formt_valid
+  }
   if (!form1_valid || !form2_valid) {
     $q.notify({
       color: "red-5",
@@ -963,7 +966,7 @@ const crearEmpleado = async () => {
   const final = {
     ...form_1.value.formEmployee,
     ...form_2.value.formEmployeetwo,
-    desvinculacion: form_t.value.formTermination,
+    ...(form_t.value ? { desvinculacion: form_t.value.formTermination } : {}),
   };
   let res = await sendRequest("POST", final, "/api/empleado", "");
   showAdd.value = false;
@@ -974,7 +977,10 @@ const crearEmpleado = async () => {
 const actualizarEmpleado = async () => {
   edit1_valid.value = await edit_1.value.validate();
   edit2_valid.value = await edit_2.value.validate();
-  editt_valid.value = await edit_t.value.validate();
+  if (edit_t.value !== null && edit_t.value !== undefined) {
+    editt_valid.value = await edit_t.value.validate();
+    // Continuar con el código utilizando formt_valid
+  }
   if (!edit1_valid.value || !edit2_valid.value) {
     $q.notify({
       color: "red-5",
@@ -987,8 +993,9 @@ const actualizarEmpleado = async () => {
   const final = {
     ...edit_1.value.formEmployee,
     ...edit_2.value.formEmployeetwo,
-    desvinculacion: edit_t.value.formTermination,
+    ...(edit_t.value ? { desvinculacion: edit_t.value.formTermination } : {}),
   };
+
   let res = await sendRequest("PUT", final, "/api/empleado/" + final.id, "");
   showDetails.value = false;
   tab.value = "tab_form_one";
