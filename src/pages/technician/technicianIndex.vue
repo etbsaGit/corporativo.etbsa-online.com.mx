@@ -176,8 +176,7 @@
                   v-for="(employee, index) in level.technician.empleado"
                   :key="index"
                 >
-                  <employee-card :employee="employee" :key="employee">
-                  </employee-card>
+                  <employee-card :employee="employee" :key="employee" />
                 </div>
               </div>
             </q-expansion-item>
@@ -193,11 +192,10 @@
             <div class="row q-col-gutter-sm">
               <div
                 class="col-lg-4 col-md-4 col-xs-12 col-sm-12"
-                v-for="(employee, index) in tecSinAsignarAgricola"
+                v-for="(employee, index) in tecSinAsignarConstruccion"
                 :key="index"
               >
-                <employee-card :employee="employee" :key="employee">
-                </employee-card>
+                <employee-card :employee="employee" :key="employee" />
               </div>
             </div>
           </q-expansion-item>
@@ -372,8 +370,6 @@ const getTecnicos = async () => {
   tecConstruccion.value = res.construccion;
   tecSinAsignarAgricola.value = res.sinAsignar.agricola;
   tecSinAsignarConstruccion.value = res.sinAsignar.construccion;
-  console.log(tecAgricola.value);
-  console.log(tecConstruccion.value);
 };
 
 const getQualifications = async () => {

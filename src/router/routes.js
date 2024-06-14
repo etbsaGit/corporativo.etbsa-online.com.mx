@@ -92,6 +92,10 @@ const routes = [
         path: "/calendar",
         component: () => import("src/pages/calendar/calendarIndex.vue"),
       },
+      {
+        path: "/post",
+        component: () => import("src/pages/post/postIndex.vue"),
+      },
     ],
   },
   {

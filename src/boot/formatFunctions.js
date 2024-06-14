@@ -7,6 +7,6 @@ export function formatTime(time) {
 }
 
 export function formatDate(currentDay) {
-  const nextDay = date.addToDate(currentDay, { days: 1 });
-  return date.formatDate(nextDay, "dddd D [de] MMMM [del] YYYY");
+  // const nextDay = date.addToDate(currentDay, { days: 1 });
+  return date.formatDate(currentDay, "dddd D [de] MMMM [del] YYYY");
 }

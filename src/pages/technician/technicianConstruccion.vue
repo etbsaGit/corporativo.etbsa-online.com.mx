@@ -21,8 +21,11 @@
       align="justify"
       narrow-indicator
     >
+      <q-tab name="Imagen1" />
       <q-tab name="Tecnicos" label="Tecnicos" />
+      <q-tab name="Imagen2" />
       <q-tab name="Bahia" label="Bahia" />
+      <q-tab name="Imagen3" />
     </q-tabs>
 
     <q-separator />
@@ -111,6 +114,12 @@
                 </q-item>
                 <q-item>
                   <q-item-section>
+                    <q-item-label><strong>Cliente: </strong></q-item-label>
+                    <q-item-label>{{ bay.cliente }}</q-item-label>
+                  </q-item-section>
+                </q-item>
+                <q-item>
+                  <q-item-section>
                     <q-item-label><strong>Tecnico: </strong></q-item-label>
                     <q-item-label>
                       <q-chip v-if="bay.tecnico">
@@ -138,7 +147,7 @@
                     <q-item-label><strong>Status</strong></q-item-label>
                     <q-item-label>
                       <q-avatar
-                        size="30px"
+                        size="50px"
                         :color="getStatusColor(bay.status)"
                       />
                     </q-item-label>
@@ -161,6 +170,15 @@
           </q-card>
         </div>
       </q-tab-panel>
+      <q-tab-panel name="Imagen1" class="q-pa-none">
+        <q-img class="img-container" :src="extractPostDoc(posts)[0].realpath" />
+      </q-tab-panel>
+      <q-tab-panel name="Imagen2" class="q-pa-none">
+        <q-img class="img-container" :src="extractPostDoc(posts)[0].realpath" />
+      </q-tab-panel>
+      <q-tab-panel name="Imagen3" class="q-pa-none">
+        <q-img class="img-container" :src="extractPostDoc(posts)[0].realpath" />
+      </q-tab-panel>
     </q-tab-panels>
   </q-card>
 
@@ -176,6 +194,7 @@ const technicians = ref(null);
 const bays = ref(null);
 const sucursales = ref(null);
 const tab = ref("Tecnicos");
+const posts = ref(null);
 
 const getStatusColor = (status) => {
   switch (status) {
@@ -196,7 +215,13 @@ const getStatusColor = (status) => {
 };
 
 const switchTab = () => {
-  tab.value = tab.value === "Tecnicos" ? "Bahia" : "Tecnicos";
+  const options = ["Imagen1", "Tecnicos", "Imagen2", "Bahia", "Imagen3"];
+  let currentIndex = 0;
+
+  return () => {
+    tab.value = options[currentIndex];
+    currentIndex = (currentIndex + 1) % options.length;
+  };
 };
 
 let intervalId;
@@ -213,19 +238,51 @@ const clickSucursal = async (id) => {
     "/api/technicians/construccion/" + id,
     ""
   );
-  technicians.value = resp;
+  technicians.value = resp.tecnicos;
+  posts.value = resp.post;
   let res = await sendRequest("GET", null, "/api/bays/construccion/" + id, "");
   bays.value = res;
 };
 
 onMounted(() => {
   getSucursales();
-  intervalId = setInterval(switchTab, 30000);
+  const switchBetweenTabs = switchTab();
+  intervalId = setInterval(switchBetweenTabs, 60000);
 });
 
 onUnmounted(() => {
   clearInterval(intervalId);
 });
+
+// const extractPostDoc = (posts) => {
+//   let postDocs = [];
+//   for (const post of posts) {
+//     if (post.hasOwnProperty("post_doc")) {
+//       for (const doc of post.post_doc) {
+//         postDocs.push(doc);
+//       }
+//     }
+//   }
+//   return postDocs;
+// };
+
+const extractPostDoc = (posts) => {
+  let postDocs = [];
+  // Extraer todas las imágenes de los posts
+  for (const post of posts) {
+    if (post.hasOwnProperty("post_doc")) {
+      for (const doc of post.post_doc) {
+        postDocs.push(doc);
+      }
+    }
+  }
+  // Mezclar aleatoriamente las imágenes
+  for (let i = postDocs.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [postDocs[i], postDocs[j]] = [postDocs[j], postDocs[i]];
+  }
+  return postDocs;
+};
 </script>
 
 <style>
@@ -233,14 +290,22 @@ onUnmounted(() => {
   display: grid;
   grid-template-columns: repeat(
     auto-fit,
-    minmax(200px, 1fr)
-  ); /* Ajusta el tamaño mínimo aquí */
+    minmax(300px, 1fr)
+  ); /* Ajusta el tamaño mínimo aquí 200px para que sean 6 y 300px px*/
   gap: 10px;
 }
 
 .card {
   height: 100%; /* Para asegurar que todas las tarjetas tengan la misma altura */
   box-sizing: border-box;
-  font-size: 1em; /* Tamaño de fuente más pequeño */
+  font-size: 1.1em; /* Tamaño de fuente más pequeño */
+}
+
+.img-container {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  width: 100%;
+  height: 90vh;
 }
 </style>
