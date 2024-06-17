@@ -10,3 +10,8 @@ export function formatDate(currentDay) {
   // const nextDay = date.addToDate(currentDay, { days: 1 });
   return date.formatDate(currentDay, "dddd D [de] MMMM [del] YYYY");
 }
+
+export function formatDateplusone(currentDay) {
+  const nextDay = date.addToDate(currentDay, { days: 1 });
+  return date.formatDate(nextDay, "dddd D [de] MMMM [del] YYYY");
+}
