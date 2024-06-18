@@ -254,13 +254,31 @@
         </div>
       </q-tab-panel>
       <q-tab-panel name="Imagen1" class="q-pa-none">
-        <q-img class="img-container" :src="extractPostDoc(posts)[0].realpath" />
+        <div class="fullscreen-img-container">
+          <img
+            :src="extractPostDoc(posts)[0].realpath"
+            alt="Descripción de la imagen"
+            class="fullscreen-img"
+          />
+        </div>
       </q-tab-panel>
       <q-tab-panel name="Imagen2" class="q-pa-none">
-        <q-img class="img-container" :src="extractPostDoc(posts)[0].realpath" />
+        <div class="fullscreen-img-container">
+          <img
+            :src="extractPostDoc(posts)[0].realpath"
+            alt="Descripción de la imagen"
+            class="fullscreen-img"
+          />
+        </div>
       </q-tab-panel>
       <q-tab-panel name="Imagen3" class="q-pa-none">
-        <q-img class="img-container" :src="extractPostDoc(posts)[0].realpath" />
+        <div class="fullscreen-img-container">
+          <img
+            :src="extractPostDoc(posts)[0].realpath"
+            alt="Descripción de la imagen"
+            class="fullscreen-img"
+          />
+        </div>
       </q-tab-panel>
     </q-tab-panels>
   </q-card>
@@ -410,11 +428,20 @@ const extractPostDoc = (posts) => {
   font-size: 1.1em; /* Tamaño de fuente más pequeño */
 }
 
-.img-container {
+.fullscreen-img-container {
   position: relative;
-  overflow: hidden;
-  cursor: pointer;
   width: 100%;
-  height: 90vh;
+  height: 90vh; /* Altura igual al viewport height */
+  overflow: hidden; /* Oculta cualquier parte de la imagen que se extienda más allá del contenedor */
+}
+
+.fullscreen-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: auto;
+  max-height: 100%; /* Altura máxima igual al viewport height */
+  object-fit: contain; /* Ajusta la imagen dentro del contenedor manteniendo su relación de aspecto */
 }
 </style>
