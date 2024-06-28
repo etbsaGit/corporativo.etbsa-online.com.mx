@@ -266,7 +266,7 @@ const onRejected = (rejectedEntries) => {
 };
 
 const clickDelete = async (doc, index) => {
-  let res = await sendRequest("DELETE", null, "/api/post/doc/" + doc.id, "");
+  let res = await sendRequest("DELETE", null, "/api/postDoc/" + doc.id, "");
   local_post.value.splice(index, 1);
 };
 
