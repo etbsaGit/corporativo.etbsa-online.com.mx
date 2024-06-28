@@ -142,7 +142,7 @@
       >
         <q-item>
           <q-item-section>
-            <div class="text-h6">{{ formatDate(currentDay) }}</div>
+            <div class="text-h6">{{ formatDateplusone(currentDay) }}</div>
           </q-item-section>
           <q-item-section side>
             <q-item>
@@ -183,7 +183,7 @@
       >
         <q-item>
           <q-item-section>
-            <div class="text-h6">{{ formatDate(currentDay) }}</div>
+            <div class="text-h6">{{ formatDateplusone(currentDay) }}</div>
           </q-item-section>
           <q-item-section side>
             <q-item>
@@ -216,7 +216,7 @@
 import { ref, onMounted } from "vue";
 import { date, useQuasar } from "quasar";
 import { sendRequest, checkUserId } from "src/boot/functions";
-import { formatTime, formatDate } from "src/boot/formatFunctions";
+import { formatTime, formatDateplusone } from "src/boot/formatFunctions";
 
 import EventForm from "src/components/Calendar/EventForm.vue";
 import ListForm from "src/components/Calendar/ListForm.vue";
