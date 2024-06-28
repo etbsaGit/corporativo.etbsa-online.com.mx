@@ -19,6 +19,21 @@
       v-if="checkRole('Empleado')"
       clickable
       v-ripple
+      to="/post"
+      :active="link === 'post'"
+      @click="link = 'post'"
+      active-class="my-menu-link"
+    >
+      <q-item-section avatar>
+        <q-icon name="description" />
+      </q-item-section>
+
+      <q-item-section>Archivos</q-item-section>
+    </q-item>
+    <q-item
+      v-if="checkRole('Empleado')"
+      clickable
+      v-ripple
       to="/calendar"
       :active="link === 'calendar'"
       @click="link = 'calendar'"

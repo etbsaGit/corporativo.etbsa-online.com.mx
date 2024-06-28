@@ -267,6 +267,7 @@
       <q-card class="q-pa-sm" flat>
         <q-input
           dense
+          mask="##.#"
           outlined
           v-model="productividad"
           label="Asignar productividad al empleado"

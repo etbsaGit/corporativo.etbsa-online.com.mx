@@ -8,13 +8,6 @@
           @click="onClickTable"
         />
       </q-item-section>
-      <q-item-section>
-        <q-btn
-          color="primary"
-          label="Administrar Bahias"
-          @click="onClickTableBays"
-        />
-      </q-item-section>
     </q-item>
     <q-item>
       <q-item-section v-if="checkLine('Agricola')">
@@ -39,6 +32,14 @@
                     @click="openPresentationAgricola"
                     outline
                   />
+                </q-item-section>
+              </q-item>
+              <q-item>
+                <q-item-section>
+                  <q-btn label="Bahias" outline @click="onClickTableBays" />
+                </q-item-section>
+                <q-item-section>
+                  <q-btn label="Ordenes de trabajo" outline @click="openWO" />
                 </q-item-section>
               </q-item>
             </div>
@@ -71,6 +72,14 @@
                     @click="openPresentationConstruccion"
                     outline
                   />
+                </q-item-section>
+              </q-item>
+              <q-item>
+                <q-item-section>
+                  <q-btn label="Bahias" outline @click="onClickTableBays" />
+                </q-item-section>
+                <q-item-section>
+                  <q-btn label="Ordenes de trabajo" outline @click="openWO" />
                 </q-item-section>
               </q-item>
             </div>
@@ -176,8 +185,7 @@
                   v-for="(employee, index) in level.technician.empleado"
                   :key="index"
                 >
-                  <employee-card :employee="employee" :key="employee">
-                  </employee-card>
+                  <employee-card :employee="employee" :key="employee" />
                 </div>
               </div>
             </q-expansion-item>
@@ -193,11 +201,10 @@
             <div class="row q-col-gutter-sm">
               <div
                 class="col-lg-4 col-md-4 col-xs-12 col-sm-12"
-                v-for="(employee, index) in tecSinAsignarAgricola"
+                v-for="(employee, index) in tecSinAsignarConstruccion"
                 :key="index"
               >
-                <employee-card :employee="employee" :key="employee">
-                </employee-card>
+                <employee-card :employee="employee" :key="employee" />
               </div>
             </div>
           </q-expansion-item>
@@ -279,20 +286,40 @@
     transition-show="rotate"
     transition-hide="rotate"
     persistent
-    full-width
-    full-height
+    :maximized="true"
   >
     <q-card>
-      <q-card-section class="d-flex justify-between items-center q-pa-sm">
+      <q-card-section
+        class="d-flex justify-between items-center q-pa-sm bg-primary text-white"
+      >
         <div class="text-h6">Administrar Bahias</div>
         <q-card-actions align="right">
           <q-btn label="Cerrar" color="red" v-close-popup />
         </q-card-actions>
       </q-card-section>
       <q-separator />
-      <div class="survey-form-container">
-        <bay-table />
-      </div>
+      <bay-table />
+    </q-card>
+  </q-dialog>
+
+  <q-dialog
+    v-model="woIndex"
+    transition-show="rotate"
+    transition-hide="rotate"
+    persistent
+    :maximized="true"
+  >
+    <q-card>
+      <q-card-section
+        class="d-flex justify-between items-center q-pa-sm bg-primary text-white"
+      >
+        <div class="text-h6">Ordenes de trabajo</div>
+        <q-card-actions align="right">
+          <q-btn label="Cerrar" color="red" v-close-popup />
+        </q-card-actions>
+      </q-card-section>
+      <q-separator />
+      <work-order-index />
     </q-card>
   </q-dialog>
 </template>
@@ -306,6 +333,7 @@ import EmployeeCard from "src/components/Technician/EmployeeCard.vue";
 import EditLevel from "src/components/Technician/EditLevel.vue";
 import TechnicianTable from "src/components/Technician/TechnicianTable.vue";
 import BayTable from "src/components/Technician/BayTable.vue";
+import WorkOrderIndex from "src/components/WorkOrder/WorkOrderIndex.vue";
 
 const openPresentationConstruccion = () => {
   const baseUrl = window.location.origin + "/#/";
@@ -341,6 +369,7 @@ const showQualificationsConstruccion = ref(false);
 const showQualificationsAgricola = ref(false);
 const showTable = ref(null);
 const showTableBays = ref(false);
+const woIndex = ref(false);
 
 const onClickAgricola = () => {
   showTecAgricola.value = true;
@@ -366,14 +395,16 @@ const onClickTableBays = () => {
   showTableBays.value = true;
 };
 
+const openWO = () => {
+  woIndex.value = true;
+};
+
 const getTecnicos = async () => {
   let res = await sendRequest("GET", null, "/api/technician/all", "");
   tecAgricola.value = res.agricola;
   tecConstruccion.value = res.construccion;
   tecSinAsignarAgricola.value = res.sinAsignar.agricola;
   tecSinAsignarConstruccion.value = res.sinAsignar.construccion;
-  console.log(tecAgricola.value);
-  console.log(tecConstruccion.value);
 };
 
 const getQualifications = async () => {
@@ -419,11 +450,13 @@ onMounted(() => {
 }
 
 .button-overlay {
-  position: absolute;
+  position: relative;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   display: flex;
+  flex-wrap: wrap; /* Permite que los elementos se distribuyan en múltiples líneas */
+  flex-direction: column; /* Cambia la dirección principal a columnas */
   gap: 10px;
   opacity: 0;
   transition: opacity 0.3s ease;

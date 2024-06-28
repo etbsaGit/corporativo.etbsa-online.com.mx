@@ -7,7 +7,7 @@
             <q-item>
               <q-item-section avatar>
                 <q-avatar
-                  size="100px"
+                  size="200px"
                   color="primary"
                   text-color="white"
                   v-if="employee.picture"
@@ -15,7 +15,7 @@
                   <img :src="employee.picture" alt="Foto del empleado" />
                 </q-avatar>
                 <q-avatar
-                  size="100px"
+                  size="200px"
                   v-else
                   color="primary"
                   text-color="white"
@@ -83,7 +83,7 @@ const { employee } = defineProps(["employee"]);
 
 const skillratings = ref([]);
 const initial = ref(false);
-const splitterModel = ref(30);
+const splitterModel = ref(40);
 const insideModel = ref(25);
 
 const getSkillRating = async () => {

@@ -63,11 +63,6 @@
         dense
         :rows-per-page-options="[0]"
       >
-        <template v-slot:body-cell-tecnico="props">
-          <q-td :props="props">
-            {{ props.row.tecnico ? props.row.tecnico.nombreCompleto : null }}
-          </q-td>
-        </template>
         <template v-slot:body-cell-sucursal="props">
           <q-td :props="props">
             {{ props.row.sucursal.nombre }}
@@ -78,12 +73,12 @@
             {{ props.row.linea.nombre }}
           </q-td>
         </template>
-        <template v-slot:body-cell-maquina="props">
+        <template v-slot:body-cell-estatus="props">
           <q-td :props="props">
-            {{ props.row.maquina }}
-            <q-tooltip>{{ props.row.descripcion }}</q-tooltip>
+            {{ props.row.estatus.nombre }}
           </q-td>
         </template>
+
         <template v-slot:body-cell-actions="props">
           <q-td>
             <q-btn-dropdown flat color="primary" icon="menu" dense>
@@ -301,31 +296,11 @@ const columns = [
     sortable: true,
     align: "left",
   },
+
   {
-    name: "cliente",
-    label: "Cliente",
-    field: "cliente",
-    sortable: true,
-    align: "left",
-  },
-  {
-    name: "maquina",
-    label: "Maquina",
-    field: "maquina",
-    sortable: true,
-    align: "left",
-  },
-  {
-    name: "tecnico",
-    label: "Tecnico",
-    field: "tecnico",
-    sortable: true,
-    align: "left",
-  },
-  {
-    name: "status",
-    label: "Status",
-    field: "status",
+    name: "estatus",
+    label: "Estatus",
+    field: "estatus",
     sortable: true,
     align: "left",
   },

@@ -132,6 +132,28 @@ export function checkLine(linea) {
   return false;
 }
 
+export function checkSucursal(linea) {
+  const authStore = useAuthStore();
+  const usuario = authStore.authUser;
+  if (
+    usuario &&
+    usuario.roles &&
+    usuario.roles.some((usuarioRol) => usuarioRol.name === "Admin")
+  ) {
+    // Si el usuario tiene el rol de "admin", devuelve true
+    return true;
+  }
+  if (
+    usuario &&
+    usuario.empleado &&
+    usuario.empleado.sucursal &&
+    usuario.empleado.sucursal.nombre
+  ) {
+    return usuario.empleado.sucursal.nombre === linea;
+  }
+  return false;
+}
+
 export function checkUserId(userId) {
   const authStore = useAuthStore();
   const usuario = authStore.authUser;
@@ -145,6 +167,21 @@ export function checkUserId(userId) {
   }
 
   return usuario.empleado && usuario.empleado.id === userId;
+}
+
+export function checkId(userId) {
+  const authStore = useAuthStore();
+  const usuario = authStore.authUser;
+
+  // Verificar si el usuario tiene el rol de administrador
+  const isAdmin = usuario.roles.some((role) => role.name === "Admin");
+
+  // Verificar si el usuario es administrador o si el id del empleado coincide con userId
+  if (!usuario.empleado && isAdmin) {
+    return true;
+  }
+
+  return usuario.id === userId;
 }
 
 export function checkPermissions(permission) {

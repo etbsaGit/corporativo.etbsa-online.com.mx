@@ -112,9 +112,7 @@
       </q-card-section>
       <q-separator />
       <q-card class="q-pa-none scroll" flat>
-        <div class="survey-form-container">
-          <change-password-form ref="password" />
-        </div>
+        <change-password-form ref="password" />
       </q-card>
     </q-card>
   </q-dialog>
