@@ -35,8 +35,8 @@
       <q-separator vertical spaced />
       <q-item-section>
         <q-item-label
-          ><strong>Dias restantes para entrega: </strong></q-item-label
-        >
+          ><strong>Dias restantes para entrega: </strong>
+        </q-item-label>
         <q-item-label v-if="bay.work_order">
           {{ calcularDiasRestantes(bay.work_order.fecha_entrega) }}
         </q-item-label>
@@ -91,16 +91,20 @@
           <q-separator vertical spaced />
           <q-item-section>
             <q-item-label>
-              <strong>Mano de obra</strong>
+              <strong>Mano obra</strong>
             </q-item-label>
-            <q-item-label> ${{ bay.work_order.mano_obra }} </q-item-label>
+            <q-item-label>
+              ${{ formatNumber(bay.work_order.mano_obra) }}
+            </q-item-label>
           </q-item-section>
           <q-separator vertical spaced />
           <q-item-section>
             <q-item-label>
               <strong>Refacciones</strong>
             </q-item-label>
-            <q-item-label> ${{ bay.work_order.refacciones }} </q-item-label>
+            <q-item-label>
+              ${{ formatNumber(bay.work_order.refacciones) }}
+            </q-item-label>
           </q-item-section>
           <q-separator vertical spaced />
           <q-item-section>
@@ -109,9 +113,11 @@
             </q-item-label>
             <q-item-label>
               ${{
-                total_factura(
-                  bay.work_order.refacciones,
-                  bay.work_order.mano_obra
+                formatNumber(
+                  total_factura(
+                    bay.work_order.refacciones,
+                    bay.work_order.mano_obra
+                  )
                 )
               }}
             </q-item-label>
@@ -206,6 +212,13 @@ const total_factura = (mano_obra, refa) => {
   const refaccionesNumber = isNaN(refacciones) ? 0 : refacciones;
   const subtotal = (manoObraNumber + refaccionesNumber) * 1.16;
   return subtotal.toFixed(2); // Redondea el resultado a dos decimales
+};
+
+const formatNumber = (number) => {
+  // Separar los dígitos antes del punto decimal en grupos de tres
+  let parts = number.toString().split(".");
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return parts.join(".");
 };
 </script>
 

@@ -1,7 +1,7 @@
 <template>
-  <q-card bordered>
+  <q-card bordered :class="getCardClass(post.activo)">
     <q-item align="center">
-      <q-item-section class="col-1">
+      <q-item-section avatar>
         <q-avatar
           color="primary"
           text-color="white"
@@ -19,8 +19,7 @@
           <q-badge floating color="teal">{{ post.user.name }}</q-badge>
         </q-avatar>
       </q-item-section>
-
-      <q-item-section class="col-5">
+      <q-item-section>
         <q-item-label class="text-h6">{{ post.title }}</q-item-label>
         <q-item-label class="text-caption">{{ post.description }}</q-item-label>
         <q-item-label>
@@ -28,40 +27,49 @@
           {{ post.estatus.nombre }}
         </q-item-label>
       </q-item-section>
-      <q-item-section class="col-1">
+      <q-item-section>
+        <q-item-label>
+          <strong>Estatus: </strong>
+          {{ post.activo == 1 ? "Activa" : "No activa" }}
+        </q-item-label>
+
+        <q-item-label>
+          <strong>Fecha caducidad: </strong>
+        </q-item-label>
+        <q-item-label>
+          {{ formatDateplusone(post.fecha_caducidad) }}
+        </q-item-label>
+      </q-item-section>
+      <q-item-section>
         <q-item-label>
           <strong>Ultima actualizacion: </strong>
         </q-item-label>
         <q-item-label>
-          {{ formatDate(post.updated_at) }}
+          {{ formatDateplusone(post.updated_at) }}
         </q-item-label>
       </q-item-section>
-      <q-item-section class="col-4">
+      <q-item-section>
         <q-item-label>
           <strong>Dirigido a: </strong>
         </q-item-label>
         <q-item-label>
           <strong>Sucursal: </strong>
-          {{ post.sucursal ? post.sucursal.nombre : "Todas las sucursales" }}
+          {{ post.sucursal ? post.sucursal.nombre : "Todas" }}
         </q-item-label>
         <q-item-label>
           <strong>Linea: </strong>
-          {{ post.linea ? post.linea.nombre : "Todas las lineas" }}
+          {{ post.linea ? post.linea.nombre : "Todas" }}
         </q-item-label>
         <q-item-label>
           <strong>Departamento: </strong>
-          {{
-            post.departamento
-              ? post.departamento.nombre
-              : "Todas los departamantos"
-          }}
+          {{ post.departamento ? post.departamento.nombre : "Todos" }}
         </q-item-label>
         <q-item-label>
           <strong>Puesto: </strong>
-          {{ post.puesto ? post.puesto.nombre : "Todas los puestos" }}
+          {{ post.puesto ? post.puesto.nombre : "Todos" }}
         </q-item-label>
       </q-item-section>
-      <q-item-section>
+      <q-item-section side>
         <q-btn-dropdown
           dense
           flat
@@ -94,25 +102,37 @@
         </q-btn-dropdown>
       </q-item-section>
     </q-item>
-    <q-separator></q-separator>
-    <q-card-section>
+    <q-separator v-if="post.post_doc[0]" />
+    <q-expansion-item
+      v-if="post.post_doc[0]"
+      icon="folder_open"
+      label="Archivos"
+      dense
+      dense-toggle
+      flat
+    >
       <q-item>
         <q-item-section
           thumbnail
           v-for="(doc, index) in post.post_doc"
           :key="index"
+          class="q-pa-xs"
         >
-          <a :href="doc.realpath" target="_blank" class="q-btn q-btn-item">
-            <q-icon name="file_open" />
-            {{ doc.name }}
-          </a>
+          <q-btn
+            dense
+            :href="doc.realpath"
+            target="_blank"
+            icon="file_open"
+            :label="doc.name"
+            no-caps
+          />
         </q-item-section>
       </q-item>
-    </q-card-section>
+    </q-expansion-item>
   </q-card>
 </template>
 <script setup>
-import { formatDate } from "src/boot/formatFunctions";
+import { formatDateplusone } from "src/boot/formatFunctions";
 import { checkId } from "src/boot/functions";
 import { inject } from "vue";
 
@@ -126,4 +146,40 @@ const openEditPost = () => {
 const openDeletePost = () => {
   bus.emit("delete_post", post);
 };
+
+const getCardClass = (activo, fc) => {
+  if (activo === 0) {
+    return "custom-card q-activo-0";
+  } else if (activo === 1) {
+    return "custom-card q-activo-1";
+  } else {
+    return "custom-card q-activo-null";
+  }
+};
 </script>
+
+<style scoped>
+.custom-card {
+  transition: transform 0.3s ease-in-out;
+  border-radius: 10px;
+}
+
+.custom-card.q-activo-0 {
+  background-color: #ffcccc;
+  border-color: #ffcccc;
+}
+
+.custom-card.q-activo-1 {
+  background-color: #ccffcc;
+  border-color: #ccffcc;
+}
+
+.custom-card.q-activo-null {
+  background-color: #ccc;
+  border-color: #ccc;
+}
+
+.custom-card:hover {
+  transform: scale(1.01);
+}
+</style>
