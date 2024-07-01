@@ -1,128 +1,124 @@
 <template>
-  <q-item>
-    <q-item-section>
-      <q-expansion-item dense flat color="primary" icon="menu" label="Opciones">
-        <q-list>
-          <q-item v-close-popup>
-            <q-item-section>
-              <q-btn outline label="agregar publicacion" @click="openAddPost" />
-            </q-item-section>
-            <q-item-section>
-              <q-btn outline label="Mis publicaciones" @click="getPostsAuth" />
-            </q-item-section>
-            <q-item-section class="col-1">
-              <q-btn outline icon="refresh" @click="getPosts" />
-            </q-item-section>
-          </q-item>
-          <q-separator></q-separator>
-          <div v-if="checkSucursal('Corporativo')">
-            <q-item>
-              <q-item-section>
-                <q-item-label align="center">
-                  <q-icon name="filter_alt" size="sm" />
-                  Filtros
-                </q-item-label>
-              </q-item-section>
-            </q-item>
-            <q-item>
-              <q-item-section>
-                <q-select
-                  v-model="formFilter.sucursal_id"
-                  :options="sucursales"
-                  label="Sucursal"
-                  option-value="id"
-                  option-label="nombre"
-                  option-disable="inactive"
-                  emit-value
-                  map-options
-                  transition-show="jump-up"
-                  transition-hide="jump-up"
-                  clearable
-                  outlined
-                  dense
-                />
-              </q-item-section>
-              <q-item-section>
-                <q-select
-                  v-model="formFilter.linea_id"
-                  :options="lineas"
-                  label="Linea"
-                  option-value="id"
-                  option-label="nombre"
-                  option-disable="inactive"
-                  emit-value
-                  map-options
-                  transition-show="jump-up"
-                  transition-hide="jump-up"
-                  clearable
-                  outlined
-                  dense
-                />
-              </q-item-section>
-              <q-item-section>
-                <q-select
-                  v-model="formFilter.departamento_id"
-                  :options="departamentos"
-                  label="Departamento"
-                  option-value="id"
-                  option-label="nombre"
-                  option-disable="inactive"
-                  emit-value
-                  map-options
-                  transition-show="jump-up"
-                  transition-hide="jump-up"
-                  clearable
-                  outlined
-                  dense
-                />
-              </q-item-section>
-            </q-item>
-            <q-item>
-              <q-item-section>
-                <q-select
-                  v-model="formFilter.puesto_id"
-                  :options="puestos"
-                  label="Puesto"
-                  option-value="id"
-                  option-label="nombre"
-                  option-disable="inactive"
-                  emit-value
-                  map-options
-                  transition-show="jump-up"
-                  transition-hide="jump-up"
-                  clearable
-                  outlined
-                  dense
-                />
-              </q-item-section>
-              <q-item-section>
-                <q-select
-                  v-model="formFilter.estatus_id"
-                  :options="estatus"
-                  label="Tipo de publicacion"
-                  option-value="id"
-                  option-label="nombre"
-                  option-disable="inactive"
-                  emit-value
-                  map-options
-                  transition-show="jump-up"
-                  transition-hide="jump-up"
-                  clearable
-                  outlined
-                  dense
-                />
-              </q-item-section>
-            </q-item>
-            <q-item>
-              <q-item-section>
-                <q-btn icon="search" outline label="Buscar" @click="getPosts" />
-              </q-item-section>
-            </q-item>
-          </div>
-        </q-list>
-      </q-expansion-item>
-    </q-item-section>
-  </q-item>
+  <q-expansion-item flat color="primary" icon="menu" label="Opciones">
+    <q-list>
+      <q-item v-close-popup>
+        <q-item-section>
+          <q-btn outline label="agregar publicacion" @click="openAddPost" />
+        </q-item-section>
+        <q-item-section>
+          <q-btn outline label="Mis publicaciones" @click="getPostsAuth" />
+        </q-item-section>
+        <q-item-section side>
+          <q-btn outline icon="refresh" @click="getPosts" />
+        </q-item-section>
+      </q-item>
+      <q-separator />
+      <div v-if="checkSucursal('Corporativo')">
+        <q-item>
+          <q-item-section>
+            <q-item-label align="center">
+              <q-icon name="filter_alt" size="sm" />
+              Filtros
+            </q-item-label>
+          </q-item-section>
+        </q-item>
+        <q-item>
+          <q-item-section>
+            <q-select
+              v-model="formFilter.sucursal_id"
+              :options="sucursales"
+              label="Sucursal"
+              option-value="id"
+              option-label="nombre"
+              option-disable="inactive"
+              emit-value
+              map-options
+              transition-show="jump-up"
+              transition-hide="jump-up"
+              clearable
+              outlined
+              dense
+            />
+          </q-item-section>
+          <q-item-section>
+            <q-select
+              v-model="formFilter.linea_id"
+              :options="lineas"
+              label="Linea"
+              option-value="id"
+              option-label="nombre"
+              option-disable="inactive"
+              emit-value
+              map-options
+              transition-show="jump-up"
+              transition-hide="jump-up"
+              clearable
+              outlined
+              dense
+            />
+          </q-item-section>
+          <q-item-section>
+            <q-select
+              v-model="formFilter.departamento_id"
+              :options="departamentos"
+              label="Departamento"
+              option-value="id"
+              option-label="nombre"
+              option-disable="inactive"
+              emit-value
+              map-options
+              transition-show="jump-up"
+              transition-hide="jump-up"
+              clearable
+              outlined
+              dense
+            />
+          </q-item-section>
+        </q-item>
+        <q-item>
+          <q-item-section>
+            <q-select
+              v-model="formFilter.puesto_id"
+              :options="puestos"
+              label="Puesto"
+              option-value="id"
+              option-label="nombre"
+              option-disable="inactive"
+              emit-value
+              map-options
+              transition-show="jump-up"
+              transition-hide="jump-up"
+              clearable
+              outlined
+              dense
+            />
+          </q-item-section>
+          <q-item-section>
+            <q-select
+              v-model="formFilter.estatus_id"
+              :options="estatus"
+              label="Tipo de publicacion"
+              option-value="id"
+              option-label="nombre"
+              option-disable="inactive"
+              emit-value
+              map-options
+              transition-show="jump-up"
+              transition-hide="jump-up"
+              clearable
+              outlined
+              dense
+            />
+          </q-item-section>
+        </q-item>
+        <q-item>
+          <q-item-section>
+            <q-btn icon="search" outline label="Buscar" @click="getPosts" />
+          </q-item-section>
+        </q-item>
+      </div>
+    </q-list>
+  </q-expansion-item>
   <q-item v-for="(post, index) in posts" :key="index">
     <q-item-section>
       <post-card :post="post" :key="post" />
@@ -135,7 +131,7 @@
     transition-hide="rotate"
     persistent
   >
-    <q-card style="width: 900px">
+    <q-card style="width: 100%">
       <q-item class="bg-primary text-white">
         <q-item-section>
           <q-item-label class="text-h6">Agregar</q-item-label>
@@ -158,7 +154,7 @@
     transition-hide="rotate"
     persistent
   >
-    <q-card style="width: 900px">
+    <q-card style="width: 100%">
       <q-item class="bg-primary text-white">
         <q-item-section>
           <q-item-label class="text-h6">Actualizar</q-item-label>

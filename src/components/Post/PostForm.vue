@@ -1,172 +1,248 @@
 <template>
-  <q-form ref="myForm" greedy>
-    <q-item>
-      <q-item-section>
-        <q-input
-          v-model="formPost.title"
-          filled
-          dense
-          label="Titulo"
-          lazy-rules
-          :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
-        />
-      </q-item-section>
-    </q-item>
-    <q-item>
-      <q-item-section>
-        <q-input
-          v-model="formPost.description"
-          filled
-          dense
-          label="Descripcion"
-          lazy-rules
-          :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
-        />
-      </q-item-section>
-    </q-item>
-    <q-item>
-      <q-item-section>
-        <q-select
-          v-model="formPost.sucursal_id"
-          :options="sucursales"
-          label="Sucursal"
-          option-value="id"
-          option-label="nombre"
-          option-disable="inactive"
-          emit-value
-          map-options
-          transition-show="jump-up"
-          transition-hide="jump-up"
-          clearable
-          filled
-          dense
-          :disable="!checkSucursal('Corporativo')"
-          hint="Si se deja vacío sera visible para todas las sucursales"
-        />
-      </q-item-section>
-      <q-item-section>
-        <q-select
-          v-model="formPost.linea_id"
-          :options="lineas"
-          label="Linea"
-          option-value="id"
-          option-label="nombre"
-          option-disable="inactive"
-          emit-value
-          map-options
-          transition-show="jump-up"
-          transition-hide="jump-up"
-          clearable
-          filled
-          dense
-          :disable="!checkSucursal('Corporativo')"
-          hint="Si se deja vacío sera visible para todas las lineas"
-        />
-      </q-item-section>
-    </q-item>
-    <q-item>
-      <q-item-section>
-        <q-select
-          v-model="formPost.departamento_id"
-          :options="departamentos"
-          label="Departamento"
-          option-value="id"
-          option-label="nombre"
-          option-disable="inactive"
-          emit-value
-          map-options
-          transition-show="jump-up"
-          transition-hide="jump-up"
-          clearable
-          filled
-          dense
-          :disable="!checkSucursal('Corporativo')"
-          hint="Si se deja vacío sera visible para todas los departamentos"
-        />
-      </q-item-section>
-      <q-item-section>
-        <q-select
-          v-model="formPost.puesto_id"
-          :options="puestos"
-          label="Puesto"
-          option-value="id"
-          option-label="nombre"
-          option-disable="inactive"
-          emit-value
-          map-options
-          transition-show="jump-up"
-          transition-hide="jump-up"
-          clearable
-          filled
-          dense
-          :disable="!checkSucursal('Corporativo')"
-          hint="Si se deja vacío sera visible para todas los puestos"
-        />
-      </q-item-section>
-    </q-item>
-    <q-item>
-      <q-item-section>
-        <q-select
-          v-model="formPost.estatus_id"
-          :options="estatus"
-          label="Tipo de publicacion"
-          option-value="id"
-          option-label="nombre"
-          option-disable="inactive"
-          emit-value
-          map-options
-          transition-show="jump-up"
-          transition-hide="jump-up"
-          clearable
-          filled
-          dense
-          :rules="[(val) => val !== null || 'Obligatorio']"
-        />
-      </q-item-section>
-    </q-item>
-    <q-item>
-      <q-item-section>
-        <q-file
-          clearable
-          filled
-          dense
-          v-model="model"
-          multiple
-          max-files="3"
-          label="Archivo"
-          hint
-          @input="convertirFile($event)"
-          @clear="formPost.archivos = []"
-          @rejected="onRejected"
-        />
-      </q-item-section>
-    </q-item>
-    <q-item v-if="local_post">
-      <q-item-section>
-        <q-list bordered separator class="rounded-borders">
-          <q-item v-for="(doc, index) in local_post" :key="index">
-            <q-item-section>{{ doc.name }}</q-item-section>
-            <q-item-section avatar>
-              <q-btn
-                flat
-                icon="file_open"
-                color="blue"
-                @click="clickUrl(doc.realpath)"
-              />
-            </q-item-section>
-            <q-item-section avatar>
-              <q-btn
-                flat
-                icon="delete"
-                color="red"
-                @click="clickDelete(doc, index)"
-              />
-            </q-item-section>
-          </q-item>
-        </q-list>
-      </q-item-section>
-    </q-item>
-  </q-form>
+  <q-tabs
+    v-model="tab"
+    dense
+    class="text-grey"
+    active-color="primary"
+    indicator-color="primary"
+    align="justify"
+    narrow-indicator
+  >
+    <q-tab name="Publicacion" label="Publicacion" />
+    <q-tab name="Archivos" label="Archivos" />
+  </q-tabs>
+
+  <q-separator />
+
+  <q-tab-panels v-model="tab" animated>
+    <q-tab-panel name="Publicacion" class="q-pa-none">
+      <q-form ref="myForm" greedy>
+        <q-item>
+          <q-item-section>
+            <q-input
+              v-model="formPost.title"
+              filled
+              dense
+              label="Titulo"
+              lazy-rules
+              :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
+            >
+              <template v-slot:append>
+                <q-toggle
+                  v-model="formPost.activo"
+                  label="Activo"
+                  :true-value="1"
+                  :false-value="0"
+                />
+              </template>
+            </q-input>
+          </q-item-section>
+        </q-item>
+        <q-item>
+          <q-item-section>
+            <q-input
+              v-model="formPost.description"
+              filled
+              dense
+              label="Descripcion"
+              lazy-rules
+              :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
+            />
+          </q-item-section>
+        </q-item>
+        <q-item>
+          <q-item-section>
+            <q-input
+              filled
+              dense
+              v-model="formPost.fecha_caducidad"
+              label="Fecha de caducidad"
+              hint
+            >
+              <template v-slot:append>
+                <q-icon name="event" class="cursor-pointer">
+                  <q-popup-proxy
+                    cover
+                    transition-show="scale"
+                    transition-hide="scale"
+                  >
+                    <q-date
+                      v-model="formPost.fecha_caducidad"
+                      minimal
+                      mask="YYYY-MM-DD"
+                    >
+                      <div class="row items-center justify-end">
+                        <q-btn
+                          v-close-popup
+                          label="Close"
+                          color="primary"
+                          flat
+                        />
+                      </div>
+                    </q-date>
+                  </q-popup-proxy>
+                </q-icon>
+              </template>
+            </q-input>
+          </q-item-section>
+        </q-item>
+        <q-item>
+          <q-item-section>
+            <q-select
+              v-model="formPost.sucursal_id"
+              :options="sucursales"
+              label="Sucursal"
+              option-value="id"
+              option-label="nombre"
+              option-disable="inactive"
+              emit-value
+              map-options
+              transition-show="jump-up"
+              transition-hide="jump-up"
+              clearable
+              filled
+              dense
+              :disable="!checkSucursal('Corporativo')"
+              hint="Si se deja vacío sera visible para todas las sucursales"
+            />
+          </q-item-section>
+          <q-item-section>
+            <q-select
+              v-model="formPost.linea_id"
+              :options="lineas"
+              label="Linea"
+              option-value="id"
+              option-label="nombre"
+              option-disable="inactive"
+              emit-value
+              map-options
+              transition-show="jump-up"
+              transition-hide="jump-up"
+              clearable
+              filled
+              dense
+              :disable="!checkSucursal('Corporativo')"
+              hint="Si se deja vacío sera visible para todas las lineas"
+            />
+          </q-item-section>
+        </q-item>
+        <q-item>
+          <q-item-section>
+            <q-select
+              v-model="formPost.departamento_id"
+              :options="departamentos"
+              label="Departamento"
+              option-value="id"
+              option-label="nombre"
+              option-disable="inactive"
+              emit-value
+              map-options
+              transition-show="jump-up"
+              transition-hide="jump-up"
+              clearable
+              filled
+              dense
+              :disable="!checkSucursal('Corporativo')"
+              hint="Si se deja vacío sera visible para todas los departamentos"
+            />
+          </q-item-section>
+          <q-item-section>
+            <q-select
+              v-model="formPost.puesto_id"
+              :options="puestos"
+              label="Puesto"
+              option-value="id"
+              option-label="nombre"
+              option-disable="inactive"
+              emit-value
+              map-options
+              transition-show="jump-up"
+              transition-hide="jump-up"
+              clearable
+              filled
+              dense
+              :disable="!checkSucursal('Corporativo')"
+              hint="Si se deja vacío sera visible para todas los puestos"
+            />
+          </q-item-section>
+        </q-item>
+        <q-item>
+          <q-item-section>
+            <q-select
+              v-model="formPost.estatus_id"
+              :options="estatus"
+              label="Tipo de publicacion"
+              option-value="id"
+              option-label="nombre"
+              option-disable="inactive"
+              emit-value
+              map-options
+              transition-show="jump-up"
+              transition-hide="jump-up"
+              clearable
+              filled
+              dense
+              :rules="[(val) => val !== null || 'Obligatorio']"
+            />
+          </q-item-section>
+        </q-item>
+      </q-form>
+    </q-tab-panel>
+    <q-tab-panel name="Archivos" class="q-pa-none">
+      <q-form ref="myForm" greedy>
+        <q-item dense>
+          <q-item-section>
+            <q-item-label align="center" caption>
+              Sube aqui los archivos
+            </q-item-label>
+          </q-item-section>
+        </q-item>
+        <q-separator></q-separator>
+        <q-item>
+          <q-item-section>
+            <q-file
+              clearable
+              filled
+              dense
+              v-model="model"
+              multiple
+              max-files="3"
+              label="Archivo"
+              hint="Hasta 3 archivos al mismo tiempo"
+              @input="convertirFile($event)"
+              @clear="formPost.archivos = []"
+              @rejected="onRejected"
+            />
+          </q-item-section>
+        </q-item>
+        <q-item v-if="local_post">
+          <q-item-section>
+            <q-list bordered separator class="rounded-borders">
+              <q-item v-for="(doc, index) in local_post" :key="index">
+                <q-item-section>{{ doc.name }}</q-item-section>
+                <q-item-section avatar>
+                  <q-btn
+                    flat
+                    icon="file_open"
+                    color="blue"
+                    @click="clickUrl(doc.realpath)"
+                  />
+                </q-item-section>
+                <q-item-section avatar>
+                  <q-btn
+                    flat
+                    icon="delete"
+                    color="red"
+                    @click="clickDelete(doc, index)"
+                  />
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-item-section>
+        </q-item>
+      </q-form>
+    </q-tab-panel>
+  </q-tab-panels>
 </template>
 
 <script setup>
@@ -193,11 +269,14 @@ const departamentos = ref([]);
 const puestos = ref([]);
 const estatus = ref([]);
 const local_post = ref(post ? post.post_doc : []);
+const tab = ref("Publicacion");
 
 const formPost = ref({
   id: post ? post.id : null,
   title: post ? post.title : null,
   description: post ? post.description : null,
+  activo: post ? post.activo : 0,
+  fecha_caducidad: post ? post.fecha_caducidad : null,
   sucursal_id: post
     ? post.sucursal_id
     : !checkSucursal("Corporativo") &&

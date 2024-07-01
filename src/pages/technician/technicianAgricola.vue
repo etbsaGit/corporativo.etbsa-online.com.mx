@@ -62,7 +62,7 @@
         </div>
       </q-tab-panel>
       <q-tab-panel name="Imagen1" class="q-pa-none">
-        <div class="fullscreen-img-container">
+        <div class="fullscreen-img-container" v-if="extractPostDoc(posts)[0]">
           <img
             :src="extractPostDoc(posts)[0].realpath"
             alt="Descripción de la imagen"
@@ -71,7 +71,7 @@
         </div>
       </q-tab-panel>
       <q-tab-panel name="Imagen2" class="q-pa-none">
-        <div class="fullscreen-img-container">
+        <div class="fullscreen-img-container" v-if="extractPostDoc(posts)[0]">
           <img
             :src="extractPostDoc(posts)[0].realpath"
             alt="Descripción de la imagen"
@@ -80,7 +80,7 @@
         </div>
       </q-tab-panel>
       <q-tab-panel name="Imagen3" class="q-pa-none">
-        <div class="fullscreen-img-container">
+        <div class="fullscreen-img-container" v-if="extractPostDoc(posts)[0]">
           <img
             :src="extractPostDoc(posts)[0].realpath"
             alt="Descripción de la imagen"

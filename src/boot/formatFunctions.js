@@ -12,6 +12,7 @@ export function formatDate(currentDay) {
 }
 
 export function formatDateplusone(currentDay) {
+  if (!currentDay) return "Sin fecha de caducidad";
   const nextDay = date.addToDate(currentDay, { days: 1 });
   return date.formatDate(nextDay, "dddd D [de] MMMM [del] YYYY");
 }
