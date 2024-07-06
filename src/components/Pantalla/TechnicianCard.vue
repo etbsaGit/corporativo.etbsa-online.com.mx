@@ -30,10 +30,13 @@
       <q-item-label class="q-pa-xs text-h6">
         {{ employee.nombreCompleto }}
       </q-item-label>
-      <q-item-label caption>
+      <q-item-label class="letra">
         <div v-if="employee.technician">
           <strong>Tipo de tecnico: </strong>
           {{ employee.technician.name }}
+          <br />
+          <strong>Nivel de tecnico: </strong>
+          {{ employee.technician.level }}
         </div>
         <div v-else>
           <strong>Sin tipo de tecnico</strong>
@@ -55,6 +58,10 @@ const { technicians } = defineProps(["technicians"]);
   box-sizing: border-box;
   font-size: 0.8em; /* Tamaño de fuente más pequeño */
   border: 1px solid black;
+}
+
+.card-tec {
+  font-size: 1.3em; /* Tamaño de fuente más pequeño */
 }
 </style>
 
