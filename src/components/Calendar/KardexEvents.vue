@@ -4,10 +4,6 @@
       <q-item>
         <q-item-section class="col-6">
           <q-item-label class="text-grey-8">
-            <strong> Viaja a: </strong>
-            {{ event.sucursal.nombre }}
-          </q-item-label>
-          <q-item-label class="text-grey-8">
             <strong> Motivo: </strong>
             {{ event.title }}
           </q-item-label>
@@ -17,15 +13,7 @@
           </q-item-label>
           <q-item-label class="text-grey-8">
             <strong> Fecha: </strong>
-            {{ formatDate(event.date) }}
-          </q-item-label>
-          <q-item-label class="text-grey-8">
-            <strong> Salida: </strong>
-            {{ formatTime(event.start_time) }}
-          </q-item-label>
-          <q-item-label class="text-grey-8">
-            <strong> Regreso: </strong>
-            {{ formatTime(event.end_time) }}
+            {{ formatDateplusone(event.date) }}
           </q-item-label>
         </q-item-section>
         <q-separator vertical></q-separator>
@@ -47,8 +35,30 @@
                 />
               </q-item-section>
             </q-item>
-            <q-separator></q-separator>
           </q-item-label>
+        </q-item-section>
+      </q-item>
+      <q-separator />
+      <q-item v-for="(travel, index) in event.travel" :key="index">
+        <q-item-section>
+          <q-item-label><strong>Salida:</strong></q-item-label>
+          <q-item-label>{{
+            travel.start_point_r ? travel.start_point_r.nombre : "Otro"
+          }}</q-item-label>
+        </q-item-section>
+        <q-item-section>
+          <q-item-label><strong>Hora salida:</strong></q-item-label>
+          <q-item-label>{{ formatTime(travel.start_time) }}</q-item-label>
+        </q-item-section>
+        <q-item-section>
+          <q-item-label><strong>Destino:</strong></q-item-label>
+          <q-item-label>{{
+            travel.end_point_r ? travel.end_point_r.nombre : "Otro"
+          }}</q-item-label>
+        </q-item-section>
+        <q-item-section>
+          <q-item-label><strong>Hora llegada:</strong></q-item-label>
+          <q-item-label>{{ formatTime(travel.end_time) }}</q-item-label>
         </q-item-section>
       </q-item>
     </q-card>
@@ -57,10 +67,15 @@
 
 <script setup>
 import { computed } from "vue";
-import { formatTime, formatDate } from "src/boot/formatFunctions";
+import { formatTime, formatDateplusone } from "src/boot/formatFunctions";
 const { events } = defineProps(["events"]);
 
 const sortedEvents = computed(() => {
-  return events.slice().sort((a, b) => new Date(a.date) - new Date(b.date));
+  const copiedEvents = events.slice();
+  copiedEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
+  const uniqueEvents = copiedEvents.filter(
+    (event, index, self) => index === self.findIndex((t) => t.id === event.id)
+  );
+  return uniqueEvents;
 });
 </script>

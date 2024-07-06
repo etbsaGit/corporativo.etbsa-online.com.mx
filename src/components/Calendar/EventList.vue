@@ -1,5 +1,5 @@
 <template>
-  <div v-if="events.length > 0" class="q-pa-md items-start q-gutter-md">
+  <div v-if="events.length > 0" class="q-pa-sm items-start q-gutter-md">
     <q-card v-for="(event, index) in events" :key="index" bordered>
       <q-item>
         <q-item-section avatar>
@@ -22,109 +22,173 @@
             {{ event.empleado.nombreCompleto }}
           </q-item-label>
           <q-item-label class="text-grey-8">
-            <strong> Viaja a: </strong>
-            {{ event.sucursal.nombre }}
-          </q-item-label>
-          <q-item-label class="text-grey-8">
             <strong> Motivo: </strong>
             {{ event.title }}
           </q-item-label>
-          <q-item-label class="text-grey-8">
-            <strong> Sale a las: </strong>
-            {{ formatTime(event.start_time) }}
+          <q-item-label class="q-pa-none text-grey-8">
+            <strong> Descripcion de actividades: </strong>
+            {{ event.description }}
           </q-item-label>
-          <q-item-label class="text-grey-8">
-            <strong> Regresa a las: </strong>
-            {{ formatTime(event.end_time) }}
+          <q-item-label class="q-pa-none text-grey-8">
+            <strong> Asientos disponibles: </strong>
+            {{ event.available_seats }}
           </q-item-label>
         </q-item-section>
 
-        <q-item-section side>
-          <q-item-label>
-            <q-btn
-              v-if="checkUserId(event.empleado.id)"
-              size="sm"
-              flat
-              round
-              icon="edit"
-              class="bg-indigo-7 text-white"
-              @click="openEdit(event)"
-            >
-              <q-tooltip class="text-body2 bg-indigo-7">Editar</q-tooltip>
-            </q-btn>
-          </q-item-label>
-          <q-item-label>
-            <q-btn
-              icon="event"
-              round
-              color="brown"
-              size="sm"
-              v-if="checkUserId(event.empleado.id)"
-            >
-              <q-popup-proxy
-                cover
-                transition-show="scale"
-                transition-hide="scale"
-              >
-                <q-date v-model="newDate" mask="YYYY-MM-DD">
-                  <div class="row items-center justify-end q-gutter-sm">
-                    <q-btn label="Cancelar" color="red" dense v-close-popup />
-                    <q-btn
-                      dense
-                      label="Cambiar"
-                      color="green"
-                      @click="changeDate(event.id)"
-                      v-close-popup
-                    />
-                  </div>
-                </q-date>
-              </q-popup-proxy>
-              <q-tooltip class="text-body2 bg-brown">Cambiar fecha</q-tooltip>
-            </q-btn>
-          </q-item-label>
-          <q-item-label>
-            <q-btn
-              v-if="checkUserId(event.empleado.id)"
-              size="sm"
-              flat
-              round
-              icon="delete"
-              class="bg-red text-white"
-              @click="deleteEvent(event.id)"
-            >
-              <q-tooltip class="text-body2 bg-red">Borrar</q-tooltip>
-            </q-btn>
-          </q-item-label>
+        <q-item-section side v-if="checkUserId(event.empleado.id)">
+          <q-btn-dropdown dense flat color="primary" icon="menu">
+            <q-list>
+              <q-item>
+                <q-btn
+                  size="sm"
+                  flat
+                  icon="no_crash"
+                  label="Asignar lugar"
+                  color="purple-7"
+                  @click="openCar(event)"
+                />
+              </q-item>
+              <q-item>
+                <q-btn
+                  flat
+                  icon="content_copy"
+                  color="green-10"
+                  size="sm"
+                  label="Copiar evento"
+                >
+                  <q-popup-proxy
+                    cover
+                    transition-show="scale"
+                    transition-hide="scale"
+                  >
+                    <q-date v-model="clonEventDate" mask="YYYY-MM-DD">
+                      <div class="row items-center justify-end q-gutter-sm">
+                        <q-btn
+                          label="Cancelar"
+                          color="red"
+                          dense
+                          v-close-popup
+                        />
+                        <q-btn
+                          dense
+                          label="Copiar"
+                          color="green"
+                          @click="copyEvent(event.id)"
+                          v-close-popup
+                        />
+                      </div>
+                    </q-date>
+                  </q-popup-proxy>
+                </q-btn>
+              </q-item>
+              <q-item>
+                <q-btn
+                  size="sm"
+                  flat
+                  icon="edit"
+                  label="Editar"
+                  color="indigo-7"
+                  @click="openEdit(event)"
+                />
+              </q-item>
+              <q-item>
+                <q-btn
+                  size="sm"
+                  flat
+                  icon="list_alt"
+                  color="blue-grey-10"
+                  @click="openList(event)"
+                  label="Lista de actividades"
+                />
+              </q-item>
+              <q-item>
+                <q-btn
+                  flat
+                  icon="event"
+                  color="brown"
+                  size="sm"
+                  label="cambiar fecha"
+                >
+                  <q-popup-proxy
+                    cover
+                    transition-show="scale"
+                    transition-hide="scale"
+                  >
+                    <q-date v-model="newDate" mask="YYYY-MM-DD">
+                      <div class="row items-center justify-end q-gutter-sm">
+                        <q-btn
+                          label="Cancelar"
+                          color="red"
+                          dense
+                          v-close-popup
+                        />
+                        <q-btn
+                          dense
+                          label="Cambiar"
+                          color="green"
+                          @click="changeDate(event.id)"
+                          v-close-popup
+                        />
+                      </div>
+                    </q-date>
+                  </q-popup-proxy>
+                </q-btn>
+              </q-item>
+              <q-item>
+                <q-btn
+                  v-if="checkUserId(event.empleado.id)"
+                  size="sm"
+                  flat
+                  icon="delete"
+                  color="red"
+                  label="borrar"
+                  @click="deleteEvent(event.id)"
+                />
+              </q-item>
+            </q-list>
+          </q-btn-dropdown>
+        </q-item-section>
+        <q-item-section side v-else>
+          <q-icon name="airport_shuttle" @click="sendMessage(event)">
+            <q-tooltip class="text-body2"> Solicitar viaje </q-tooltip>
+          </q-icon>
         </q-item-section>
       </q-item>
 
-      <q-separator></q-separator>
-      <q-card-section>
-        <q-item>
-          <q-item-section>
-            <q-item-label class="q-pa-none text-grey-8">
-              <strong> Descripcion de actividades: </strong>
-              {{ event.description }}
-            </q-item-label>
-          </q-item-section>
-          <q-item-section side>
-            <q-item-label>
-              <q-btn
-                v-if="checkUserId(event.empleado.id)"
-                flat
-                round
-                icon="list_alt"
-                class="bg-blue-grey-10 text-white"
-                @click="openList(event)"
-              >
-                <q-tooltip class="text-body2 bg-blue-grey-10">
-                  Lista de actividades
-                </q-tooltip>
-              </q-btn>
-            </q-item-label>
-          </q-item-section>
-        </q-item>
-      </q-card-section>
+      <q-separator />
+      <q-expansion-item
+        dense
+        flat
+        color="primary"
+        icon="fork_left"
+        label="Rutas"
+      >
+        <div v-for="(travel, index) in event.travel" :key="index">
+          <q-separator />
+          <q-item class="q-pa-sm">
+            <q-item-section>
+              <q-item-label><strong>Salida:</strong></q-item-label>
+              <q-item-label>{{
+                travel.start_point_r ? travel.start_point_r.nombre : "Otro"
+              }}</q-item-label>
+            </q-item-section>
+            <q-item-section>
+              <q-item-label><strong>Hora salida:</strong></q-item-label>
+              <q-item-label>{{ formatTime(travel.start_time) }}</q-item-label>
+            </q-item-section>
+            <q-item-section>
+              <q-item-label><strong>Destino:</strong></q-item-label>
+              <q-item-label>{{
+                travel.end_point_r ? travel.end_point_r.nombre : "Otro"
+              }}</q-item-label>
+            </q-item-section>
+            <q-item-section>
+              <q-item-label><strong>Hora llegada:</strong></q-item-label>
+              <q-item-label>{{ formatTime(travel.end_time) }}</q-item-label>
+            </q-item-section>
+          </q-item>
+        </div>
+      </q-expansion-item>
     </q-card>
   </div>
   <div v-else class="highlight">No hay citas</div>
@@ -145,19 +209,17 @@
             <div class="text-h6">{{ formatDateplusone(currentDay) }}</div>
           </q-item-section>
           <q-item-section side>
-            <q-item>
-              <q-item-section>
-                <q-btn dense label="Cerrar" color="red" v-close-popup />
-              </q-item-section>
-              <q-item-section>
-                <q-btn
-                  dense
-                  label="Actualizar"
-                  color="blue"
-                  @click="putEvent(selectedEvent.id)"
-                />
-              </q-item-section>
-            </q-item>
+            <q-btn dense label="Cerrar" color="red" v-close-popup />
+          </q-item-section>
+          <q-item-section side>
+            <q-item-section>
+              <q-btn
+                dense
+                label="Actualizar"
+                color="blue"
+                @click="putEvent(selectedEvent.id)"
+              />
+            </q-item-section>
           </q-item-section>
         </q-item>
       </q-card-section>
@@ -210,16 +272,53 @@
       </q-card>
     </q-card>
   </q-dialog>
+
+  <q-dialog
+    v-model="car"
+    transition-show="rotate"
+    transition-hide="rotate"
+    persistent
+  >
+    <q-card style="max-width: 900px">
+      <q-card-section
+        class="bg-primary text-white d-flex justify-between items-center q-pa-sm"
+      >
+        <q-item>
+          <q-item-section>
+            <div class="text-h6">{{ formatDateplusone(currentDay) }}</div>
+          </q-item-section>
+          <q-item-section side>
+            <q-btn
+              dense
+              label="Cerrar"
+              color="red"
+              v-close-popup
+              @click="getEventsPerDate"
+            />
+          </q-item-section>
+        </q-item>
+      </q-card-section>
+      <q-separator />
+      <q-card class="q-pa-none scroll" flat>
+        <card-place :event="selectedEvent" />
+      </q-card>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script setup>
 import { ref, onMounted } from "vue";
-import { date, useQuasar } from "quasar";
+import { useQuasar } from "quasar";
 import { sendRequest, checkUserId } from "src/boot/functions";
 import { formatTime, formatDateplusone } from "src/boot/formatFunctions";
 
 import EventForm from "src/components/Calendar/EventForm.vue";
 import ListForm from "src/components/Calendar/ListForm.vue";
+import CardPlace from "src/components/Calendar/CardPlace.vue";
+
+import { inject } from "vue";
+
+const bus = inject("bus");
 
 const { currentDay } = defineProps(["currentDay"]);
 
@@ -229,9 +328,16 @@ const events = ref([]);
 const selectedEvent = ref(null);
 const edit = ref(null);
 const editForm = ref(false);
+const car = ref(false);
 const newDate = ref(currentDay);
+const clonEventDate = ref(currentDay);
 const listForm = ref(false);
 const list = ref(null);
+
+bus.on("recharge", () => {
+  getEventsPerDate();
+  car.value = false;
+});
 
 const openEdit = (event) => {
   selectedEvent.value = event;
@@ -241,6 +347,11 @@ const openEdit = (event) => {
 const openList = (event) => {
   selectedEvent.value = event;
   listForm.value = true;
+};
+
+const openCar = (event) => {
+  selectedEvent.value = event;
+  car.value = true;
 };
 
 const getEventsPerDate = async () => {
@@ -280,6 +391,14 @@ const changeDate = async (id) => {
   getEventsPerDate();
 };
 
+const copyEvent = async (id) => {
+  const final = {
+    date: clonEventDate.value,
+  };
+  let res = await sendRequest("PUT", final, "/api/event/clone/" + id, "");
+  getEventsPerDate();
+};
+
 const setList = async (id) => {
   const list_valid = await list.value.validate();
   if (!list_valid) {
@@ -299,6 +418,39 @@ const setList = async (id) => {
   );
   listForm.value = false;
   getEventsPerDate();
+};
+
+const sendMessage = (event) => {
+  const phone = event.empleado.telefono_institucional
+    ? event.empleado.telefono_institucional
+    : event.empleado.telefono;
+  if (!phone) {
+    $q.notify({
+      color: "red-5",
+      textColor: "white",
+      icon: "warning",
+      message: "No tiene numero telefonico asingnado",
+    });
+    return;
+  }
+  const date = formatDateplusone(event.date);
+  const countryCode = "+52";
+  const formattedPhoneNumber = countryCode + phone.trim();
+
+  const message = `Hola, quiero solicitar un raite en tu viaje del "${date}"`;
+  const whatsappLink = `https://wa.me/${encodeURIComponent(
+    formattedPhoneNumber
+  )}?text=${encodeURIComponent(message)}`;
+
+  //Abrir enlace en una nueva ventana
+  const newWindow = window.open(whatsappLink, "_blank");
+
+  //Verificar si se abrió la nueva ventana correctamente
+  if (!newWindow) {
+    alert(
+      "No se pudo abrir la ventana de WhatsApp. Asegúrate de tener permitido abrir ventanas emergentes en tu navegador."
+    );
+  }
 };
 
 onMounted(() => {
