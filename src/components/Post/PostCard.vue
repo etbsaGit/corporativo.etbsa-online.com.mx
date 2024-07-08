@@ -45,7 +45,7 @@
           <strong>Ultima actualizacion: </strong>
         </q-item-label>
         <q-item-label>
-          {{ formatDateplusone(post.updated_at) }}
+          {{ formatDate(post.updated_at) }}
         </q-item-label>
       </q-item-section>
       <q-item-section>
@@ -132,7 +132,7 @@
   </q-card>
 </template>
 <script setup>
-import { formatDateplusone } from "src/boot/formatFunctions";
+import { formatDateplusone, formatDate } from "src/boot/formatFunctions";
 import { checkId } from "src/boot/functions";
 import { inject } from "vue";
 

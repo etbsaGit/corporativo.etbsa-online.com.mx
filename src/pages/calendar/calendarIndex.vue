@@ -10,6 +10,73 @@
         />
       </q-item-section>
     </q-item>
+    <q-item>
+      <q-item-section>
+        <q-expansion-item
+          flat
+          color="primary"
+          icon="filter_alt"
+          label="Filtros de viaje"
+          dense
+        >
+          <q-item v-close-popup>
+            <q-item-section>
+              <q-select
+                v-model="formFilter.start_point"
+                :options="sucursales"
+                label="Punto de partida"
+                option-value="id"
+                option-label="nombre"
+                option-disable="inactive"
+                emit-value
+                map-options
+                transition-show="jump-up"
+                transition-hide="jump-up"
+                clearable
+                outlined
+                dense
+              />
+              <q-tooltip class="text-h6">
+                Si se deja vacío se busca un punto de partida que no es una
+                sucursal
+              </q-tooltip>
+            </q-item-section>
+            <q-item-section>
+              <q-select
+                v-model="formFilter.end_point"
+                :options="sucursales"
+                label="Destino"
+                option-value="id"
+                option-label="nombre"
+                option-disable="inactive"
+                emit-value
+                map-options
+                transition-show="jump-up"
+                transition-hide="jump-up"
+                clearable
+                outlined
+                dense
+              />
+              <q-tooltip class="text-h6">
+                Si se deja vacío se busca un destino que no es una sucursal
+              </q-tooltip>
+            </q-item-section>
+            <q-item-section class="col-2">
+              <q-btn
+                outline
+                icon="search"
+                label="Filtrar"
+                @click="getEventsFilter"
+              />
+            </q-item-section>
+            <q-item-section class="col-1">
+              <q-btn outline icon="refresh" @click="getEvents" />
+            </q-item-section>
+          </q-item>
+        </q-expansion-item>
+      </q-item-section>
+    </q-item>
+    <q-separator />
     <div class="q-pa-xs flex justify-between items-center">
       <q-btn icon="arrow_left" @click="prevMonth" />
       <div class="highlight">{{ currentMonthYear }}</div>
@@ -30,56 +97,47 @@
       :day-height="0"
       @click-date="onClickDate"
       @click-day="onClickDay"
+      class="custom-calendar-month"
     >
       <template v-if="events != null" #day="{ scope: { timestamp } }">
         <template v-for="event in eventsMap[timestamp.date]" :key="event.id">
           <div
-            class="my-event rounded-border"
+            class="my-event rounded-border text-black"
             style="position: relative"
-            :style="{ backgroundColor: event.color }"
+            :style="{ backgroundColor: getOpaqueColor(event.color) }"
           >
             <div class="q-calendar__ellipsis">
               <q-item>
-                <!-- <q-item-section avatar>
-                  <q-avatar
-                    color="primary"
-                    text-color="white"
-                    v-if="event.empleado.picture"
-                  >
-                    <img
-                      :src="event.empleado.picture"
-                      alt="Foto del empleado"
-                    />
-                  </q-avatar>
-                  <q-avatar v-else color="white" text-color="primary">
-                    {{ event.empleado.nombre.charAt(0).toUpperCase() }}
-                    {{
-                      event.empleado.apellido_paterno.charAt(0).toUpperCase()
-                    }}
-                  </q-avatar>
-                </q-item-section> -->
-
                 <q-item-section>
                   <q-item-label>
                     {{ event.empleado.nombre }}
                     {{ event.empleado.apellido_paterno }}
                   </q-item-label>
-                  <q-item-label>{{ event.sucursal.nombre }}</q-item-label>
-                  <q-item-label caption v-if="event.start_time">
-                    {{ formatTime(event.start_time) }} -
-                    {{ formatTime(event.end_time) }}
+                  <q-item-label>
+                    {{
+                      event.travel[0].start_point_r
+                        ? event.travel[0].start_point_r.nombre
+                        : "Otro"
+                    }}
+                    -
+                    {{
+                      event.travel[0].end_point_r
+                        ? event.travel[0].end_point_r.nombre
+                        : "Otro"
+                    }}
                   </q-item-label>
                 </q-item-section>
+                <q-item-section side class="col-1">
+                  {{ event.available_seats }}
+                </q-item-section>
                 <q-item-section side>
-                  <q-avatar size="sm" color="green" text-color="white">
-                    {{ event.countActivities.completed_count }}
-                  </q-avatar>
-                  <q-avatar size="sm" color="red" text-color="white">
-                    {{ event.countActivities.incomplete_count }}
-                  </q-avatar>
+                  <q-icon name="airport_shuttle" />
                 </q-item-section>
               </q-item>
-              <q-tooltip class="text-body2">{{ event.title }}</q-tooltip>
+
+              <q-tooltip>
+                <event-card :event="event" />
+              </q-tooltip>
             </div>
           </div>
         </template>
@@ -207,6 +265,7 @@ import { formatTime, formatDateplusone } from "src/boot/formatFunctions";
 
 import EventForm from "src/components/Calendar/EventForm.vue";
 import EventList from "src/components/Calendar/EventList.vue";
+import EventCard from "src/components/Calendar/EventCard.vue";
 import Kardex from "src/components/Calendar/kardex.vue";
 
 const $q = useQuasar();
@@ -219,6 +278,12 @@ const showDay = ref(null);
 const currentDay = ref(null);
 
 const events = ref(null);
+const sucursales = ref([]);
+
+const formFilter = ref({
+  start_point: null,
+  end_point: null,
+});
 
 const getMonthYear = (dateString) => {
   const dateObject = new Date(dateString);
@@ -269,6 +334,13 @@ const eventsMap = computed(() => {
 
 const getEvents = async () => {
   let res = await sendRequest("GET", null, "/api/events", "");
+  sucursales.value = res.sucursales;
+  events.value = res.eventos;
+};
+
+const getEventsFilter = async () => {
+  const final = { ...formFilter.value };
+  let res = await sendRequest("PUT", final, "/api/event/all", "");
   events.value = res;
 };
 
@@ -292,70 +364,49 @@ const postEvent = async () => {
   getEvents();
 };
 
+const getOpaqueColor = (color) => {
+  // Asumiendo que event.color es un string en formato hexadecimal (#RRGGBB)
+  // Puedes ajustar este método según cómo se almacene el color en tu caso
+  const hexColor = color.startsWith("#") ? color.slice(1) : color;
+  return `rgba(${parseInt(hexColor.slice(0, 2), 16)}, ${parseInt(
+    hexColor.slice(2, 4),
+    16
+  )}, ${parseInt(hexColor.slice(4, 6), 16)}, 0.5)`;
+};
+
 onMounted(() => {
   getEvents();
 });
 </script>
 
-<style lang="sass" scoped>
-.my-event
-  position: relative
-  font-size: 12px
-  width: 100%
-  margin: 1px 0 0 0
-  justify-content: center
-  text-overflow: ellipsis
-  overflow: hidden
-  cursor: pointer
+<style>
+.my-event {
+  position: relative;
+  font-size: 11px;
+  width: 100%;
+  margin: 1px 0 0 0;
+  justify-content: center;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  cursor: pointer;
+}
 
-.title
-  position: relative
-  display: flex
-  justify-content: center
-  align-items: center
-  height: 100%
+.highlight {
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  padding: 10px;
+  border-radius: 10px;
+}
 
-.text-white
-  color: white
+.align-center {
+  align-items: center;
+}
 
-.bg-blue
-  background: blue
-
-.bg-green
-  background: green
-
-.bg-orange
-  background: orange
-
-.bg-red
-  background: red
-
-.bg-teal
-  background: teal
-
-.bg-grey
-  background: grey
-
-.bg-purple
-  background: purple
-
-.rounded-border
-  border-radius: 2px
-
-.highlight
-  font-size: 20px
-  font-weight: bold
-  text-align: center
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5)
-  padding: 10px
-  border-radius: 10px
-
-.form-container
-  max-height: 600px
-  overflow-y: auto
-
-.align-center
-  align-items: center
+.custom-calendar-month {
+  margin: 20px; /* Ajusta el valor según el grosor de margen que desees */
+}
 </style>
 
 

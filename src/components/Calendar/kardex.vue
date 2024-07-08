@@ -76,6 +76,16 @@
             />
           </q-td>
         </template>
+        <template v-slot:body-cell-activities="props">
+          <q-td :props="props">
+            <q-avatar color="green" text-color="white" size="sm">
+              {{ sumarActividades(props.row.eventos).totalCompletadas }}
+            </q-avatar>
+            <q-avatar color="red" text-color="white" size="sm">
+              {{ sumarActividades(props.row.eventos).totalIncompletas }}
+            </q-avatar>
+          </q-td>
+        </template>
       </q-table>
     </q-item-section>
   </q-item>
@@ -179,6 +189,13 @@ const columns = computed(() => {
     });
   });
   cols.push({
+    name: "activities",
+    label: "activities",
+    field: "activities",
+    align: "center",
+    sortable: true,
+  });
+  cols.push({
     name: "show",
     label: "show",
     field: "show",
@@ -213,6 +230,18 @@ const clickRow = (events) => {
   openDialog.value = true;
   selectedEvents.value = events;
 };
+
+function sumarActividades(eventos) {
+  let totalCompletadas = 0;
+  let totalIncompletas = 0;
+
+  eventos.forEach((evento) => {
+    totalCompletadas += evento.countActivities.completed_count;
+    totalIncompletas += evento.countActivities.incomplete_count;
+  });
+
+  return { totalCompletadas, totalIncompletas };
+}
 
 onMounted(() => {
   getKardex(mes.value, anio.value);
