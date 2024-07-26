@@ -24,7 +24,7 @@
               filled
               dense
               label="# Orden de trabajo"
-              mask="#####"
+              mask="######"
               :rules="[(val) => (val && val > 0) || 'Obligatorio']"
             />
           </q-item-section>
