@@ -6,6 +6,9 @@
     <q-item-section class="chart">
       <div id="tech" class="chart-container"></div>
     </q-item-section>
+    <q-item-section class="chart">
+      <div id="desemp" class="chart-container"></div>
+    </q-item-section>
   </q-item>
 </template>
 
@@ -65,6 +68,10 @@ onMounted(() => {
   renderChart("tech", "Productividad taller", {
     value: data.prod_taller.toFixed(2),
     name: "Productividad taller",
+  });
+  renderChart("desemp", "Desempeño taller", {
+    value: data.desempeno.toFixed(2),
+    name: "Desempeño taller",
   });
 });
 </script>

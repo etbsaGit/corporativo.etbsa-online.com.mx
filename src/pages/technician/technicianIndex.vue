@@ -88,21 +88,23 @@
       </q-item-section>
     </q-item>
   </q-page>
+
   <q-dialog
     v-model="showTecAgricola"
-    transition-show="rotate"
-    transition-hide="rotate"
+    transition-show="slide-up"
+    transition-hide="slide-down"
     persistent
-    full-width
-    full-height
+    maximized
   >
-    <q-card>
-      <q-card-section class="d-flex justify-between items-center q-pa-sm">
-        <div class="text-h6">Tecnicos de Agricola</div>
-        <q-card-actions align="right">
+    <q-card style="width: 100%">
+      <q-item class="text-white bg-primary">
+        <q-item-section>
+          <q-item-label class="text-h6">Tecnicos de Agricola</q-item-label>
+        </q-item-section>
+        <q-item-section side>
           <q-btn label="Cerrar" color="red" v-close-popup />
-        </q-card-actions>
-      </q-card-section>
+        </q-item-section>
+      </q-item>
       <q-separator />
       <div class="q-pa-sm">
         <q-list separator>
@@ -151,21 +153,23 @@
       </div>
     </q-card>
   </q-dialog>
+
   <q-dialog
     v-model="showTecConstruccion"
-    transition-show="rotate"
-    transition-hide="rotate"
+    transition-show="slide-up"
+    transition-hide="slide-down"
     persistent
-    full-width
-    full-height
+    maximized
   >
-    <q-card>
-      <q-card-section class="d-flex justify-between items-center q-pa-sm">
-        <div class="text-h6">Tecnicos de Construccion</div>
-        <q-card-actions align="right">
+    <q-card style="width: 100%">
+      <q-item class="text-white bg-primary">
+        <q-item-section>
+          <q-item-label class="text-h6">Tecnicos de Construccion</q-item-label>
+        </q-item-section>
+        <q-item-section side>
           <q-btn label="Cerrar" color="red" v-close-popup />
-        </q-card-actions>
-      </q-card-section>
+        </q-item-section>
+      </q-item>
       <q-separator />
       <div class="q-pa-sm">
         <q-list separator>
@@ -176,7 +180,7 @@
               expand-separator
               default-opened
               class="shadow-1 overflow-hidden"
-              header-class="bg-yellow text-black"
+              header-class="bg-yellow"
               style="border-radius: 30px"
             >
               <div class="row q-col-gutter-sm">
@@ -185,7 +189,8 @@
                   v-for="(employee, index) in level.technician.empleado"
                   :key="index"
                 >
-                  <employee-card :employee="employee" :key="employee" />
+                  <employee-card :employee="employee" :key="employee">
+                  </employee-card>
                 </div>
               </div>
             </q-expansion-item>
@@ -195,7 +200,7 @@
             expand-separator
             default-opened
             class="shadow-1 overflow-hidden"
-            header-class="bg-yellow text-black"
+            header-class="bg-yellow"
             style="border-radius: 30px"
           >
             <div class="row q-col-gutter-sm">
@@ -204,7 +209,8 @@
                 v-for="(employee, index) in tecSinAsignarConstruccion"
                 :key="index"
               >
-                <employee-card :employee="employee" :key="employee" />
+                <employee-card :employee="employee" :key="employee">
+                </employee-card>
               </div>
             </div>
           </q-expansion-item>
@@ -215,76 +221,88 @@
 
   <q-dialog
     v-model="showQualificationsConstruccion"
-    transition-show="rotate"
-    transition-hide="rotate"
+    transition-show="slide-up"
+    transition-hide="slide-down"
     persistent
+    maximized
   >
     <q-card>
-      <q-card-section class="d-flex justify-between items-center q-pa-sm">
-        <div class="text-h6">Escalafon de Construccion</div>
-        <q-card-actions align="right">
+      <q-item class="text-white bg-primary">
+        <q-item-section>
+          <q-item-label class="text-h6">Escalafon de construccion</q-item-label>
+        </q-item-section>
+        <q-item-section side>
           <q-btn label="Cerrar" color="red" v-close-popup />
-        </q-card-actions>
-      </q-card-section>
-      <q-separator />
-      <div class="survey-form-container">
-        <edit-level
-          :qualifications="qualificationsConstruccion"
-          :key="qualificationsConstruccion"
-        />
-      </div>
+        </q-item-section>
+      </q-item>
+      <q-item class="q-pa-none">
+        <q-item-section>
+          <edit-level
+            :qualifications="qualificationsConstruccion"
+            :key="qualificationsConstruccion"
+          />
+        </q-item-section>
+      </q-item>
     </q-card>
   </q-dialog>
 
   <q-dialog
     v-model="showQualificationsAgricola"
-    transition-show="rotate"
-    transition-hide="rotate"
+    transition-show="slide-up"
+    transition-hide="slide-down"
     persistent
+    maximized
   >
     <q-card>
-      <q-card-section class="d-flex justify-between items-center q-pa-sm">
-        <div class="text-h6">Escalafon de Agricola</div>
-        <q-card-actions align="right">
+      <q-item class="text-white bg-primary">
+        <q-item-section>
+          <q-item-label class="text-h6">Escalafon de agricola</q-item-label>
+        </q-item-section>
+        <q-item-section side>
           <q-btn label="Cerrar" color="red" v-close-popup />
-        </q-card-actions>
-      </q-card-section>
-      <q-separator />
-      <div class="survey-form-container">
-        <edit-level
-          :qualifications="qualificationsAgricola"
-          :key="qualificationsAgricola"
-        />
-      </div>
+        </q-item-section>
+      </q-item>
+      <q-item class="q-pa-none">
+        <q-item-section>
+          <edit-level
+            :qualifications="qualificationsAgricola"
+            :key="qualificationsAgricola"
+          />
+        </q-item-section>
+      </q-item>
     </q-card>
   </q-dialog>
 
   <q-dialog
     v-model="showTable"
-    transition-show="rotate"
-    transition-hide="rotate"
+    transition-show="slide-up"
+    transition-hide="slide-down"
     persistent
-    full-width
-    full-height
+    maximized
   >
     <q-card>
-      <q-card-section class="d-flex justify-between items-center q-pa-sm">
-        <div class="text-h6">Administrar tipos de tecnicos</div>
-        <q-card-actions align="right">
+      <q-item class="text-white bg-primary">
+        <q-item-section>
+          <q-item-label class="text-h6"
+            >Administrar tipos de tecnicos</q-item-label
+          >
+        </q-item-section>
+        <q-item-section side>
           <q-btn label="Cerrar" color="red" v-close-popup />
-        </q-card-actions>
-      </q-card-section>
-      <q-separator />
-      <div class="survey-form-container">
-        <technician-table />
-      </div>
+        </q-item-section>
+      </q-item>
+      <q-item class="q-pa-none">
+        <q-item-section>
+          <technician-table />
+        </q-item-section>
+      </q-item>
     </q-card>
   </q-dialog>
 
   <q-dialog
     v-model="showTableBays"
-    transition-show="rotate"
-    transition-hide="rotate"
+    transition-show="slide-up"
+    transition-hide="slide-down"
     persistent
     :maximized="true"
   >
@@ -304,8 +322,8 @@
 
   <q-dialog
     v-model="woIndex"
-    transition-show="rotate"
-    transition-hide="rotate"
+    transition-show="slide-up"
+    transition-hide="slide-down"
     persistent
     :maximized="true"
   >

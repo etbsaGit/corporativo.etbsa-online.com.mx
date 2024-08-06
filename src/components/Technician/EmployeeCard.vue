@@ -105,6 +105,16 @@
                 @click="openProductividad(employee)"
               />
             </q-item>
+            <q-item>
+              <q-btn
+                flat
+                label="Resumen de horas"
+                size="sm"
+                color="primary"
+                icon="work_history"
+                @click="openHoras(employee)"
+              />
+            </q-item>
           </q-list>
         </q-btn-dropdown>
       </q-item-section>
@@ -119,34 +129,33 @@
     full-height
   >
     <q-card>
-      <q-card-section class="d-flex flex-center justify-between q-pa-sm">
-        <div class="text-h6">Carrera de {{ employee.nombreCompleto }}</div>
-        <q-card-actions align="right">
-          <q-item>
-            <q-item-section>
-              <q-btn label="Cerrar" color="red" v-close-popup />
-            </q-item-section>
-            <q-item-section>
-              <q-btn
-                label="Agregar"
-                color="blue"
-                @click="addQualifications(employee)"
-              />
-            </q-item-section>
-          </q-item>
-        </q-card-actions>
-      </q-card-section>
-      <q-separator />
-      <q-card class="q-pa-none scroll" flat>
-        <div class="survey-form-container">
+      <q-item class="text-white bg-primary">
+        <q-item-section>
+          <q-item-label class="text-h6">
+            Carrera de {{ employee.nombreCompleto }}
+          </q-item-label>
+        </q-item-section>
+        <q-item-section side>
+          <q-btn label="Cerrar" color="red" v-close-popup />
+        </q-item-section>
+        <q-item-section side>
+          <q-btn
+            label="Agregar"
+            color="blue"
+            @click="addQualifications(employee)"
+          />
+        </q-item-section>
+      </q-item>
+      <q-item class="q-pa-none">
+        <q-item-section>
           <employee-time-line
             :qualifications="employee.qualification"
             :linea="employee.linea"
             :disable="false"
             ref="timeLine"
           />
-        </div>
-      </q-card>
+        </q-item-section>
+      </q-item>
     </q-card>
   </q-dialog>
 
@@ -155,62 +164,70 @@
     transition-show="rotate"
     transition-hide="rotate"
     persistent
+    full-width
   >
     <q-card>
-      <q-card-section class="d-flex justify-between items-center q-pa-sm">
-        <div class="text-h6">
-          Asignar tecnico a: {{ employee.nombreCompleto }}
-        </div>
-        <q-card-actions align="right">
+      <q-item class="text-white bg-primary">
+        <q-item-section>
+          <q-item-label class="text-h6">
+            Asignar tecnico a: {{ employee.nombreCompleto }}
+          </q-item-label>
+        </q-item-section>
+        <q-item-section side>
           <q-btn label="Cerrar" color="red" v-close-popup />
+        </q-item-section>
+        <q-item-section side>
           <q-btn
             label="Asignar"
             color="blue"
             @click="asignarTechnician(employee)"
           />
-        </q-card-actions>
-      </q-card-section>
-      <q-separator />
-      <q-card class="q-pa-sm" flat>
-        <q-select
-          v-model="selectedTechnician"
-          :options="tecnicos"
-          label="Tipo de tecnico"
-          option-value="id"
-          option-label="concepto"
-          emit-value
-          map-options
-          transition-show="jump-up"
-          transition-hide="jump-up"
-          filled
-          dense
-          hint
-        />
-      </q-card>
+        </q-item-section>
+      </q-item>
+      <q-item>
+        <q-item-section>
+          <q-select
+            v-model="selectedTechnician"
+            :options="tecnicos"
+            label="Tipo de tecnico"
+            option-value="id"
+            option-label="concepto"
+            emit-value
+            map-options
+            transition-show="jump-up"
+            transition-hide="jump-up"
+            filled
+            dense
+            hint
+          />
+        </q-item-section>
+      </q-item>
     </q-card>
   </q-dialog>
 
   <q-dialog
     v-model="showCV"
-    transition-show="rotate"
-    transition-hide="rotate"
+    transition-show="slide-up"
+    transition-hide="slide-down"
     persistent
-    full-width
-    full-height
+    maximized
   >
     <q-card>
-      <q-card-section class="flex flex-center justify-between q-pa-sm">
-        <div class="text-h6">Carrera de {{ employee.nombreCompleto }}</div>
-        <q-card-actions align="right">
+      <q-item class="text-white bg-primary">
+        <q-item-section>
+          <q-item-label class="text-h6">
+            Carrera de: {{ employee.nombreCompleto }}
+          </q-item-label>
+        </q-item-section>
+        <q-item-section side>
           <q-btn label="Cerrar" color="red" v-close-popup />
-        </q-card-actions>
-      </q-card-section>
-      <q-separator />
-      <q-card class="q-pa-none scroll" flat>
-        <div class="survey-form-container">
-          <c-v :employee="empleado"></c-v>
-        </div>
-      </q-card>
+        </q-item-section>
+      </q-item>
+      <q-item>
+        <q-item-section>
+          <c-v :employee="empleado" />
+        </q-item-section>
+      </q-item>
     </q-card>
   </q-dialog>
 
@@ -221,25 +238,28 @@
     persistent
   >
     <q-card>
-      <q-card-section class="d-flex justify-between items-center q-pa-sm">
-        <div class="text-h6">
-          Asignar usuario X a: {{ employee.nombre }}
-          {{ employee.apellido_paterno }}
-        </div>
-        <q-card-actions align="right">
+      <q-item class="text-white bg-primary">
+        <q-item-section>
+          <q-item-label class="text-h6">
+            Asignar usuario X a: {{ employee.nombreCompleto }}
+          </q-item-label>
+        </q-item-section>
+        <q-item-section side>
           <q-btn label="Cerrar" color="red" v-close-popup />
+        </q-item-section>
+        <q-item-section side>
           <q-btn label="Asignar" color="blue" @click="setUserX(employee)" />
-        </q-card-actions>
-      </q-card-section>
-      <q-separator />
-      <q-card class="q-pa-sm" flat>
-        <q-input
-          dense
-          outlined
-          v-model="userX"
-          label="Asignar el usuario x al empleado"
-        />
-      </q-card>
+        </q-item-section>
+      </q-item>
+      <q-item>
+        <q-item-section>
+          <q-input
+            outlined
+            v-model="userX"
+            label="Asignar el usuario x al empleado"
+          />
+        </q-item-section>
+      </q-item>
     </q-card>
   </q-dialog>
 
@@ -250,29 +270,59 @@
     persistent
   >
     <q-card>
-      <q-card-section class="d-flex justify-between items-center q-pa-sm">
-        <div class="text-h6">
-          Asignar productividad a: {{ employee.nombreCompleto }}
-        </div>
-        <q-card-actions align="right">
+      <q-item class="text-white bg-primary">
+        <q-item-section>
+          <q-item-label class="text-h6">
+            Asignar productividad a: {{ employee.nombreCompleto }}
+          </q-item-label>
+        </q-item-section>
+        <q-item-section side>
           <q-btn label="Cerrar" color="red" v-close-popup />
+        </q-item-section>
+        <q-item-section side>
           <q-btn
             label="Asignar"
             color="blue"
             @click="setProductividad(employee)"
           />
-        </q-card-actions>
-      </q-card-section>
-      <q-separator />
-      <q-card class="q-pa-sm" flat>
-        <q-input
-          dense
-          mask="##.#"
-          outlined
-          v-model="productividad"
-          label="Asignar productividad al empleado"
-        />
-      </q-card>
+        </q-item-section>
+      </q-item>
+      <q-item>
+        <q-item-section>
+          <q-input
+            mask="##.#"
+            outlined
+            v-model="productividad"
+            label="Asignar productividad al empleado"
+          />
+        </q-item-section>
+      </q-item>
+    </q-card>
+  </q-dialog>
+
+  <q-dialog
+    v-model="showHoras"
+    transition-show="slide-up"
+    transition-hide="slide-down"
+    persistent
+    maximized
+  >
+    <q-card>
+      <q-item class="text-white bg-primary">
+        <q-item-section>
+          <q-item-label class="text-h6">
+            Horas con ingreso: {{ employee.nombreCompleto }}
+          </q-item-label>
+        </q-item-section>
+        <q-item-section side>
+          <q-btn label="Cerrar" color="red" v-close-popup />
+        </q-item-section>
+      </q-item>
+      <q-item>
+        <q-item-section>
+          <horas-index :employee="empleado" />
+        </q-item-section>
+      </q-item>
     </q-card>
   </q-dialog>
 </template>
@@ -283,12 +333,15 @@ import { sendRequest } from "src/boot/functions";
 
 import EmployeeTimeLine from "src/components/Technician/EmployeeTimeLine.vue";
 import CV from "src/components/Technician/CV.vue";
+import HorasIndex from "src/components/Technician/HorasIndex.vue";
 
 const { employee } = defineProps(["employee"]);
+
 const bus = inject("bus");
 
 const showQualifications = ref(false);
 const showTechnicians = ref(false);
+const showHoras = ref(false);
 const showUserX = ref(false);
 const userX = ref(null);
 const showProductividad = ref(false);
@@ -321,6 +374,10 @@ const openProductividad = (employee) => {
 
 const openCV = () => {
   showCV.value = true;
+};
+
+const openHoras = () => {
+  showHoras.value = true;
 };
 
 const getTechnicians = async (id) => {

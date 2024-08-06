@@ -1,5 +1,5 @@
 <template>
-  <div :id="'tec' + index" class="chart-container"></div>
+  <div :id="'des' + index" class="chart-container"></div>
 </template>
 
 <script setup>
@@ -79,7 +79,7 @@ const renderChart = (chartId, title, data) => {
 };
 
 onMounted(() => {
-  renderChart("tec" + index, "Productividad", {
+  renderChart("des" + index, "Desempeño", {
     value: prod,
   });
 });
