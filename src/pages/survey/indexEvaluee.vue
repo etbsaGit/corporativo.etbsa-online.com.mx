@@ -27,6 +27,16 @@
         >
           <q-tooltip>Ver tus respuestas</q-tooltip>
         </q-btn>
+        <q-btn
+          v-if="!isSurveyActive(props.row)"
+          flat
+          round
+          color="primary"
+          icon="picture_as_pdf"
+          @click="onRowClickPDF(props.row)"
+        >
+          <q-tooltip>Descargar respuestas en PDF</q-tooltip>
+        </q-btn>
       </q-td>
     </template>
     <template v-slot:body-cell-status="props">
@@ -225,6 +235,19 @@ const onRowClick = (row) => {
 const onRowClickDetail = (row) => {
   showAnswers.value = true;
   selectedSurvey.value = row;
+};
+
+const onRowClickPDF = async (row) => {
+  let res = await sendRequest(
+    "GET",
+    null,
+    "/api/survey/pdf/answers/" + row.id,
+    ""
+  );
+  const base64Response = await fetch(`data:application/pdf;base64,${res}`);
+  const blob = await base64Response.blob();
+  const url = URL.createObjectURL(blob);
+  window.open(url, "_blank");
 };
 
 onMounted(() => {
