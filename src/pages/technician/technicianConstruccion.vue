@@ -141,7 +141,7 @@ const clickSucursal = async (id) => {
 onMounted(() => {
   getSucursales();
   const switchBetweenTabs = switchTab();
-  intervalId = setInterval(switchBetweenTabs, 60000);
+  intervalId = setInterval(switchBetweenTabs, 30000);
 });
 
 onUnmounted(() => {
