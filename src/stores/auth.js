@@ -1,6 +1,7 @@
 import axios from "axios";
 import { defineStore } from "pinia";
 import { LocalStorage, Notify } from "quasar";
+import { checkPuesto } from "src/boot/functions";
 
 export const useAuthStore = defineStore("auth", {
   state: () => ({ authUser: null, authToken: null }),
@@ -25,7 +26,11 @@ export const useAuthStore = defineStore("auth", {
             message: res.data.message,
             icon: "check",
           });
-          this.router.push("/");
+          if (checkPuesto("Tecnico")) {
+            this.router.push("/techlogs");
+          } else {
+            this.router.push("/");
+          }
         })
         .catch((errors) => {
           Notify.create({

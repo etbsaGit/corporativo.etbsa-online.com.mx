@@ -72,7 +72,7 @@
                 size="sm"
                 color="primary"
                 icon="contact_page"
-                @click="openCV"
+                @click="showCV = true"
               />
             </q-item>
             <q-item>
@@ -105,14 +105,34 @@
                 @click="openProductividad(employee)"
               />
             </q-item>
-            <q-item>
+            <!-- <q-item>
               <q-btn
                 flat
                 label="Resumen de horas"
                 size="sm"
                 color="primary"
                 icon="work_history"
-                @click="openHoras(employee)"
+                @click="showHoras = true"
+              />
+            </q-item> -->
+            <q-item>
+              <q-btn
+                flat
+                label="Facturas"
+                size="sm"
+                color="primary"
+                icon="request_quote"
+                @click="showInvoices = true"
+              />
+            </q-item>
+            <q-item>
+              <q-btn
+                flat
+                label="Diario de horas"
+                size="sm"
+                color="primary"
+                icon="manage_history"
+                @click="showLogs = true"
               />
             </q-item>
           </q-list>
@@ -325,6 +345,58 @@
       </q-item>
     </q-card>
   </q-dialog>
+
+  <q-dialog
+    v-model="showInvoices"
+    transition-show="slide-up"
+    transition-hide="slide-down"
+    persistent
+    maximized
+  >
+    <q-card>
+      <q-item class="text-white bg-primary">
+        <q-item-section>
+          <q-item-label class="text-h6">
+            Facturas de: {{ employee.nombreCompleto }}
+          </q-item-label>
+        </q-item-section>
+        <q-item-section side>
+          <q-btn label="Cerrar" color="red" v-close-popup />
+        </q-item-section>
+      </q-item>
+      <q-item>
+        <q-item-section>
+          <invoice-index :employee="empleado" />
+        </q-item-section>
+      </q-item>
+    </q-card>
+  </q-dialog>
+
+  <q-dialog
+    v-model="showLogs"
+    transition-show="slide-up"
+    transition-hide="slide-down"
+    persistent
+    maximized
+  >
+    <q-card>
+      <q-item class="text-white bg-primary">
+        <q-item-section>
+          <q-item-label class="text-h6">
+            Diario de horas: {{ employee.nombreCompleto }}
+          </q-item-label>
+        </q-item-section>
+        <q-item-section side>
+          <q-btn label="Cerrar" color="red" v-close-popup />
+        </q-item-section>
+      </q-item>
+      <q-item>
+        <q-item-section>
+          <log-index :employee="empleado" />
+        </q-item-section>
+      </q-item>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script setup>
@@ -334,6 +406,8 @@ import { sendRequest } from "src/boot/functions";
 import EmployeeTimeLine from "src/components/Technician/EmployeeTimeLine.vue";
 import CV from "src/components/Technician/CV.vue";
 import HorasIndex from "src/components/Technician/HorasIndex.vue";
+import InvoiceIndex from "src/components/Technician/InvoiceIndex.vue";
+import LogIndex from "src/components/Technician/LogIndex.vue";
 
 const { employee } = defineProps(["employee"]);
 
@@ -343,6 +417,8 @@ const showQualifications = ref(false);
 const showTechnicians = ref(false);
 const showHoras = ref(false);
 const showUserX = ref(false);
+const showInvoices = ref(false);
+const showLogs = ref(false);
 const userX = ref(null);
 const showProductividad = ref(false);
 const productividad = ref(null);
@@ -370,14 +446,6 @@ const openUserX = (employee) => {
 const openProductividad = (employee) => {
   productividad.value = employee.productividad;
   showProductividad.value = true;
-};
-
-const openCV = () => {
-  showCV.value = true;
-};
-
-const openHoras = () => {
-  showHoras.value = true;
 };
 
 const getTechnicians = async (id) => {

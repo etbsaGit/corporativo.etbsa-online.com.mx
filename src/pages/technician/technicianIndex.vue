@@ -5,7 +5,14 @@
         <q-btn
           color="primary"
           label="Administrar tipos de tecnicos"
-          @click="onClickTable"
+          @click="showTable = true"
+        />
+      </q-item-section>
+      <q-item-section v-if="checkRole('Servicio')">
+        <q-btn
+          color="primary"
+          label="Tipo de actividades de tecnicos"
+          @click="showActivities = true"
         />
       </q-item-section>
     </q-item>
@@ -17,12 +24,16 @@
             <div class="button-overlay">
               <q-item>
                 <q-item-section v-if="checkRole('Servicio')">
-                  <q-btn label="Tecnicos" @click="onClickAgricola" outline />
+                  <q-btn
+                    label="Tecnicos"
+                    @click="showTecAgricola = true"
+                    outline
+                  />
                 </q-item-section>
                 <q-item-section v-if="checkRole('Servicio')">
                   <q-btn
                     label="Escalafon"
-                    @click="onClickQuaAgricola"
+                    @click="showQualificationsAgricola = true"
                     outline
                   />
                 </q-item-section>
@@ -36,10 +47,14 @@
               </q-item>
               <q-item>
                 <q-item-section>
-                  <q-btn label="Bahias" outline @click="onClickTableBays" />
+                  <q-btn label="Bahias" outline @click="showTableBays = true" />
                 </q-item-section>
                 <q-item-section>
-                  <q-btn label="Ordenes de trabajo" outline @click="openWO" />
+                  <q-btn
+                    label="Ordenes de trabajo"
+                    outline
+                    @click="woIndex = true"
+                  />
                 </q-item-section>
               </q-item>
             </div>
@@ -55,14 +70,14 @@
                 <q-item-section v-if="checkRole('Servicio')">
                   <q-btn
                     label="Tecnicos"
-                    @click="onClickConstruccion"
+                    @click="showTecConstruccion = true"
                     outline
                   />
                 </q-item-section>
                 <q-item-section v-if="checkRole('Servicio')">
                   <q-btn
                     label="Escalafon"
-                    @click="onClickQuaConstruccion"
+                    @click="showQualificationsConstruccion = true"
                     outline
                   />
                 </q-item-section>
@@ -76,10 +91,14 @@
               </q-item>
               <q-item>
                 <q-item-section>
-                  <q-btn label="Bahias" outline @click="onClickTableBays" />
+                  <q-btn label="Bahias" outline @click="showTableBays = true" />
                 </q-item-section>
                 <q-item-section>
-                  <q-btn label="Ordenes de trabajo" outline @click="openWO" />
+                  <q-btn
+                    label="Ordenes de trabajo"
+                    outline
+                    @click="woIndex = true"
+                  />
                 </q-item-section>
               </q-item>
             </div>
@@ -340,6 +359,32 @@
       <work-order-index />
     </q-card>
   </q-dialog>
+
+  <q-dialog
+    v-model="showActivities"
+    transition-show="slide-up"
+    transition-hide="slide-down"
+    persistent
+    maximized
+  >
+    <q-card>
+      <q-item class="text-white bg-primary">
+        <q-item-section>
+          <q-item-label class="text-h6">
+            Administrar tipos de actividades de tecnicos
+          </q-item-label>
+        </q-item-section>
+        <q-item-section side>
+          <q-btn label="Cerrar" color="red" v-close-popup />
+        </q-item-section>
+      </q-item>
+      <q-item class="q-pa-none">
+        <q-item-section>
+          <activity-index />
+        </q-item-section>
+      </q-item>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script setup>
@@ -352,6 +397,7 @@ import EditLevel from "src/components/Technician/EditLevel.vue";
 import TechnicianTable from "src/components/Technician/TechnicianTable.vue";
 import BayTable from "src/components/Technician/BayTable.vue";
 import WorkOrderIndex from "src/components/WorkOrder/WorkOrderIndex.vue";
+import ActivityIndex from "src/components/Technician/ActivityIndex.vue";
 
 const openPresentationConstruccion = () => {
   const baseUrl = window.location.origin + "/#/";
@@ -388,34 +434,7 @@ const showQualificationsAgricola = ref(false);
 const showTable = ref(null);
 const showTableBays = ref(false);
 const woIndex = ref(false);
-
-const onClickAgricola = () => {
-  showTecAgricola.value = true;
-};
-
-const onClickConstruccion = () => {
-  showTecConstruccion.value = true;
-};
-
-const onClickQuaConstruccion = () => {
-  showQualificationsConstruccion.value = true;
-};
-
-const onClickQuaAgricola = () => {
-  showQualificationsAgricola.value = true;
-};
-
-const onClickTable = () => {
-  showTable.value = true;
-};
-
-const onClickTableBays = () => {
-  showTableBays.value = true;
-};
-
-const openWO = () => {
-  woIndex.value = true;
-};
+const showActivities = ref(false);
 
 const getTecnicos = async () => {
   let res = await sendRequest("GET", null, "/api/technician/all", "");

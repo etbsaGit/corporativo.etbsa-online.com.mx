@@ -135,6 +135,22 @@
 
       <q-item-section>Mis evaluaciones</q-item-section>
     </q-item>
+
+    <q-item
+      v-if="checkPuesto('Tecnico')"
+      clickable
+      v-ripple
+      to="/techlogs"
+      :active="link === 'techlogs'"
+      @click="link = 'techlogs'"
+      active-class="my-menu-link"
+    >
+      <q-item-section avatar>
+        <q-icon name="manage_history" />
+      </q-item-section>
+
+      <q-item-section>Diario de horas</q-item-section>
+    </q-item>
     <!--
     <q-item
       clickable
@@ -214,7 +230,7 @@
 
 <script setup>
 import { ref } from "vue";
-import { checkRole } from "../boot/functions";
+import { checkRole, checkPuesto } from "../boot/functions";
 
 const link = ref("inbox");
 </script>
