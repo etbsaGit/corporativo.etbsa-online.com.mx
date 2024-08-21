@@ -29,6 +29,7 @@
       <q-tab name="Bahia2" label="Bahia" />
       <q-tab name="Estadistico" />
       <q-tab name="Bahia3" label="Bahia" />
+      <q-tab name="Calendario" label="Calendario" />
     </q-tabs>
 
     <q-separator />
@@ -93,6 +94,11 @@
           <charts :data="chartsData" />
         </div>
       </q-tab-panel>
+      <q-tab-panel name="Calendario" class="q-pa-none">
+        <div>
+          <calendar-logs :data="technicianLogs" />
+        </div>
+      </q-tab-panel>
     </q-tab-panels>
   </q-card>
 </template>
@@ -105,11 +111,14 @@ import { sendRequest } from "src/boot/functions";
 import BayCard from "src/components/Pantalla/BayCard.vue";
 import TechnicianCard from "src/components/Pantalla/TechnicianCard.vue";
 import Charts from "src/components/Pantalla/Charts.vue";
+import CalendarLogs from "src/components/Pantalla/CalendarLogs.vue";
 
 const technicians = ref(null);
 const bays = ref(null);
 const sucursales = ref(null);
 const chartsData = ref(null);
+const technicianLogs = ref(null);
+
 const tab = ref("Tecnicos1");
 const posts = ref(null);
 
@@ -123,6 +132,7 @@ const switchTab = () => {
     "Bahia2",
     "Imagen3",
     "Estadistico",
+    "Calendario",
   ];
   let currentIndex = 0;
 
@@ -145,6 +155,7 @@ const clickSucursal = async (id) => {
   posts.value = resp.post;
   bays.value = resp.bays;
   chartsData.value = resp.charts;
+  technicianLogs.value = resp.technicianLogs;
 };
 
 onMounted(() => {
