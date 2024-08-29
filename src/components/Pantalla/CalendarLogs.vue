@@ -1,92 +1,112 @@
 <template>
-  <q-item class="q-pa-none">
-    <q-calendar-month
-      :weekdays="[1, 2, 3, 4, 5, 6]"
-      :disabled-weekdays="[0]"
-      ref="calendar"
-      v-model="selectedDate"
-      locale="es"
-      animated
-      bordered
-      focusable
-      hoverable
-      no-active-date
-      :day-min-height="120"
-      :day-height="0"
-      class="custom-calendar-month"
-    >
-      <template v-if="logs != null" #day="{ scope: { timestamp } }">
-        <template v-for="log in logsMap[timestamp.date]" :key="log.id">
-          <div
-            class="my-event rounded-border text-black"
-            style="position: relative"
-          >
-            <div class="q-calendar__ellipsis">
-              <q-item class="bg-grey" dense>
-                <q-item-section>
-                  <q-avatar
-                    color="primary"
-                    text-color="white"
-                    v-if="log.tecnico.picture"
-                  >
-                    <img :src="log.tecnico.picture" alt="Foto del empleado" />
-                  </q-avatar>
-                  <q-avatar v-else color="primary" text-color="white">
-                    {{ log.tecnico.nombre.charAt(0).toUpperCase()
-                    }}{{ log.tecnico.apellido_paterno.charAt(0).toUpperCase() }}
-                  </q-avatar>
-                </q-item-section>
-                <q-item-section avatar>
-                  <q-item-label>
-                    {{ formatTime(log.hora_inicio) }} -
-                    {{ formatTime(log.hora_termino) }}
-                  </q-item-label>
-                  <q-item-label>
-                    {{ log.tecnico.nombre }}
-                    {{ log.tecnico.apellido_paterno }}
-                    {{ log.tecnico.apellido_materno }}
-                  </q-item-label>
-                  <q-item-label>
-                    {{ log.activity_technician.nombre }}
-                  </q-item-label>
-                  <q-item-label>
-                    <strong>
-                      {{ log.comentarios }}
-                    </strong>
-                  </q-item-label>
-                </q-item-section>
-              </q-item>
+  <q-calendar-agenda
+    ref="calendar"
+    v-model="selectedDate"
+    view="week"
+    :weekdays="weekdaysOrder"
+    :day-min-height="200"
+    bordered
+    animated
+    locale="es-ES"
+  >
+    <template #day="{ scope: { timestamp } }">
+      <template v-for="(a, index) in getEvent(timestamp)" :key="index">
+        <q-card
+          :style="{ backgroundColor: getCardColor(a.tecnico_id) }"
+          class="my-event text-black"
+        >
+          <div class="row items-center">
+            <div class="col">
+              <strong>
+                {{ formatTime(a.hora_inicio) }} -
+                {{ formatTime(a.hora_termino) }}
+              </strong>
+            </div>
+            <div class="col">
+              <strong>
+                {{ a.tarea }}
+              </strong>
             </div>
           </div>
-        </template>
+          <div align="center">
+            <strong>
+              {{ a.tecnico }}
+            </strong>
+          </div>
+          <div align="center">
+            {{ a.comentarios }}
+          </div>
+        </q-card>
       </template>
-    </q-calendar-month>
-  </q-item>
+    </template>
+  </q-calendar-agenda>
 </template>
 
 <script setup>
-import { QCalendarMonth, parseDate, today } from "@quasar/quasar-ui-qcalendar";
+import { ref, onMounted } from "vue";
+import {
+  QCalendarAgenda,
+  today,
+} from "@quasar/quasar-ui-qcalendar/src/index.js";
 import "@quasar/quasar-ui-qcalendar/src/QCalendarVariables.sass";
 import "@quasar/quasar-ui-qcalendar/src/QCalendarTransitions.sass";
-import "@quasar/quasar-ui-qcalendar/src/QCalendarMonth.sass";
+import "@quasar/quasar-ui-qcalendar/src/QCalendarAgenda.sass";
 
-import { ref, watch, onMounted, computed } from "vue";
-import { formatTime, formatDateplusone } from "src/boot/formatFunctions";
-
-const { data } = defineProps(["data"]);
+import { formatTime } from "src/boot/formatFunctions";
 
 const selectedDate = ref(today());
 
-const logs = ref(data);
+const { data } = defineProps(["data"]);
+const agenda = data;
 
-const logsMap = computed(() => {
-  const map = {};
-  if (logs.value.length > 0) {
-    logs.value.forEach((log) => {
-      (map[log.fecha] = map[log.fecha] || []).push(log);
-    });
+const getEvent = (timestamp) => {
+  const agendaResource = [];
+  for (let x = 0; x < agenda.length; x++) {
+    if (agenda[x].fecha === timestamp.date) {
+      agendaResource.push({
+        hora_inicio: agenda[x].hora_inicio,
+        hora_termino: agenda[x].hora_termino,
+        tarea: agenda[x].activity_technician.nombre,
+        tecnico: agenda[x].tecnico.nombreCompleto,
+        tecnico_id: agenda[x].tecnico.id, // Asegúrate de que el id está disponible
+        comentarios: agenda[x].comentarios,
+      });
+    }
   }
-  return map;
+  return agendaResource;
+};
+
+const weekdaysOrder = ref([]);
+
+function getWeekdaysOrder() {
+  const today = new Date(selectedDate.value);
+  const dayOfWeek = today.getDay();
+
+  const orderedWeekdays = [];
+  for (let i = dayOfWeek; i < 7; i++) {
+    orderedWeekdays.push((i + 1) % 7 || 7);
+  }
+  for (let i = 0; i < dayOfWeek; i++) {
+    orderedWeekdays.push((i + 1) % 7 || 7);
+  }
+
+  weekdaysOrder.value = orderedWeekdays;
+}
+
+// Function to generate a more distinct color based on technician_id
+const getCardColor = (technicianId) => {
+  // Create a pseudo-random color generator based on the technician ID
+  const hue = (parseInt(technicianId, 10) * 82) % 360; // 97 is a prime number to ensure good color spread
+  const saturation = 60; // Moderate saturation
+  const lightness = 75; // Light color for a pastel effect
+
+  console.log(hue);
+  return `hsl(${hue}, ${saturation}%, ${lightness}%)`; // Adjusted to be more distinct
+};
+
+// Calculate weekdays order when component mounts
+onMounted(() => {
+  getWeekdaysOrder();
 });
 </script>
 
