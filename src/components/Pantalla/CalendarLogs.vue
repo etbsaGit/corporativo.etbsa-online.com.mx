@@ -3,11 +3,11 @@
     ref="calendar"
     v-model="selectedDate"
     view="week"
-    :weekdays="weekdaysOrder"
     :day-min-height="200"
     bordered
     animated
     locale="es-ES"
+    :weekdays="weekdaysOrder(selectedDate)"
   >
     <template #day="{ scope: { timestamp } }">
       <template v-for="(a, index) in getEvent(timestamp)" :key="index">
@@ -76,22 +76,20 @@ const getEvent = (timestamp) => {
   return agendaResource;
 };
 
-const weekdaysOrder = ref([]);
-
-function getWeekdaysOrder() {
-  const today = new Date(selectedDate.value);
-  const dayOfWeek = today.getDay();
+const weekdaysOrder = (selectedDate) => {
+  const today = new Date(selectedDate);
+  const dayOfWeek = today.getDay() + 1; // Domingo es 0 y sábado es 6
 
   const orderedWeekdays = [];
   for (let i = dayOfWeek; i < 7; i++) {
-    orderedWeekdays.push((i + 1) % 7 || 7);
+    orderedWeekdays.push(i);
   }
   for (let i = 0; i < dayOfWeek; i++) {
-    orderedWeekdays.push((i + 1) % 7 || 7);
+    orderedWeekdays.push(i);
   }
 
-  weekdaysOrder.value = orderedWeekdays;
-}
+  return orderedWeekdays;
+};
 
 // Function to generate a more distinct color based on technician_id
 const getCardColor = (technicianId) => {
@@ -100,14 +98,8 @@ const getCardColor = (technicianId) => {
   const saturation = 60; // Moderate saturation
   const lightness = 75; // Light color for a pastel effect
 
-  console.log(hue);
   return `hsl(${hue}, ${saturation}%, ${lightness}%)`; // Adjusted to be more distinct
 };
-
-// Calculate weekdays order when component mounts
-onMounted(() => {
-  getWeekdaysOrder();
-});
 </script>
 
 <style scoped>

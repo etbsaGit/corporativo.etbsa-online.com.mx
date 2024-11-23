@@ -14,7 +14,7 @@
       <q-table
         flat
         bordered
-        title="Tipo de actividades"
+        title="Facturas"
         :rows="rows"
         :columns="columns"
         row-key="name"

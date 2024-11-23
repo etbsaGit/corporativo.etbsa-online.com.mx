@@ -1,14 +1,14 @@
 <template>
   <q-page>
-    <q-item>
-      <q-item-section v-if="checkRole('Servicio')">
+    <q-item v-if="checkRole('Admin')">
+      <q-item-section>
         <q-btn
           color="primary"
           label="Administrar tipos de tecnicos"
           @click="showTable = true"
         />
       </q-item-section>
-      <q-item-section v-if="checkRole('Servicio')">
+      <q-item-section v-if="checkRole('Admin')">
         <q-btn
           color="primary"
           label="Tipo de actividades de tecnicos"
@@ -46,7 +46,7 @@
                 </q-item-section>
               </q-item>
               <q-item>
-                <q-item-section>
+                <q-item-section v-if="checkRole('Admin')">
                   <q-btn label="Bahias" outline @click="showTableBays = true" />
                 </q-item-section>
                 <q-item-section>
@@ -476,7 +476,7 @@ onMounted(() => {
 }
 
 .imagen {
-  height: 80vh;
+  height: 90vh;
   border-radius: 10px;
 }
 
