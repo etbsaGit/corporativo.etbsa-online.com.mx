@@ -1,12 +1,27 @@
 <template>
   <q-item>
-    <q-btn
-      dense
-      label="Agregar factura"
-      color="primary"
-      @click="showAdd = true"
-      icon="add_circle"
-    />
+    <q-item-section>
+      <q-input
+        outlined
+        dense
+        label="Buscar por folio"
+        v-model="filterForm.search"
+        @update:model-value="onInputChange"
+      >
+        <template v-slot:prepend>
+          <q-icon name="search" />
+        </template>
+      </q-input>
+    </q-item-section>
+    <q-item-section side>
+      <q-btn
+        dense
+        label="Agregar factura"
+        color="primary"
+        @click="showAdd = true"
+        icon="add_circle"
+      />
+    </q-item-section>
   </q-item>
 
   <q-item>
@@ -45,6 +60,35 @@
               </q-item-section>
             </q-item>
           </q-td>
+        </template>
+        <template v-slot:body-cell-cantidad="props">
+          <q-td :props="props">
+            {{ formatCurrency(props.row.cantidad) }}
+          </q-td>
+        </template>
+        <template v-slot:body-cell-fecha="props">
+          <q-td :props="props">
+            {{ formatDateplusoneSlim(props.row.fecha) }}
+          </q-td>
+        </template>
+        <template v-slot:bottom>
+          <q-space />
+          <td>
+            <q-pagination
+              color="primary"
+              v-model="current_page"
+              :max="last_page"
+              :max-pages="6"
+              direction-links
+              boundary-links
+              gutter="10px"
+              icon-first="skip_previous"
+              icon-last="skip_next"
+              icon-prev="fast_rewind"
+              icon-next="fast_forward"
+            />
+          </td>
+          <q-space />
         </template>
       </q-table>
     </q-item-section>
@@ -113,11 +157,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
-import { sendRequest } from "src/boot/functions";
-import { useQuasar } from "quasar";
-
-const $q = useQuasar();
+import { ref, onMounted, watch } from "vue";
+import { sendRequest, dataIncomplete } from "src/boot/functions";
+import {
+  formatDateplusoneSlim,
+  formatCurrency,
+} from "src/boot/formatFunctions";
 
 import InvoiceForm from "src/components/Technician/InvoiceForm.vue";
 
@@ -130,6 +175,16 @@ const add = ref(null);
 const showEdit = ref(false);
 const edit = ref(null);
 const empleado = ref(employee);
+
+const next_page_url = ref("");
+const prev_page_url = ref("");
+const last_page = ref(0);
+const current_page = ref(1);
+
+const filterForm = ref({
+  search: null,
+  tecnico_id: employee.id,
+});
 
 const columns = [
   {
@@ -175,25 +230,31 @@ const openEdit = (item) => {
   showEdit.value = true;
 };
 
-const getRows = async () => {
+const getRows = async (page = 1) => {
+  const current = {
+    page: page,
+  };
+  const final = {
+    ...filterForm.value,
+    ...current,
+  };
   let res = await sendRequest(
-    "GET",
-    null,
-    "/api/techniciansInvoice/" + employee.id,
+    "POST",
+    final,
+    "/api/techniciansInvoice/empleado",
     ""
   );
-  rows.value = res;
+  rows.value = res.data;
+  filterForm.value.page = res.current_page;
+  next_page_url.value = res.next_page_url;
+  prev_page_url.value = res.prev_page_url;
+  last_page.value = res.last_page;
 };
 
 const postItem = async () => {
   const add_valid = await add.value.validate();
   if (!add_valid) {
-    $q.notify({
-      color: "red-5",
-      textColor: "white",
-      icon: "warning",
-      message: "Por favor completa todos los campos obligatorios",
-    });
+    dataIncomplete();
     return;
   }
   const final = {
@@ -201,18 +262,13 @@ const postItem = async () => {
   };
   let res = await sendRequest("POST", final, "/api/techniciansInvoice", "");
   showAdd.value = false;
-  getRows();
+  getRows(current_page.value);
 };
 
 const putItem = async () => {
   const edit_valid = await edit.value.validate();
   if (!edit_valid) {
-    $q.notify({
-      color: "red-5",
-      textColor: "white",
-      icon: "warning",
-      message: "Por favor completa todos los campos obligatorios",
-    });
+    dataIncomplete();
     return;
   }
   const final = {
@@ -225,7 +281,7 @@ const putItem = async () => {
     ""
   );
   showEdit.value = false;
-  getRows();
+  getRows(current_page.value);
 };
 
 const destroyItem = async () => {
@@ -238,6 +294,20 @@ const destroyItem = async () => {
   selectedItem.value = null;
   showEdit.value = false;
   getRows();
+};
+
+watch(current_page, (newPage) => {
+  getRows(newPage);
+});
+
+let timeout = null;
+
+const onInputChange = () => {
+  clearTimeout(timeout);
+
+  timeout = setTimeout(() => {
+    getRows();
+  }, 2000);
 };
 
 onMounted(() => {

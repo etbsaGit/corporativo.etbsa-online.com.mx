@@ -39,3 +39,10 @@ export function calcularDiasRestantes(fechaLimite) {
   const diferencia = fechaLimiteDate.getTime() - ahora.getTime();
   return Math.ceil(diferencia / (1000 * 3600 * 24));
 }
+
+export function formatCurrency(value) {
+  return new Intl.NumberFormat("es-MX", {
+    style: "currency",
+    currency: "MXN",
+  }).format(value);
+}

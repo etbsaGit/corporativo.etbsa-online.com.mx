@@ -32,6 +32,15 @@ const sleep = (miliseconds) => {
 //         }
 //     });
 
+export function dataIncomplete() {
+  Notify.create({
+    color: "red-5",
+    textColor: "white",
+    icon: "warning",
+    message: "Por favor completa todos los campos obligatorios",
+  });
+}
+
 export async function sendRequest(method, params, url, redirect = "") {
   const authStore = useAuthStore();
   axios.defaults.headers.common[
