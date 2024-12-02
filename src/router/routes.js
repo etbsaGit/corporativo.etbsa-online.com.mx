@@ -6,6 +6,7 @@ import {
   encuestador,
   servicio,
   tech,
+  rental,
 } from "./middleware";
 
 const routes = [
@@ -144,6 +145,36 @@ const routes = [
       {
         path: "",
         component: () => import("src/pages/technician/technicianLogs.vue"),
+      },
+    ],
+  },
+
+  {
+    path: "/rentalmachines",
+    component: () => import("layouts/MainLayout.vue"),
+    meta: {
+      middlewares: [rental],
+    },
+    children: [
+      {
+        path: "",
+        component: () =>
+          import("src/pages/RentalMachines/RentalMachinesPage.vue"),
+      },
+    ],
+  },
+
+  {
+    path: "/rentalperiods",
+    component: () => import("layouts/MainLayout.vue"),
+    meta: {
+      middlewares: [rental],
+    },
+    children: [
+      {
+        path: "",
+        component: () =>
+          import("src/pages/RentalPeriods/RentalPeriodsPage.vue"),
       },
     ],
   },

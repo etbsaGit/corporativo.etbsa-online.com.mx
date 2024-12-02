@@ -94,3 +94,18 @@ export function tech({ to, next }) {
 
   return next();
 }
+
+export function rental({ to, next }) {
+  const auth = useAuthStore();
+
+  if (!auth.user) {
+    auth.returnUrl = to.fullPath;
+    return next("/login");
+  }
+
+  if (!checkRole("Rentas")) {
+    return next("/perfil");
+  }
+
+  return next();
+}

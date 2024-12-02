@@ -151,6 +151,38 @@
 
       <q-item-section>Diario de horas</q-item-section>
     </q-item>
+
+    <q-item
+      v-if="checkRole('Rentas')"
+      clickable
+      v-ripple
+      to="/rentalperiods"
+      :active="link === 'rentalperiods'"
+      @click="link = 'rentalperiods'"
+      active-class="my-menu-link"
+    >
+      <q-item-section avatar>
+        <q-icon name="event_note" />
+      </q-item-section>
+
+      <q-item-section>Rentas</q-item-section>
+    </q-item>
+
+    <q-item
+      v-if="checkRole('Rentas')"
+      clickable
+      v-ripple
+      to="/rentalmachines"
+      :active="link === 'rentalmachines'"
+      @click="link = 'rentalmachines'"
+      active-class="my-menu-link"
+    >
+      <q-item-section avatar>
+        <q-icon name="car_rental" />
+      </q-item-section>
+
+      <q-item-section>Maquinas para renta</q-item-section>
+    </q-item>
     <!--
     <q-item
       clickable
