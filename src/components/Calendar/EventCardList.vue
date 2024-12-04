@@ -1,6 +1,6 @@
 <template>
-  <div v-if="events.length > 0" class="q-pa-sm items-start q-gutter-md">
-    <q-card v-for="(event, index) in events" :key="index" bordered>
+  <div v-if="event" class="q-pa-sm items-start q-gutter-md">
+    <q-card bordered>
       <q-item>
         <q-item-section avatar>
           <q-avatar
@@ -206,7 +206,7 @@
       >
         <q-item>
           <q-item-section>
-            <div class="text-h6">{{ formatDateplusone(currentDay) }}</div>
+            <div class="text-h6">Agregar</div>
           </q-item-section>
           <q-item-section side>
             <q-btn dense label="Cerrar" color="red" v-close-popup />
@@ -293,7 +293,7 @@
               label="Cerrar"
               color="red"
               v-close-popup
-              @click="getEventsPerDate"
+              @click="getEvent(eventID)"
             />
           </q-item-section>
         </q-item>
@@ -309,7 +309,7 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { useQuasar } from "quasar";
-import { sendRequest, checkUserId } from "src/boot/functions";
+import { sendRequest, checkUserId, dataIncomplete } from "src/boot/functions";
 import { formatTime, formatDateplusone } from "src/boot/formatFunctions";
 
 import EventForm from "src/components/Calendar/EventForm.vue";
@@ -320,22 +320,23 @@ import { inject } from "vue";
 
 const bus = inject("bus");
 
-const { currentDay } = defineProps(["currentDay"]);
+const { eventID } = defineProps(["eventID"]);
 
 const $q = useQuasar();
 
-const events = ref([]);
+const now = new Date();
 const selectedEvent = ref(null);
 const edit = ref(null);
 const editForm = ref(false);
 const car = ref(false);
-const newDate = ref(currentDay);
-const clonEventDate = ref(currentDay);
+const newDate = ref(now);
+const clonEventDate = ref(now);
 const listForm = ref(false);
 const list = ref(null);
+const event = ref(null);
 
 bus.on("recharge", () => {
-  getEventsPerDate();
+  getEvent(eventID);
   car.value = false;
 });
 
@@ -354,25 +355,20 @@ const openCar = (event) => {
   car.value = true;
 };
 
-const getEventsPerDate = async () => {
-  let res = await sendRequest("GET", null, "/api/event/" + currentDay, "");
-  events.value = res;
+const getEvent = async (id) => {
+  let res = await sendRequest("GET", null, "/api/events/" + id, "");
+  event.value = res;
 };
 
 const deleteEvent = async (id) => {
   let res = await sendRequest("DELETE", null, "/api/events/" + id, "");
-  getEventsPerDate();
+  bus.emit("delete_event");
 };
 
 const putEvent = async (id) => {
   const edit_valid = await edit.value.validate();
   if (!edit_valid) {
-    $q.notify({
-      color: "red-5",
-      textColor: "white",
-      icon: "warning",
-      message: "Por favor completa todos los campos obligatorios",
-    });
+    dataIncomplete();
     return;
   }
   const final = {
@@ -380,7 +376,7 @@ const putEvent = async (id) => {
   };
   let res = await sendRequest("PUT", final, "/api/events/" + id, "");
   editForm.value = false;
-  getEventsPerDate();
+  getEvent(eventID);
 };
 
 const changeDate = async (id) => {
@@ -388,7 +384,7 @@ const changeDate = async (id) => {
     date: newDate.value,
   };
   let res = await sendRequest("PUT", final, "/api/event/change/" + id, "");
-  getEventsPerDate();
+  getEvent(eventID);
 };
 
 const copyEvent = async (id) => {
@@ -396,18 +392,13 @@ const copyEvent = async (id) => {
     date: clonEventDate.value,
   };
   let res = await sendRequest("PUT", final, "/api/event/clone/" + id, "");
-  getEventsPerDate();
+  getEvent(eventID);
 };
 
 const setList = async (id) => {
   const list_valid = await list.value.validate();
   if (!list_valid) {
-    $q.notify({
-      color: "red-5",
-      textColor: "white",
-      icon: "warning",
-      message: "Por favor completa todos los campos obligatorios",
-    });
+    dataIncomplete();
     return;
   }
   let res = await sendRequest(
@@ -417,7 +408,7 @@ const setList = async (id) => {
     ""
   );
   listForm.value = false;
-  getEventsPerDate();
+  getEvent(eventID);
 };
 
 const sendMessage = (event) => {
@@ -454,7 +445,7 @@ const sendMessage = (event) => {
 };
 
 onMounted(() => {
-  getEventsPerDate();
+  getEvent(eventID);
 });
 </script>
 
