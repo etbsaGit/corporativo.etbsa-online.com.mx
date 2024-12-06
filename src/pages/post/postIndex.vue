@@ -1,316 +1,119 @@
 <template>
-  <q-expansion-item flat color="primary" icon="menu" label="Opciones">
-    <q-list>
-      <q-item v-close-popup>
-        <q-item-section>
-          <q-btn outline label="agregar publicacion" @click="openAddPost" />
-        </q-item-section>
-        <q-item-section>
-          <q-btn outline label="Mis publicaciones" @click="getPostsAuth" />
-        </q-item-section>
-        <q-item-section side>
-          <q-btn outline icon="refresh" @click="getPosts" />
-        </q-item-section>
-      </q-item>
-      <q-separator />
-      <div v-if="checkSucursal('Corporativo')">
-        <q-item>
-          <q-item-section>
-            <q-item-label align="center">
-              <q-icon name="filter_alt" size="sm" />
-              Filtros
-            </q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-item>
-          <q-item-section>
-            <q-select
-              v-model="formFilter.sucursal_id"
-              :options="sucursales"
-              label="Sucursal"
-              option-value="id"
-              option-label="nombre"
-              option-disable="inactive"
-              emit-value
-              map-options
-              transition-show="jump-up"
-              transition-hide="jump-up"
-              clearable
-              outlined
-              dense
-            />
-          </q-item-section>
-          <q-item-section>
-            <q-select
-              v-model="formFilter.linea_id"
-              :options="lineas"
-              label="Linea"
-              option-value="id"
-              option-label="nombre"
-              option-disable="inactive"
-              emit-value
-              map-options
-              transition-show="jump-up"
-              transition-hide="jump-up"
-              clearable
-              outlined
-              dense
-            />
-          </q-item-section>
-          <q-item-section>
-            <q-select
-              v-model="formFilter.departamento_id"
-              :options="departamentos"
-              label="Departamento"
-              option-value="id"
-              option-label="nombre"
-              option-disable="inactive"
-              emit-value
-              map-options
-              transition-show="jump-up"
-              transition-hide="jump-up"
-              clearable
-              outlined
-              dense
-            />
-          </q-item-section>
-        </q-item>
-        <q-item>
-          <q-item-section>
-            <q-select
-              v-model="formFilter.puesto_id"
-              :options="puestos"
-              label="Puesto"
-              option-value="id"
-              option-label="nombre"
-              option-disable="inactive"
-              emit-value
-              map-options
-              transition-show="jump-up"
-              transition-hide="jump-up"
-              clearable
-              outlined
-              dense
-            />
-          </q-item-section>
-          <q-item-section>
-            <q-select
-              v-model="formFilter.estatus_id"
-              :options="estatus"
-              label="Tipo de publicacion"
-              option-value="id"
-              option-label="nombre"
-              option-disable="inactive"
-              emit-value
-              map-options
-              transition-show="jump-up"
-              transition-hide="jump-up"
-              clearable
-              outlined
-              dense
-            />
-          </q-item-section>
-        </q-item>
-        <q-item>
-          <q-item-section>
-            <q-btn icon="search" outline label="Buscar" @click="getPosts" />
-          </q-item-section>
-        </q-item>
+  <q-page>
+    <q-toolbar class="bg-primary text-white">
+      <q-toolbar-title>Explorador de Archivos Intranet ETBSA</q-toolbar-title>
+    </q-toolbar>
+
+    <div class="grid-container q-pa-md">
+      <!-- Agregar la carpeta "Generales" -->
+      <div class="grid-item">
+        <q-card bordered class="q-pa-md folder-card" @click="clickFolder(null)">
+          <q-card-section class="row items-center no-wrap">
+            <q-icon name="folder" color="yellow" size="48px" class="q-mr-md" />
+            <div>Generales</div>
+          </q-card-section>
+        </q-card>
       </div>
-    </q-list>
-  </q-expansion-item>
-  <q-item v-for="(post, index) in posts" :key="index">
-    <q-item-section>
-      <post-card :post="post" :key="post" />
-    </q-item-section>
-  </q-item>
+      <!-- Renderizar lineas -->
+      <div v-for="linea in lineas" :key="linea.id" class="grid-item">
+        <q-card
+          bordered
+          class="q-pa-md folder-card"
+          @click="clickFolder(linea)"
+        >
+          <q-card-section class="row items-center no-wrap">
+            <q-icon name="folder" color="yellow" size="48px" class="q-mr-md" />
+            <div>{{ linea.nombre }}</div>
+          </q-card-section>
+        </q-card>
+      </div>
+    </div>
+  </q-page>
 
   <q-dialog
-    v-model="addPost"
-    transition-show="rotate"
-    transition-hide="rotate"
+    v-model="showDocs"
+    transition-show="slide-up"
+    transition-hide="slide-down"
     persistent
+    maximized
   >
     <q-card style="width: 100%">
       <q-item class="bg-primary text-white">
         <q-item-section>
-          <q-item-label class="text-h6">Agregar</q-item-label>
+          <q-item-label class="text-h6">{{
+            selectedLinea ? selectedLinea.nombre : "Generales"
+          }}</q-item-label>
         </q-item-section>
         <q-item-section side>
-          <q-btn label="Cerrar" color="red" v-close-popup />
-        </q-item-section>
-        <q-item-section side>
-          <q-btn label="Subir" color="blue" @click="storePost" />
+          <q-btn
+            label="Cerrar"
+            color="red"
+            v-close-popup
+            @click="selectedLinea = null"
+          />
         </q-item-section>
       </q-item>
       <q-separator />
-      <post-form ref="add" />
-    </q-card>
-  </q-dialog>
-
-  <q-dialog
-    v-model="editPost"
-    transition-show="rotate"
-    transition-hide="rotate"
-    persistent
-  >
-    <q-card style="width: 100%">
-      <q-item class="bg-primary text-white">
-        <q-item-section>
-          <q-item-label class="text-h6">Actualizar</q-item-label>
-        </q-item-section>
-        <q-item-section side>
-          <q-btn label="Cerrar" color="red" v-close-popup @click="getPosts" />
-        </q-item-section>
-        <q-item-section side>
-          <q-btn label="Actualizar" color="blue" @click="PutPost" />
-        </q-item-section>
-      </q-item>
-      <q-separator />
-      <post-form ref="edit" :post="selectedPost" :key="selectedPost.post_doc" />
-    </q-card>
-  </q-dialog>
-
-  <q-dialog
-    v-model="deletePost"
-    transition-show="rotate"
-    transition-hide="rotate"
-    persistent
-  >
-    <q-card>
-      <q-item class="bg-primary text-white">
-        <q-item-section>
-          <q-item-label class="text-h6"> Borrar publicacion </q-item-label>
-        </q-item-section>
-        <q-item-section side>
-          <q-btn label="Cerrar" color="red" v-close-popup />
-        </q-item-section>
-        <q-item-section side>
-          <q-btn label="Borrar" color="orange" @click="DestroyPost" />
-        </q-item-section>
-      </q-item>
-      <q-separator />
-      <q-item>
-        <q-item-section>
-          <q-item-label align="center" class="text-h6">
-            <strong>
-              ¿Deseas borrar la publicacion "{{ selectedPost.title }}" y todos
-              sus archivos adjuntos?
-            </strong>
-          </q-item-label>
-        </q-item-section>
-      </q-item>
+      <post-list :linea="selectedLinea" />
     </q-card>
   </q-dialog>
 </template>
 
 <script setup>
 import { ref, onMounted } from "vue";
-import { sendRequest, checkRole, checkSucursal } from "src/boot/functions";
-import { date, useQuasar } from "quasar";
-import PostForm from "src/components/Post/PostForm.vue";
-import PostCard from "src/components/Post/PostCard.vue";
-import { inject } from "vue";
+import { sendRequest } from "src/boot/functions";
 
-const bus = inject("bus");
-const addPost = ref(false);
-const editPost = ref(false);
-const deletePost = ref(false);
-const posts = ref([]);
+import PostList from "src/components/Post/PostList.vue";
+
 const lineas = ref([]);
-const sucursales = ref([]);
-const departamentos = ref([]);
-const puestos = ref([]);
-const estatus = ref([]);
-const add = ref(null);
-const edit = ref(null);
-const selectedPost = ref(null);
-const $q = useQuasar();
+const selectedLinea = ref(null);
+const showDocs = ref(false);
 
-const formFilter = ref({
-  linea_id: null,
-  sucursal_id: null,
-  departamento_id: null,
-  puesto_id: null,
-  estatus_id: null,
-});
-
-bus.on("edit_post", (post) => {
-  selectedPost.value = post;
-  editPost.value = true;
-});
-
-bus.on("delete_post", (post) => {
-  selectedPost.value = post;
-  deletePost.value = true;
-});
-
-const openAddPost = () => {
-  addPost.value = true;
+const clickFolder = (linea) => {
+  selectedLinea.value = linea;
+  showDocs.value = true;
 };
 
-const getPosts = async () => {
-  const final = { ...formFilter.value };
-  let res = await sendRequest("POST", final, "/api/posts/all", "");
-  posts.value = res.post;
-  sucursales.value = res.sucursales;
-  lineas.value = res.lineas;
-  departamentos.value = res.departamentos;
-  puestos.value = res.puestos;
-  estatus.value = res.estatus;
-};
-
-const getPostsAuth = async () => {
-  let res = await sendRequest("GET", null, "/api/posts/auth", "");
-  posts.value = res;
-};
-
-const storePost = async () => {
-  const add_valid = await add.value.validate();
-  if (!add_valid) {
-    $q.notify({
-      color: "red-5",
-      textColor: "white",
-      icon: "warning",
-      message: "Por favor completa todos los campos obligatorios",
-    });
-    return;
-  }
-  const final = {
-    ...add.value.formPost,
-  };
-  let res = await sendRequest("POST", final, "/api/post", "");
-  addPost.value = false;
-  getPosts();
-};
-
-const PutPost = async () => {
-  const edit_valid = await edit.value.validate();
-  if (!edit_valid) {
-    $q.notify({
-      color: "red-5",
-      textColor: "white",
-      icon: "warning",
-      message: "Por favor completa todos los campos obligatorios",
-    });
-    return;
-  }
-  const final = {
-    ...edit.value.formPost,
-  };
-  let res = await sendRequest("PUT", final, "/api/post/" + final.id, "");
-  editPost.value = false;
-  getPosts();
-};
-
-const DestroyPost = async () => {
-  const id = selectedPost.value.id;
-  let res = await sendRequest("DELETE", null, "/api/post/" + id, "");
-  deletePost.value = false;
-  getPosts();
+const getLineas = async () => {
+  let res = await sendRequest("GET", null, "/api/linea/all", "");
+  lineas.value = res;
 };
 
 onMounted(() => {
-  getPosts();
+  getLineas();
 });
 </script>
+
+<style>
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(300px, 1fr)
+  ); /* Ajusta aquí el tamaño mínimo */
+  gap: 20px;
+}
+
+.grid-item {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: x-large;
+}
+
+.folder-card {
+  width: 100%; /* Asegura que ocupe todo el ancho de la celda */
+  height: 150px; /* Fija la altura para que todas sean iguales */
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-direction: row;
+  box-sizing: border-box;
+  transition: transform 0.3s ease, box-shadow 0.3s ease; /* Transición suave */
+}
+
+.folder-card:hover {
+  transform: scale(1.05); /* Aumenta el tamaño al pasar el mouse */
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2); /* Sombra para darle profundidad */
+}
+</style>

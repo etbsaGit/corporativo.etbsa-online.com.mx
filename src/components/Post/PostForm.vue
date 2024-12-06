@@ -255,8 +255,6 @@ import { useAuthStore } from "src/stores/auth";
 const authStore = useAuthStore();
 const usuario = authStore.authUser;
 
-const bus = inject("bus");
-
 const $q = useQuasar();
 
 const { post } = defineProps(["post"]);

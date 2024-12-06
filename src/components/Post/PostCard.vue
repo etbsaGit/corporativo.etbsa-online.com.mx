@@ -1,5 +1,106 @@
 <template>
-  <q-card bordered :class="getCardClass(post.activo)">
+  <!-- - -->
+  <q-card class="no-shadow" bordered>
+    <q-card-section class="row">
+      <div class="text-h6 text-weight-bolder text-grey-8">
+        {{ posts[0].estatus.nombre }}
+      </div>
+    </q-card-section>
+    <q-separator></q-separator>
+
+    <q-list separator>
+      <q-item
+        v-for="(post, index) in posts"
+        :key="index"
+        :class="getCardClass(post.activo)"
+        bordered
+        separator
+      >
+        <q-item-section avatar>
+          <q-avatar
+            color="primary"
+            text-color="white"
+            v-if="post.user.empleado && post.user.empleado.picture"
+          >
+            <img :src="post.user.empleado.picture" alt="Foto del empleado" />
+            <!-- <q-badge floating color="teal">
+              {{ post.user.empleado.nombre }}
+            </q-badge> -->
+          </q-avatar>
+          <q-avatar v-else color="primary" text-color="white">
+            {{ post.user.name.charAt(0).toUpperCase()
+            }}{{ post.user.name.charAt(1).toUpperCase() }}
+            <!-- <q-badge floating color="teal">{{ post.user.name }}</q-badge> -->
+          </q-avatar>
+        </q-item-section>
+
+        <q-item-section>
+          <q-item-label lines="1">{{ post.title }}</q-item-label>
+          <q-item-label caption lines="2">
+            {{ post.description }}
+          </q-item-label>
+          <q-item-label caption lines="3">
+            <strong>Vence: </strong>
+            {{ formatDateplusone(post.fecha_caducidad) }}
+          </q-item-label>
+        </q-item-section>
+
+        <q-item-section
+          side
+          top
+          v-for="(doc, index) in post.post_doc"
+          :key="index"
+        >
+          <q-btn
+            dense
+            :href="doc.realpath"
+            target="_blank"
+            icon="file_open"
+            no-caps
+          >
+            <q-tooltip class="text-h6">
+              {{ doc.name }}
+            </q-tooltip>
+          </q-btn>
+        </q-item-section>
+
+        <q-item-section side top>
+          <q-btn-dropdown
+            dense
+            flat
+            color="primary"
+            icon="menu"
+            v-if="checkId(post.user.id)"
+          >
+            <q-list v-close-popup>
+              <q-item>
+                <q-btn
+                  color="blue"
+                  @click="openEditPost(post)"
+                  flat
+                  size="sm"
+                  label="Editar"
+                  icon="edit"
+                />
+              </q-item>
+              <q-item>
+                <q-btn
+                  flat
+                  size="sm"
+                  color="red"
+                  icon="delete"
+                  label="Borrar"
+                  @click="openDeletePost(post)"
+                />
+              </q-item>
+            </q-list>
+          </q-btn-dropdown>
+        </q-item-section>
+      </q-item>
+    </q-list>
+  </q-card>
+
+  <!-- <q-card bordered :class="getCardClass(post.activo)">
     <q-item align="center">
       <q-item-section avatar>
         <q-avatar
@@ -129,7 +230,7 @@
         </q-item-section>
       </q-item>
     </q-expansion-item>
-  </q-card>
+  </q-card> -->
 </template>
 <script setup>
 import { formatDateplusone, formatDate } from "src/boot/formatFunctions";
@@ -137,13 +238,13 @@ import { checkId } from "src/boot/functions";
 import { inject } from "vue";
 
 const bus = inject("bus");
-const { post } = defineProps(["post"]);
+const { posts } = defineProps(["posts"]);
 
-const openEditPost = () => {
+const openEditPost = (post) => {
   bus.emit("edit_post", post);
 };
 
-const openDeletePost = () => {
+const openDeletePost = (post) => {
   bus.emit("delete_post", post);
 };
 
@@ -161,7 +262,6 @@ const getCardClass = (activo, fc) => {
 <style scoped>
 .custom-card {
   transition: transform 0.3s ease-in-out;
-  border-radius: 10px;
 }
 
 .custom-card.q-activo-0 {
