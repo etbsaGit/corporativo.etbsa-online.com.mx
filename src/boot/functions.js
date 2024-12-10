@@ -12,6 +12,7 @@ export function show_notify(msj, icon, color, focus = "") {
     message: msj,
     icon: icon,
     color: color,
+    position: "bottom-right",
   });
 }
 
@@ -38,6 +39,15 @@ export function dataIncomplete() {
     textColor: "white",
     icon: "warning",
     message: "Por favor completa todos los campos obligatorios",
+  });
+}
+
+export function passwordError() {
+  Notify.create({
+    color: "red-5",
+    textColor: "white",
+    icon: "warning",
+    message: "La contraseña y la confirmación de la contraseña no coinciden",
   });
 }
 

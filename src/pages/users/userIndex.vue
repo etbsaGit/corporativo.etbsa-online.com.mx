@@ -1,68 +1,71 @@
 <template>
   <q-item>
-    <q-btn
-      label="Registrar usuario"
-      color="primary"
-      @click="showAdd = true"
-      icon="add_circle"
-    />
-  </q-item>
-  <q-item>
     <q-item-section>
       <q-input
         outlined
         dense
-        class="boton"
-        color="gray-9"
-        v-model="searchTerm"
-        label="Buscar"
+        label="Buscar por usuario o email"
+        v-model="filterForm.search"
+        @update:model-value="onInputChange"
       >
         <template v-slot:prepend>
           <q-icon name="search" />
         </template>
       </q-input>
     </q-item-section>
+    <q-item-section side>
+      <q-btn
+        dense
+        label="Agregar usuario"
+        color="primary"
+        @click="showAdd = true"
+        icon="add_circle"
+      />
+    </q-item-section>
   </q-item>
+
   <q-item>
     <q-item-section>
       <q-table
         flat
         bordered
-        title="Users"
-        :rows="filteredUsers"
+        title="Usuarios"
+        :rows="rows"
         :columns="columns"
         row-key="name"
         dense
         :rows-per-page-options="[0]"
       >
-        <template v-slot:top="props">
-          <div class="col-2 q-table__title">Users</div>
-          <q-space />
-          <q-btn
-            round
-            dense
-            :icon="props.inFullscreen ? 'fullscreen_exit' : 'fullscreen'"
-            @click="props.toggleFullscreen"
-            class="q-ml-md"
-          />
-        </template>
-        <template v-slot:body-cell-actions="props">
-          <q-td>
-            <q-btn-dropdown flat color="primary" icon="menu" dense>
-              <q-list v-close-popup>
-                <q-item>
-                  <q-btn
-                    @click="onRowClick(props.row)"
-                    color="primary"
-                    flat
-                    size="sm"
-                    label="Editar"
-                    icon="edit"
-                  />
-                </q-item>
-              </q-list>
-            </q-btn-dropdown>
+        <template v-slot:body-cell-edit="props">
+          <q-td :props="props">
+            <q-btn
+              dense
+              color="primary"
+              flat
+              icon="edit_square"
+              @click="openEdit(props.row)"
+            />
           </q-td>
+        </template>
+
+        <template v-slot:bottom>
+          <q-space />
+          <td>
+            <q-pagination
+              color="primary"
+              v-model="current_page"
+              :max="last_page"
+              :max-pages="6"
+              direction-links
+              boundary-links
+              gutter="10px"
+              icon-first="skip_previous"
+              icon-last="skip_next"
+              icon-prev="fast_rewind"
+              icon-next="fast_forward"
+            />
+          </td>
+          <q-space />
         </template>
       </q-table>
     </q-item-section>
@@ -75,140 +78,85 @@
     persistent
   >
     <q-card>
-      <q-card-section class="d-flex justify-between items-center q-pa-sm">
-        <div class="text-h6">Registrar Usuario</div>
-        <q-card-actions align="right">
+      <q-item class="text-white bg-primary">
+        <q-item-section>
+          <q-item-label class="text-h6">Agregar</q-item-label>
+        </q-item-section>
+        <q-item-section side>
           <q-btn label="Cerrar" color="red" v-close-popup />
-          <q-btn label="Registrar" color="blue" @click="crearUser" />
-        </q-card-actions>
-      </q-card-section>
+        </q-item-section>
+        <q-item-section side>
+          <q-btn label="Agregar" color="blue" @click="postRow" />
+        </q-item-section>
+      </q-item>
       <q-separator />
-      <q-card class="q-pa-none scroll" flat>
-        <div class="survey-form-container">
-          <user-form ref="form_1" />
-        </div>
-      </q-card>
+      <q-item>
+        <q-item-section>
+          <user-form ref="add" />
+        </q-item-section>
+      </q-item>
     </q-card>
   </q-dialog>
 
   <q-dialog
-    v-model="showDetails"
+    v-model="showEdit"
     transition-show="rotate"
     transition-hide="rotate"
     persistent
   >
     <q-card>
-      <q-card-section class="d-flex justify-between items-center q-pa-sm">
-        <div class="text-h6">Actualizar usuario {{ selectedUser.name }}</div>
-        <q-card-actions align="right">
+      <q-item class="text-white bg-primary">
+        <q-item-section>
+          <q-item-label class="text-h6">Actualizar</q-item-label>
+        </q-item-section>
+        <q-item-section side>
           <q-btn label="Cerrar" color="red" v-close-popup />
-          <q-btn label="Actualizar" color="blue" @click="actualizarUser()" />
-        </q-card-actions>
-      </q-card-section>
+        </q-item-section>
+        <q-item-section side>
+          <q-btn label="Actualizar" color="blue" @click="putRow" />
+        </q-item-section>
+        <q-item-section side>
+          <q-btn label="Borrar" color="orange" @click="deleteRow" />
+        </q-item-section>
+      </q-item>
       <q-separator />
-      <q-card class="q-pa-none scroll" flat>
-        <div class="survey-form-container">
-          <user-form ref="edit_1" :user="selectedUser" />
-        </div>
-      </q-card>
+      <q-item>
+        <q-item-section>
+          <user-form ref="edit" :user="selectedRow" />
+        </q-item-section>
+      </q-item>
     </q-card>
   </q-dialog>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, watch } from "vue";
+import { sendRequest, passwordError, dataIncomplete } from "src/boot/functions";
+
 import UserForm from "src/components/User/UserForm.vue";
-import { sendRequest } from "src/boot/functions";
-import { useQuasar } from "quasar";
 
-const form_1 = ref(null);
-const edit_1 = ref(null);
-
-const $q = useQuasar();
-
-const showDetails = ref(false);
-const selectedUser = ref(null);
-
-const searchTerm = ref("");
+const rows = ref([]);
+const selectedRow = ref(null);
+const add = ref(null);
 const showAdd = ref(false);
-const users = ref([]);
+const edit = ref(null);
+const showEdit = ref(false);
 
-const onRowClick = (row) => {
-  selectedUser.value = row;
-  showDetails.value = true;
-};
+const next_page_url = ref("");
+const prev_page_url = ref("");
+const last_page = ref(0);
+const current_page = ref(1);
 
-const crearUser = async () => {
-  const form1_valid = await form_1.value.validate();
-  if (!form1_valid) {
-    $q.notify({
-      color: "red-5",
-      textColor: "white",
-      icon: "warning",
-      message: "Por favor completa todos los campos obligatorios",
-    });
-    return;
-  }
-  if (
-    form_1.value.formUser.password !== form_1.value.formUser.confirmPassword
-  ) {
-    $q.notify({
-      color: "red-5",
-      textColor: "white",
-      icon: "warning",
-      message: "La contraseña y la confirmación de la contraseña no coinciden",
-    });
-    return;
-  }
-  const final = {
-    ...form_1.value.formUser,
-  };
-  let res = await sendRequest("POST", final, "/api/user", "");
-  showAdd.value = false;
-  getUsers();
-};
-
-const actualizarUser = async () => {
-  const edit1_valid = await edit_1.value.validate();
-  if (!edit1_valid) {
-    $q.notify({
-      color: "red-5",
-      textColor: "white",
-      icon: "warning",
-      message: "Por favor completa todos los campos obligatorios",
-    });
-    return;
-  }
-  if (edit_1.value.formUser.password === "") {
-    edit_1.value.formUser.password = null;
-    edit_1.value.formUser.confirmPassword = null;
-  }
-  if (
-    edit_1.value.formUser.password !== edit_1.value.formUser.confirmPassword
-  ) {
-    $q.notify({
-      color: "red-5",
-      textColor: "white",
-      icon: "warning",
-      message: "La contraseña y la confirmación de la contraseña no coinciden",
-    });
-    return;
-  }
-  const final = {
-    ...edit_1.value.formUser,
-  };
-  let res = await sendRequest("PUT", final, "/api/user/" + final.id, "");
-  showDetails.value = false;
-  getUsers();
-};
-
-const getUsers = async () => {
-  let res = await sendRequest("GET", null, "/api/user/all", "");
-  users.value = res;
-};
+const filterForm = ref({
+  search: null,
+});
 
 const columns = [
   // { name: "id", label: "ID", align: "left", field: "id", sortable: true },
+  {
+    name: "edit",
+    align: "left",
+  },
   {
     name: "name",
     label: "Name",
@@ -223,40 +171,97 @@ const columns = [
     field: "email",
     sortable: true,
   },
-  {
-    name: "actions",
-    label: "Acciones",
-    align: "left",
-    sortable: true,
-  },
 ];
 
-const filteredUsers = computed(() => {
-  return users.value.filter((user) => {
-    return (
-      user.name.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.value.toLowerCase())
-    );
-  });
+const openEdit = (item) => {
+  selectedRow.value = item;
+  showEdit.value = true;
+};
+
+const getRows = async (page = 1) => {
+  const current = {
+    page: page,
+  };
+  const final = {
+    ...filterForm.value,
+    ...current,
+  };
+  let res = await sendRequest("POST", final, "/api/users/all", "");
+  rows.value = res.data;
+  filterForm.value.page = res.current_page;
+  next_page_url.value = res.next_page_url;
+  prev_page_url.value = res.prev_page_url;
+  last_page.value = res.last_page;
+};
+
+const postRow = async () => {
+  const add_valid = await add.value.validate();
+  if (!add_valid) {
+    dataIncomplete();
+    return;
+  }
+  if (add.value.formUser.password !== add.value.formUser.confirmPassword) {
+    passwordError();
+    return;
+  }
+  const final = {
+    ...add.value.formUser,
+  };
+  let res = await sendRequest("POST", final, "/api/user", "");
+  showAdd.value = false;
+  getRows(current_page.value);
+};
+
+const putRow = async () => {
+  const edit_valid = await edit.value.validate();
+  if (!edit_valid) {
+    dataIncomplete();
+    return;
+  }
+  if (edit.value.formUser.password === "") {
+    edit.value.formUser.password = null;
+    edit.value.formUser.confirmPassword = null;
+  }
+  if (edit.value.formUser.password !== edit.value.formUser.confirmPassword) {
+    passwordError();
+    return;
+  }
+  const final = {
+    ...edit.value.formUser,
+  };
+  let res = await sendRequest("PUT", final, "/api/user/" + final.id, "");
+  showEdit.value = false;
+  getRows(current_page.value);
+};
+
+const deleteRow = async () => {
+  let res = await sendRequest(
+    "DELETE",
+    null,
+    "/api/user/" + selectedRow.value.id,
+    ""
+  );
+  selectedRow.value = null;
+  showEdit.value = false;
+  getRows();
+};
+
+watch(current_page, (newPage) => {
+  getRows(newPage);
 });
 
+let timeout = null;
+
+const onInputChange = () => {
+  clearTimeout(timeout);
+
+  timeout = setTimeout(() => {
+    getRows();
+  }, 2000);
+};
+
 onMounted(() => {
-  getUsers();
+  getRows();
 });
 </script>
 
-<style>
-.my-table-details {
-  font-size: 0.85em;
-  font-style: italic;
-  max-width: 200px;
-  white-space: normal;
-  color: #555;
-  margin-top: 4px;
-}
-
-.survey-form-container {
-  max-height: 600px; /* Ajusta este valor según tus necesidades */
-  overflow-y: auto;
-}
-</style>
