@@ -1,81 +1,89 @@
 <template>
   <q-item>
-    <q-btn
-      label="Registrar puesto"
-      color="primary"
-      @click="showAdd = true"
-      icon="add_circle"
-      dense
-    />
-  </q-item>
-  <q-item>
-    <q-btn
-      color="primary"
-      icon-right="archive"
-      label="Export to csv"
-      no-caps
-      dense
-      @click="exportTableCSV(columns, filteredPuestos)"
-    />
-  </q-item>
-  <q-item>
     <q-item-section>
       <q-input
         outlined
         dense
-        class="boton"
-        color="green-9"
-        v-model="searchTerm"
-        label="Buscar"
+        label="Buscar por nombre"
+        v-model="filterForm.search"
+        @update:model-value="onInputChange"
       >
         <template v-slot:prepend>
           <q-icon name="search" />
         </template>
       </q-input>
     </q-item-section>
+    <q-item-section side>
+      <q-btn
+        dense
+        label="Agregar puesto"
+        color="primary"
+        @click="showAdd = true"
+        icon="add_circle"
+      />
+    </q-item-section>
   </q-item>
+
   <q-item>
     <q-item-section>
       <q-table
         flat
         bordered
         title="Puestos"
-        :rows="filteredPuestos"
+        :rows="rows"
         :columns="columns"
         row-key="name"
         dense
-        virtual-scroll
-        style="height: 100%"
         :rows-per-page-options="[0]"
       >
-        <template v-slot:top="props">
-          <div class="col-2 q-table__title">Puestos</div>
-          <q-space />
-          <q-btn
-            round
-            dense
-            :icon="props.inFullscreen ? 'fullscreen_exit' : 'fullscreen'"
-            @click="props.toggleFullscreen"
-            class="q-ml-md"
-          />
-        </template>
-        <template v-slot:body-cell-actions="props">
-          <q-td>
-            <q-btn-dropdown flat color="primary" icon="menu" dense>
-              <q-list v-close-popup>
-                <q-item>
-                  <q-btn
-                    color="primary"
-                    @click="onRowClick(props.row)"
-                    flat
-                    size="sm"
-                    label="Editar"
-                    icon="edit"
-                  />
-                </q-item>
-              </q-list>
-            </q-btn-dropdown>
+        <template v-slot:body-cell-edit="props">
+          <q-td :props="props">
+            <q-btn
+              dense
+              color="primary"
+              flat
+              icon="edit_square"
+              @click="openEdit(props.row)"
+            />
           </q-td>
+        </template>
+
+        <template v-slot:bottom>
+          <q-space />
+          <td>
+            <q-pagination
+              color="primary"
+              v-model="current_page"
+              :max="last_page"
+              :max-pages="6"
+              direction-links
+              boundary-links
+              gutter="10px"
+              icon-first="skip_previous"
+              icon-last="skip_next"
+              icon-prev="fast_rewind"
+              icon-next="fast_forward"
+            />
+          </td>
+          <q-space />
+        </template>
+        <template v-slot:top-right>
+          <q-btn
+            outline
+            dense
+            color="primary"
+            @click="onRowClickExcel"
+            icon="download"
+          >
+            <q-tooltip
+              anchor="center left"
+              self="center right"
+              :offset="[10, 10]"
+              class="text-h6"
+            >
+              Descargar xlsx de los puestos filtrados
+            </q-tooltip>
+          </q-btn>
         </template>
       </q-table>
     </q-item-section>
@@ -88,116 +96,85 @@
     persistent
   >
     <q-card>
-      <q-card-section class="d-flex justify-between items-center q-pa-sm">
-        <div class="text-h6">Registrar Puesto</div>
-        <q-card-actions align="right">
+      <q-item class="text-white bg-primary">
+        <q-item-section>
+          <q-item-label class="text-h6">Agregar</q-item-label>
+        </q-item-section>
+        <q-item-section side>
           <q-btn label="Cerrar" color="red" v-close-popup />
-          <q-btn label="Registrar" color="blue" @click="crearPuesto" />
-        </q-card-actions>
-      </q-card-section>
+        </q-item-section>
+        <q-item-section side>
+          <q-btn label="Agregar" color="blue" @click="postRow" />
+        </q-item-section>
+      </q-item>
       <q-separator />
-      <q-card class="q-pa-none scroll" flat>
-        <div class="survey-form-container">
-          <puesto-form ref="form_1" />
-        </div>
-      </q-card>
+      <q-item>
+        <q-item-section>
+          <puesto-form ref="add" />
+        </q-item-section>
+      </q-item>
     </q-card>
   </q-dialog>
 
   <q-dialog
-    v-model="showDetails"
+    v-model="showEdit"
     transition-show="rotate"
     transition-hide="rotate"
     persistent
   >
     <q-card>
-      <q-card-section class="d-flex justify-between items-center q-pa-sm">
-        <div class="text-h6">Actualizar Puesto {{ selectedPuesto.nombre }}</div>
-        <q-card-actions align="right">
+      <q-item class="text-white bg-primary">
+        <q-item-section>
+          <q-item-label class="text-h6">Actualizar</q-item-label>
+        </q-item-section>
+        <q-item-section side>
           <q-btn label="Cerrar" color="red" v-close-popup />
-          <q-btn label="Actualizar" color="blue" @click="actualizarPuesto()" />
-        </q-card-actions>
-      </q-card-section>
+        </q-item-section>
+        <q-item-section side>
+          <q-btn label="Actualizar" color="blue" @click="putRow" />
+        </q-item-section>
+        <q-item-section side>
+          <q-btn label="Borrar" color="orange" @click="deleteRow" />
+        </q-item-section>
+      </q-item>
       <q-separator />
-      <q-card class="q-pa-none scroll" flat>
-        <div class="survey-form-container">
-          <puesto-form ref="edit_1" :puesto="selectedPuesto" />
-        </div>
-      </q-card>
+      <q-item>
+        <q-item-section>
+          <puesto-form ref="edit" :puesto="selectedRow" />
+        </q-item-section>
+      </q-item>
     </q-card>
   </q-dialog>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, watch } from "vue";
+import { sendRequest, dataIncomplete } from "src/boot/functions";
+
 import PuestoForm from "src/components/Puesto/PuestoForm.vue";
 
-import { sendRequest } from "src/boot/functions";
-import { exportTableCSV } from "src/boot/exportData";
-import { useQuasar } from "quasar";
-
-const form_1 = ref(null);
-const edit_1 = ref(null);
-
-const $q = useQuasar();
-
-const showDetails = ref(false);
-const selectedPuesto = ref(null);
-
-const searchTerm = ref("");
+const rows = ref([]);
+const selectedRow = ref(null);
+const add = ref(null);
 const showAdd = ref(false);
-const puestos = ref([]);
+const edit = ref(null);
+const showEdit = ref(false);
 
-const onRowClick = (row) => {
-  selectedPuesto.value = row;
-  showDetails.value = true;
-};
+const next_page_url = ref("");
+const prev_page_url = ref("");
+const last_page = ref(0);
+const current_page = ref(1);
 
-const crearPuesto = async () => {
-  const form1_valid = await form_1.value.validate();
-  if (!form1_valid) {
-    $q.notify({
-      color: "red-5",
-      textColor: "white",
-      icon: "warning",
-      message: "Por favor completa todos los campos obligatorios",
-    });
-    return;
-  }
-  const final = {
-    ...form_1.value.formPuesto,
-  };
-  let res = await sendRequest("POST", final, "/api/puesto", "");
-  showAdd.value = false;
-  getPuestos();
-};
-
-const actualizarPuesto = async () => {
-  const edit1_valid = await edit_1.value.validate();
-  if (!edit1_valid) {
-    $q.notify({
-      color: "red-5",
-      textColor: "white",
-      icon: "warning",
-      message: "Por favor completa todos los campos obligatorios",
-    });
-    return;
-  }
-  const final = {
-    ...edit_1.value.formPuesto,
-  };
-  let res = await sendRequest("PUT", final, "/api/puesto/" + final.id, "");
-  showDetails.value = false;
-  getPuestos();
-};
-
-const getPuestos = async () => {
-  let res = await sendRequest("GET", null, "/api/puesto/all", "");
-  puestos.value = res;
-};
+const filterForm = ref({
+  search: null,
+});
 
 const columns = [
   // { name: "id", label: "ID", align: "left", field: "id", sortable: true },
+  {
+    name: "edit",
+    align: "left",
+  },
   {
     name: "nombre",
     label: "Nombre",
@@ -205,49 +182,117 @@ const columns = [
     field: "nombre",
     sortable: true,
   },
-  {
-    name: "actions",
-    label: "Acciones",
-    align: "left",
-    sortable: true,
-  },
 ];
 
-const filteredPuestos = computed(() => {
-  return puestos.value.filter((puesto) => {
-    return puesto.nombre.toLowerCase().includes(searchTerm.value.toLowerCase());
-  });
+const openEdit = (item) => {
+  selectedRow.value = item;
+  showEdit.value = true;
+};
+
+const getRows = async (page = 1) => {
+  const current = {
+    page: page,
+  };
+  const final = {
+    ...filterForm.value,
+    ...current,
+  };
+  let res = await sendRequest("POST", final, "/api/puestos", "");
+  rows.value = res.data;
+  filterForm.value.page = res.current_page;
+  next_page_url.value = res.next_page_url;
+  prev_page_url.value = res.prev_page_url;
+  last_page.value = res.last_page;
+};
+
+const postRow = async () => {
+  const add_valid = await add.value.validate();
+  if (!add_valid) {
+    dataIncomplete();
+    return;
+  }
+  const final = {
+    ...add.value.formPuesto,
+  };
+  let res = await sendRequest("POST", final, "/api/puesto", "");
+  showAdd.value = false;
+  getRows(current_page.value);
+};
+
+const putRow = async () => {
+  const edit_valid = await edit.value.validate();
+  if (!edit_valid) {
+    dataIncomplete();
+    return;
+  }
+  const final = {
+    ...edit.value.formPuesto,
+  };
+  let res = await sendRequest("PUT", final, "/api/puesto/" + final.id, "");
+  showEdit.value = false;
+  getRows(current_page.value);
+};
+
+const deleteRow = async () => {
+  let res = await sendRequest(
+    "DELETE",
+    null,
+    "/api/puesto/" + selectedRow.value.id,
+    ""
+  );
+  selectedRow.value = null;
+  showEdit.value = false;
+  getRows();
+};
+
+const onRowClickExcel = async () => {
+  try {
+    // Realiza la solicitud a la API para exportar el Excel de acuerdo al ID de la fila
+    const final = {
+      ...filterForm.value,
+    };
+
+    let res = await sendRequest("POST", final, "/api/puestos/excel", "");
+
+    // La respuesta será el archivo en Base64 (viene en la propiedad 'file_base64' de la API)
+    const base64Response = await fetch(
+      `data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,${res.file_base64}`
+    );
+
+    // Convertimos el archivo Base64 a un Blob
+    const blob = await base64Response.blob();
+
+    // Creamos una URL para el Blob
+    const url = URL.createObjectURL(blob);
+
+    // Abrimos el archivo en una nueva pestaña o lo descargamos
+    window.open(url, "_blank"); // Para abrirlo en una nueva pestaña
+    // Para descargarlo automáticamente, puedes usar:
+    // const link = document.createElement('a');
+    // link.href = url;
+    // link.download = 'empleados.xlsx';
+    // link.click();
+  } catch (error) {
+    console.error("Error al exportar el archivo Excel:", error);
+  }
+};
+
+watch(current_page, (newPage) => {
+  getRows(newPage);
 });
+
+let timeout = null;
+
+const onInputChange = () => {
+  clearTimeout(timeout);
+
+  timeout = setTimeout(() => {
+    getRows();
+  }, 2000);
+};
 
 onMounted(() => {
-  getPuestos();
+  getRows();
 });
 </script>
-
-<style>
-.my-table-details {
-  font-size: 0.85em;
-  font-style: italic;
-  max-width: 200px;
-  white-space: normal;
-  color: #555;
-  margin-top: 4px;
-}
-.d-flex {
-  display: flex;
-}
-
-.justify-between {
-  justify-content: space-between;
-}
-
-.items-center {
-  align-items: center;
-}
-
-.survey-form-container {
-  max-height: 600px; /* Ajusta este valor según tus necesidades */
-  overflow-y: auto;
-}
-</style>
 
