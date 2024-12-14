@@ -51,6 +51,15 @@
                 </q-item-section>
                 <q-item-section>
                   <q-btn
+                    label="Disponibilidad"
+                    outline
+                    @click="showDisponibility = true"
+                  />
+                </q-item-section>
+              </q-item>
+              <q-item>
+                <q-item-section>
+                  <q-btn
                     label="Ordenes de trabajo"
                     outline
                     @click="woIndex = true"
@@ -93,6 +102,15 @@
                 <q-item-section>
                   <q-btn label="Bahias" outline @click="showTableBays = true" />
                 </q-item-section>
+                <q-item-section>
+                  <q-btn
+                    label="Disponibilidad"
+                    outline
+                    @click="showDisponibility = true"
+                  />
+                </q-item-section>
+              </q-item>
+              <q-item>
                 <q-item-section>
                   <q-btn
                     label="Ordenes de trabajo"
@@ -143,8 +161,7 @@
                   v-for="(employee, index) in level.technician.empleado"
                   :key="index"
                 >
-                  <employee-card :employee="employee" :key="employee">
-                  </employee-card>
+                  <employee-card :employee="employee" :key="employee" />
                 </div>
               </div>
             </q-expansion-item>
@@ -385,6 +402,32 @@
       </q-item>
     </q-card>
   </q-dialog>
+
+  <q-dialog
+    v-model="showDisponibility"
+    transition-show="slide-up"
+    transition-hide="slide-down"
+    persistent
+    maximized
+  >
+    <q-card>
+      <q-item class="text-white bg-primary">
+        <q-item-section>
+          <q-item-label class="text-h6">
+            Disponibilidad de tecnicos
+          </q-item-label>
+        </q-item-section>
+        <q-item-section side>
+          <q-btn label="Cerrar" color="red" v-close-popup />
+        </q-item-section>
+      </q-item>
+      <q-item class="q-pa-none">
+        <q-item-section>
+          <technician-disponibility />
+        </q-item-section>
+      </q-item>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script setup>
@@ -398,6 +441,7 @@ import TechnicianTable from "src/components/Technician/TechnicianTable.vue";
 import BayTable from "src/components/Technician/BayTable.vue";
 import WorkOrderIndex from "src/components/WorkOrder/WorkOrderIndex.vue";
 import ActivityIndex from "src/components/Technician/ActivityIndex.vue";
+import TechnicianDisponibility from "src/components/Technician/TechnicianDisponibility.vue";
 
 const openPresentationConstruccion = () => {
   const baseUrl = window.location.origin + "/#/";
@@ -435,6 +479,7 @@ const showTable = ref(null);
 const showTableBays = ref(false);
 const woIndex = ref(false);
 const showActivities = ref(false);
+const showDisponibility = ref(false);
 
 const getTecnicos = async () => {
   let res = await sendRequest("GET", null, "/api/technician/all", "");

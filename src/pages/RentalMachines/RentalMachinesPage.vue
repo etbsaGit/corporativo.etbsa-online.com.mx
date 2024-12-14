@@ -321,7 +321,7 @@ const onInputChange = () => {
 
   timeout = setTimeout(() => {
     getRows();
-  }, 2000);
+  }, 1000);
 };
 
 function getStatusTranslation(status) {
