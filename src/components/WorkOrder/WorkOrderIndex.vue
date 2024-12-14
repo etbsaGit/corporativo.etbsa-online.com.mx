@@ -1,6 +1,19 @@
 <template>
   <q-item>
-    <q-item-section class="col-3">
+    <q-item-section>
+      <q-input
+        outlined
+        dense
+        label="Buscar por OT, Maquina o cliente"
+        v-model="filterForm.search"
+        @update:model-value="onInputChange"
+      >
+        <template v-slot:prepend>
+          <q-icon name="search" />
+        </template>
+      </q-input>
+    </q-item-section>
+    <q-item-section side>
       <q-btn
         dense
         color="primary"
@@ -67,13 +80,17 @@
               {{ formatDateplusoneSlim(props.row.fecha_entrega) }}
             </q-td>
             <q-td key="mano_obra" :props="props">
-              ${{ props.row.mano_obra }}
+              {{ formatCurrency(props.row.mano_obra) }}
             </q-td>
             <q-td key="refacciones" :props="props">
-              ${{ props.row.refacciones }}
+              {{ formatCurrency(props.row.refacciones) }}
             </q-td>
             <q-td key="total_factura" :props="props">
-              ${{ total_factura(props.row.refacciones, props.row.mano_obra) }}
+              {{
+                formatCurrency(
+                  total_factura(props.row.refacciones, props.row.mano_obra)
+                )
+              }}
             </q-td>
             <q-td key="tecnico" :props="props">
               <q-avatar
@@ -176,6 +193,25 @@
               </q-item>
             </q-td>
           </q-tr>
+        </template>
+        <template v-slot:bottom>
+          <q-space />
+          <td>
+            <q-pagination
+              color="primary"
+              v-model="current_page"
+              :max="last_page"
+              :max-pages="6"
+              direction-links
+              boundary-links
+              gutter="10px"
+              icon-first="skip_previous"
+              icon-last="skip_next"
+              icon-prev="fast_rewind"
+              icon-next="fast_forward"
+            />
+          </td>
+          <q-space />
         </template>
       </q-table>
     </q-item-section>
@@ -285,15 +321,15 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
-import { sendRequest } from "src/boot/functions";
-import { useQuasar } from "quasar";
-import { formatDateplusoneSlim } from "src/boot/formatFunctions";
+import { ref, onMounted, watch } from "vue";
+import { sendRequest, dataIncomplete } from "src/boot/functions";
+import {
+  formatDateplusoneSlim,
+  formatCurrency,
+} from "src/boot/formatFunctions";
 
 import WorkOrderForm from "./WorkOrderForm.vue";
 import WorkOrderDocsList from "./WorkOrderDocsList.vue";
-
-const $q = useQuasar();
 
 const wos = ref([]);
 const selectedWO = ref(null);
@@ -303,6 +339,16 @@ const edit = ref(false);
 const deleteWO = ref(false);
 const addForm = ref(null);
 const editForm = ref(null);
+
+const next_page_url = ref("");
+const prev_page_url = ref("");
+const last_page = ref(0);
+const current_page = ref(1);
+
+const filterForm = ref({
+  search: null,
+  tecnico_id: null,
+});
 
 const columns = [
   {
@@ -426,20 +472,26 @@ const onClickDocs = (wo) => {
   docs.value = true;
 };
 
-const getWOS = async () => {
-  let res = await sendRequest("POST", null, "/api/wos/getAll", "");
-  wos.value = res;
+const getWOS = async (page = 1) => {
+  const current = {
+    page: page,
+  };
+  const final = {
+    ...filterForm.value,
+    ...current,
+  };
+  let res = await sendRequest("POST", final, "/api/wos/getAll", "");
+  wos.value = res.data;
+  filterForm.value.page = res.current_page;
+  next_page_url.value = res.next_page_url;
+  prev_page_url.value = res.prev_page_url;
+  last_page.value = res.last_page;
 };
 
 const storeWO = async () => {
   const add_valid = await addForm.value.validate();
   if (!add_valid) {
-    $q.notify({
-      color: "red-5",
-      textColor: "white",
-      icon: "warning",
-      message: "Por favor completa todos los campos obligatorios",
-    });
+    dataIncomplete();
     return;
   }
   const final = {
@@ -447,18 +499,13 @@ const storeWO = async () => {
   };
   let res = await sendRequest("POST", final, "/api/workOrder", "");
   add.value = false;
-  getWOS();
+  getWOS(current_page.value);
 };
 
 const putWO = async () => {
   const edit_valid = await editForm.value.validate();
   if (!edit_valid) {
-    $q.notify({
-      color: "red-5",
-      textColor: "white",
-      icon: "warning",
-      message: "Por favor completa todos los campos obligatorios",
-    });
+    dataIncomplete();
     return;
   }
   const final = {
@@ -466,7 +513,7 @@ const putWO = async () => {
   };
   let res = await sendRequest("PUT", final, "/api/workOrder/" + final.id, "");
   edit.value = false;
-  getWOS();
+  getWOS(current_page.value);
 };
 
 const DestroyWO = async () => {
@@ -474,6 +521,20 @@ const DestroyWO = async () => {
   let res = await sendRequest("DELETE", null, "/api/workOrder/" + id, "");
   deleteWO.value = false;
   getWOS();
+};
+
+watch(current_page, (newPage) => {
+  getWOS(newPage);
+});
+
+let timeout = null;
+
+const onInputChange = () => {
+  clearTimeout(timeout);
+
+  timeout = setTimeout(() => {
+    getWOS();
+  }, 1000);
 };
 
 onMounted(() => {

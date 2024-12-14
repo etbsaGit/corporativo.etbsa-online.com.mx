@@ -39,3 +39,25 @@ export function calcularDiasRestantes(fechaLimite) {
   const diferencia = fechaLimiteDate.getTime() - ahora.getTime();
   return Math.ceil(diferencia / (1000 * 3600 * 24));
 }
+
+export function formatCurrency(value) {
+  return new Intl.NumberFormat("es-MX", {
+    style: "currency",
+    currency: "MXN",
+  }).format(value);
+}
+
+export function formatPhoneNumber(phoneNumber) {
+  // Eliminar cualquier carácter que no sea un dígito
+  const cleaned = ("" + phoneNumber).replace(/\D/g, "");
+
+  // Aplicar el formato (###)-###-####
+  const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
+
+  if (match) {
+    return `(${match[1]})-${match[2]}-${match[3]}`;
+  }
+
+  // Si no coincide con el patrón esperado, devolver el número sin formato
+  return cleaned;
+}

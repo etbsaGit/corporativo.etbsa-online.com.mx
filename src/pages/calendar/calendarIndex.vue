@@ -10,7 +10,7 @@
         />
       </q-item-section>
     </q-item>
-    <q-item>
+    <q-item v-if="checkSucursal('Corporativo')">
       <q-item-section>
         <q-expansion-item
           flat
@@ -70,7 +70,7 @@
               />
             </q-item-section>
             <q-item-section class="col-1">
-              <q-btn outline icon="refresh" @click="getEvents" />
+              <q-btn outline icon="refresh" @click="getEventsFilter" />
             </q-item-section>
           </q-item>
         </q-expansion-item>
@@ -95,9 +95,8 @@
       no-active-date
       :day-min-height="100"
       :day-height="0"
-      @click-date="onClickDate"
-      @click-day="onClickDay"
       class="custom-calendar-month"
+      @click-date="onClickDate"
     >
       <template v-if="events != null" #day="{ scope: { timestamp } }">
         <template v-for="event in eventsMap[timestamp.date]" :key="event.id">
@@ -105,6 +104,7 @@
             class="my-event rounded-border text-black"
             style="position: relative"
             :style="{ backgroundColor: getOpaqueColor(event.color) }"
+            @click="onClickEvent(event)"
           >
             <div class="q-calendar__ellipsis">
               <q-item>
@@ -143,6 +143,18 @@
         </template>
       </template>
     </q-calendar-month>
+    <q-page-sticky position="bottom-right" :offset="[30, 30]">
+      <q-btn fab icon="add" color="blue-10" @click="addForm = true">
+        <q-tooltip
+          class="bg-blue-10 text-body1"
+          anchor="center left"
+          self="center right"
+          :offset="[10, 10]"
+        >
+          Agendar viaje
+        </q-tooltip>
+      </q-btn>
+    </q-page-sticky>
   </q-page>
 
   <q-dialog
@@ -158,14 +170,18 @@
       >
         <q-item>
           <q-item-section>
-            <div class="text-h6">
-              {{ formatDateplusone(currentDay) }}
-            </div>
+            <div class="text-h6">Agregar</div>
           </q-item-section>
           <q-item-section side>
             <q-item>
               <q-item-section>
-                <q-btn dense label="Cerrar" color="red" v-close-popup />
+                <q-btn
+                  dense
+                  label="Cerrar"
+                  color="red"
+                  v-close-popup
+                  @click="currentDay = null"
+                />
               </q-item-section>
               <q-item-section>
                 <q-btn dense label="Agendar" color="blue" @click="postEvent" />
@@ -178,53 +194,6 @@
       <q-card class="q-pa-none scroll" flat>
         <div>
           <event-form ref="store" :currentDay="currentDay" />
-        </div>
-      </q-card>
-    </q-card>
-  </q-dialog>
-
-  <q-dialog
-    v-model="showDay"
-    transition-show="rotate"
-    transition-hide="rotate"
-    persistent
-    full-height
-  >
-    <q-card style="max-width: 900px">
-      <q-card-section
-        class="bg-primary text-white d-flex justify-between items-center q-pa-sm"
-      >
-        <q-item>
-          <q-item-section>
-            <div class="text-h6">{{ formatDateplusone(currentDay) }}</div>
-          </q-item-section>
-          <q-item-section side>
-            <q-item>
-              <q-item-section>
-                <q-btn
-                  dense
-                  label="Cerrar"
-                  color="red"
-                  v-close-popup
-                  @click="getEvents"
-                />
-              </q-item-section>
-              <q-item-section>
-                <q-btn
-                  dense
-                  label="Agregar"
-                  color="green"
-                  @click="addForm = true"
-                />
-              </q-item-section>
-            </q-item>
-          </q-item-section>
-        </q-item>
-      </q-card-section>
-      <q-separator />
-      <q-card class="q-pa-none scroll" flat>
-        <div>
-          <event-list :key="currentDay" :currentDay="currentDay" />
         </div>
       </q-card>
     </q-card>
@@ -250,6 +219,33 @@
       <Kardex />
     </q-card>
   </q-dialog>
+
+  <q-dialog
+    v-model="showEvent"
+    transition-show="slide-up"
+    transition-hide="slide-down"
+    persistent
+  >
+    <q-card>
+      <q-item class="bg-primary text-white">
+        <q-item-section>
+          <q-item-label class="text-h6">
+            {{ formatDateplusone(selectedEvent.date) }}
+          </q-item-label>
+        </q-item-section>
+        <q-item-section side>
+          <q-btn
+            label="Cerrar"
+            color="red"
+            v-close-popup
+            @click="getEventsFilter"
+          />
+        </q-item-section>
+      </q-item>
+      <q-separator />
+      <event-card-list :eventID="selectedEvent.id" />
+    </q-card>
+  </q-dialog>
 </template>
 
 <script setup>
@@ -257,18 +253,23 @@ import { QCalendarMonth, parseDate, today } from "@quasar/quasar-ui-qcalendar";
 import "@quasar/quasar-ui-qcalendar/src/QCalendarVariables.sass";
 import "@quasar/quasar-ui-qcalendar/src/QCalendarTransitions.sass";
 import "@quasar/quasar-ui-qcalendar/src/QCalendarMonth.sass";
-import { ref, watch, onMounted, computed } from "vue";
-import { date, useQuasar } from "quasar";
+import { ref, watch, onMounted, computed, inject } from "vue";
+import { date } from "quasar";
 
-import { sendRequest, checkRole } from "src/boot/functions";
+import {
+  sendRequest,
+  checkRole,
+  checkSucursal,
+  dataIncomplete,
+} from "src/boot/functions";
 import { formatTime, formatDateplusone } from "src/boot/formatFunctions";
 
 import EventForm from "src/components/Calendar/EventForm.vue";
-import EventList from "src/components/Calendar/EventList.vue";
 import EventCard from "src/components/Calendar/EventCard.vue";
 import Kardex from "src/components/Calendar/kardex.vue";
+import EventCardList from "src/components/Calendar/EventCardList.vue";
 
-const $q = useQuasar();
+const bus = inject("bus");
 const calendar = ref(null);
 const selectedDate = ref(today());
 const addForm = ref(false);
@@ -277,12 +278,20 @@ const store = ref(null);
 const showDay = ref(null);
 const currentDay = ref(null);
 
+const showEvent = ref(false);
+const selectedEvent = ref(null);
+
 const events = ref(null);
 const sucursales = ref([]);
 
 const formFilter = ref({
   start_point: null,
   end_point: null,
+});
+
+bus.on("delete_event", () => {
+  showEvent.value = false;
+  getEventsFilter();
 });
 
 const getMonthYear = (dateString) => {
@@ -295,13 +304,15 @@ const getMonthYear = (dateString) => {
 const currentMonthYear = ref(getMonthYear(selectedDate.value));
 
 const onClickDate = (data) => {
-  addForm.value = true;
-  currentDay.value = data.scope.timestamp.date;
+  if (checkSucursal("Corporativo")) {
+    addForm.value = true;
+    currentDay.value = data.scope.timestamp.date;
+  }
 };
 
-const onClickDay = (data) => {
-  showDay.value = true;
-  currentDay.value = data.scope.timestamp.date;
+const onClickEvent = (event) => {
+  selectedEvent.value = event;
+  showEvent.value = true;
 };
 
 const prevMonth = () => {
@@ -332,27 +343,17 @@ const eventsMap = computed(() => {
   return map;
 });
 
-const getEvents = async () => {
-  let res = await sendRequest("GET", null, "/api/events", "");
-  sucursales.value = res.sucursales;
-  events.value = res.eventos;
-};
-
 const getEventsFilter = async () => {
   const final = { ...formFilter.value };
   let res = await sendRequest("PUT", final, "/api/event/all", "");
-  events.value = res;
+  sucursales.value = res.sucursales;
+  events.value = res.eventos;
 };
 
 const postEvent = async () => {
   const store_valid = await store.value.validate();
   if (!store_valid) {
-    $q.notify({
-      color: "red-5",
-      textColor: "white",
-      icon: "warning",
-      message: "Por favor completa todos los campos obligatorios",
-    });
+    dataIncomplete();
     return;
   }
   const final = {
@@ -361,7 +362,7 @@ const postEvent = async () => {
   let res = await sendRequest("POST", final, "/api/events", "");
   addForm.value = false;
   showDay.value = false;
-  getEvents();
+  getEventsFilter();
 };
 
 const getOpaqueColor = (color) => {
@@ -375,7 +376,7 @@ const getOpaqueColor = (color) => {
 };
 
 onMounted(() => {
-  getEvents();
+  getEventsFilter();
 });
 </script>
 

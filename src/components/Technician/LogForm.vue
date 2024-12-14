@@ -6,6 +6,7 @@
           filled
           dense
           :disable="!checkRole('Servicio')"
+          readonly
           v-model="formLog.fecha"
           mask="date"
           label="Fecha"
@@ -27,6 +28,29 @@
             </q-icon>
           </template>
         </q-input>
+      </q-item-section>
+    </q-item>
+    <q-item>
+      <q-item-section>
+        <q-select
+          :disable="!checkRole('Servicio')"
+          v-model="formLog.tecnico_id"
+          :options="employees"
+          label="Tecnico"
+          option-value="id"
+          option-label="nombreCompleto"
+          option-disable="inactive"
+          emit-value
+          map-options
+          transition-show="jump-up"
+          transition-hide="jump-up"
+          filled
+          dense
+          clearable
+          hint
+          :rules="[(val) => val !== null || 'Obligatorio']"
+          @update:model-value="getOptions(formLog.tecnico_id)"
+        />
       </q-item-section>
     </q-item>
     <q-item>
@@ -54,6 +78,7 @@
         <q-input
           filled
           dense
+          readonly
           label="Hora inicio"
           v-model="formLog.hora_inicio"
           mask="time"
@@ -81,6 +106,7 @@
         <q-input
           filled
           dense
+          readonly
           label="Hora termino"
           v-model="formLog.hora_termino"
           mask="time"
@@ -149,6 +175,7 @@ const { employee, log, day } = defineProps(["employee", "log", "day"]);
 
 const wos = ref([]);
 const types = ref([]);
+const employees = ref([]);
 
 const myForm = ref(null);
 
@@ -171,19 +198,29 @@ const formLog = ref({
   hora_termino: log ? formatTime(log.hora_termino) : null,
   comentarios: log ? log.comentarios : null,
   activity_technician_id: log ? log.activity_technician_id : null,
-  tecnico_id: log ? log.tecnico_id : employee.id,
+  tecnico_id: log ? log.tecnico_id : employee ? employee.id : null,
   wo_id: log ? log.wo_id : null,
 });
 
-const getOptions = async () => {
-  let res = await sendRequest(
-    "GET",
-    null,
-    "/api/techniciansLog/options/" + employee.id,
-    ""
-  );
-  wos.value = res.wos;
-  types.value = res.types;
+const getOptions = async (id) => {
+  if (id) {
+    let res = await sendRequest(
+      "GET",
+      null,
+      "/api/techniciansLog/options/" + id,
+      ""
+    );
+    wos.value = res.wos;
+    types.value = res.types;
+  } else {
+    wos.value = [];
+    types.value = [];
+  }
+};
+
+const getTechnician = async () => {
+  let res = await sendRequest("GET", null, "/api/tech", "");
+  employees.value = res;
 };
 
 const validate = async () => {
@@ -191,7 +228,12 @@ const validate = async () => {
 };
 
 onMounted(() => {
-  getOptions();
+  getTechnician();
+  if (employee) {
+    getOptions(employee.id);
+  } else if (log) {
+    getOptions(log.tecnico_id);
+  }
 });
 
 defineExpose({

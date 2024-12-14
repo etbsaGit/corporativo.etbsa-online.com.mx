@@ -1,6 +1,6 @@
 <template>
   <div class="q-pa-sm">
-    <q-splitter v-model="splitterModel">
+    <q-splitter v-model="splitterModel" style="height: 89vh">
       <template v-slot:before>
         <q-table
           flat

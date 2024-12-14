@@ -3,6 +3,36 @@
     <q-item>
       <q-item-section>
         <q-input
+          filled
+          dense
+          v-model="formEvent.date"
+          mask="date"
+          label="Fecha de entrega"
+          hint
+          readonly
+          :disable="event != null"
+        >
+          <template v-slot:append>
+            <q-icon name="event" class="cursor-pointer">
+              <q-popup-proxy
+                cover
+                transition-show="scale"
+                transition-hide="scale"
+              >
+                <q-date v-model="formEvent.date" minimal>
+                  <div class="row items-center justify-end">
+                    <q-btn v-close-popup label="Cerrar" color="primary" flat />
+                  </div>
+                </q-date>
+              </q-popup-proxy>
+            </q-icon>
+          </template>
+        </q-input>
+      </q-item-section>
+    </q-item>
+    <q-item>
+      <q-item-section>
+        <q-input
           v-model="formEvent.title"
           filled
           dense
@@ -169,10 +199,12 @@ const { currentDay, event } = defineProps(["currentDay", "event"]);
 const myForm = ref(null);
 const sucursales = ref([]);
 
+const now = new Date();
+
 const formEvent = ref({
   title: event ? event.title : null,
   description: event ? event.description : null,
-  date: event ? event.date : currentDay,
+  date: event ? event.date : currentDay ?? now,
   available_seats: event ? calculateAvailableSeats(event) : 0,
   travels: event ? event.travel : [],
 });

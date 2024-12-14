@@ -15,22 +15,20 @@
 
   <q-separator />
 
-  <div class="survey-form-container">
-    <q-tab-panels v-model="tab" animated keep-alive>
-      <q-tab-panel name="users" class="q-pa-none">
-        <user-index />
-      </q-tab-panel>
-      <q-tab-panel name="roles" class="q-pa-none">
-        <roles-index />
-      </q-tab-panel>
-      <q-tab-panel name="permissions" class="q-pa-none">
-        <permissions-index />
-      </q-tab-panel>
-      <q-tab-panel name="estatus" class="q-pa-none">
-        <estatus-index />
-      </q-tab-panel>
-    </q-tab-panels>
-  </div>
+  <q-tab-panels v-model="tab" animated keep-alive>
+    <q-tab-panel name="users" class="q-pa-none">
+      <user-index />
+    </q-tab-panel>
+    <q-tab-panel name="roles" class="q-pa-none">
+      <roles-index />
+    </q-tab-panel>
+    <q-tab-panel name="permissions" class="q-pa-none">
+      <permissions-index />
+    </q-tab-panel>
+    <q-tab-panel name="estatus" class="q-pa-none">
+      <estatus-index />
+    </q-tab-panel>
+  </q-tab-panels>
 </template>
 
 <script setup>
@@ -42,10 +40,5 @@ import estatusIndex from "../estatus/estatusIndex.vue";
 
 const tab = ref("users");
 </script>
-<style>
-.survey-form-container {
-  max-height: 600px; /* Ajusta este valor según tus necesidades */
-  overflow-y: auto;
-}
-</style>
+
 

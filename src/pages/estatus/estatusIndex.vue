@@ -1,80 +1,88 @@
 <template>
   <q-item>
-    <q-btn
-      label="Registrar estatus"
-      color="primary"
-      @click="showAdd = true"
-      icon="add_circle"
-    />
-  </q-item>
-  <q-item>
     <q-item-section>
       <q-input
-        dense
         outlined
-        class="boton"
-        color="green-9"
-        v-model="searchTerm"
-        label="Buscar"
+        dense
+        label="Buscar por nombre o por tipo"
+        v-model="filterForm.search"
+        @update:model-value="onInputChange"
       >
         <template v-slot:prepend>
           <q-icon name="search" />
         </template>
       </q-input>
     </q-item-section>
-  </q-item>
-  <q-table
-    flat
-    bordered
-    title="Roles"
-    :rows="filteredEstatus"
-    :columns="columns"
-    row-key="name"
-    dense
-    :rows-per-page-options="[0]"
-  >
-    <template v-slot:body-cell-color="props">
-      <q-td :props="props">
-        <q-badge
-          text-color="black"
-          :style="{ backgroundColor: props.row.color }"
-        >
-          <div class="text-subtitle1">
-            {{ props.row.nombre }}
-          </div>
-        </q-badge>
-      </q-td>
-    </template>
-    <template v-slot:top="props">
-      <div class="col-2 q-table__title">Estatus</div>
-      <q-space />
+    <q-item-section side>
       <q-btn
-        round
         dense
-        :icon="props.inFullscreen ? 'fullscreen_exit' : 'fullscreen'"
-        @click="props.toggleFullscreen"
-        class="q-ml-md"
+        label="Agregar estatus"
+        color="primary"
+        @click="showAdd = true"
+        icon="add_circle"
       />
-    </template>
-    <template v-slot:body-cell-actions="props">
-      <q-td>
-        <q-btn-dropdown flat color="primary" icon="menu" dense>
-          <q-list v-close-popup>
-            <q-item>
-              <q-btn
-                color="primary"
-                @click="onRowClick(props.row)"
-                flat
-                size="sm"
-                label="Editar"
-                icon="edit"
-              />
-            </q-item>
-          </q-list>
-        </q-btn-dropdown>
-      </q-td>
-    </template>
-  </q-table>
+    </q-item-section>
+  </q-item>
+
+  <q-item>
+    <q-item-section>
+      <q-table
+        flat
+        bordered
+        title="Estatus"
+        :rows="rows"
+        :columns="columns"
+        row-key="name"
+        dense
+        :rows-per-page-options="[0]"
+      >
+        <template v-slot:body-cell-edit="props">
+          <q-td :props="props">
+            <q-btn
+              dense
+              color="primary"
+              flat
+              icon="edit_square"
+              @click="openEdit(props.row)"
+            />
+          </q-td>
+        </template>
+
+        <template v-slot:body-cell-color="props">
+          <q-td>
+            <q-badge
+              text-color="black"
+              :style="{ backgroundColor: props.row.color }"
+            >
+              <div class="text-subtitle1">
+                {{ props.row.nombre }}
+              </div>
+            </q-badge>
+          </q-td>
+        </template>
+
+        <template v-slot:bottom>
+          <q-space />
+          <td>
+            <q-pagination
+              color="primary"
+              v-model="current_page"
+              :max="last_page"
+              :max-pages="6"
+              direction-links
+              boundary-links
+              gutter="10px"
+              icon-first="skip_previous"
+              icon-last="skip_next"
+              icon-prev="fast_rewind"
+              icon-next="fast_forward"
+            />
+          </td>
+          <q-space />
+        </template>
+      </q-table>
+    </q-item-section>
+  </q-item>
 
   <q-dialog
     v-model="showAdd"
@@ -83,117 +91,85 @@
     persistent
   >
     <q-card>
-      <q-card-section class="d-flex justify-between items-center q-pa-sm">
-        <div class="text-h6">Registrar estatus</div>
-        <q-card-actions align="right">
+      <q-item class="text-white bg-primary">
+        <q-item-section>
+          <q-item-label class="text-h6">Agregar</q-item-label>
+        </q-item-section>
+        <q-item-section side>
           <q-btn label="Cerrar" color="red" v-close-popup />
-          <q-btn label="Registrar" color="blue" @click="crearEstatus" />
-        </q-card-actions>
-      </q-card-section>
+        </q-item-section>
+        <q-item-section side>
+          <q-btn label="Agregar" color="blue" @click="postRow" />
+        </q-item-section>
+      </q-item>
       <q-separator />
-      <q-card class="q-pa-none scroll" flat>
-        <div class="survey-form-container">
-          <estatus-form ref="form_1" />
-        </div>
-      </q-card>
+      <q-item>
+        <q-item-section>
+          <estatus-form ref="add" />
+        </q-item-section>
+      </q-item>
     </q-card>
   </q-dialog>
 
   <q-dialog
-    v-model="showDetails"
+    v-model="showEdit"
     transition-show="rotate"
     transition-hide="rotate"
     persistent
   >
     <q-card>
-      <q-card-section class="d-flex justify-between items-center q-pa-sm">
-        <div class="text-h6">
-          Actualizar estatus {{ selectedEstatus.nombre }}
-        </div>
-        <q-card-actions align="right">
+      <q-item class="text-white bg-primary">
+        <q-item-section>
+          <q-item-label class="text-h6">Actualizar</q-item-label>
+        </q-item-section>
+        <q-item-section side>
           <q-btn label="Cerrar" color="red" v-close-popup />
-          <q-btn label="Actualizar" color="blue" @click="actualizarEstatus()" />
-        </q-card-actions>
-      </q-card-section>
+        </q-item-section>
+        <q-item-section side>
+          <q-btn label="Actualizar" color="blue" @click="putRow" />
+        </q-item-section>
+        <q-item-section side>
+          <q-btn label="Borrar" color="orange" @click="deleteRow" />
+        </q-item-section>
+      </q-item>
       <q-separator />
-      <q-card class="q-pa-none scroll" flat>
-        <div class="survey-form-container">
-          <estatus-form ref="edit_1" :estatus="selectedEstatus" />
-        </div>
-      </q-card>
+      <q-item>
+        <q-item-section>
+          <estatus-form ref="edit" :estatus="selectedRow" />
+        </q-item-section>
+      </q-item>
     </q-card>
   </q-dialog>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, watch } from "vue";
+import { sendRequest, dataIncomplete } from "src/boot/functions";
+
 import EstatusForm from "src/components/Estatus/EstatusForm.vue";
 
-import { sendRequest } from "src/boot/functions";
-import { useQuasar } from "quasar";
-
-const form_1 = ref(null);
-const edit_1 = ref(null);
-
-const $q = useQuasar();
-
-const showDetails = ref(false);
-const selectedEstatus = ref(null);
-
-const searchTerm = ref("");
+const rows = ref([]);
+const selectedRow = ref(null);
+const add = ref(null);
 const showAdd = ref(false);
-const estatuses = ref([]);
+const edit = ref(null);
+const showEdit = ref(false);
 
-const onRowClick = (row) => {
-  selectedEstatus.value = row;
-  showDetails.value = true;
-};
+const next_page_url = ref("");
+const prev_page_url = ref("");
+const last_page = ref(0);
+const current_page = ref(1);
 
-const crearEstatus = async () => {
-  const form1_valid = await form_1.value.validate();
-  if (!form1_valid) {
-    $q.notify({
-      color: "red-5",
-      textColor: "white",
-      icon: "warning",
-      message: "Por favor completa todos los campos obligatorios",
-    });
-    return;
-  }
-  const final = {
-    ...form_1.value.formEstatus,
-  };
-  let res = await sendRequest("POST", final, "/api/estatus", "");
-  showAdd.value = false;
-  getEstatus();
-};
-
-const actualizarEstatus = async () => {
-  const edit1_valid = await edit_1.value.validate();
-  if (!edit1_valid) {
-    $q.notify({
-      color: "red-5",
-      textColor: "white",
-      icon: "warning",
-      message: "Por favor completa todos los campos obligatorios",
-    });
-    return;
-  }
-  const final = {
-    ...edit_1.value.formEstatus,
-  };
-  let res = await sendRequest("PUT", final, "/api/estatus/" + final.id, "");
-  showDetails.value = false;
-  getEstatus();
-};
-
-const getEstatus = async () => {
-  let res = await sendRequest("GET", null, "/api/estatus/all", "");
-  estatuses.value = res;
-};
+const filterForm = ref({
+  search: null,
+});
 
 const columns = [
   // { name: "id", label: "ID", align: "left", field: "id", sortable: true },
+  {
+    name: "edit",
+    align: "left",
+  },
   {
     name: "nombre",
     label: "Nombre",
@@ -211,60 +187,89 @@ const columns = [
   {
     name: "color",
     label: "Color",
-    align: "center",
-    field: "color",
-    sortable: true,
-  },
-  {
-    name: "actions",
-    label: "Acciones",
     align: "left",
+    field: "color",
     sortable: true,
   },
 ];
 
-const filteredEstatus = computed(() => {
-  return estatuses.value.filter((estatus) => {
-    return estatus.nombre
-      .toLowerCase()
-      .includes(searchTerm.value.toLowerCase());
-  });
+const openEdit = (item) => {
+  selectedRow.value = item;
+  showEdit.value = true;
+};
+
+const getRows = async (page = 1) => {
+  const current = {
+    page: page,
+  };
+  const final = {
+    ...filterForm.value,
+    ...current,
+  };
+  let res = await sendRequest("POST", final, "/api/estatuses", "");
+  rows.value = res.data;
+  filterForm.value.page = res.current_page;
+  next_page_url.value = res.next_page_url;
+  prev_page_url.value = res.prev_page_url;
+  last_page.value = res.last_page;
+};
+
+const postRow = async () => {
+  const add_valid = await add.value.validate();
+  if (!add_valid) {
+    dataIncomplete();
+    return;
+  }
+  const final = {
+    ...add.value.formEstatus,
+  };
+  let res = await sendRequest("POST", final, "/api/estatus", "");
+  showAdd.value = false;
+  getRows(current_page.value);
+};
+
+const putRow = async () => {
+  const edit_valid = await edit.value.validate();
+  if (!edit_valid) {
+    dataIncomplete();
+    return;
+  }
+  const final = {
+    ...edit.value.formEstatus,
+  };
+  let res = await sendRequest("PUT", final, "/api/estatus/" + final.id, "");
+  showEdit.value = false;
+  getRows(current_page.value);
+};
+
+const deleteRow = async () => {
+  let res = await sendRequest(
+    "DELETE",
+    null,
+    "/api/estatus/" + selectedRow.value.id,
+    ""
+  );
+  selectedRow.value = null;
+  showEdit.value = false;
+  getRows();
+};
+
+watch(current_page, (newPage) => {
+  getRows(newPage);
 });
+
+let timeout = null;
+
+const onInputChange = () => {
+  clearTimeout(timeout);
+
+  timeout = setTimeout(() => {
+    getRows();
+  }, 1000);
+};
 
 onMounted(() => {
-  getEstatus();
+  getRows();
 });
 </script>
-
-<style>
-.my-table-details {
-  font-size: 0.85em;
-  font-style: italic;
-  max-width: 200px;
-  white-space: normal;
-  color: #555;
-  margin-top: 4px;
-}
-.d-flex {
-  display: flex;
-}
-
-.justify-between {
-  justify-content: space-between;
-}
-
-.items-center {
-  align-items: center;
-}
-
-.survey-form-container {
-  max-height: 600px; /* Ajusta este valor según tus necesidades */
-  overflow-y: auto;
-}
-
-.survey-form-container {
-  max-height: 600px; /* Ajusta este valor según tus necesidades */
-  overflow-y: auto;
-}
-</style>
 
