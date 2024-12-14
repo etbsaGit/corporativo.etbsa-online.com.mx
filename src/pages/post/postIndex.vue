@@ -14,16 +14,20 @@
           </q-card-section>
         </q-card>
       </div>
-      <!-- Renderizar lineas -->
-      <div v-for="linea in lineas" :key="linea.id" class="grid-item">
+      <!-- Renderizar departamentos -->
+      <div
+        v-for="departamento in departamentos"
+        :key="departamento.id"
+        class="grid-item"
+      >
         <q-card
           bordered
           class="q-pa-md folder-card"
-          @click="clickFolder(linea)"
+          @click="clickFolder(departamento)"
         >
           <q-card-section class="row items-center no-wrap">
             <q-icon name="folder" color="yellow" size="48px" class="q-mr-md" />
-            <div>{{ linea.nombre }}</div>
+            <div>{{ departamento.nombre }}</div>
           </q-card-section>
         </q-card>
       </div>
@@ -41,7 +45,7 @@
       <q-item class="bg-primary text-white">
         <q-item-section>
           <q-item-label class="text-h6">{{
-            selectedLinea ? selectedLinea.nombre : "Generales"
+            selectedDepartamento ? selectedDepartamento.nombre : "Generales"
           }}</q-item-label>
         </q-item-section>
         <q-item-section side>
@@ -49,12 +53,12 @@
             label="Cerrar"
             color="red"
             v-close-popup
-            @click="selectedLinea = null"
+            @click="selectedDepartamento = null"
           />
         </q-item-section>
       </q-item>
       <q-separator />
-      <post-list :linea="selectedLinea" />
+      <post-list :departamento="selectedDepartamento" />
     </q-card>
   </q-dialog>
 </template>
@@ -65,22 +69,22 @@ import { sendRequest } from "src/boot/functions";
 
 import PostList from "src/components/Post/PostList.vue";
 
-const lineas = ref([]);
-const selectedLinea = ref(null);
+const departamentos = ref([]);
+const selectedDepartamento = ref(null);
 const showDocs = ref(false);
 
-const clickFolder = (linea) => {
-  selectedLinea.value = linea;
+const clickFolder = (departamento) => {
+  selectedDepartamento.value = departamento;
   showDocs.value = true;
 };
 
-const getLineas = async () => {
-  let res = await sendRequest("GET", null, "/api/linea/all", "");
-  lineas.value = res;
+const getDepartamentos = async () => {
+  let res = await sendRequest("GET", null, "/api/departamento/all", "");
+  departamentos.value = res;
 };
 
 onMounted(() => {
-  getLineas();
+  getDepartamentos();
 });
 </script>
 

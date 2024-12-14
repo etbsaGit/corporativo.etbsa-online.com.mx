@@ -218,7 +218,7 @@ import {
 import PostForm from "src/components/Post/PostForm.vue";
 import PostCard from "src/components/Post/PostCard.vue";
 
-const { linea } = defineProps(["linea"]);
+const { departamento } = defineProps(["departamento"]);
 
 const bus = inject("bus");
 const addPost = ref(false);
@@ -236,8 +236,8 @@ const selectedPost = ref(null);
 
 const formFilter = ref({
   estatus_id: null,
-  departamento_id: null,
-  linea_id: linea ? linea.id : null,
+  departamento_id: departamento ? departamento.id : null,
+  linea_id: null,
   sucursal_id: null,
   puesto_id: null,
 });
@@ -330,7 +330,7 @@ const DestroyPost = async () => {
 };
 
 const getItems = () => {
-  if (linea) {
+  if (departamento) {
     getPosts();
   } else {
     if (checkRole("Admin")) {
