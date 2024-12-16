@@ -126,7 +126,7 @@
           v-model="formPeriod.folio"
           outlined
           dense
-          label="Folio"
+          label="# de contrato"
           lazy-rules
           :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
         />
@@ -147,7 +147,14 @@
           dense
           clearable
           :rules="[(val) => val !== null || 'Obligatorio']"
-        />
+        >
+          <template v-slot:option="scope">
+            <q-item v-bind="scope.itemProps">
+              <q-item-section> Serie: {{ scope.opt.serial }} </q-item-section>
+              <q-item-section> Modelo: {{ scope.opt.model }} </q-item-section>
+            </q-item>
+          </template>
+        </q-select>
       </q-item-section>
       <q-item-section>
         <q-input

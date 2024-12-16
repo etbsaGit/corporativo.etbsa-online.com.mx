@@ -4,7 +4,7 @@
       <q-input
         outlined
         dense
-        label="Buscar por folio"
+        label="Buscar por # de contrato"
         v-model="filterForm.search"
         @update:model-value="onInputChange"
       >
@@ -17,7 +17,7 @@
       <q-select
         v-model="filterForm.rental_machine_id"
         :options="machines"
-        label="Buscar por # de serie de la maquina"
+        label="Buscar por maquina"
         option-value="id"
         option-label="model"
         option-disable="inactive"
@@ -29,8 +29,58 @@
         outlined
         dense
         @update:model-value="onInputChange"
-      />
+      >
+        <template v-slot:option="scope">
+          <q-item v-bind="scope.itemProps">
+            <q-item-section> Serie: {{ scope.opt.serial }} </q-item-section>
+            <q-item-section> Modelo: {{ scope.opt.model }} </q-item-section>
+          </q-item>
+        </template>
+      </q-select>
     </q-item-section>
+
+    <q-item-section>
+      <q-select
+        v-model="filterForm.cliente_id"
+        :options="filterClientes"
+        label="Cliente"
+        option-value="id"
+        option-label="nombre"
+        option-disable="inactive"
+        emit-value
+        map-options
+        transition-show="jump-up"
+        transition-hide="jump-up"
+        outlined
+        dense
+        clearable
+        options-dense
+        use-input
+        @filter="filterFn"
+        input-debounce="0"
+        behavior="menu"
+        @update:model-value="onInputChange"
+      >
+        <template v-slot:no-option>
+          <q-item>
+            <q-item-section class="text-grey"> no options </q-item-section>
+          </q-item>
+        </template>
+        <template v-slot:option="scope">
+          <q-item v-bind="scope.itemProps">
+            <q-item-section>
+              {{ scope.opt.nombre }}
+            </q-item-section>
+            <q-item-section>
+              Telefono: {{ formatPhoneNumber(scope.opt.telefono) }}
+            </q-item-section>
+            <q-item-section> RFC: {{ scope.opt.rfc }} </q-item-section>
+            <q-item-section> CURP: {{ scope.opt.curp }} </q-item-section>
+          </q-item>
+        </template>
+      </q-select>
+    </q-item-section>
+
     <q-item-section side>
       <q-btn
         dense
@@ -241,16 +291,20 @@ const showAdd = ref(false);
 const edit = ref(null);
 const showEdit = ref(false);
 
+const filterClientes = ref(null);
+
 const next_page_url = ref("");
 const prev_page_url = ref("");
 const last_page = ref(0);
 const current_page = ref(1);
 
 const machines = ref([]);
+const clientes = ref([]);
 
 const filterForm = ref({
   search: null,
   rental_machine_id: null,
+  cliente_id: null,
 });
 
 const columns = [
@@ -263,7 +317,7 @@ const columns = [
     name: "folio",
     align: "left",
     field: "folio",
-    label: "Folio",
+    label: "# de contrato",
   },
 
   {
@@ -338,6 +392,7 @@ const getRows = async (page = 1) => {
 const getMachines = async () => {
   let res = await sendRequest("GET", null, "/api/rentalMachines/all", "");
   machines.value = res.rentalMachines;
+  clientes.value = res.clientes;
 };
 
 const sendMail = async (id) => {
@@ -401,6 +456,22 @@ const onInputChange = () => {
   timeout = setTimeout(() => {
     getRows();
   }, 1000);
+};
+
+const filterFn = (val, update) => {
+  if (val === "") {
+    update(() => {
+      filterClientes.value = clientes.value;
+    });
+    return;
+  }
+
+  update(() => {
+    const needle = val.toLowerCase();
+    filterClientes.value = clientes.value.filter(
+      (customer) => customer.nombre.toLowerCase().indexOf(needle) > -1
+    );
+  });
 };
 
 const getDaysUntilInvoice = (invoiceDay) => {

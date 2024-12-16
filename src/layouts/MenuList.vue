@@ -46,7 +46,7 @@
       <q-item-section>Calendario</q-item-section>
     </q-item>
     <q-item
-      v-if="checkRole('Admin')"
+      v-if="checkRoleEmpleado()"
       clickable
       v-ripple
       to="/users"
@@ -262,7 +262,7 @@
 
 <script setup>
 import { ref } from "vue";
-import { checkRole, checkPuesto } from "../boot/functions";
+import { checkRole, checkPuesto, checkRoleEmpleado } from "../boot/functions";
 
 const link = ref("inbox");
 </script>

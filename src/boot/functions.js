@@ -129,6 +129,14 @@ export function checkRole(role) {
   return usuario.roles.some((usuarioRol) => usuarioRol.name === role);
 }
 
+export function checkRoleEmpleado() {
+  const authStore = useAuthStore(); // Obtén el store de autenticación
+  const usuario = authStore.authUser; // Usuario autenticado
+
+  // Usa el método checkRole para validar el rol y verifica que empleado sea null
+  return checkRole("Admin") && usuario.empleado === null;
+}
+
 export function checkLine(linea) {
   const authStore = useAuthStore();
   const usuario = authStore.authUser;
