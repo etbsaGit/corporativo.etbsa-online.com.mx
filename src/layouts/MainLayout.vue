@@ -36,34 +36,32 @@
     </q-header>
 
     <q-drawer v-model="leftDrawerOpen" bordered :width="250" :breakpoint="250">
-      <div class="avatar-container">
-        <div v-if="user.empleado">
-          <q-item>
-            <q-avatar size="150px" v-if="user.empleado.picture">
-              <img :src="user.empleado.picture" />
-            </q-avatar>
-            <q-avatar size="150px" v-else color="primary" text-color="white">
-              {{ user.empleado.nombre.charAt(0).toUpperCase()
-              }}{{ user.empleado.apellido_paterno.charAt(0).toUpperCase() }}
-            </q-avatar>
-          </q-item>
-        </div>
-        <div v-else>
+      <q-item v-if="user.empleado" class="avatar-container">
+        <q-item-section avatar>
+          <q-avatar size="150px" v-if="user.empleado.picture">
+            <img :src="user.empleado.picture" />
+          </q-avatar>
+          <q-avatar size="150px" v-else color="primary" text-color="white">
+            {{ user.empleado.nombre.charAt(0).toUpperCase()
+            }}{{ user.empleado.apellido_paterno.charAt(0).toUpperCase() }}
+          </q-avatar>
+        </q-item-section>
+      </q-item>
+      <q-item v-else class="avatar-container">
+        <q-item-section avatar>
           <q-avatar
             size="150px"
             color="primary"
             text-color="white"
             icon="admin_panel_settings"
           />
-        </div>
-      </div>
+        </q-item-section>
+      </q-item>
       <q-expansion-item
         expand-separator
         icon="perm_identity"
         :label="
-          user && user.empleado && user.empleado.nombreCompleto
-            ? user.empleado.nombreCompleto
-            : user.name
+          user && user.empleado ? user.empleado.nombreCompleto : user.name
         "
         caption="Opciones de usuario"
       >

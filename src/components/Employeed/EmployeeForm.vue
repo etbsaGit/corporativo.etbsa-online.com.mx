@@ -69,6 +69,7 @@
               label="Telefono"
               mask="(###) ### - ####"
               hint
+              unmasked-value
             />
           </q-item-section>
           <q-item-section>
@@ -78,6 +79,7 @@
               dense
               label="Telefono Institucional"
               mask="(###) ### - ####"
+              unmasked-value
               hint="Opcional"
               :rules="[
                 (val) =>

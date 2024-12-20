@@ -70,7 +70,16 @@
           dense
           clearable
           hint
-        />
+        >
+          <template v-slot:option="scope">
+            <q-item v-bind="scope.itemProps">
+              <q-item-section avatar> OT: {{ scope.opt.ot }} </q-item-section>
+              <q-item-section>
+                Maquina: {{ scope.opt.maquina }}
+              </q-item-section>
+            </q-item>
+          </template>
+        </q-select>
       </q-item-section>
     </q-item>
     <q-item>

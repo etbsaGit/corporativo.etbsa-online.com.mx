@@ -168,6 +168,9 @@
         <q-item-section side>
           <q-btn label="Actualizar" color="blue" @click="PutPost" />
         </q-item-section>
+        <q-item-section side>
+          <q-btn label="Borrar" color="orange" @click="deletePost = true" />
+        </q-item-section>
       </q-item>
       <q-separator />
       <post-form ref="edit" :post="selectedPost" :key="selectedPost.post_doc" />
@@ -247,11 +250,6 @@ bus.on("edit_post", (post) => {
   editPost.value = true;
 });
 
-bus.on("delete_post", (post) => {
-  selectedPost.value = post;
-  deletePost.value = true;
-});
-
 const getPosts = async () => {
   const final = { ...formFilter.value };
   let res = await sendRequest("POST", final, "/api/posts/all", "");
@@ -326,6 +324,7 @@ const DestroyPost = async () => {
   const id = selectedPost.value.id;
   let res = await sendRequest("DELETE", null, "/api/post/" + id, "");
   deletePost.value = false;
+  editPost.value = false;
   getItems();
 };
 

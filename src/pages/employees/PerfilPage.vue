@@ -37,7 +37,7 @@
     </q-item-section>
   </div>
 
-  <q-item v-else class="text-center">
+  <q-item v-else class="empty-state">
     <h1>Usted no tiene un empleado ligado</h1>
   </q-item>
 </template>
@@ -57,3 +57,25 @@ const tab = ref("skill");
 const auth = useAuthStore();
 const { user } = storeToRefs(auth);
 </script>
+
+<style scoped>
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 92vh; /* Ocupa toda la altura de la pantalla */
+  padding: 2rem; /* Espaciado uniforme alrededor */
+  border: 1px solid #ffffff;
+  border-radius: 8px;
+  background-color: #ffffff;
+  text-align: center;
+  box-sizing: border-box; /* Asegura que el padding no rompa el layout */
+}
+
+.empty-state h1 {
+  font-size: 1.5rem;
+  color: #555;
+  margin: 0;
+}
+</style>

@@ -224,20 +224,24 @@
     persistent
     full-height
   >
-    <q-card style="width: 100%">
-      <q-card-section
-        class="d-flex justify-between items-center q-pa-sm bg-primary text-white"
-      >
-        <div class="text-h6">Agregar orden de trabajo</div>
-        <q-card-actions align="right">
+    <q-card>
+      <q-item class="text-white bg-primary">
+        <q-item-section>
+          <q-item-label class="text-h6">Agregar</q-item-label>
+        </q-item-section>
+        <q-item-section side>
           <q-btn label="Cerrar" color="red" v-close-popup />
+        </q-item-section>
+        <q-item-section side>
           <q-btn label="Guardar" color="blue" @click="storeWO" />
-        </q-card-actions>
-      </q-card-section>
+        </q-item-section>
+      </q-item>
       <q-separator />
-      <div class="q-pa-sm">
-        <work-order-form ref="addForm" />
-      </div>
+      <q-item class="q-pa-none">
+        <q-item-section>
+          <work-order-form ref="addForm" />
+        </q-item-section>
+      </q-item>
     </q-card>
   </q-dialog>
 
@@ -248,20 +252,25 @@
     persistent
     full-height
   >
-    <q-card style="width: 100%">
-      <q-card-section
-        class="d-flex justify-between items-center q-pa-sm bg-primary text-white"
-      >
-        <div class="text-h6">Editar orden de trabajo</div>
-        <q-card-actions align="right">
+    <q-card>
+      <q-item class="text-white bg-primary">
+        <q-item-section>
+          <q-item-label class="text-h6">Actualizar</q-item-label>
+        </q-item-section>
+
+        <q-item-section side>
           <q-btn label="Cerrar" color="red" v-close-popup />
-          <q-btn label="Guardar" color="blue" @click="putWO" />
-        </q-card-actions>
-      </q-card-section>
+        </q-item-section>
+        <q-item-section side>
+          <q-btn label="Actualizar" color="blue" @click="putWO" />
+        </q-item-section>
+      </q-item>
       <q-separator />
-      <div class="q-pa-sm">
-        <work-order-form ref="editForm" :wo="selectedWO" />
-      </div>
+      <q-item class="q-pa-none">
+        <q-item-section>
+          <work-order-form ref="editForm" :wo="selectedWO" />
+        </q-item-section>
+      </q-item>
     </q-card>
   </q-dialog>
 
