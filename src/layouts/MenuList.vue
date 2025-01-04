@@ -51,6 +51,23 @@
       <q-item-section>Calendario</q-item-section>
     </q-item>
 
+    <q-item
+      v-if="checkRole('Empleado')"
+      dense
+      clickable
+      v-ripple
+      to="/vacation"
+      :active="link === 'vacation'"
+      @click="link = 'vacation'"
+      active-class="my-menu-link"
+    >
+      <q-item-section avatar>
+        <q-icon name="beach_access" />
+      </q-item-section>
+
+      <q-item-section>Vacaciones</q-item-section>
+    </q-item>
+
     <q-expansion-item
       expand-separator
       icon="perm_identity"
