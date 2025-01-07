@@ -10,6 +10,7 @@
   >
     <q-tab name="myVacation" label="Mis vacaciones" />
     <q-tab name="vacationsRH" label="Vacaciones" />
+    <q-tab name="calendar" label="Calendario" />
   </q-tabs>
 
   <q-separator />
@@ -22,6 +23,14 @@
     <q-tab-panel name="vacationsRH" class="q-pa-none">
       <vacation-all />
     </q-tab-panel>
+
+    <q-tab-panel name="calendar" class="q-pa-none">
+      <q-item>
+        <q-item-section>
+          <vacation-calendar />
+        </q-item-section>
+      </q-item>
+    </q-tab-panel>
   </q-tab-panels>
 </template>
 
@@ -30,6 +39,7 @@ import { ref } from "vue";
 
 import MyVacationIndex from "src/components/Vacation/MyVacationIndex.vue";
 import VacationAll from "src/components/Vacation/VacationAll.vue";
+import VacationCalendar from "src/components/Vacation/VacationCalendar.vue";
 
 const tab = ref("myVacation");
 </script>
