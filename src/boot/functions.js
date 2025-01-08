@@ -154,7 +154,10 @@ export function checkLine(linea) {
     usuario.empleado.linea &&
     usuario.empleado.linea.nombre
   ) {
-    return usuario.empleado.linea.nombre === linea;
+    return (
+      usuario.empleado.linea.nombre === linea ||
+      usuario.empleado.linea.nombre === "Combo"
+    );
   }
   return false;
 }

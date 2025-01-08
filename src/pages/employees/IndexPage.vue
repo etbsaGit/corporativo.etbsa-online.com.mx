@@ -1,5 +1,6 @@
 <template>
   <q-expansion-item
+    dense
     flat
     color="primary"
     icon="menu"
@@ -230,6 +231,23 @@
       </q-item-section>
       <q-item-section side>
         <q-btn label="Buscar empleados" color="primary" @click="getVacations" />
+      </q-item-section>
+      <q-item-section side>
+        <q-btn
+          dense
+          color="primary"
+          @click="onRowClickExcelVacation"
+          icon="download"
+        >
+          <q-tooltip
+            anchor="center left"
+            self="center right"
+            :offset="[10, 10]"
+            class="text-h6"
+          >
+            Descargar xlsx de los empleados de vacaciones
+          </q-tooltip>
+        </q-btn>
       </q-item-section>
     </q-item>
   </q-expansion-item>
@@ -835,6 +853,43 @@ const onRowClickExcel = async () => {
     };
 
     let res = await sendRequest("POST", final, "/api/empleados/excel", "");
+
+    // La respuesta será el archivo en Base64 (viene en la propiedad 'file_base64' de la API)
+    const base64Response = await fetch(
+      `data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,${res.file_base64}`
+    );
+
+    // Convertimos el archivo Base64 a un Blob
+    const blob = await base64Response.blob();
+
+    // Creamos una URL para el Blob
+    const url = URL.createObjectURL(blob);
+
+    // Abrimos el archivo en una nueva pestaña o lo descargamos
+    window.open(url, "_blank"); // Para abrirlo en una nueva pestaña
+    // Para descargarlo automáticamente, puedes usar:
+    // const link = document.createElement('a');
+    // link.href = url;
+    // link.download = 'empleados.xlsx';
+    // link.click();
+  } catch (error) {
+    console.error("Error al exportar el archivo Excel:", error);
+  }
+};
+
+const onRowClickExcelVacation = async () => {
+  try {
+    // Realiza la solicitud a la API para exportar el Excel de acuerdo al ID de la fila
+    const final = {
+      ...dates.value,
+    };
+
+    let res = await sendRequest(
+      "POST",
+      final,
+      "/api/empleados/excel/vacations",
+      ""
+    );
 
     // La respuesta será el archivo en Base64 (viene en la propiedad 'file_base64' de la API)
     const base64Response = await fetch(
