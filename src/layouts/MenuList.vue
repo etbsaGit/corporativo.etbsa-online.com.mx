@@ -75,6 +75,7 @@
       dense
       dense-toggle
       group="somegroup"
+      v-if="checkRole('RRHH')"
     >
       <q-item
         v-if="checkRole('RRHH') || checkRole('Jefe')"
@@ -105,6 +106,21 @@
         </q-item-section>
 
         <q-item-section>Catalogos para empleados</q-item-section>
+      </q-item>
+      <q-item
+        v-if="checkRole('RRHH')"
+        clickable
+        v-ripple
+        to="/incapacities"
+        :active="link === 'incapacities'"
+        @click="link = 'incapacities'"
+        active-class="my-menu-link"
+      >
+        <q-item-section avatar>
+          <q-icon name="person_off" />
+        </q-item-section>
+
+        <q-item-section>Incapacidades para empleados</q-item-section>
       </q-item>
     </q-expansion-item>
 

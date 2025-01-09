@@ -33,6 +33,10 @@ const routes = [
     },
     children: [
       {
+        path: "/incapacities",
+        component: () => import("src/pages/incapacity/IncapacityPage.vue"),
+      },
+      {
         path: "/employees",
         component: () => import("src/pages/employees/IndexPage.vue"),
       },
