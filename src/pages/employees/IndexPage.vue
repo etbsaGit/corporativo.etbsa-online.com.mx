@@ -1,5 +1,6 @@
 <template>
   <q-expansion-item
+    dense
     flat
     color="primary"
     icon="menu"
@@ -36,6 +37,18 @@
           @click="showAdd = true"
           icon="add_circle"
         />
+      </q-item-section>
+      <q-item-section side>
+        <q-btn dense color="primary" @click="onRowClickExcel" icon="download">
+          <q-tooltip
+            anchor="center left"
+            self="center right"
+            :offset="[10, 10]"
+            class="text-h6"
+          >
+            Descargar xlsx de los empleados filtrados
+          </q-tooltip>
+        </q-btn>
       </q-item-section>
     </q-item>
     <q-item>
@@ -113,7 +126,6 @@
       </q-item-section>
     </q-item>
     <q-separator />
-
     <q-item>
       <q-item-section>
         <q-item-label class="text-h6 text-grey-8" align="center">
@@ -162,6 +174,80 @@
           color="primary"
           @click="getKardex(mes, anio)"
         />
+      </q-item-section>
+    </q-item>
+    <q-separator />
+    <q-item>
+      <q-item-section>
+        <q-item-label class="text-h6 text-grey-8" align="center">
+          -Vacaciones-
+        </q-item-label>
+      </q-item-section>
+    </q-item>
+    <q-item>
+      <q-item-section>
+        <q-input
+          outlined
+          readonly
+          dense
+          v-model="dates.from"
+          mask="date"
+          label="Del:"
+        >
+          <template v-slot:append>
+            <q-icon name="event" class="cursor-pointer">
+              <q-popup-proxy
+                cover
+                transition-show="scale"
+                transition-hide="scale"
+              >
+                <q-date v-model="dates.from" minimal />
+              </q-popup-proxy>
+            </q-icon>
+          </template>
+        </q-input>
+      </q-item-section>
+      <q-item-section>
+        <q-input
+          outlined
+          readonly
+          dense
+          v-model="dates.to"
+          mask="date"
+          label="Al:"
+        >
+          <template v-slot:append>
+            <q-icon name="event" class="cursor-pointer">
+              <q-popup-proxy
+                cover
+                transition-show="scale"
+                transition-hide="scale"
+              >
+                <q-date v-model="dates.to" minimal />
+              </q-popup-proxy>
+            </q-icon>
+          </template>
+        </q-input>
+      </q-item-section>
+      <q-item-section side>
+        <q-btn label="Buscar empleados" color="primary" @click="getVacations" />
+      </q-item-section>
+      <q-item-section side>
+        <q-btn
+          dense
+          color="primary"
+          @click="onRowClickExcelVacation"
+          icon="download"
+        >
+          <q-tooltip
+            anchor="center left"
+            self="center right"
+            :offset="[10, 10]"
+            class="text-h6"
+          >
+            Descargar xlsx de los empleados de vacaciones
+          </q-tooltip>
+        </q-btn>
       </q-item-section>
     </q-item>
   </q-expansion-item>
@@ -300,20 +386,14 @@
               Cargar a todos los empleados activos
             </q-tooltip>
           </q-btn> -->
-          <q-btn
-            outline
-            dense
-            color="primary"
-            @click="onRowClickExcel"
-            icon="download"
-          >
+          <q-btn outline dense color="primary" @click="getRows" icon="refresh">
             <q-tooltip
               anchor="center left"
               self="center right"
               :offset="[10, 10]"
               class="text-h6"
             >
-              Descargar xlsx de los empleados filtrados
+              Cargar a todos los empleados
             </q-tooltip>
           </q-btn>
         </template>
@@ -552,6 +632,11 @@ const puestos = ref([]);
 const mes = ref(new Date().getMonth() + 1); // getMonth() devuelve el mes 0-11, por eso sumamos 1
 const anio = ref(new Date().getFullYear());
 
+const dates = ref({
+  to: null,
+  from: null,
+});
+
 const filterForm = ref({
   search: null,
   sucursal_id: null,
@@ -680,6 +765,18 @@ const saveSkillRatings = async () => {
   bus.emit("new-skill");
 };
 
+const getVacations = async () => {
+  const final = {
+    ...dates.value,
+  };
+  let res = await sendRequest("POST", final, "/api/empleados/vacations", "");
+  rows.value = res.data;
+  filterForm.value.page = res.current_page;
+  next_page_url.value = res.next_page_url;
+  prev_page_url.value = res.prev_page_url;
+  last_page.value = res.last_page;
+};
+
 const getRows = async (page = 1) => {
   const current = {
     page: page,
@@ -756,6 +853,43 @@ const onRowClickExcel = async () => {
     };
 
     let res = await sendRequest("POST", final, "/api/empleados/excel", "");
+
+    // La respuesta será el archivo en Base64 (viene en la propiedad 'file_base64' de la API)
+    const base64Response = await fetch(
+      `data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,${res.file_base64}`
+    );
+
+    // Convertimos el archivo Base64 a un Blob
+    const blob = await base64Response.blob();
+
+    // Creamos una URL para el Blob
+    const url = URL.createObjectURL(blob);
+
+    // Abrimos el archivo en una nueva pestaña o lo descargamos
+    window.open(url, "_blank"); // Para abrirlo en una nueva pestaña
+    // Para descargarlo automáticamente, puedes usar:
+    // const link = document.createElement('a');
+    // link.href = url;
+    // link.download = 'empleados.xlsx';
+    // link.click();
+  } catch (error) {
+    console.error("Error al exportar el archivo Excel:", error);
+  }
+};
+
+const onRowClickExcelVacation = async () => {
+  try {
+    // Realiza la solicitud a la API para exportar el Excel de acuerdo al ID de la fila
+    const final = {
+      ...dates.value,
+    };
+
+    let res = await sendRequest(
+      "POST",
+      final,
+      "/api/empleados/excel/vacations",
+      ""
+    );
 
     // La respuesta será el archivo en Base64 (viene en la propiedad 'file_base64' de la API)
     const base64Response = await fetch(
