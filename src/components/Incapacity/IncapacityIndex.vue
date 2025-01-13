@@ -1,6 +1,19 @@
 <template>
   <q-item>
     <q-item-section>
+      <q-input
+        outlined
+        dense
+        label="Buscar por folio"
+        v-model="filterForm.search"
+        @update:model-value="onInputChange"
+      >
+        <template v-slot:prepend>
+          <q-icon name="search" />
+        </template>
+      </q-input>
+    </q-item-section>
+    <q-item-section>
       <q-select
         v-model="filterForm.empleado_id"
         :options="filterEmpleados"
@@ -89,9 +102,9 @@
           </q-td>
         </template>
 
-        <template v-slot:body-cell-fecha_regreso="props">
+        <template v-slot:body-cell-latestDate="props">
           <q-td :props="props">
-            {{ formatDateplusoneSlim(props.row.fecha_regreso) }}
+            {{ formatDateplusoneSlim(props.row.latestDate) }}
           </q-td>
         </template>
 
@@ -151,7 +164,7 @@
     transition-show="rotate"
     transition-hide="rotate"
     persistent
-    full-width
+    maximized
   >
     <q-card>
       <q-item class="text-white bg-primary">
@@ -202,6 +215,7 @@ const current_page = ref(1);
 const empleados = ref([]);
 
 const filterForm = ref({
+  search: null,
   empleado_id: null,
 });
 
@@ -210,6 +224,12 @@ const columns = [
     name: "edit",
     align: "left",
     field: "edit",
+  },
+  {
+    name: "folio",
+    align: "left",
+    field: "folio",
+    label: "Folio",
   },
   {
     name: "empleado",
@@ -221,7 +241,7 @@ const columns = [
     name: "estatus",
     align: "left",
     field: "estatus",
-    label: "Tipo de incapacidad",
+    label: "Ramo de servicio",
   },
 
   {
@@ -230,17 +250,23 @@ const columns = [
     field: "fecha_inicio",
     label: "Fecha inicio",
   },
+  // {
+  //   name: "fecha_termino",
+  //   align: "left",
+  //   field: "fecha_termino",
+  //   label: "Fecha Termino",
+  // },
   {
-    name: "fecha_termino",
+    name: "latestDate",
     align: "left",
-    field: "fecha_termino",
-    label: "Fecha Termino",
+    field: "latestDate",
+    label: "Fecha Regreso",
   },
   {
-    name: "fecha_regreso",
+    name: "total",
     align: "left",
-    field: "fecha_regreso",
-    label: "Fecha Regreso",
+    field: "total",
+    label: "Total dias",
   },
 ];
 
