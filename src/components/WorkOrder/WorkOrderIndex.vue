@@ -18,7 +18,7 @@
         dense
         color="primary"
         label="Agregar Order de trabajo"
-        @click="onClickAdd"
+        @click="add = true"
       />
     </q-item-section>
   </q-item>
@@ -31,169 +31,152 @@
         :rows="wos"
         :columns="columns"
       >
-        <template v-slot:body="props">
-          <q-tr :props="props">
-            <q-td>
-              <q-btn
-                size="sm"
-                color="primary"
-                round
-                dense
-                @click="toggleExpand(props.row)"
-                :icon="props.row._expand ? 'remove' : 'add'"
-              />
-            </q-td>
-            <q-td key="ot" :props="props">
-              {{ props.row.ot }}
-            </q-td>
-            <q-td key="cliente" :props="props">
-              {{
-                props.row.cliente && props.row.cliente.length > 20
-                  ? props.row.cliente.slice(0, 20) + "..."
-                  : props.row.cliente
-              }}
-              <q-tooltip
-                class="bg-purple text-body2"
-                v-if="props.row.cliente && props.row.cliente.length > 20"
-              >
-                {{ props.row.cliente }}
-              </q-tooltip>
-            </q-td>
-            <q-td key="maquina" :props="props">
-              {{
-                props.row.maquina && props.row.maquina.length > 20
-                  ? props.row.maquina.slice(0, 20) + "..."
-                  : props.row.maquina
-              }}
-              <q-tooltip
-                class="bg-purple text-body2"
-                v-if="props.row.maquina && props.row.maquina.length > 20"
-              >
-                {{ props.row.maquina }}
-              </q-tooltip>
-            </q-td>
-            <q-td key="fecha_ingreso" :props="props">
-              {{ formatDateplusoneSlim(props.row.fecha_ingreso) }}
-            </q-td>
-
-            <q-td key="fecha_entrega" :props="props">
-              {{ formatDateplusoneSlim(props.row.fecha_entrega) }}
-            </q-td>
-            <q-td key="mano_obra" :props="props">
-              {{ formatCurrency(props.row.mano_obra) }}
-            </q-td>
-            <q-td key="refacciones" :props="props">
-              {{ formatCurrency(props.row.refacciones) }}
-            </q-td>
-            <q-td key="total_factura" :props="props">
-              {{
-                formatCurrency(
-                  total_factura(props.row.refacciones, props.row.mano_obra)
-                )
-              }}
-            </q-td>
-            <q-td key="tecnico" :props="props">
-              <q-avatar
-                color="primary"
-                text-color="white"
-                v-if="props.row.tecnico.picture"
-              >
-                <img :src="props.row.tecnico.picture" alt="Foto del empleado" />
-              </q-avatar>
-              <q-avatar v-else color="primary" text-color="white">
-                {{ props.row.tecnico.nombre.charAt(0).toUpperCase()
-                }}{{
-                  props.row.tecnico.apellido_paterno.charAt(0).toUpperCase()
-                }}
-              </q-avatar>
-              {{ props.row.tecnico.nombre }}
-              {{ props.row.tecnico.apellido_paterno }}
-            </q-td>
-            <q-td key="estatus" :props="props">
-              {{ props.row.estatus.nombre }}
-            </q-td>
-            <q-td key="bay" :props="props">
-              {{ props.row.bay ? props.row.bay.nombre : null }}
-            </q-td>
-            <q-td key="actions">
-              <q-btn-dropdown flat color="primary" icon="menu" dense>
-                <q-list v-close-popup>
-                  <q-item>
-                    <q-btn
-                      @click="onClickEdit(props.row)"
-                      flat
-                      size="sm"
-                      label="Editar"
-                      color="blue"
-                      icon="edit"
-                    />
-                  </q-item>
-                  <q-item>
-                    <q-btn
-                      @click="onClickDocs(props.row)"
-                      flat
-                      size="sm"
-                      label="Archivos"
-                      color="green"
-                      icon="folder"
-                    />
-                  </q-item>
-                  <q-item>
-                    <q-btn
-                      @click="onClickDelete(props.row)"
-                      flat
-                      size="sm"
-                      label="Borrar"
-                      color="red"
-                      icon="delete"
-                    />
-                  </q-item>
-                </q-list>
-              </q-btn-dropdown>
-            </q-td>
-          </q-tr>
-          <q-tr v-show="props.row._expand" :props="props">
-            <q-td colspan="100%" class="bg-blue-grey-12">
-              <q-item class="text-center">
-                <q-item-section>
-                  <div><strong>Descripcion:</strong></div>
-                  <div>{{ props.row.descripcion }}</div>
-                </q-item-section>
-                <q-item-section>
-                  <strong>Comentarios:</strong>
-                  {{ props.row.comentarios }}
-                </q-item-section>
-              </q-item>
-              <q-separator></q-separator>
-              <q-item class="text-center">
-                <q-item-section>
-                  <strong>Horas facturadas:</strong>
-                  {{ props.row.horas_facturadas }}
-                </q-item-section>
-                <q-item-section>
-                  <strong>Horas reales:</strong>
-                  {{ props.row.horas_reales }}
-                </q-item-section>
-                <q-item-section>
-                  <strong>Tipo:</strong>
-                  {{ props.row.type.nombre }}
-                </q-item-section>
-                <q-item-section>
-                  <strong>Estatus del taller:</strong>
-                  {{ props.row.estatus_taller.nombre }}
-                </q-item-section>
-                <q-item-section>
-                  <strong>Linea:</strong>
-                  {{ props.row.linea.nombre }}
-                </q-item-section>
-                <q-item-section>
-                  <strong>Sucursal:</strong>
-                  {{ props.row.sucursal.nombre }}
-                </q-item-section>
-              </q-item>
-            </q-td>
-          </q-tr>
+        <template v-slot:body-cell-fecha_ingreso="props">
+          <q-td :props="props">
+            {{ formatDateplusoneSlim(props.row.fecha_ingreso) }}
+          </q-td>
         </template>
+        <template v-slot:body-cell-fecha_entrega="props">
+          <q-td :props="props">
+            {{ formatDateplusoneSlim(props.row.fecha_entrega) }}
+          </q-td>
+        </template>
+        <template v-slot:body-cell-mano_obra="props">
+          <q-td :props="props">
+            {{ formatCurrency(props.row.mano_obra) }}
+          </q-td>
+        </template>
+        <template v-slot:body-cell-refacciones="props">
+          <q-td :props="props">
+            {{ formatCurrency(props.row.refacciones) }}
+          </q-td>
+        </template>
+        <template v-slot:body-cell-km="props">
+          <q-td :props="props">
+            {{ formatCurrency(props.row.km) }}
+          </q-td>
+        </template>
+        <template v-slot:body-cell-foraneo="props">
+          <q-td :props="props">
+            {{ formatCurrency(props.row.foraneo) }}
+          </q-td>
+        </template>
+        <template v-slot:body-cell-total_factura="props">
+          <q-td :props="props">
+            {{
+              formatCurrency(
+                total_factura(
+                  props.row.refacciones,
+                  props.row.mano_obra,
+                  props.row.km,
+                  props.row.foraneo
+                )
+              )
+            }}
+          </q-td>
+        </template>
+
+        <template v-slot:body-cell-cliente="props">
+          <q-td :props="props">
+            {{
+              props.row.cliente && props.row.cliente.length > 20
+                ? props.row.cliente.slice(0, 20) + "..."
+                : props.row.cliente
+            }}
+            <q-tooltip
+              class="bg-purple text-body2"
+              v-if="props.row.cliente && props.row.cliente.length > 20"
+            >
+              {{ props.row.cliente }}
+            </q-tooltip>
+          </q-td>
+        </template>
+
+        <template v-slot:body-cell-maquina="props">
+          <q-td :props="props">
+            {{
+              props.row.maquina && props.row.maquina.length > 20
+                ? props.row.maquina.slice(0, 20) + "..."
+                : props.row.maquina
+            }}
+            <q-tooltip
+              class="bg-purple text-body2"
+              v-if="props.row.maquina && props.row.maquina.length > 20"
+            >
+              {{ props.row.maquina }}
+            </q-tooltip>
+          </q-td>
+        </template>
+
+        <template v-slot:body-cell-tecnico="props">
+          <q-td :props="props">
+            <q-avatar
+              color="primary"
+              text-color="white"
+              v-if="props.row.tecnico.picture"
+            >
+              <img :src="props.row.tecnico.picture" alt="Foto del empleado" />
+            </q-avatar>
+            <q-avatar v-else color="primary" text-color="white">
+              {{ props.row.tecnico.nombre.charAt(0).toUpperCase()
+              }}{{ props.row.tecnico.apellido_paterno.charAt(0).toUpperCase() }}
+            </q-avatar>
+            {{ props.row.tecnico.nombre }}
+            {{ props.row.tecnico.apellido_paterno }}
+          </q-td>
+        </template>
+
+        <template v-slot:body-cell-estatus="props">
+          <q-td :props="props">
+            {{ props.row.estatus.nombre }}
+          </q-td>
+        </template>
+
+        <template v-slot:body-cell-bay="props">
+          <q-td :props="props">
+            {{ props.row.bay?.nombre }}
+          </q-td>
+        </template>
+
+        <template v-slot:body-cell-actions="props">
+          <q-td :props="props">
+            <q-btn-dropdown flat color="primary" icon="menu" dense>
+              <q-list v-close-popup>
+                <q-item>
+                  <q-btn
+                    @click="onClickEdit(props.row)"
+                    flat
+                    size="sm"
+                    label="Editar"
+                    color="blue"
+                    icon="edit"
+                  />
+                </q-item>
+                <q-item>
+                  <q-btn
+                    @click="onClickDocs(props.row)"
+                    flat
+                    size="sm"
+                    label="Archivos"
+                    color="green"
+                    icon="folder"
+                  />
+                </q-item>
+                <q-item>
+                  <q-btn
+                    @click="onClickDelete(props.row)"
+                    flat
+                    size="sm"
+                    label="Borrar"
+                    color="red"
+                    icon="delete"
+                  />
+                </q-item>
+              </q-list>
+            </q-btn-dropdown>
+          </q-td>
+        </template>
+
         <template v-slot:bottom>
           <q-space />
           <td>
@@ -361,11 +344,6 @@ const filterForm = ref({
 
 const columns = [
   {
-    name: "expancion_item",
-    field: "expancion_item",
-    align: "left",
-  },
-  {
     name: "ot",
     label: "OT",
     field: "ot",
@@ -400,23 +378,37 @@ const columns = [
     sortable: true,
     align: "left",
   },
-  {
-    name: "mano_obra",
-    label: "Mano de obra",
-    field: "mano_obra",
-    sortable: true,
-    align: "left",
-  },
-  {
-    name: "refacciones",
-    label: "Refacciones",
-    field: "refacciones",
-    sortable: true,
-    align: "left",
-  },
+  // {
+  //   name: "mano_obra",
+  //   label: "Mano de obra",
+  //   field: "mano_obra",
+  //   sortable: true,
+  //   align: "left",
+  // },
+  // {
+  //   name: "refacciones",
+  //   label: "Refacciones",
+  //   field: "refacciones",
+  //   sortable: true,
+  //   align: "left",
+  // },
+  // {
+  //   name: "km",
+  //   label: "KM",
+  //   field: "km",
+  //   sortable: true,
+  //   align: "left",
+  // },
+  // {
+  //   name: "foraneo",
+  //   label: "Foraneo",
+  //   field: "foraneo",
+  //   sortable: true,
+  //   align: "left",
+  // },
   {
     name: "total_factura",
-    label: "Total factura",
+    label: "Monto total",
     field: "total_factura",
     sortable: true,
     align: "left",
@@ -451,23 +443,20 @@ const columns = [
   },
 ];
 
-const total_factura = (mano_obra, refa) => {
+const total_factura = (mano_obra, refa, km, fora) => {
   const manoObra = Number(mano_obra);
   const refacciones = Number(refa);
+  const KM = Number(km);
+  const foraneo = Number(fora);
   const manoObraNumber = isNaN(manoObra) ? 0 : manoObra;
   const refaccionesNumber = isNaN(refacciones) ? 0 : refacciones;
-  const subtotal = (manoObraNumber + refaccionesNumber) * 1.16;
+  const kmNumber = isNaN(KM) ? 0 : KM;
+  const foraneoNumber = isNaN(foraneo) ? 0 : foraneo;
+  const subtotal =
+    (manoObraNumber + refaccionesNumber + kmNumber + foraneoNumber) * 1.16;
   return subtotal.toFixed(2); // Redondea el resultado a dos decimales
 };
 
-const toggleExpand = (row) => {
-  // Toggle expand state for the clicked row
-  row._expand = !row._expand;
-};
-
-const onClickAdd = () => {
-  add.value = true;
-};
 const onClickEdit = (wo) => {
   selectedWO.value = wo;
   edit.value = true;

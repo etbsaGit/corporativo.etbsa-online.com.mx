@@ -195,13 +195,17 @@ export function checkSucursal(linea) {
     // Si el usuario tiene el rol de "admin", devuelve true
     return true;
   }
+
   if (
     usuario &&
     usuario.empleado &&
     usuario.empleado.sucursal &&
     usuario.empleado.sucursal.nombre
   ) {
-    return usuario.empleado.sucursal.nombre === linea;
+    return (
+      usuario.empleado.sucursal.nombre === linea ||
+      usuario.empleado.sucursal.nombre === "Corporativo"
+    );
   }
   return false;
 }
@@ -252,4 +256,32 @@ export function getNamesPermissions(usuario) {
     }
   }
   return namePermissions;
+}
+
+export function checkPuestoIncludes(puesto) {
+  const authStore = useAuthStore();
+  const usuario = authStore.authUser;
+
+  if (
+    usuario &&
+    usuario.roles &&
+    usuario.roles.some((usuarioRol) => usuarioRol.name === "Admin")
+  ) {
+    // Si el usuario tiene el rol de "admin", devuelve false
+    return true;
+  }
+
+  if (
+    usuario &&
+    usuario.empleado &&
+    usuario.empleado.puesto &&
+    usuario.empleado.puesto.nombre
+  ) {
+    // Devuelve true si el nombre del puesto incluye la palabra buscada
+    return usuario.empleado.puesto.nombre
+      .toLowerCase()
+      .includes(puesto.toLowerCase());
+  }
+
+  return false;
 }

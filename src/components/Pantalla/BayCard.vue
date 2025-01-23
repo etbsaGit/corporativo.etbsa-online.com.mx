@@ -46,7 +46,7 @@
     <q-separator />
 
     <q-card-section horizontal v-if="bay.work_order">
-      <q-card-section class="col-9 text-left q-pa-none">
+      <q-card-section class="col-10 text-left q-pa-none">
         <q-item>
           <q-item-section>
             <q-item-label><strong>Maquina: </strong></q-item-label>
@@ -94,7 +94,7 @@
               <strong>Mano obra</strong>
             </q-item-label>
             <q-item-label>
-              ${{ formatNumber(bay.work_order.mano_obra) }}
+              {{ formatCurrency(bay.work_order.mano_obra) }}
             </q-item-label>
           </q-item-section>
           <q-separator vertical spaced />
@@ -103,7 +103,25 @@
               <strong>Refacciones</strong>
             </q-item-label>
             <q-item-label>
-              ${{ formatNumber(bay.work_order.refacciones) }}
+              {{ formatCurrency(bay.work_order.refacciones) }}
+            </q-item-label>
+          </q-item-section>
+          <q-separator vertical spaced />
+          <q-item-section>
+            <q-item-label>
+              <strong>KM</strong>
+            </q-item-label>
+            <q-item-label>
+              {{ formatCurrency(bay.work_order.km) }}
+            </q-item-label>
+          </q-item-section>
+          <q-separator vertical spaced />
+          <q-item-section>
+            <q-item-label>
+              <strong>Foraneo</strong>
+            </q-item-label>
+            <q-item-label>
+              {{ formatCurrency(bay.work_order.foraneo) }}
             </q-item-label>
           </q-item-section>
           <q-separator vertical spaced />
@@ -112,11 +130,13 @@
               <strong>Factura</strong>
             </q-item-label>
             <q-item-label>
-              ${{
-                formatNumber(
+              {{
+                formatCurrency(
                   total_factura(
                     bay.work_order.refacciones,
-                    bay.work_order.mano_obra
+                    bay.work_order.mano_obra,
+                    bay.work_order.km,
+                    bay.work_order.foraneo
                   )
                 )
               }}
@@ -127,7 +147,7 @@
 
       <q-separator vertical />
 
-      <q-card-section class="col-3 text-center q-pa-none">
+      <q-card-section class="col-2 text-center q-pa-none">
         <q-item>
           <q-item-section>
             <q-item-label>
@@ -183,6 +203,7 @@
 import {
   formatDateplusoneSlim,
   calcularDiasRestantes,
+  formatCurrency,
 } from "src/boot/formatFunctions";
 
 const { bays } = defineProps(["bays"]);
@@ -205,20 +226,18 @@ const getStatusColor = (status) => {
   }
 };
 
-const total_factura = (mano_obra, refa) => {
+const total_factura = (mano_obra, refa, km, fora) => {
   const manoObra = Number(mano_obra);
   const refacciones = Number(refa);
+  const KM = Number(km);
+  const foraneo = Number(fora);
   const manoObraNumber = isNaN(manoObra) ? 0 : manoObra;
   const refaccionesNumber = isNaN(refacciones) ? 0 : refacciones;
-  const subtotal = (manoObraNumber + refaccionesNumber) * 1.16;
+  const kmNumber = isNaN(KM) ? 0 : KM;
+  const foraneoNumber = isNaN(foraneo) ? 0 : foraneo;
+  const subtotal =
+    (manoObraNumber + refaccionesNumber + kmNumber + foraneoNumber) * 1.16;
   return subtotal.toFixed(2); // Redondea el resultado a dos decimales
-};
-
-const formatNumber = (number) => {
-  // Separar los dígitos antes del punto decimal en grupos de tres
-  let parts = number.toString().split(".");
-  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  return parts.join(".");
 };
 </script>
 

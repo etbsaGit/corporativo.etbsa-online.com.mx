@@ -162,6 +162,21 @@
 
         <q-item-section>Diario de horas</q-item-section>
       </q-item>
+      <q-item
+        v-if="checkPuestoIncludes('Gerente')"
+        clickable
+        v-ripple
+        to="/bays"
+        :active="link === 'bays'"
+        @click="link = 'bays'"
+        active-class="my-menu-link"
+      >
+        <q-item-section avatar>
+          <q-icon name="dashboard" />
+        </q-item-section>
+
+        <q-item-section>Bahías</q-item-section>
+      </q-item>
     </q-expansion-item>
 
     <q-expansion-item
@@ -273,7 +288,12 @@
 
 <script setup>
 import { ref } from "vue";
-import { checkRole, checkPuesto, checkRoleEmpleado } from "../boot/functions";
+import {
+  checkRole,
+  checkPuesto,
+  checkRoleEmpleado,
+  checkPuestoIncludes,
+} from "../boot/functions";
 
 const link = ref("perfil");
 </script>
