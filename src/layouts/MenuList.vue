@@ -68,6 +68,23 @@
       <q-item-section>Vacaciones</q-item-section>
     </q-item>
 
+    <q-item
+      v-if="checkPuestoIncludes('territorial') || checkSucursal('Corporativo')"
+      dense
+      clickable
+      v-ripple
+      to="/visits"
+      :active="link === 'visits'"
+      @click="link = 'visits'"
+      active-class="my-menu-link"
+    >
+      <q-item-section avatar>
+        <q-icon name="event" />
+      </q-item-section>
+
+      <q-item-section>Visitas a clientes</q-item-section>
+    </q-item>
+
     <q-expansion-item
       expand-separator
       icon="perm_identity"
@@ -293,6 +310,7 @@ import {
   checkPuesto,
   checkRoleEmpleado,
   checkPuestoIncludes,
+  checkSucursal,
 } from "../boot/functions";
 
 const link = ref("perfil");

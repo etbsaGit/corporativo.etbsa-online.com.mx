@@ -202,6 +202,20 @@ const routes = [
     ],
   },
 
+  {
+    path: "/visits",
+    component: () => import("layouts/MainLayout.vue"),
+    meta: {
+      middlewares: [gerentes],
+    },
+    children: [
+      {
+        path: "",
+        component: () => import("src/pages/visits/VisitsPage.vue"),
+      },
+    ],
+  },
+
   // Always leave this as last one,
   // but you can also remove it
   {
