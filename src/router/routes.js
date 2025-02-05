@@ -203,15 +203,19 @@ const routes = [
   },
 
   {
-    path: "/visits",
+    path: "",
     component: () => import("layouts/MainLayout.vue"),
     meta: {
       middlewares: [gerentes],
     },
     children: [
       {
-        path: "",
+        path: "/visits",
         component: () => import("src/pages/visits/VisitsPage.vue"),
+      },
+      {
+        path: "/prospect",
+        component: () => import("src/pages/prospect/ProspectPage.vue"),
       },
     ],
   },

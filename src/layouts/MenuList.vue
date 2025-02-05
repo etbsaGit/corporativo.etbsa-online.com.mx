@@ -68,22 +68,47 @@
       <q-item-section>Vacaciones</q-item-section>
     </q-item>
 
-    <q-item
-      v-if="checkPuestoIncludes('territorial') || checkSucursal('Corporativo')"
+    <q-expansion-item
+      expand-separator
+      icon="folder_shared"
+      label="Prospeccion"
       dense
-      clickable
-      v-ripple
-      to="/visits"
-      :active="link === 'visits'"
-      @click="link = 'visits'"
-      active-class="my-menu-link"
+      dense-toggle
+      group="somegroup"
+      v-if="checkPuestoIncludes('territorial') || checkSucursal('Corporativo')"
     >
-      <q-item-section avatar>
-        <q-icon name="event" />
-      </q-item-section>
+      <q-item
+        dense
+        clickable
+        v-ripple
+        to="/visits"
+        :active="link === 'visits'"
+        @click="link = 'visits'"
+        active-class="my-menu-link"
+      >
+        <q-item-section avatar>
+          <q-icon name="event" />
+        </q-item-section>
 
-      <q-item-section>Visitas a clientes</q-item-section>
-    </q-item>
+        <q-item-section>Visitas</q-item-section>
+      </q-item>
+      <q-item
+        dense
+        clickable
+        v-ripple
+        to="/prospect"
+        :active="link === 'prospect'"
+        @click="link = 'prospect'"
+        active-class="my-menu-link"
+        v-if="checkRole('Admin')"
+      >
+        <q-item-section avatar>
+          <q-icon name="assignment_ind" />
+        </q-item-section>
+
+        <q-item-section>Prospectos</q-item-section>
+      </q-item>
+    </q-expansion-item>
 
     <q-expansion-item
       expand-separator
