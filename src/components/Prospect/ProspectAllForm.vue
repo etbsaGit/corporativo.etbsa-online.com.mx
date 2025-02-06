@@ -9,6 +9,7 @@
         indicator-color="teal"
       >
         <q-tab name="info" icon="person" label="Informacion" />
+        <q-tab name="cultivos" icon="eco" label="Cultivos" />
       </q-tabs>
     </template>
     <template v-slot:after>
@@ -35,6 +36,17 @@
             :key="currentProspect"
           />
         </q-tab-panel>
+        <q-tab-panel name="cultivos">
+          <q-item dense>
+            <q-item-section>
+              <q-item-label class="text-h6"> Cultivos </q-item-label>
+            </q-item-section>
+          </q-item>
+          <prospect-cultivo-index
+            :prospect="currentProspect"
+            :key="currentProspect"
+          />
+        </q-tab-panel>
       </q-tab-panels>
     </template>
   </q-splitter>
@@ -45,6 +57,7 @@ import { ref, onMounted } from "vue";
 import { sendRequest, dataIncomplete } from "src/boot/functions";
 
 import ProspectForm from "src/components/Prospect/ProspectForm.vue";
+import ProspectCultivoIndex from "src/components/ProspectCultivo/ProspectCultivoIndex.vue";
 
 const { prospect } = defineProps(["prospect"]);
 
