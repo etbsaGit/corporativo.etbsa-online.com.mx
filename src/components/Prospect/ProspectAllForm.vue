@@ -11,6 +11,7 @@
         <q-tab name="info" icon="person" label="Informacion" />
         <q-tab name="cultivos" icon="eco" label="Cultivos" />
         <q-tab name="riegos" icon="shower" label="Riegos" />
+        <q-tab name="distribucion" icon="pin_drop" label="Distribucion" />
       </q-tabs>
     </template>
     <template v-slot:after>
@@ -59,6 +60,17 @@
             :key="currentProspect"
           />
         </q-tab-panel>
+        <q-tab-panel name="distribucion">
+          <q-item dense>
+            <q-item-section>
+              <q-item-label class="text-h6"> Distribucion </q-item-label>
+            </q-item-section>
+          </q-item>
+          <prospect-distribucion-index
+            :prospect="currentProspect"
+            :key="currentProspect"
+          />
+        </q-tab-panel>
       </q-tab-panels>
     </template>
   </q-splitter>
@@ -71,6 +83,7 @@ import { sendRequest, dataIncomplete } from "src/boot/functions";
 import ProspectForm from "src/components/Prospect/ProspectForm.vue";
 import ProspectCultivoIndex from "src/components/ProspectCultivo/ProspectCultivoIndex.vue";
 import ProspectRiegoIndex from "src/components/ProspectRiego/ProspectRiegoIndex.vue";
+import ProspectDistribucionIndex from "src/components/ProspectDistribucion/ProspectDistribucionIndex.vue";
 
 const { prospect } = defineProps(["prospect"]);
 
