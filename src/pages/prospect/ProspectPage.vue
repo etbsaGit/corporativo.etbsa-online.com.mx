@@ -89,6 +89,12 @@
           </q-td>
         </template>
 
+        <template v-slot:body-cell-candidato_agp="props">
+          <q-td :props="props">
+            {{ props.row.candidato_agp == 1 ? "Candidato" : "No es candidato" }}
+          </q-td>
+        </template>
+
         <template v-slot:bottom>
           <q-space />
           <td>
@@ -143,7 +149,7 @@
     v-model="showEdit"
     transition-show="rotate"
     transition-hide="rotate"
-    maximized
+    full-width
   >
     <q-card>
       <q-item class="text-white bg-primary">
@@ -226,6 +232,12 @@ const columns = [
     align: "left",
     field: "telefono",
     label: "Telefono",
+  },
+  {
+    name: "candidato_agp",
+    align: "left",
+    field: "candidato_agp",
+    label: "Candidato AG",
   },
   {
     name: "empleado",

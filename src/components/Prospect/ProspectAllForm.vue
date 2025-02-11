@@ -13,6 +13,13 @@
         <q-tab name="riegos" icon="shower" label="Riegos" />
         <q-tab name="distribucion" icon="pin_drop" label="Distribucion" />
         <q-tab name="maquinas" icon="agriculture" label="Maquinas" />
+        <q-tab
+          v-if="currentProspect?.candidato_agp == 1"
+          name="agp"
+          icon="analytics"
+          label="Agricultura de presicion"
+        />
+        <q-tab name="servicios" icon="build" label="Servicios" />
       </q-tabs>
     </template>
     <template v-slot:after>
@@ -83,6 +90,30 @@
             :key="currentProspect"
           />
         </q-tab-panel>
+        <q-tab-panel name="agp">
+          <q-item dense>
+            <q-item-section>
+              <q-item-label class="text-h6">
+                Agricultura de presicion
+              </q-item-label>
+            </q-item-section>
+          </q-item>
+          <prospect-agp-index
+            :prospect="currentProspect"
+            :key="currentProspect"
+          />
+        </q-tab-panel>
+        <q-tab-panel name="servicios">
+          <q-item dense>
+            <q-item-section>
+              <q-item-label class="text-h6"> Servicios </q-item-label>
+            </q-item-section>
+          </q-item>
+          <prospect-servicio-index
+            :prospect="currentProspect"
+            :key="currentProspect"
+          />
+        </q-tab-panel>
       </q-tab-panels>
     </template>
   </q-splitter>
@@ -97,6 +128,8 @@ import ProspectCultivoIndex from "src/components/ProspectCultivo/ProspectCultivo
 import ProspectRiegoIndex from "src/components/ProspectRiego/ProspectRiegoIndex.vue";
 import ProspectDistribucionIndex from "src/components/ProspectDistribucion/ProspectDistribucionIndex.vue";
 import ProspectMaquinaIndex from "src/components/ProspectMaquina/ProspectMaquinaIndex.vue";
+import ProspectAgpIndex from "src/components/ProspectAgp/ProspectAgpIndex.vue";
+import ProspectServicioIndex from "src/components/ProspectServicio/ProspectServicioIndex.vue";
 
 const { prospect } = defineProps(["prospect"]);
 

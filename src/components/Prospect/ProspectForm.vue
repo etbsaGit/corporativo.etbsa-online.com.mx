@@ -68,6 +68,16 @@
         />
       </q-item-section>
     </q-item>
+    <q-item>
+      <q-item-section>
+        <q-toggle
+          v-model="formProspect.candidato_agp"
+          label="Candidato a Agricultura de presicion"
+          :true-value="1"
+          :false-value="0"
+        />
+      </q-item-section>
+    </q-item>
   </q-form>
 </template>
 
@@ -92,6 +102,7 @@ const formProspect = ref({
   ubicacion: prospect ? prospect.ubicacion : null,
   telefono: prospect ? prospect.telefono : null,
   empleado_id: prospect ? prospect.empleado_id : empleado ? empleado.id : null,
+  candidato_agp: prospect ? prospect.candidato_agp : 0,
 });
 
 const getForms = async () => {
