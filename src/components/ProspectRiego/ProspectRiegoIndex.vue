@@ -13,6 +13,9 @@
       <q-item-section>
         <q-item-label><strong>Tipo de riego</strong></q-item-label>
       </q-item-section>
+      <q-item-section>
+        <q-item-label><strong>Marca</strong></q-item-label>
+      </q-item-section>
     </q-item>
     <q-item align="center" v-for="(riego, index) in rows" :key="index">
       <q-item-section avatar>
@@ -32,6 +35,9 @@
       </q-item-section>
       <q-item-section>
         {{ riego.riego.name }}
+      </q-item-section>
+      <q-item-section>
+        {{ riego.marca }}
       </q-item-section>
     </q-item>
     <q-item>

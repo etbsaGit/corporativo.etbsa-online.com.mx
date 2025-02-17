@@ -23,6 +23,18 @@
     <q-item>
       <q-item-section>
         <q-input
+          v-model="formProspectRiego.marca"
+          filled
+          dense
+          label="Marca"
+          lazy-rules
+          hint
+        />
+      </q-item-section>
+    </q-item>
+    <q-item>
+      <q-item-section>
+        <q-input
           v-model="formProspectRiego.hectareas_propias"
           filled
           dense
@@ -65,6 +77,7 @@ const formProspectRiego = ref({
   id: riego ? riego.id : null,
   hectareas_propias: riego ? riego.hectareas_propias : 0,
   hectareas_rentadas: riego ? riego.hectareas_rentadas : 0,
+  marca: riego ? riego.marca : null,
   prospect_id: riego ? riego.prospect_id : prospect.id,
   riego_id: riego ? riego.riego_id : null,
 });
