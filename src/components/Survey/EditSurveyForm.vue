@@ -357,7 +357,7 @@ const validate = async () => {
 };
 
 const getEvaluators = async () => {
-  let res = await sendRequest("GET", null, "/api/user/all", "");
+  let res = await sendRequest("GET", null, "/api/user", "");
   evaluators.value = res;
 };
 

@@ -1,19 +1,42 @@
 <template>
   <q-item>
     <q-item-section>
-      <q-input
+      <q-select
+        v-model="filterForm.month"
+        :options="months"
+        label="Mes"
+        option-value="id"
+        option-label="name"
+        emit-value
+        map-options
+        transition-show="jump-up"
+        transition-hide="jump-up"
+        clearable
         outlined
         dense
-        label="Buscar por folio"
-        v-model="filterForm.search"
+        options-dense
         @update:model-value="onInputChange"
-      >
-        <template v-slot:prepend>
-          <q-icon name="search" />
-        </template>
-      </q-input>
+      />
     </q-item-section>
     <q-item-section>
+      <q-select
+        v-model="filterForm.year"
+        :options="years"
+        label="Año"
+        option-value="id"
+        option-label="name"
+        emit-value
+        map-options
+        transition-show="jump-up"
+        transition-hide="jump-up"
+        clearable
+        outlined
+        dense
+        options-dense
+        @update:model-value="onInputChange"
+      />
+    </q-item-section>
+    <q-item-section v-if="checkRole('Admin')">
       <q-select
         v-model="filterForm.empleado_id"
         :options="filterEmpleados"
@@ -45,7 +68,7 @@
     <q-item-section side>
       <q-btn
         dense
-        label="Registrar incapacidad"
+        label="Agendar visita"
         color="primary"
         @click="showAdd = true"
         icon="add_circle"
@@ -58,7 +81,7 @@
       <q-table
         flat
         bordered
-        title="Incapacidades"
+        title="Agenda de visitas"
         :rows="rows"
         :columns="columns"
         row-key="name"
@@ -84,27 +107,21 @@
           </q-td>
         </template>
 
-        <template v-slot:body-cell-estatus="props">
+        <template v-slot:body-cell-cliente="props">
           <q-td :props="props">
-            {{ props.row.estatus.nombre }}
+            {{ props.row.prospect.nombre }}
           </q-td>
         </template>
 
-        <template v-slot:body-cell-fecha_inicio="props">
+        <template v-slot:body-cell-dia="props">
           <q-td :props="props">
-            {{ formatDateplusoneSlim(props.row.fecha_inicio) }}
+            {{ formatDateplusoneSlim(props.row.dia) }}
           </q-td>
         </template>
 
-        <template v-slot:body-cell-fecha_termino="props">
+        <template v-slot:body-cell-telefono="props">
           <q-td :props="props">
-            {{ formatDateplusoneSlim(props.row.fecha_termino) }}
-          </q-td>
-        </template>
-
-        <template v-slot:body-cell-latestDate="props">
-          <q-td :props="props">
-            {{ formatDateplusoneSlim(props.row.latestDate) }}
+            {{ formatPhoneNumber(props.row.prospect.telefono) }}
           </q-td>
         </template>
 
@@ -136,24 +153,23 @@
     transition-show="rotate"
     transition-hide="rotate"
     persistent
-    full-width
   >
-    <q-card>
+    <q-card style="width: 100%">
       <q-item class="text-white bg-primary">
         <q-item-section>
-          <q-item-label class="text-h6">Agregar</q-item-label>
+          <q-item-label class="text-h6">Agendar</q-item-label>
         </q-item-section>
         <q-item-section side>
           <q-btn label="Cerrar" color="red" v-close-popup />
         </q-item-section>
         <q-item-section side>
-          <q-btn label="Agregar" color="blue" @click="postRow" />
+          <q-btn label="Agendar" color="blue" @click="postRow" />
         </q-item-section>
       </q-item>
       <q-separator />
       <q-item>
         <q-item-section>
-          <incapacity-form ref="add" />
+          <visiti-form ref="add" />
         </q-item-section>
       </q-item>
     </q-card>
@@ -164,9 +180,8 @@
     transition-show="rotate"
     transition-hide="rotate"
     persistent
-    maximized
   >
-    <q-card>
+    <q-card style="width: 100%">
       <q-item class="text-white bg-primary">
         <q-item-section>
           <q-item-label class="text-h6">Editar</q-item-label>
@@ -184,7 +199,7 @@
       <q-separator />
       <q-item>
         <q-item-section>
-          <incapacity-form ref="edit" :incapacity="selectedRow" />
+          <visiti-form ref="edit" :visit="selectedRow" />
         </q-item-section>
       </q-item>
     </q-card>
@@ -192,11 +207,14 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch, computed } from "vue";
+import { ref, onMounted, watch } from "vue";
 import { sendRequest, dataIncomplete, checkRole } from "src/boot/functions";
-import { formatDateplusoneSlim } from "src/boot/formatFunctions";
+import {
+  formatDateplusoneSlim,
+  formatPhoneNumber,
+} from "src/boot/formatFunctions";
 
-import IncapacityForm from "src/components/Incapacity/IncapacityForm.vue";
+import VisitiForm from "src/components/Visits/VisitiForm.vue";
 
 const rows = ref([]);
 const selectedRow = ref(null);
@@ -215,7 +233,8 @@ const current_page = ref(1);
 const empleados = ref([]);
 
 const filterForm = ref({
-  search: null,
+  year: new Date().getFullYear(),
+  month: new Date().getMonth() + 1,
   empleado_id: null,
 });
 
@@ -226,47 +245,34 @@ const columns = [
     field: "edit",
   },
   {
-    name: "folio",
-    align: "left",
-    field: "folio",
-    label: "Folio",
-  },
-  {
     name: "empleado",
     align: "left",
     field: "empleado",
     label: "Empleado",
   },
   {
-    name: "estatus",
+    name: "dia",
     align: "left",
-    field: "estatus",
-    label: "Ramo de servicio",
-  },
-
-  {
-    name: "fecha_inicio",
-    align: "left",
-    field: "fecha_inicio",
-    label: "Fecha inicio",
-  },
-  // {
-  //   name: "fecha_termino",
-  //   align: "left",
-  //   field: "fecha_termino",
-  //   label: "Fecha Termino",
-  // },
-  {
-    name: "latestDate",
-    align: "left",
-    field: "latestDate",
-    label: "Fecha Regreso",
+    field: "dia",
+    label: "Dia",
   },
   {
-    name: "total",
+    name: "cliente",
     align: "left",
-    field: "total",
-    label: "Total dias",
+    field: "cliente",
+    label: "Cliente",
+  },
+  {
+    name: "ubicacion",
+    align: "left",
+    field: "ubicacion",
+    label: "Ubicacion",
+  },
+  {
+    name: "telefono",
+    align: "left",
+    field: "telefono",
+    label: "Telefono",
   },
 ];
 
@@ -283,7 +289,7 @@ const getRows = async (page = 1) => {
     ...filterForm.value,
     ...current,
   };
-  let res = await sendRequest("POST", final, "/api/incapacities", "");
+  let res = await sendRequest("POST", final, "/api/visits", "");
   rows.value = res.data;
   filterForm.value.page = res.current_page;
   next_page_url.value = res.next_page_url;
@@ -292,7 +298,7 @@ const getRows = async (page = 1) => {
 };
 
 const getForms = async () => {
-  let res = await sendRequest("GET", null, "/api/incapacity/forms", "");
+  let res = await sendRequest("GET", null, "/api/visit/forms", "");
   empleados.value = res.empleados;
 };
 
@@ -303,9 +309,9 @@ const postRow = async () => {
     return;
   }
   const final = {
-    ...add.value.formIncapacity,
+    ...add.value.formVisit,
   };
-  let res = await sendRequest("POST", final, "/api/incapacity", "");
+  let res = await sendRequest("POST", final, "/api/visit", "");
   showAdd.value = false;
   getRows(current_page.value);
 };
@@ -317,9 +323,9 @@ const putRow = async () => {
     return;
   }
   const final = {
-    ...edit.value.formIncapacity,
+    ...edit.value.formVisit,
   };
-  let res = await sendRequest("PUT", final, "/api/incapacity/" + final.id, "");
+  let res = await sendRequest("PUT", final, "/api/visit/" + final.id, "");
   showEdit.value = false;
   getRows(current_page.value);
 };
@@ -328,7 +334,7 @@ const deleteRow = async () => {
   let res = await sendRequest(
     "DELETE",
     null,
-    "/api/incapacity/" + selectedRow.value.id,
+    "/api/visit/" + selectedRow.value.id,
     ""
   );
   selectedRow.value = null;
@@ -370,4 +376,35 @@ onMounted(() => {
   getRows();
   getForms();
 });
+
+// JSON
+
+const months = [
+  { id: 1, name: "Enero" },
+  { id: 2, name: "Febrero" },
+  { id: 3, name: "Marzo" },
+  { id: 4, name: "Abril" },
+  { id: 5, name: "Mayo" },
+  { id: 6, name: "Junio" },
+  { id: 7, name: "Julio" },
+  { id: 8, name: "Agosto" },
+  { id: 9, name: "Septiembre" },
+  { id: 10, name: "Octubre" },
+  { id: 11, name: "Noviembre" },
+  { id: 12, name: "Diciembre" },
+];
+
+const years = [
+  { id: 2020, name: 2020 },
+  { id: 2021, name: 2021 },
+  { id: 2022, name: 2022 },
+  { id: 2023, name: 2023 },
+  { id: 2024, name: 2024 },
+  { id: 2025, name: 2025 },
+  { id: 2026, name: 2026 },
+  { id: 2027, name: 2027 },
+  { id: 2028, name: 2028 },
+  { id: 2029, name: 2029 },
+  { id: 2030, name: 2030 },
+];
 </script>

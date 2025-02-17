@@ -1,10 +1,64 @@
 <template>
   <q-item>
     <q-item-section>
+      <q-input
+        outlined
+        dense
+        label="Buscar"
+        v-model="filterForm.search"
+        @update:model-value="onInputChange"
+      >
+        <template v-slot:prepend>
+          <q-icon name="search" />
+        </template>
+      </q-input>
+    </q-item-section>
+    <q-item-section v-if="checkSucursal('Corporativo')">
+      <q-select
+        v-model="filterForm.empleado_id"
+        :options="filterEmpleados"
+        label="Empleado"
+        option-value="id"
+        option-label="nombreCompleto"
+        option-disable="inactive"
+        emit-value
+        map-options
+        transition-show="jump-up"
+        transition-hide="jump-up"
+        outlined
+        dense
+        clearable
+        options-dense
+        use-input
+        @filter="filterFn"
+        input-debounce="0"
+        behavior="menu"
+        @update:model-value="onInputChange"
+      >
+        <template v-slot:no-option>
+          <q-item>
+            <q-item-section class="text-grey"> no options </q-item-section>
+          </q-item>
+        </template>
+      </q-select>
+    </q-item-section>
+    <q-item-section side>
+      <q-btn
+        dense
+        label="Agregar prospecto"
+        color="primary"
+        @click="showAdd = true"
+        icon="add_circle"
+      />
+    </q-item-section>
+  </q-item>
+
+  <q-item>
+    <q-item-section>
       <q-table
         flat
         bordered
-        title="Mis solicitudes de vacaciones"
+        title="Prospectos"
         :rows="rows"
         :columns="columns"
         row-key="name"
@@ -14,7 +68,6 @@
         <template v-slot:body-cell-edit="props">
           <q-td :props="props">
             <q-btn
-              v-if="props.row.validated == null"
               dense
               color="primary"
               flat
@@ -30,50 +83,15 @@
           </q-td>
         </template>
 
-        <template v-slot:body-cell-fecha_inicio="props">
+        <template v-slot:body-cell-telefono="props">
           <q-td :props="props">
-            {{ formatDateplusoneSlim(props.row.fecha_inicio) }}
+            {{ formatPhoneNumber(props.row.telefono) }}
           </q-td>
         </template>
 
-        <template v-slot:body-cell-fecha_termino="props">
+        <template v-slot:body-cell-candidato_agp="props">
           <q-td :props="props">
-            {{ formatDateplusoneSlim(props.row.fecha_termino) }}
-          </q-td>
-        </template>
-
-        <template v-slot:body-cell-fecha_regreso="props">
-          <q-td :props="props">
-            {{ formatDateplusoneSlim(props.row.fecha_regreso) }}
-          </q-td>
-        </template>
-
-        <template v-slot:body-cell-validated="props">
-          <q-td :props="props">
-            <q-chip
-              v-if="props.row.validated == 0"
-              color="red"
-              text-color="white"
-              icon="disabled_by_default"
-              label="No autorizada"
-            />
-            <q-chip
-              v-if="props.row.validated == 1"
-              color="green"
-              text-color="white"
-              icon="check_box"
-              label="Autorizada"
-            />
-            <q-chip
-              v-if="props.row.validated == null"
-              color="orange"
-              text-color="white"
-              icon="check_box_outline_blank"
-              label="Pendiente"
-            />
-            <q-tooltip class="bg-purple text-body2">
-              {{ props.row.comentarios }}
-            </q-tooltip>
+            {{ props.row.candidato_agp == 1 ? "Candidato" : "No es candidato" }}
           </q-td>
         </template>
 
@@ -100,27 +118,13 @@
     </q-item-section>
   </q-item>
 
-  <q-page-sticky position="bottom-right" :offset="[50, 50]">
-    <q-btn fab icon="add" color="blue" @click="showAdd = true">
-      <q-tooltip
-        class="bg-blue text-body2"
-        :offset="[10, 10]"
-        anchor="center left"
-        self="center right"
-      >
-        Crear solicitud
-      </q-tooltip>
-    </q-btn>
-  </q-page-sticky>
-
   <q-dialog
     v-model="showAdd"
     transition-show="rotate"
     transition-hide="rotate"
     persistent
-    full-width
   >
-    <q-card>
+    <q-card style="width: 100%">
       <q-item class="text-white bg-primary">
         <q-item-section>
           <q-item-label class="text-h6">Agregar</q-item-label>
@@ -135,7 +139,7 @@
       <q-separator />
       <q-item>
         <q-item-section>
-          <vacation-form ref="add" />
+          <prospect-form ref="add" />
         </q-item-section>
       </q-item>
     </q-card>
@@ -145,39 +149,45 @@
     v-model="showEdit"
     transition-show="rotate"
     transition-hide="rotate"
-    persistent
     full-width
   >
     <q-card>
       <q-item class="text-white bg-primary">
         <q-item-section>
-          <q-item-label class="text-h6">Editar</q-item-label>
+          <q-item-label class="text-h6">{{ selectedRow.nombre }}</q-item-label>
         </q-item-section>
         <q-item-section side>
-          <q-btn label="Cerrar" color="red" v-close-popup />
-        </q-item-section>
-        <q-item-section side>
-          <q-btn label="Actualizar" color="blue" @click="putRow" />
-        </q-item-section>
-        <q-item-section side>
-          <q-btn label="Borrar" color="orange" @click="deleteRow" />
+          <q-btn
+            label="Cerrar"
+            color="red"
+            v-close-popup
+            @click="getRows(current_page)"
+          />
         </q-item-section>
       </q-item>
       <q-separator />
       <q-item>
         <q-item-section>
-          <vacation-form ref="edit" :vacation="selectedRow" />
+          <prospect-all-form ref="edit" :prospect="selectedRow" />
         </q-item-section>
       </q-item>
     </q-card>
   </q-dialog>
 </template>
+
 <script setup>
 import { ref, onMounted, watch } from "vue";
-import { sendRequest, dataIncomplete } from "src/boot/functions";
-import { formatDateplusoneSlim } from "src/boot/formatFunctions";
+import {
+  sendRequest,
+  dataIncomplete,
+  checkRole,
+  checkSucursal,
+} from "src/boot/functions";
 
-import VacationForm from "src/components/Vacation/VacationForm.vue";
+import { formatPhoneNumber } from "src/boot/formatFunctions";
+
+import ProspectForm from "src/components/Prospect/ProspectForm.vue";
+import ProspectAllForm from "src/components/Prospect/ProspectAllForm.vue";
 
 const rows = ref([]);
 const selectedRow = ref(null);
@@ -191,7 +201,11 @@ const prev_page_url = ref("");
 const last_page = ref(0);
 const current_page = ref(1);
 
+const empleados = ref([]);
+const filterEmpleados = ref(null);
+
 const filterForm = ref({
+  search: null,
   empleado_id: null,
 });
 
@@ -202,46 +216,34 @@ const columns = [
     field: "edit",
   },
   {
+    name: "nombre",
+    align: "left",
+    field: "nombre",
+    label: "Nombre",
+  },
+  {
+    name: "ubicacion",
+    align: "left",
+    field: "ubicacion",
+    label: "Ubicacion",
+  },
+  {
+    name: "telefono",
+    align: "left",
+    field: "telefono",
+    label: "Telefono",
+  },
+  {
+    name: "candidato_agp",
+    align: "left",
+    field: "candidato_agp",
+    label: "Candidato AG",
+  },
+  {
     name: "empleado",
     align: "left",
     field: "empleado",
     label: "Empleado",
-  },
-  {
-    name: "anios_cumplidos",
-    align: "left",
-    field: "anios_cumplidos",
-    label: "Años cumplidos",
-  },
-  {
-    name: "dias_disfrute",
-    align: "left",
-    field: "dias_disfrute",
-    label: "Dias",
-  },
-  {
-    name: "fecha_inicio",
-    align: "left",
-    field: "fecha_inicio",
-    label: "Fecha inicio",
-  },
-  {
-    name: "fecha_termino",
-    align: "left",
-    field: "fecha_termino",
-    label: "Fecha Termino",
-  },
-  {
-    name: "fecha_regreso",
-    align: "left",
-    field: "fecha_regreso",
-    label: "Fecha Regreso",
-  },
-  {
-    name: "validated",
-    align: "left",
-    field: "validated",
-    label: "Autorizado",
   },
 ];
 
@@ -258,12 +260,17 @@ const getRows = async (page = 1) => {
     ...filterForm.value,
     ...current,
   };
-  let res = await sendRequest("POST", final, "/api/vacationDays/auth", "");
+  let res = await sendRequest("POST", final, "/api/prospects", "");
   rows.value = res.data;
   filterForm.value.page = res.current_page;
   next_page_url.value = res.next_page_url;
   prev_page_url.value = res.prev_page_url;
   last_page.value = res.last_page;
+};
+
+const getForms = async () => {
+  let res = await sendRequest("GET", null, "/api/prospect/forms", "");
+  empleados.value = res.empleados;
 };
 
 const postRow = async () => {
@@ -273,11 +280,12 @@ const postRow = async () => {
     return;
   }
   const final = {
-    ...add.value.formVacation,
+    ...add.value.formProspect,
   };
-  let res = await sendRequest("POST", final, "/api/vacationDay", "");
+  let res = await sendRequest("POST", final, "/api/prospect", "");
   showAdd.value = false;
-  getRows(current_page.value);
+  openEdit(res);
+  // getRows(current_page.value);
 };
 
 const putRow = async () => {
@@ -287,9 +295,9 @@ const putRow = async () => {
     return;
   }
   const final = {
-    ...edit.value.formVacation,
+    ...edit.value.formProspect,
   };
-  let res = await sendRequest("PUT", final, "/api/vacationDay/" + final.id, "");
+  let res = await sendRequest("PUT", final, "/api/prospect/" + final.id, "");
   showEdit.value = false;
   getRows(current_page.value);
 };
@@ -298,7 +306,7 @@ const deleteRow = async () => {
   let res = await sendRequest(
     "DELETE",
     null,
-    "/api/vacationDay/" + selectedRow.value.id,
+    "/api/prospect/" + selectedRow.value.id,
     ""
   );
   selectedRow.value = null;
@@ -310,7 +318,34 @@ watch(current_page, (newPage) => {
   getRows(newPage);
 });
 
+let timeout = null;
+
+const onInputChange = () => {
+  clearTimeout(timeout);
+
+  timeout = setTimeout(() => {
+    getRows();
+  }, 1000);
+};
+
+const filterFn = (val, update) => {
+  if (val === "") {
+    update(() => {
+      filterEmpleados.value = empleados.value;
+    });
+    return;
+  }
+
+  update(() => {
+    const needle = val.toLowerCase();
+    filterEmpleados.value = empleados.value.filter(
+      (empleado) => empleado.nombreCompleto.toLowerCase().indexOf(needle) > -1
+    );
+  });
+};
+
 onMounted(() => {
   getRows();
+  getForms();
 });
 </script>

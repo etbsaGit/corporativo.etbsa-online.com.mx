@@ -7,6 +7,7 @@ import {
   servicio,
   tech,
   rental,
+  gerentes,
 } from "./middleware";
 
 const routes = [
@@ -183,6 +184,38 @@ const routes = [
         path: "",
         component: () =>
           import("src/pages/RentalPeriods/RentalPeriodsPage.vue"),
+      },
+    ],
+  },
+
+  {
+    path: "/bays",
+    component: () => import("layouts/MainLayout.vue"),
+    meta: {
+      middlewares: [gerentes],
+    },
+    children: [
+      {
+        path: "",
+        component: () => import("src/pages/Bays/BaysIndex.vue"),
+      },
+    ],
+  },
+
+  {
+    path: "",
+    component: () => import("layouts/MainLayout.vue"),
+    meta: {
+      middlewares: [gerentes],
+    },
+    children: [
+      {
+        path: "/visits",
+        component: () => import("src/pages/visits/VisitsPage.vue"),
+      },
+      {
+        path: "/prospect",
+        component: () => import("src/pages/prospect/ProspectPage.vue"),
       },
     ],
   },

@@ -27,7 +27,6 @@
               input-debounce="0"
               behavior="menu"
               :rules="[(val) => val !== null || 'Obligatorio']"
-              v-on:update:model-value="resetFormDates"
             >
               <template v-slot:no-option>
                 <q-item>
@@ -374,7 +373,7 @@ const filterFn = (val, update) => {
   update(() => {
     const needle = val.toLowerCase();
     filterEmpleados.value = empleados.value.filter(
-      (empleado) => empleado.nombreCompleto.toLowerCase().indexOf(needle) > -1
+      (empleado) => empleado?.nombreCompleto.toLowerCase().indexOf(needle) > -1
     );
   });
 };
@@ -392,7 +391,7 @@ watch(
   (newValue) => {
     // Encuentra el empleado seleccionado
     selectedEmpleado.value =
-      empleados.value.find((empleado) => empleado.id === newValue) || null;
+      empleados.value.find((empleado) => empleado?.id === newValue) || null;
 
     // Actualiza sucursal_id y puesto_id en el formulario
     if (selectedEmpleado.value) {

@@ -1,5 +1,9 @@
 import { useAuthStore } from "src/stores/auth";
-import { checkPuesto, checkRole } from "src/boot/functions";
+import {
+  checkPuesto,
+  checkPuestoIncludes,
+  checkRole,
+} from "src/boot/functions";
 
 export function guest(/* { to, from, next } */ { to, next }) {
   const auth = useAuthStore();
@@ -104,6 +108,21 @@ export function rental({ to, next }) {
   }
 
   if (!checkRole("Rentas")) {
+    return next("/perfil");
+  }
+
+  return next();
+}
+
+export function gerentes({ to, next }) {
+  const auth = useAuthStore();
+
+  if (!auth.user) {
+    auth.returnUrl = to.fullPath;
+    return next("/login");
+  }
+
+  if (!checkPuestoIncludes("Gerente")) {
     return next("/perfil");
   }
 

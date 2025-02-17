@@ -70,6 +70,48 @@
 
     <q-expansion-item
       expand-separator
+      icon="folder_shared"
+      label="Prospeccion"
+      dense
+      dense-toggle
+      group="somegroup"
+      v-if="checkPuestoIncludes('territorial') || checkSucursal('Corporativo')"
+    >
+      <q-item
+        dense
+        clickable
+        v-ripple
+        to="/visits"
+        :active="link === 'visits'"
+        @click="link = 'visits'"
+        active-class="my-menu-link"
+      >
+        <q-item-section avatar>
+          <q-icon name="event" />
+        </q-item-section>
+
+        <q-item-section>Visitas</q-item-section>
+      </q-item>
+      <q-item
+        dense
+        clickable
+        v-ripple
+        to="/prospect"
+        :active="link === 'prospect'"
+        @click="link = 'prospect'"
+        active-class="my-menu-link"
+        v-if="checkPuestoIncludes('Gerente')"
+      >
+        <q-item-section avatar>
+          <q-icon name="assignment_ind" />
+        </q-item-section>
+
+        <q-item-section>Prospectos</q-item-section>
+      </q-item>
+    </q-expansion-item>
+
+    <q-expansion-item
+      expand-separator
       icon="perm_identity"
       label="RRHH"
       dense
@@ -161,6 +203,21 @@
         </q-item-section>
 
         <q-item-section>Diario de horas</q-item-section>
+      </q-item>
+      <q-item
+        v-if="checkPuestoIncludes('Gerente')"
+        clickable
+        v-ripple
+        to="/bays"
+        :active="link === 'bays'"
+        @click="link = 'bays'"
+        active-class="my-menu-link"
+      >
+        <q-item-section avatar>
+          <q-icon name="dashboard" />
+        </q-item-section>
+
+        <q-item-section>Bahías</q-item-section>
       </q-item>
     </q-expansion-item>
 
@@ -273,7 +330,13 @@
 
 <script setup>
 import { ref } from "vue";
-import { checkRole, checkPuesto, checkRoleEmpleado } from "../boot/functions";
+import {
+  checkRole,
+  checkPuesto,
+  checkRoleEmpleado,
+  checkPuestoIncludes,
+  checkSucursal,
+} from "../boot/functions";
 
 const link = ref("perfil");
 </script>

@@ -52,6 +52,11 @@
         </template>
 
         <template v-slot:after>
+          <div v-if="checkPuesto('Tecnico')" class="q-pa-sm">
+            <div class="text-h4 q-mb-md">Resultados taller</div>
+            <technician-prod :empleado="employee" />
+          </div>
+          <q-separator></q-separator>
           <div class="q-pa-sm">
             <div class="text-h4 q-mb-md">Historico</div>
             <employee-time-line :empleado="employee" :editable="false" />
@@ -75,9 +80,10 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import { sendRequest } from "src/boot/functions";
+import { checkPuesto, sendRequest } from "src/boot/functions";
 import EmployeeTimeLine from "src/components/Employeed/EmployeeTimeLine.vue";
 import SkillRatingChart from "src/components/Skill/SkillRatingChart.vue";
+import TechnicianProd from "src/components/Employeed/TechnicianProd.vue";
 
 const { employee } = defineProps(["employee"]);
 

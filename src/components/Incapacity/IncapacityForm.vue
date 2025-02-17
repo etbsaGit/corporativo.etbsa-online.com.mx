@@ -79,10 +79,20 @@
         </q-item>
         <q-item>
           <q-item-section>
+            <q-input
+              v-model="formIncapacity.folio"
+              outlined
+              dense
+              label="Folio"
+              lazy-rules
+              :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
+            />
+          </q-item-section>
+          <q-item-section>
             <q-select
               v-model="formIncapacity.estatus_id"
               :options="estatuses"
-              label="Tipo de incapacidad"
+              label="Ramo de servicio"
               option-value="id"
               option-label="nombre"
               option-disable="inactive"
@@ -100,7 +110,7 @@
             <q-input
               v-model="formIncapacity.fecha_inicio"
               mask="date"
-              :rules="['date']"
+              :rules="[(val) => val !== null || 'Obligatorio']"
               outlined
               dense
               label="Fecha de inicio"
@@ -112,7 +122,7 @@
             <q-input
               v-model="formIncapacity.fecha_termino"
               mask="date"
-              :rules="['date']"
+              :rules="[(val) => val !== null || 'Obligatorio']"
               outlined
               dense
               label="Fecha de termino"
@@ -124,7 +134,7 @@
             <q-input
               v-model="formIncapacity.fecha_regreso"
               mask="date"
-              :rules="['date']"
+              :rules="[(val) => val !== null || 'Obligatorio']"
               outlined
               dense
               label="Fecha de regreso"
@@ -146,12 +156,97 @@
         </q-item>
       </q-item-section>
     </q-item>
+    <q-separator></q-separator>
+    <q-item v-for="(children, index) in formIncapacity.children" :key="index">
+      <q-item-section avatar>
+        <q-date
+          minimal
+          v-model="children.model"
+          range
+          @range-end="(date) => onChildRangeEnd(index, date)"
+        />
+      </q-item-section>
+      <q-item-section>
+        <q-item>
+          <q-item-section>
+            <q-input
+              v-model="children.folio"
+              outlined
+              dense
+              label="Folio"
+              lazy-rules
+              :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
+            />
+          </q-item-section>
+          <q-item-section>
+            <q-input
+              v-model="children.fecha_inicio"
+              mask="date"
+              :rules="[(val) => val !== null || 'Obligatorio']"
+              outlined
+              dense
+              label="Fecha de inicio"
+              lazy-rules
+              readonly
+            />
+          </q-item-section>
+          <q-item-section>
+            <q-input
+              v-model="children.fecha_termino"
+              mask="date"
+              :rules="[(val) => val !== null || 'Obligatorio']"
+              outlined
+              dense
+              label="Fecha de termino"
+              lazy-rules
+              readonly
+            />
+          </q-item-section>
+          <q-item-section>
+            <q-input
+              v-model="children.fecha_regreso"
+              mask="date"
+              :rules="[(val) => val !== null || 'Obligatorio']"
+              outlined
+              dense
+              label="Fecha de regreso"
+              lazy-rules
+              readonly
+            />
+          </q-item-section>
+        </q-item>
+        <q-item>
+          <q-item-section>
+            <q-input
+              v-model="children.comentarios"
+              outlined
+              dense
+              label="Comentarios"
+              lazy-rules
+            />
+          </q-item-section>
+        </q-item>
+      </q-item-section>
+    </q-item>
+
+    <q-item>
+      <q-item-section v-if="incapacity">
+        <q-btn
+          dense
+          label="Agregar subsecuente"
+          color="primary"
+          icon="add_circle"
+          @click="agregarSub"
+        />
+      </q-item-section>
+    </q-item>
   </q-form>
 </template>
 
 <script setup>
 import { ref, onMounted, watch } from "vue";
 import { sendRequest } from "src/boot/functions";
+import { v4 as uuidv4 } from "uuid";
 
 const { incapacity } = defineProps(["incapacity"]);
 
@@ -166,6 +261,8 @@ const model = ref(null);
 
 const formIncapacity = ref({
   id: incapacity ? incapacity.id : null,
+  folio: incapacity ? incapacity.folio : null,
+  inicial: incapacity ? incapacity.inicial : 1,
   empleado_id: incapacity ? incapacity.empleado_id : null,
   sucursal_id: incapacity ? incapacity.sucursal_id : null,
   puesto_id: incapacity ? incapacity.puesto_id : null,
@@ -174,7 +271,30 @@ const formIncapacity = ref({
   fecha_termino: incapacity ? incapacity.fecha_termino : null,
   fecha_regreso: incapacity ? incapacity.fecha_regreso : null,
   comentarios: incapacity ? incapacity.comentarios : null,
+  incapacity_id: incapacity ? incapacity.incapacity_id : null,
+  children: incapacity ? incapacity.children : [],
 });
+
+const agregarSub = () => {
+  formIncapacity.value.children.push({
+    id: uuidv4(),
+    folio: null,
+    inicial: 0,
+    empleado_id: incapacity.empleado_id,
+    sucursal_id: incapacity.sucursal_id,
+    puesto_id: incapacity.puesto_id,
+    estatus_id: incapacity.estatus_id,
+    fecha_inicio: null,
+    fecha_termino: null,
+    fecha_regreso: null,
+    comentarios: null,
+    incapacity_id: incapacity.id,
+  });
+};
+
+const eliminarSub = (index) => {
+  formIncapacity.value.children.splice(index, 1);
+};
 
 const holidays = [
   "2025/01/01",
@@ -233,6 +353,13 @@ const onRangeEnd = (date) => {
   formIncapacity.value.fecha_inicio = formatDate(date.from);
   formIncapacity.value.fecha_termino = formatDate(date.to);
   formIncapacity.value.fecha_regreso = addBusinessDay(date.to);
+};
+
+const onChildRangeEnd = (index, date) => {
+  const child = formIncapacity.value.children[index];
+  child.fecha_inicio = formatDate(date.from);
+  child.fecha_termino = formatDate(date.to);
+  child.fecha_regreso = addBusinessDay(date.to);
 };
 
 const getForms = async () => {

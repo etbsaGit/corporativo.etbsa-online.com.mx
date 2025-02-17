@@ -46,7 +46,9 @@
                 </q-item-section>
               </q-item>
               <q-item>
-                <q-item-section v-if="checkRole('Admin')">
+                <q-item-section
+                  v-if="checkRole('Jefe') && checkRole('Servicio')"
+                >
                   <q-btn label="Bahias" outline @click="showTableBays = true" />
                 </q-item-section>
                 <q-item-section>

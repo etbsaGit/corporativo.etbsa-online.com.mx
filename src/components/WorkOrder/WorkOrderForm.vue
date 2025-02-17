@@ -153,6 +153,36 @@
           </q-item-section>
           <q-item-section>
             <q-input
+              filled
+              dense
+              v-model="formWO.km"
+              prefix="$"
+              label="km"
+              hint
+              mask="#.##"
+              fill-mask="0"
+              reverse-fill-mask
+              input-class="text-right"
+            />
+          </q-item-section>
+          <q-item-section>
+            <q-input
+              filled
+              dense
+              v-model="formWO.foraneo"
+              prefix="$"
+              label="Foraneo"
+              hint
+              mask="#.##"
+              fill-mask="0"
+              reverse-fill-mask
+              input-class="text-right"
+            />
+          </q-item-section>
+        </q-item>
+        <q-item>
+          <q-item-section>
+            <q-input
               readonly
               filled
               dense
@@ -423,6 +453,8 @@ const formWO = ref({
   fecha_entrega: wo ? wo.fecha_entrega : null,
   mano_obra: wo ? wo.mano_obra : 0,
   refacciones: wo ? wo.refacciones : 0,
+  MediaKeyMessageEvent: wo ? wo.MediaKeyMessageEvent : 0,
+  foraneo: wo ? wo.foraneo : 0,
   tecnico_id: wo ? wo.tecnico_id : null,
   estatus_id: wo ? wo.estatus_id : null,
   estatus_taller_id: wo ? wo.estatus_taller_id : null,
@@ -452,13 +484,18 @@ const total_factura = computed(() => {
   // Convertir a números usando Number() antes de sumar
   const manoObra = Number(formWO.value.mano_obra);
   const refacciones = Number(formWO.value.refacciones);
+  const km = Number(formWO.value.km);
+  const foraneo = Number(formWO.value.foraneo);
 
   // Verificar que las conversiones sean válidas (si son NaN, asignar 0)
   const manoObraNumber = isNaN(manoObra) ? 0 : manoObra;
   const refaccionesNumber = isNaN(refacciones) ? 0 : refacciones;
+  const kmNumber = isNaN(km) ? 0 : km;
+  const foraneoNumber = isNaN(foraneo) ? 0 : foraneo;
 
   // Realizar la suma y multiplicación
-  const subtotal = (manoObraNumber + refaccionesNumber) * 1.16;
+  const subtotal =
+    (manoObraNumber + refaccionesNumber + kmNumber + foraneoNumber) * 1.16;
 
   // Redondear el resultado a dos decimales y retornarlo como string
   return subtotal.toFixed(2);
