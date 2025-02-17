@@ -63,8 +63,8 @@ const myForm = ref(null);
 
 const formProspectRiego = ref({
   id: riego ? riego.id : null,
-  hectareas_propias: riego ? riego.hectareas_propias : null,
-  hectareas_rentadas: riego ? riego.hectareas_rentadas : null,
+  hectareas_propias: riego ? riego.hectareas_propias : 0,
+  hectareas_rentadas: riego ? riego.hectareas_rentadas : 0,
   prospect_id: riego ? riego.prospect_id : prospect.id,
   riego_id: riego ? riego.riego_id : null,
 });

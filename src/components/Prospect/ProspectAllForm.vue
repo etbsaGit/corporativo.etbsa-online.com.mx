@@ -19,7 +19,7 @@
           icon="analytics"
           label="Agricultura de presicion"
         />
-        <q-tab name="servicios" icon="build" label="Servicios" />
+        <q-tab name="servicios" icon="build" label="Servicios posventa" />
       </q-tabs>
     </template>
     <template v-slot:after>
@@ -106,7 +106,7 @@
         <q-tab-panel name="servicios">
           <q-item dense>
             <q-item-section>
-              <q-item-label class="text-h6"> Servicios </q-item-label>
+              <q-item-label class="text-h6"> Servicios posventa </q-item-label>
             </q-item-section>
           </q-item>
           <prospect-servicio-index

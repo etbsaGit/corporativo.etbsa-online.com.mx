@@ -31,7 +31,7 @@
             <q-item>
               <q-item-section>
                 <q-item-label>
-                  <strong>Cliente: </strong> {{ visit.cliente }}
+                  <strong>Cliente: </strong> {{ visit.prospect.nombre }}
                 </q-item-label>
                 <q-item-label>
                   <strong>Ubicacion: </strong> {{ visit.ubicacion }}

@@ -75,6 +75,7 @@
           label="Candidato a Agricultura de presicion"
           :true-value="1"
           :false-value="0"
+          color="green"
         />
       </q-item-section>
     </q-item>

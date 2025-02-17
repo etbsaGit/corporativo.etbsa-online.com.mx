@@ -60,31 +60,35 @@
         </q-input>
       </q-item-section>
     </q-item>
+
     <q-item>
       <q-item-section>
-        <q-input
-          v-model="formVisit.cliente"
-          outlined
+        <q-select
           dense
+          outlined
+          v-model="formVisit.prospect_id"
+          :options="prospects"
           label="Cliente"
-          hint
-          :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
-        />
+          option-value="id"
+          option-label="nombre"
+          emit-value
+          map-options
+          :hint="'Telefono: ' + formatPhoneNumber(selectedProspect?.telefono)"
+          clearable
+          :rules="[(val) => val !== null || 'Obligatorio']"
+        >
+          <!-- <template v-slot:after>
+            <q-btn
+              dense
+              color="primary"
+              @click="showAdd = true"
+              icon="add_circle"
+            />
+          </template> -->
+        </q-select>
       </q-item-section>
     </q-item>
-    <q-item>
-      <q-item-section>
-        <q-input
-          v-model="formVisit.telefono"
-          outlined
-          dense
-          label="Telefono"
-          mask="(###) ### - ####"
-          hint
-          unmasked-value
-        />
-      </q-item-section>
-    </q-item>
+
     <q-item>
       <q-item-section>
         <q-input
@@ -97,46 +101,7 @@
         />
       </q-item-section>
     </q-item>
-    <q-item>
-      <q-item-section>
-        <q-input
-          v-model="formVisit.hectareas"
-          outlined
-          dense
-          label="Hectareas"
-          hint
-        />
-      </q-item-section>
-    </q-item>
-    <q-item>
-      <q-item-section>
-        <q-input
-          v-model="formVisit.maquinaria"
-          outlined
-          dense
-          label="Maquinaria"
-          hint
-        />
-      </q-item-section>
-    </q-item>
-    <q-item>
-      <q-item-section>
-        <q-select
-          dense
-          outlined
-          v-model="formVisit.cultivos"
-          multiple
-          use-chips
-          :options="cultivos"
-          label="Cultivos"
-          option-value="name"
-          option-label="name"
-          emit-value
-          map-options
-          hint
-        />
-      </q-item-section>
-    </q-item>
+
     <q-item>
       <q-item-section>
         <q-input
@@ -162,12 +127,42 @@
       </q-item-section>
     </q-item>
   </q-form>
+
+  <q-dialog
+    v-model="showAdd"
+    transition-show="rotate"
+    transition-hide="rotate"
+    persistent
+  >
+    <q-card style="width: 100%">
+      <q-item class="text-white bg-primary">
+        <q-item-section>
+          <q-item-label class="text-h6">Agregar</q-item-label>
+        </q-item-section>
+        <q-item-section side>
+          <q-btn label="Cerrar" color="red" v-close-popup />
+        </q-item-section>
+        <q-item-section side>
+          <q-btn label="Agregar" color="blue" @click="postRow" />
+        </q-item-section>
+      </q-item>
+      <q-separator />
+      <q-item>
+        <q-item-section>
+          <prospect-form ref="add" />
+        </q-item-section>
+      </q-item>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script setup>
 import { ref, onMounted, watch } from "vue";
 import { useAuthStore } from "src/stores/auth";
-import { sendRequest, checkRole } from "src/boot/functions";
+import { sendRequest, checkRole, dataIncomplete } from "src/boot/functions";
+import { formatPhoneNumber } from "src/boot/formatFunctions";
+
+import ProspectForm from "src/components/Prospect/ProspectForm.vue";
 
 const { visit } = defineProps(["visit"]);
 
@@ -176,28 +171,27 @@ const usuario = authStore.authUser;
 const empleado = usuario.empleado;
 
 const myForm = ref(null);
-const cultivos = ref([]);
 const empleados = ref([]);
+const prospects = ref([]);
 const filterEmpleados = ref(null);
+const selectedProspect = ref(null);
+const showAdd = ref(false);
+const add = ref(null);
 
 const formVisit = ref({
   id: visit ? visit.id : null,
   dia: visit ? visit.dia : null,
-  cliente: visit ? visit.cliente : null,
   ubicacion: visit ? visit.ubicacion : null,
-  telefono: visit ? visit.telefono : null,
-  cultivos: visit ? visit.cultivos : null,
-  hectareas: visit ? visit.hectareas : null,
-  maquinaria: visit ? visit.maquinaria : null,
   comentarios: visit ? visit.comentarios : null,
   retroalimentacion: visit ? visit.retroalimentacion : null,
   empleado_id: visit ? visit.empleado_id : empleado ? empleado.id : null,
+  prospect_id: visit ? visit.prospect_id : null,
 });
 
 const getForms = async () => {
   let res = await sendRequest("GET", null, "/api/visit/forms", "");
   empleados.value = res.empleados;
-  cultivos.value = res.cultivos;
+  prospects.value = res.prospects;
 };
 
 const filterFn = (val, update) => {
@@ -214,6 +208,30 @@ const filterFn = (val, update) => {
       (empleado) => empleado.nombreCompleto.toLowerCase().indexOf(needle) > -1
     );
   });
+};
+
+// Watch para obtener los datos del cliente seleccionado
+watch(
+  () => formVisit.value.prospect_id,
+  (newValue) => {
+    selectedProspect.value =
+      prospects.value.find((prospect) => prospect.id === newValue) || null;
+  }
+);
+
+const postRow = async () => {
+  const add_valid = await add.value.validate();
+  if (!add_valid) {
+    dataIncomplete();
+    return;
+  }
+  const final = {
+    ...add.value.formProspect,
+  };
+  let res = await sendRequest("POST", final, "/api/prospect", "");
+  showAdd.value = false;
+  getForms();
+  formVisit.value.prospect_id = res.id;
 };
 
 const validate = async () => {

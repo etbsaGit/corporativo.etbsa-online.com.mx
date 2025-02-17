@@ -45,7 +45,7 @@
     <q-item-section side>
       <q-btn
         dense
-        label="Agendar prospecto"
+        label="Agregar prospecto"
         color="primary"
         @click="showAdd = true"
         icon="add_circle"
@@ -284,7 +284,8 @@ const postRow = async () => {
   };
   let res = await sendRequest("POST", final, "/api/prospect", "");
   showAdd.value = false;
-  getRows(current_page.value);
+  openEdit(res);
+  // getRows(current_page.value);
 };
 
 const putRow = async () => {

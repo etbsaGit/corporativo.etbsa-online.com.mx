@@ -100,7 +100,7 @@
         :active="link === 'prospect'"
         @click="link = 'prospect'"
         active-class="my-menu-link"
-        v-if="checkRole('Admin')"
+        v-if="checkPuestoIncludes('Gerente')"
       >
         <q-item-section avatar>
           <q-icon name="assignment_ind" />
