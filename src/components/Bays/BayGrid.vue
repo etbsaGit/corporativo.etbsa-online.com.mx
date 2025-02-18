@@ -1,8 +1,5 @@
 <template>
-  <q-card
-    @click="clickRom(bay)"
-    :class="['custom-card', getCardClass(bay.linea_id)]"
-  >
+  <q-card @click="clickRom(bay)" :class="['custom-card', getCardClass(bay)]">
     <q-item class="custom-card-title">
       <q-item-section>
         {{ bay.nombre }}
@@ -74,10 +71,15 @@ const clickRom = (row) => {
   }
 };
 
-// Función para determinar la clase de la tarjeta según linea_id
-const getCardClass = (lineaId) => {
-  if (lineaId === 1) return "linea-verde";
-  if (lineaId === 2) return "linea-amarilla";
+// Función para determinar la clase de la tarjeta según linea_id y si está en espera
+const getCardClass = (bay) => {
+  const isEnEspera = bay.nombre.toLowerCase().includes("espera");
+
+  if (bay.linea_id === 1)
+    return isEnEspera ? "linea-verde-espera" : "linea-verde";
+  if (bay.linea_id === 2)
+    return isEnEspera ? "linea-amarilla-espera" : "linea-amarilla";
+
   return "";
 };
 </script>
@@ -145,5 +147,17 @@ const getCardClass = (lineaId) => {
 .linea-amarilla {
   border: 2px solid #ffeb3b;
   background-color: #fffde7;
+}
+
+/* Bahías en espera - Línea Verde */
+.linea-verde-espera {
+  border: 2px dashed #4caf50; /* Mismo color pero con borde punteado */
+  background-color: #c8e6c9; /* Un tono más oscuro de verde */
+}
+
+/* Bahías en espera - Línea Amarilla */
+.linea-amarilla-espera {
+  border: 2px dashed #ffeb3b; /* Mismo color pero con borde punteado */
+  background-color: #fff9c4; /* Un tono más oscuro de amarillo */
 }
 </style>

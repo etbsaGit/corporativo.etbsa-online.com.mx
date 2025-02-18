@@ -1,5 +1,5 @@
 <template>
-  <q-list :class="['custom-list', getListClass(bay.linea_id)]">
+  <q-list :class="['custom-list', getListClass(bay)]">
     <q-item
       clickable
       v-ripple
@@ -91,9 +91,14 @@ const clickRom = (row) => {
 };
 
 // Función para determinar la clase de la lista según linea_id
-const getListClass = (lineaId) => {
-  if (lineaId === 1) return "linea-verde";
-  if (lineaId === 2) return "linea-amarilla";
+const getListClass = (bay) => {
+  const isEnEspera = bay.nombre.toLowerCase().includes("espera");
+
+  if (bay.linea_id === 1)
+    return isEnEspera ? "linea-verde-espera" : "linea-verde";
+  if (bay.linea_id === 2)
+    return isEnEspera ? "linea-amarilla-espera" : "linea-amarilla";
+
   return "";
 };
 </script>
@@ -167,5 +172,17 @@ const getListClass = (lineaId) => {
 .linea-amarilla {
   border: 2px solid #ffeb3b;
   background-color: #fffde7;
+}
+
+/* Bahías en espera - Línea Verde */
+.linea-verde-espera {
+  border: 2px dashed #4caf50; /* Mismo color pero con borde punteado */
+  background-color: #c8e6c9; /* Un tono más oscuro de verde */
+}
+
+/* Bahías en espera - Línea Amarilla */
+.linea-amarilla-espera {
+  border: 2px dashed #ffeb3b; /* Mismo color pero con borde punteado */
+  background-color: #fff9c4; /* Un tono más oscuro de amarillo */
 }
 </style>
