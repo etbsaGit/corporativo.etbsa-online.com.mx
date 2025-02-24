@@ -122,6 +122,7 @@
       <q-item
         v-if="checkRole('RRHH') || checkRole('Jefe')"
         clickable
+        dense
         v-ripple
         to="/employees"
         :active="link === 'dashboard'"
@@ -138,6 +139,7 @@
         v-if="checkRole('RRHH')"
         clickable
         v-ripple
+        dense
         to="/catalogos"
         :active="link === 'catalogos'"
         @click="link = 'catalogos'"
@@ -152,6 +154,7 @@
       <q-item
         v-if="checkRole('RRHH')"
         clickable
+        dense
         v-ripple
         to="/incapacities"
         :active="link === 'incapacities'"
@@ -177,6 +180,7 @@
       <q-item
         v-if="checkRole('Servicio') || checkRole('Taller')"
         clickable
+        dense
         v-ripple
         to="/technician"
         :active="link === 'technician'"
@@ -192,6 +196,7 @@
       <q-item
         v-if="checkPuesto('Tecnico')"
         clickable
+        dense
         v-ripple
         to="/techlogs"
         :active="link === 'techlogs'"
@@ -207,6 +212,7 @@
       <q-item
         v-if="checkPuestoIncludes('Gerente')"
         clickable
+        dense
         v-ripple
         to="/bays"
         :active="link === 'bays'"
@@ -232,6 +238,7 @@
       <q-item
         v-if="checkRole('Encuestador') || checkRole('Evaluador')"
         clickable
+        dense
         v-ripple
         to="/surveys"
         :active="link === 'surveys'"
@@ -247,6 +254,7 @@
       <q-item
         v-if="checkRole('Empleado')"
         clickable
+        dense
         v-ripple
         to="/encuestas"
         :active="link === 'encuestas'"
@@ -272,6 +280,7 @@
     >
       <q-item
         clickable
+        dense
         v-ripple
         to="/rentalperiods"
         :active="link === 'rentalperiods'"
@@ -287,6 +296,7 @@
 
       <q-item
         clickable
+        dense
         v-ripple
         to="/rentalmachines"
         :active="link === 'rentalmachines'"
@@ -305,6 +315,32 @@
       dense
       dense-toggle
       expand-separator
+      icon="agriculture"
+      label="Usados"
+      group="somegroup"
+      v-if="checkRole('Usados')"
+    >
+      <q-item
+        clickable
+        v-ripple
+        to="/used"
+        :active="link === 'used'"
+        @click="link = 'used'"
+        active-class="my-menu-link"
+        dense
+      >
+        <q-item-section avatar>
+          <q-icon name="agriculture" />
+        </q-item-section>
+
+        <q-item-section>Inventario</q-item-section>
+      </q-item>
+    </q-expansion-item>
+
+    <q-expansion-item
+      dense
+      dense-toggle
+      expand-separator
       icon="admin_panel_settings"
       label="Administracion"
       v-if="checkRoleEmpleado()"
@@ -312,6 +348,7 @@
     >
       <q-item
         clickable
+        dense
         v-ripple
         to="/users"
         :active="link === 'users'"

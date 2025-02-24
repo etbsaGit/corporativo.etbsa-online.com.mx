@@ -8,6 +8,7 @@ import {
   tech,
   rental,
   gerentes,
+  used,
 } from "./middleware";
 
 const routes = [
@@ -184,6 +185,20 @@ const routes = [
         path: "",
         component: () =>
           import("src/pages/RentalPeriods/RentalPeriodsPage.vue"),
+      },
+    ],
+  },
+
+  {
+    path: "/used",
+    component: () => import("layouts/MainLayout.vue"),
+    meta: {
+      middlewares: [used],
+    },
+    children: [
+      {
+        path: "",
+        component: () => import("src/pages/Used/UsedPage.vue"),
       },
     ],
   },

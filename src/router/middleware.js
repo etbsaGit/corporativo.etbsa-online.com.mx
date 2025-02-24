@@ -114,6 +114,21 @@ export function rental({ to, next }) {
   return next();
 }
 
+export function used({ to, next }) {
+  const auth = useAuthStore();
+
+  if (!auth.user) {
+    auth.returnUrl = to.fullPath;
+    return next("/login");
+  }
+
+  if (!checkRole("Usados")) {
+    return next("/perfil");
+  }
+
+  return next();
+}
+
 export function gerentes({ to, next }) {
   const auth = useAuthStore();
 
