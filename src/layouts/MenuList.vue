@@ -52,7 +52,7 @@
     </q-item>
 
     <q-item
-      v-if="checkRole('Empleado')"
+      v-if="checkRole('RRHH')"
       dense
       clickable
       v-ripple
@@ -316,7 +316,7 @@
       dense-toggle
       expand-separator
       icon="agriculture"
-      label="Usados"
+      label="Semi-nuevos"
       group="somegroup"
       v-if="checkRole('Usados')"
     >

@@ -95,6 +95,22 @@
           </q-td>
         </template>
 
+        <template v-slot:body-cell-ubicacion="props">
+          <q-td :props="props">
+            {{
+              props.row.ubicacion && props.row.ubicacion.length > 40
+                ? props.row.ubicacion.slice(0, 40) + "..."
+                : props.row.ubicacion
+            }}
+            <q-tooltip
+              class="bg-purple text-body2"
+              v-if="props.row.ubicacion && props.row.ubicacion.length > 40"
+            >
+              {{ props.row.ubicacion }}
+            </q-tooltip>
+          </q-td>
+        </template>
+
         <template v-slot:bottom>
           <q-space />
           <td>

@@ -46,6 +46,10 @@ const routes = [
         path: "/catalogos",
         component: () => import("src/pages/catalogos/index.vue"),
       },
+      {
+        path: "/vacation",
+        component: () => import("src/pages/vacation/vacationPage.vue"),
+      },
     ],
   },
   {
@@ -110,10 +114,6 @@ const routes = [
       {
         path: "/post",
         component: () => import("src/pages/post/postIndex.vue"),
-      },
-      {
-        path: "/vacation",
-        component: () => import("src/pages/vacation/vacationPage.vue"),
       },
     ],
   },
