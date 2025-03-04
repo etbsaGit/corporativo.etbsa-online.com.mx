@@ -11,6 +11,7 @@
     <q-tab name="myVacation" label="Mis vacaciones" />
     <q-tab name="vacationsRH" label="Vacaciones" />
     <q-tab name="calendar" label="Calendario" />
+    <q-tab name="report" label="Reporte" v-if="checkRole('RRHH')" />
   </q-tabs>
 
   <q-separator />
@@ -31,6 +32,10 @@
         </q-item-section>
       </q-item>
     </q-tab-panel>
+
+    <q-tab-panel name="report" class="q-pa-none">
+      <vacation-report />
+    </q-tab-panel>
   </q-tab-panels>
 </template>
 
@@ -40,6 +45,8 @@ import { ref } from "vue";
 import MyVacationIndex from "src/components/Vacation/MyVacationIndex.vue";
 import VacationAll from "src/components/Vacation/VacationAll.vue";
 import VacationCalendar from "src/components/Vacation/VacationCalendar.vue";
+import VacationReport from "src/components/Vacation/VacationReport.vue";
+import { checkRole } from "src/boot/functions";
 
 const tab = ref("myVacation");
 </script>

@@ -8,248 +8,338 @@
     v-if="checkRole('RRHH')"
   >
     <q-separator />
-    <q-item>
-      <q-item-section>
-        <q-item-label class="text-h6 text-grey-8" align="center">
-          -Activos-
-        </q-item-label>
-      </q-item-section>
-    </q-item>
-    <q-item>
-      <q-item-section>
-        <q-input
-          outlined
-          dense
-          label="Buscar empleado"
-          v-model="filterForm.search"
-          @update:model-value="onInputChange"
-        >
-          <template v-slot:prepend>
-            <q-icon name="search" />
-          </template>
-        </q-input>
-      </q-item-section>
-      <q-item-section side>
-        <q-btn
-          dense
-          label="Agregar empleado"
-          color="primary"
-          @click="showAdd = true"
-          icon="add_circle"
-        />
-      </q-item-section>
-      <q-item-section side>
-        <q-btn dense color="primary" @click="onRowClickExcel" icon="download">
-          <q-tooltip
-            anchor="center left"
-            self="center right"
-            :offset="[10, 10]"
-            class="text-h6"
+    <q-expansion-item
+      dense
+      flat
+      icon="arrow_right_alt"
+      color="primary"
+      label="Activos"
+    >
+      <q-item>
+        <q-item-section>
+          <q-item-label class="text-h6 text-grey-8" align="center">
+            -Activos-
+          </q-item-label>
+        </q-item-section>
+      </q-item>
+      <q-item>
+        <q-item-section>
+          <q-input
+            outlined
+            dense
+            label="Buscar empleado"
+            v-model="filterForm.search"
+            @update:model-value="onInputChange"
           >
-            Descargar xlsx de los empleados filtrados
-          </q-tooltip>
-        </q-btn>
-      </q-item-section>
-    </q-item>
-    <q-item>
-      <q-item-section>
-        <q-select
-          v-model="filterForm.sucursal_id"
-          :options="sucursales"
-          label="Sucursal"
-          option-value="id"
-          option-label="nombre"
-          option-disable="inactive"
-          emit-value
-          map-options
-          transition-show="jump-up"
-          transition-hide="jump-up"
-          clearable
-          outlined
-          dense
-          @update:model-value="onInputChange"
-        />
-      </q-item-section>
-      <q-item-section>
-        <q-select
-          v-model="filterForm.linea_id"
-          :options="lineas"
-          label="Linea"
-          option-value="id"
-          option-label="nombre"
-          option-disable="inactive"
-          emit-value
-          map-options
-          transition-show="jump-up"
-          transition-hide="jump-up"
-          clearable
-          outlined
-          dense
-          @update:model-value="onInputChange"
-        />
-      </q-item-section>
-      <q-item-section>
-        <q-select
-          v-model="filterForm.departamento_id"
-          :options="departamentos"
-          label="Departamentos"
-          option-value="id"
-          option-label="nombre"
-          option-disable="inactive"
-          emit-value
-          map-options
-          transition-show="jump-up"
-          transition-hide="jump-up"
-          clearable
-          outlined
-          dense
-          @update:model-value="onInputChange"
-        />
-      </q-item-section>
-      <q-item-section>
-        <q-select
-          v-model="filterForm.puesto_id"
-          :options="puestos"
-          label="Puesto"
-          option-value="id"
-          option-label="nombre"
-          option-disable="inactive"
-          emit-value
-          map-options
-          transition-show="jump-up"
-          transition-hide="jump-up"
-          clearable
-          outlined
-          dense
-          @update:model-value="onInputChange"
-        />
-      </q-item-section>
-    </q-item>
+            <template v-slot:prepend>
+              <q-icon name="search" />
+            </template>
+          </q-input>
+        </q-item-section>
+        <q-item-section side>
+          <q-btn
+            dense
+            label="Agregar empleado"
+            color="primary"
+            @click="showAdd = true"
+            icon="add_circle"
+          />
+        </q-item-section>
+        <q-item-section side>
+          <q-btn dense color="primary" @click="onRowClickExcel" icon="download">
+            <q-tooltip
+              anchor="center left"
+              self="center right"
+              :offset="[10, 10]"
+              class="text-h6"
+            >
+              Descargar xlsx de los empleados filtrados
+            </q-tooltip>
+          </q-btn>
+        </q-item-section>
+      </q-item>
+      <q-item>
+        <q-item-section>
+          <q-select
+            v-model="filterForm.sucursal_id"
+            :options="sucursales"
+            label="Sucursal"
+            option-value="id"
+            option-label="nombre"
+            option-disable="inactive"
+            emit-value
+            map-options
+            transition-show="jump-up"
+            transition-hide="jump-up"
+            clearable
+            outlined
+            dense
+            @update:model-value="onInputChange"
+          />
+        </q-item-section>
+        <q-item-section>
+          <q-select
+            v-model="filterForm.linea_id"
+            :options="lineas"
+            label="Linea"
+            option-value="id"
+            option-label="nombre"
+            option-disable="inactive"
+            emit-value
+            map-options
+            transition-show="jump-up"
+            transition-hide="jump-up"
+            clearable
+            outlined
+            dense
+            @update:model-value="onInputChange"
+          />
+        </q-item-section>
+        <q-item-section>
+          <q-select
+            v-model="filterForm.departamento_id"
+            :options="departamentos"
+            label="Departamentos"
+            option-value="id"
+            option-label="nombre"
+            option-disable="inactive"
+            emit-value
+            map-options
+            transition-show="jump-up"
+            transition-hide="jump-up"
+            clearable
+            outlined
+            dense
+            @update:model-value="onInputChange"
+          />
+        </q-item-section>
+        <q-item-section>
+          <q-select
+            v-model="filterForm.puesto_id"
+            :options="puestos"
+            label="Puesto"
+            option-value="id"
+            option-label="nombre"
+            option-disable="inactive"
+            emit-value
+            map-options
+            transition-show="jump-up"
+            transition-hide="jump-up"
+            clearable
+            outlined
+            dense
+            @update:model-value="onInputChange"
+          />
+        </q-item-section>
+      </q-item>
+    </q-expansion-item>
     <q-separator />
-    <q-item>
-      <q-item-section>
-        <q-item-label class="text-h6 text-grey-8" align="center">
-          -Bajas-
-        </q-item-label>
-      </q-item-section>
-    </q-item>
-    <q-item>
-      <q-item-section>
-        <q-select
-          v-model="mes"
-          :options="months"
-          label="Mes"
-          option-value="id"
-          option-label="name"
-          emit-value
-          map-options
-          transition-show="jump-up"
-          transition-hide="jump-up"
-          clearable
-          outlined
-          dense
-        />
-      </q-item-section>
 
-      <q-item-section>
-        <q-select
-          v-model="anio"
-          :options="years"
-          label="Año"
-          option-value="id"
-          option-label="name"
-          emit-value
-          map-options
-          transition-show="jump-up"
-          transition-hide="jump-up"
-          clearable
-          outlined
-          dense
-        />
-      </q-item-section>
-      <q-item-section side>
-        <q-btn
-          icon="search"
-          label="Buscar bajas"
-          color="primary"
-          @click="getKardex(mes, anio)"
-        />
-      </q-item-section>
-    </q-item>
+    <q-expansion-item
+      dense
+      flat
+      icon="arrow_right_alt"
+      color="primary"
+      label="Altas"
+    >
+      <q-item>
+        <q-item-section>
+          <q-item-label class="text-h6 text-grey-8" align="center">
+            -Altas-
+          </q-item-label>
+        </q-item-section>
+      </q-item>
+      <q-item>
+        <q-item-section>
+          <q-select
+            v-model="mes"
+            :options="months"
+            label="Mes"
+            option-value="id"
+            option-label="name"
+            emit-value
+            map-options
+            transition-show="jump-up"
+            transition-hide="jump-up"
+            clearable
+            outlined
+            dense
+          />
+        </q-item-section>
+
+        <q-item-section>
+          <q-select
+            v-model="anio"
+            :options="years"
+            label="Año"
+            option-value="id"
+            option-label="name"
+            emit-value
+            map-options
+            transition-show="jump-up"
+            transition-hide="jump-up"
+            clearable
+            outlined
+            dense
+          />
+        </q-item-section>
+        <q-item-section side>
+          <q-btn
+            icon="search"
+            label="Buscar Altas"
+            color="primary"
+            @click="getKardexNew(mes, anio)"
+          />
+        </q-item-section>
+      </q-item>
+    </q-expansion-item>
     <q-separator />
-    <q-item>
-      <q-item-section>
-        <q-item-label class="text-h6 text-grey-8" align="center">
-          -Vacaciones-
-        </q-item-label>
-      </q-item-section>
-    </q-item>
-    <q-item>
-      <q-item-section>
-        <q-input
-          outlined
-          readonly
-          dense
-          v-model="dates.from"
-          mask="date"
-          label="Del:"
-        >
-          <template v-slot:append>
-            <q-icon name="event" class="cursor-pointer">
-              <q-popup-proxy
-                cover
-                transition-show="scale"
-                transition-hide="scale"
-              >
-                <q-date v-model="dates.from" minimal />
-              </q-popup-proxy>
-            </q-icon>
-          </template>
-        </q-input>
-      </q-item-section>
-      <q-item-section>
-        <q-input
-          outlined
-          readonly
-          dense
-          v-model="dates.to"
-          mask="date"
-          label="Al:"
-        >
-          <template v-slot:append>
-            <q-icon name="event" class="cursor-pointer">
-              <q-popup-proxy
-                cover
-                transition-show="scale"
-                transition-hide="scale"
-              >
-                <q-date v-model="dates.to" minimal />
-              </q-popup-proxy>
-            </q-icon>
-          </template>
-        </q-input>
-      </q-item-section>
-      <q-item-section side>
-        <q-btn label="Buscar empleados" color="primary" @click="getVacations" />
-      </q-item-section>
-      <q-item-section side>
-        <q-btn
-          dense
-          color="primary"
-          @click="onRowClickExcelVacation"
-          icon="download"
-        >
-          <q-tooltip
-            anchor="center left"
-            self="center right"
-            :offset="[10, 10]"
-            class="text-h6"
+
+    <q-expansion-item
+      dense
+      flat
+      icon="arrow_right_alt"
+      color="primary"
+      label="Bajas"
+    >
+      <q-item>
+        <q-item-section>
+          <q-item-label class="text-h6 text-grey-8" align="center">
+            -Bajas-
+          </q-item-label>
+        </q-item-section>
+      </q-item>
+      <q-item>
+        <q-item-section>
+          <q-select
+            v-model="mes"
+            :options="months"
+            label="Mes"
+            option-value="id"
+            option-label="name"
+            emit-value
+            map-options
+            transition-show="jump-up"
+            transition-hide="jump-up"
+            clearable
+            outlined
+            dense
+          />
+        </q-item-section>
+
+        <q-item-section>
+          <q-select
+            v-model="anio"
+            :options="years"
+            label="Año"
+            option-value="id"
+            option-label="name"
+            emit-value
+            map-options
+            transition-show="jump-up"
+            transition-hide="jump-up"
+            clearable
+            outlined
+            dense
+          />
+        </q-item-section>
+        <q-item-section side>
+          <q-btn
+            icon="search"
+            label="Buscar bajas"
+            color="primary"
+            @click="getKardex(mes, anio)"
+          />
+        </q-item-section>
+      </q-item>
+    </q-expansion-item>
+    <q-separator />
+
+    <q-expansion-item
+      dense
+      flat
+      icon="arrow_right_alt"
+      color="primary"
+      label="Vacaciones"
+    >
+      <q-item>
+        <q-item-section>
+          <q-item-label class="text-h6 text-grey-8" align="center">
+            -Vacaciones-
+          </q-item-label>
+        </q-item-section>
+      </q-item>
+      <q-item>
+        <q-item-section>
+          <q-input
+            outlined
+            readonly
+            dense
+            v-model="dates.from"
+            mask="date"
+            label="Del:"
           >
-            Descargar xlsx de los empleados de vacaciones
-          </q-tooltip>
-        </q-btn>
-      </q-item-section>
-    </q-item>
+            <template v-slot:append>
+              <q-icon name="event" class="cursor-pointer">
+                <q-popup-proxy
+                  cover
+                  transition-show="scale"
+                  transition-hide="scale"
+                >
+                  <q-date v-model="dates.from" minimal />
+                </q-popup-proxy>
+              </q-icon>
+            </template>
+          </q-input>
+        </q-item-section>
+        <q-item-section>
+          <q-input
+            outlined
+            readonly
+            dense
+            v-model="dates.to"
+            mask="date"
+            label="Al:"
+          >
+            <template v-slot:append>
+              <q-icon name="event" class="cursor-pointer">
+                <q-popup-proxy
+                  cover
+                  transition-show="scale"
+                  transition-hide="scale"
+                >
+                  <q-date v-model="dates.to" minimal />
+                </q-popup-proxy>
+              </q-icon>
+            </template>
+          </q-input>
+        </q-item-section>
+        <q-item-section side>
+          <q-btn
+            label="Buscar empleados"
+            color="primary"
+            @click="getVacations"
+          />
+        </q-item-section>
+        <q-item-section side>
+          <q-btn
+            dense
+            color="primary"
+            @click="onRowClickExcelVacation"
+            icon="download"
+          >
+            <q-tooltip
+              anchor="center left"
+              self="center right"
+              :offset="[10, 10]"
+              class="text-h6"
+            >
+              Descargar xlsx de los empleados de vacaciones
+            </q-tooltip>
+          </q-btn>
+        </q-item-section>
+      </q-item>
+    </q-expansion-item>
   </q-expansion-item>
   <!-- - -->
 
@@ -775,6 +865,7 @@ const getVacations = async () => {
   next_page_url.value = res.next_page_url;
   prev_page_url.value = res.prev_page_url;
   last_page.value = res.last_page;
+  current_page.value = 1;
 };
 
 const getRows = async (page = 1) => {
@@ -817,6 +908,26 @@ const getKardex = async (mes = null, anio = null) => {
   } else {
     // Se proporcionan tanto el mes como el año
     url = `/api/empleado/baja/${anio}/${mes}`;
+  }
+  let res = await sendRequest("GET", null, url, "");
+  rows.value = res;
+  next_page_url.value = "";
+  prev_page_url.value = "";
+  last_page.value = 0;
+  current_page.value = 1;
+};
+
+const getKardexNew = async (mes = null, anio = null) => {
+  let url;
+  if (mes === null && anio !== null) {
+    // Solo se proporciona el año
+    url = `/api/empleado/alta/${anio}`;
+  } else if (mes === null && anio === null) {
+    // No se proporcionan ni el mes ni el año
+    url = `/api/empleado/alta`;
+  } else {
+    // Se proporcionan tanto el mes como el año
+    url = `/api/empleado/alta/${anio}/${mes}`;
   }
   let res = await sendRequest("GET", null, url, "");
   rows.value = res;

@@ -11,7 +11,11 @@
     <q-tab name="visits" label="Visitas" />
     <q-tab name="calendar" label="Calendario" />
     <q-tab name="kardex" label="Kardex" v-if="checkRole('Admin')" />
-    <q-tab name="report" label="Reportes" v-if="checkRole('Admin')" />
+    <q-tab
+      name="report"
+      label="Reportes"
+      v-if="checkPuesto('Gerente corporativo') || checkRole('Admin')"
+    />
   </q-tabs>
 
   <q-separator />
@@ -46,7 +50,7 @@ import VisitCalendar from "src/components/Visits/VisitCalendar.vue";
 import VisitIndex from "src/components/Visits/VisitIndex.vue";
 import VisitKardex from "src/components/Visits/VisitKardex.vue";
 import VisitReport from "src/components/Visits/VisitReport.vue";
-import { checkRole } from "src/boot/functions";
+import { checkPuesto, checkRole } from "src/boot/functions";
 
 const tab = ref("visits");
 </script>
