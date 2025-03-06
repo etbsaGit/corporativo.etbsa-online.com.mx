@@ -245,9 +245,7 @@ const formVacation = ref({
   sucursal_id: vacation ? vacation.sucursal_id : null,
   puesto_id: vacation ? vacation.puesto_id : null,
   vehiculo_utilitario: vacation ? vacation.vehiculo_utilitario : null,
-  periodo_correspondiente: vacation
-    ? vacation.periodo_correspondiente
-    : `${new Date().getFullYear()} - ${new Date().getFullYear() + 1}`,
+  periodo_correspondiente: vacation ? vacation.periodo_correspondiente : null,
   anios_cumplidos: vacation ? vacation.anios_cumplidos : null,
   dias_periodo: vacation ? vacation.dias_periodo : null,
   subtotal_dias: vacation ? vacation.subtotal_dias : null,
@@ -404,6 +402,8 @@ watch(
         selectedEmpleado.value.aniosVacaciones.correspondientes || null;
       formVacation.value.subtotal_dias =
         selectedEmpleado.value.aniosVacaciones.subtotal || null;
+      formVacation.value.periodo_correspondiente =
+        selectedEmpleado.value.vacationPeriod || null;
     } else {
       // Si no hay empleado seleccionado, resetea los valores
       formVacation.value.sucursal_id = null;
@@ -411,6 +411,7 @@ watch(
       formVacation.value.anios_cumplidos = null;
       formVacation.value.dias_periodo = null;
       formVacation.value.subtotal_dias = null;
+      formVacation.value.periodo_correspondiente = null;
     }
   }
 );
