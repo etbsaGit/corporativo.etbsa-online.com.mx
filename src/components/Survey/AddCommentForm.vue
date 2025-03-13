@@ -1,5 +1,5 @@
 <template>
-  <div class="q-pa-sm row q-gutter-lg">
+  <div class="grid-container">
     <q-card
       v-for="evaluee in evaluees"
       :key="evaluee.id"
@@ -232,14 +232,6 @@ onMounted(() => {
 </script>
 
 <style>
-.my-table-details {
-  font-size: 0.85em;
-  font-style: italic;
-  max-width: 200px;
-  white-space: normal;
-  color: #555;
-  margin-top: 4px;
-}
 .d-flex {
   display: flex;
 }
@@ -264,5 +256,14 @@ onMounted(() => {
 
 .bg-yellow-3 {
   background-color: #fff59d !important;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(300px, 1fr)
+  ); /* Ajusta el tamaño mínimo aquí 200px para que sean 6 y 300px para 4 px*/
+  gap: 10px;
 }
 </style>

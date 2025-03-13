@@ -5,7 +5,7 @@
         <q-select
           v-model="formVisit.empleado_id"
           :options="filterEmpleados"
-          label="Empleado"
+          label="Gerente"
           option-value="id"
           option-label="apellidoCompleto"
           option-disable="inactive"

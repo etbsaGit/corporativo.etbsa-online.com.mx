@@ -1,6 +1,6 @@
 <template>
   <q-table
-    title="Encuesta"
+    title="Evaluacion"
     :rows="surveys"
     :columns="columns"
     row-key="id"
@@ -16,7 +16,7 @@
           icon="play_arrow"
           @click="onRowClick(props.row)"
         >
-          <q-tooltip>Contestar encuesta</q-tooltip>
+          <q-tooltip>Contestar Evaluacion</q-tooltip>
         </q-btn>
         <q-btn
           flat
@@ -213,8 +213,8 @@ const getSurveys = async () => {
 };
 
 const isSurveyActive = (survey) => {
-  // Si la encuesta no tiene una fecha de expiración o la fecha de expiración es posterior a la fecha actual,
-  // y el estado es 1 (activo), la encuesta está activa
+  // Si la Evaluacion no tiene una fecha de expiración o la fecha de expiración es posterior a la fecha actual,
+  // y el estado es 1 (activo), la Evaluacion está activa
   return (
     (!survey.expire_date || new Date(survey.expire_date) > new Date()) &&
     survey.status === 1
@@ -227,7 +227,7 @@ const onRowClick = (row) => {
     return;
   }
 
-  // Aquí puedes manejar la lógica para abrir la encuesta
+  // Aquí puedes manejar la lógica para abrir la Evaluacion
   showQuestions.value = true;
   selectedSurvey.value = row;
 };

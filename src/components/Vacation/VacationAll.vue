@@ -55,7 +55,7 @@
         <template v-slot:body-cell-edit="props">
           <q-td :props="props">
             <q-btn
-              v-if="props.row.validated == null"
+              v-if="props.row.validated == null || checkRole('RRHH')"
               dense
               color="primary"
               flat
@@ -326,7 +326,13 @@ const getRows = async (page = 1) => {
 };
 
 const getForms = async () => {
-  let res = await sendRequest("GET", null, "/api/vacationDay/forms", "");
+  const year = ref(new Date().getFullYear());
+  let res = await sendRequest(
+    "GET",
+    null,
+    "/api/vacationDay/forms/" + year.value,
+    ""
+  );
   empleados.value = res.empleados;
 };
 

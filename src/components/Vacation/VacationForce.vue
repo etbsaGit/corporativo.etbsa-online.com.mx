@@ -17,42 +17,15 @@
         hint
       />
     </q-item-section>
-    <q-item-section class="col-2">
-      <q-input
-        readonly
-        outlined
-        dense
-        v-model="formReport.start"
-        mask="date"
-        :rules="['date']"
-        label="Del:"
-      >
-        <template v-slot:append>
-          <q-icon name="event" class="cursor-pointer">
-            <q-popup-proxy
-              cover
-              transition-show="scale"
-              transition-hide="scale"
-            >
-              <q-date minimal v-model="formReport.start">
-                <div class="row items-center justify-end">
-                  <q-btn v-close-popup label="Close" color="primary" flat />
-                </div>
-              </q-date>
-            </q-popup-proxy>
-          </q-icon>
-        </template>
-      </q-input>
-    </q-item-section>
     <q-item-section>
       <q-input
         readonly
         outlined
         dense
-        v-model="formReport.end"
+        v-model="formReport.date"
         mask="date"
         :rules="['date']"
-        label="Al: "
+        label="Dia a cuenta de vacaciones: "
       >
         <template v-slot:append>
           <q-icon name="event" class="cursor-pointer">
@@ -61,7 +34,7 @@
               transition-show="scale"
               transition-hide="scale"
             >
-              <q-date minimal v-model="formReport.end">
+              <q-date minimal v-model="formReport.date">
                 <div class="row items-center justify-end">
                   <q-btn v-close-popup label="Close" color="primary" flat />
                 </div>
@@ -74,19 +47,11 @@
             <q-item-section>
               <q-btn color="primary" label="Consultar" @click="getEmpleado" />
             </q-item-section>
-            <q-item-section>
-              <q-btn
-                color="primary"
-                label="Descargar"
-                @click="onRowClickExcelVacation"
-              />
-            </q-item-section>
           </q-item>
         </template>
       </q-input>
     </q-item-section>
   </q-item>
-
   <div class="grid-container q-pa-sm">
     <q-card
       v-for="(empleado, index) in empleados"
@@ -109,7 +74,6 @@
             }}{{ empleado.apellido_paterno.charAt(0).toUpperCase() }}
           </q-avatar>
         </q-item-section>
-
         <q-item-section>
           <q-item-label class="text-grey-8 text-weight-bold">
             {{ empleado.nombreCompleto }}
@@ -123,20 +87,6 @@
           </q-item-label>
         </q-item-section>
       </q-item>
-      <q-separator />
-      <q-card-section class="text-grey-8">
-        <div>Dias tomados en el periodo seleccionado</div>
-        <q-list bordered separator>
-          <q-item
-            clickable
-            v-ripple
-            v-for="(day, index) in empleado.vacationDetails"
-            :key="index"
-          >
-            <q-item-section>{{ formatDateplusoneSlim(day) }}</q-item-section>
-          </q-item>
-        </q-list>
-      </q-card-section>
     </q-card>
   </div>
 </template>
@@ -148,12 +98,11 @@ import { formatDateplusoneSlim } from "src/boot/formatFunctions";
 
 const today = new Date().toISOString().split("T")[0]; // Formato YYYY-MM-DD
 
-const empleados = ref(null);
+const empleados = ref([]);
 const sucursales = ref([]);
 
 const formReport = ref({
-  start: today,
-  end: today,
+  date: today,
   sucursal_id: 1,
 });
 
@@ -166,29 +115,13 @@ const getEmpleado = async () => {
   const final = {
     ...formReport.value,
   };
-  let res = await sendRequest("POST", final, "/api/vacationDay/report", "");
-  empleados.value = res;
-};
-
-const onRowClickExcelVacation = async () => {
-  const final = {
-    ...formReport.value,
-  };
-  let res = await sendRequest("POST", final, "/api/vacationDay/reportPDF", "");
-  const base64Response = await fetch(
-    `data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,${res.file_base64}`
+  let res = await sendRequest(
+    "POST",
+    final,
+    "/api/empleados/vacations/force",
+    ""
   );
-  const blob = await base64Response.blob();
-  const url = URL.createObjectURL(blob);
-
-  // Creación de un enlace temporal para descargar el archivo con un nombre específico
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = res.file_name + "vacaciones"; // Nombre que se le asigna al archivo
-  link.click();
-
-  // Limpieza
-  URL.revokeObjectURL(url);
+  empleados.value = res;
 };
 
 onMounted(() => {

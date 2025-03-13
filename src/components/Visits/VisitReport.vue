@@ -102,7 +102,13 @@
           <q-card>
             <q-item class="q-ml-md">
               <q-item-section class="text-h6">
-                {{ prospect.nombre }}
+                <q-item-label>
+                  {{ prospect.nombre }}
+                </q-item-label>
+                <q-item-label caption>
+                  <strong>Vendedor: </strong>
+                  {{ prospect.vendedor?.nombreCompleto }}
+                </q-item-label>
               </q-item-section>
               <q-item-section class="text-h6">
                 {{ formatPhoneNumber(prospect.telefono) }}

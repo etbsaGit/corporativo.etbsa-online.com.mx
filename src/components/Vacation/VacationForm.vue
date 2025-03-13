@@ -35,6 +35,18 @@
                   </q-item-section>
                 </q-item>
               </template>
+              <template v-slot:after>
+                <q-item dense v-if="selectedEmpleado">
+                  <q-item-section side>
+                    <strong> Fecha de ingreso: </strong>
+                  </q-item-section>
+                  <q-item-section>
+                    {{
+                      formatDateplusoneSlim(selectedEmpleado.fecha_de_ingreso)
+                    }}
+                  </q-item-section>
+                </q-item>
+              </template>
             </q-select>
           </q-item-section>
         </q-item>
@@ -215,6 +227,19 @@
           label="Autorizado"
           :true-value="1"
           :false-value="0"
+          :color="
+            formVacation.validated === 1
+              ? 'green'
+              : formVacation.validated === 0
+              ? 'red'
+              : 'amber'
+          "
+          keep-color
+          toggle-indeterminate
+          checked-icon="check"
+          unchecked-icon="close"
+          indeterminate-icon="question_mark"
+          size="xl"
         />
       </q-item-section>
     </q-item>
@@ -225,6 +250,7 @@
 import { ref, onMounted, watch } from "vue";
 import { useAuthStore } from "src/stores/auth";
 import { sendRequest, dataIncomplete, checkRole } from "src/boot/functions";
+import { formatDateplusoneSlim } from "src/boot/formatFunctions";
 
 const { vacation } = defineProps(["vacation"]);
 
@@ -232,6 +258,7 @@ const myForm = ref(null);
 const sucursales = ref([]);
 const puestos = ref([]);
 const empleados = ref([]);
+const holidays = ref([]);
 const filterEmpleados = ref(null);
 const selectedEmpleado = ref(null);
 const model = ref(null);
@@ -258,73 +285,46 @@ const formVacation = ref({
   comentarios: vacation ? vacation.comentarios : null,
 });
 
-const holidays = [
-  "2025/01/01",
-  "2025/02/03",
-  "2025/03/17",
-  "2025/04/17",
-  "2025/04/19",
-  "2025/05/01",
-  "2025/09/16",
-  "2025/11/17",
-  "2025/12/25",
-  // Agrega más días festivos aquí en formato yyyy/mm/dd
-];
-
-// Función para formatear la fecha
+// Función para formatear la fecha en YYYY-MM-DD
 const formatDate = (date) => {
   const { year, month, day } = date;
-  // Asegurarse de que el mes y el día tengan dos dígitos
   const paddedMonth = String(month).padStart(2, "0");
   const paddedDay = String(day).padStart(2, "0");
-  return `${year}/${paddedMonth}/${paddedDay}`;
+  return `${year}-${paddedMonth}-${paddedDay}`;
 };
 
+// Función para sumar un día hábil (evitando domingos y festivos)
 const addBusinessDay = (date) => {
-  const { year, month, day } = date;
-
-  // Crear un objeto Date para manejar la lógica de fechas
-  let currentDate = new Date(year, month - 1, day);
-
-  // Función para formatear la fecha a yyyy/mm/dd
-  const formatDate = (date) => {
-    const y = date.getFullYear();
-    const m = String(date.getMonth() + 1).padStart(2, "0");
-    const d = String(date.getDate()).padStart(2, "0");
-    return `${y}/${m}/${d}`;
-  };
+  let currentDate = new Date(date.year, date.month - 1, date.day);
 
   do {
-    // Sumar un día
     currentDate.setDate(currentDate.getDate() + 1);
-
-    // Recalcular el día de la semana (0=domingo, 6=sábado)
     const dayOfWeek = currentDate.getDay();
+    const formattedDate = formatDate({
+      year: currentDate.getFullYear(),
+      month: currentDate.getMonth() + 1,
+      day: currentDate.getDate(),
+    });
 
-    // Verificar si es domingo o un día festivo
-    if (dayOfWeek !== 0 && !holidays.includes(formatDate(currentDate))) {
-      break; // Día válido encontrado
+    if (dayOfWeek !== 0 && !holidays.value.includes(formattedDate)) {
+      break;
     }
   } while (true);
 
-  // Devuelve la fecha válida formateada
-  return formatDate(currentDate);
+  return formatDate({
+    year: currentDate.getFullYear(),
+    month: currentDate.getMonth() + 1,
+    day: currentDate.getDate(),
+  });
 };
 
+// Función para contar días hábiles entre dos fechas
 const countBusinessDays = (startDate, endDate) => {
-  const formatDate = (date) => {
-    const y = date.getFullYear();
-    const m = String(date.getMonth() + 1).padStart(2, "0");
-    const d = String(date.getDate()).padStart(2, "0");
-    return `${y}/${m}/${d}`;
-  };
-
   let start = new Date(startDate.year, startDate.month - 1, startDate.day);
   let end = new Date(endDate.year, endDate.month - 1, endDate.day);
 
-  // Asegurarse de que la fecha de inicio es antes que la de fin
   if (start > end) {
-    [start, end] = [end, start]; // Intercambia las fechas si están en el orden incorrecto
+    [start, end] = [end, start];
   }
 
   let businessDaysCount = 0;
@@ -332,20 +332,23 @@ const countBusinessDays = (startDate, endDate) => {
 
   while (currentDate <= end) {
     const dayOfWeek = currentDate.getDay();
-    const formattedDate = formatDate(currentDate);
+    const formattedDate = formatDate({
+      year: currentDate.getFullYear(),
+      month: currentDate.getMonth() + 1,
+      day: currentDate.getDate(),
+    });
 
-    // Verifica si es un día hábil (no domingo y no festivo)
-    if (dayOfWeek !== 0 && !holidays.includes(formattedDate)) {
+    if (dayOfWeek !== 0 && !holidays.value.includes(formattedDate)) {
       businessDaysCount++;
     }
 
-    // Avanza al siguiente día
     currentDate.setDate(currentDate.getDate() + 1);
   }
 
   return businessDaysCount;
 };
 
+// Manejo de selección de rango de fechas
 const onRangeEnd = (date) => {
   formVacation.value.fecha_inicio = formatDate(date.from);
   formVacation.value.fecha_termino = formatDate(date.to);
@@ -354,10 +357,17 @@ const onRangeEnd = (date) => {
 };
 
 const getForms = async () => {
-  let res = await sendRequest("GET", null, "/api/vacationDay/forms", "");
+  const year = ref(new Date().getFullYear());
+  let res = await sendRequest(
+    "GET",
+    null,
+    "/api/vacationDay/forms/" + year.value,
+    ""
+  );
   empleados.value = res.empleados;
   sucursales.value = res.sucursales;
   puestos.value = res.puestos;
+  holidays.value = res.festivos.map((date) => date.replace(/\//g, "-")); // Convertir a YYYY-MM-DD
 };
 
 const filterFn = (val, update) => {
@@ -387,11 +397,9 @@ watch(
 watch(
   () => formVacation.value.empleado_id,
   (newValue) => {
-    // Encuentra el empleado seleccionado
     selectedEmpleado.value =
       empleados.value.find((empleado) => empleado?.id === newValue) || null;
 
-    // Actualiza sucursal_id y puesto_id en el formulario
     if (selectedEmpleado.value) {
       formVacation.value.sucursal_id =
         selectedEmpleado.value.sucursal_id || null;
@@ -405,7 +413,6 @@ watch(
       formVacation.value.periodo_correspondiente =
         selectedEmpleado.value.vacationPeriod || null;
     } else {
-      // Si no hay empleado seleccionado, resetea los valores
       formVacation.value.sucursal_id = null;
       formVacation.value.puesto_id = null;
       formVacation.value.anios_cumplidos = null;

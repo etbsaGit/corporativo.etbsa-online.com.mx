@@ -1,157 +1,161 @@
 <template>
-  <q-table
-    title="Encuesta"
-    :rows="surveys"
-    :columns="columns"
-    row-key="id"
-    :rows-per-page-options="[0]"
-  >
-    <template v-slot:top-left>
-      <!-- v-if="isEncuestador == true" -->
-      <q-btn
-        dense
-        color="primary"
-        icon="add"
-        label="Agregar encuesta"
-        @click="showAdd = true"
-      />
-    </template>
+  <q-item>
+    <q-item-section>
+      <q-table
+        title="Evaluaciones"
+        :rows="surveys"
+        :columns="columns"
+        row-key="id"
+        :rows-per-page-options="[0]"
+      >
+        <template v-slot:top-right>
+          <!-- v-if="isEncuestador == true" -->
+          <q-btn
+            dense
+            color="primary"
+            icon="add"
+            label="Agregar Evaluacion"
+            @click="showAdd = true"
+          />
+        </template>
 
-    <template v-slot:body-cell-title="props">
-      <q-td :props="props">
-        <q-item-label>
-          {{ props.row.title }}
-        </q-item-label>
-        <q-tooltip class="bg-purple text-body2" :offset="[10, 10]">
-          {{ props.row.description }}
-        </q-tooltip>
-      </q-td>
-    </template>
+        <template v-slot:body-cell-title="props">
+          <q-td :props="props">
+            <q-item-label>
+              {{ props.row.title }}
+            </q-item-label>
+            <q-tooltip class="bg-purple text-body2" :offset="[10, 10]">
+              {{ props.row.description }}
+            </q-tooltip>
+          </q-td>
+        </template>
 
-    <template v-slot:body-cell-puesto="props">
-      <q-td :props="props">
-        <q-item-label>
-          {{ props.row.puesto ? props.row.puesto.nombre : null }}
-        </q-item-label>
-      </q-td>
-    </template>
+        <template v-slot:body-cell-puesto="props">
+          <q-td :props="props">
+            <q-item-label>
+              {{ props.row.puesto ? props.row.puesto.nombre : null }}
+            </q-item-label>
+          </q-td>
+        </template>
 
-    <template v-slot:body-cell-action="props">
-      <q-td>
-        <q-btn-dropdown flat color="primary" icon="menu">
-          <q-list v-close-popup>
-            <q-item>
-              <q-btn
-                flat
-                size="sm"
-                color="primary"
-                icon="search"
-                label="Vista previa"
-                @click="onRowClickShow(props.row)"
-              />
-            </q-item>
-            <q-item>
-              <q-btn
-                flat
-                size="sm"
-                color="primary"
-                icon="edit"
-                label="Editar"
-                @click="onRowClick(props.row)"
-              />
-            </q-item>
-            <q-item>
-              <q-btn
-                flat
-                size="sm"
-                color="primary"
-                icon="copy_all"
-                label="Copiar"
-                @click="onRowClickClone(props.row)"
-              />
-            </q-item>
-            <q-item>
-              <q-btn
-                flat
-                size="sm"
-                color="primary"
-                icon="people"
-                label="Asignar"
-                @click="onRowClickAsing(props.row)"
-              />
-            </q-item>
-            <q-item>
-              <q-btn
-                flat
-                size="sm"
-                color="primary"
-                icon="quiz"
-                label="Calificar"
-                @click="onRowClickEvaluator(props.row)"
-              />
-            </q-item>
-            <q-item>
-              <q-btn
-                flat
-                size="sm"
-                color="primary"
-                icon="format_list_numbered"
-                label="Calificaciones"
-                @click="onRowClickGrades(props.row)"
-              />
-            </q-item>
-            <q-item v-if="checkRole('Admin')">
-              <q-btn
-                flat
-                size="sm"
-                color="red"
-                icon="delete"
-                label="Borrar"
-                @click="onRowClickDelete(props.row)"
-              />
-            </q-item>
-          </q-list>
-        </q-btn-dropdown>
-      </q-td>
-    </template>
+        <template v-slot:body-cell-action="props">
+          <q-td>
+            <q-btn-dropdown flat color="primary" icon="menu">
+              <q-list v-close-popup>
+                <q-item>
+                  <q-btn
+                    flat
+                    size="sm"
+                    color="primary"
+                    icon="search"
+                    label="Vista previa"
+                    @click="onRowClickShow(props.row)"
+                  />
+                </q-item>
+                <q-item>
+                  <q-btn
+                    flat
+                    size="sm"
+                    color="primary"
+                    icon="edit"
+                    label="Editar"
+                    @click="onRowClick(props.row)"
+                  />
+                </q-item>
+                <q-item>
+                  <q-btn
+                    flat
+                    size="sm"
+                    color="primary"
+                    icon="copy_all"
+                    label="Copiar"
+                    @click="onRowClickClone(props.row)"
+                  />
+                </q-item>
+                <q-item>
+                  <q-btn
+                    flat
+                    size="sm"
+                    color="primary"
+                    icon="people"
+                    label="Asignar"
+                    @click="onRowClickAsing(props.row)"
+                  />
+                </q-item>
+                <q-item>
+                  <q-btn
+                    flat
+                    size="sm"
+                    color="primary"
+                    icon="quiz"
+                    label="Calificar"
+                    @click="onRowClickEvaluator(props.row)"
+                  />
+                </q-item>
+                <q-item>
+                  <q-btn
+                    flat
+                    size="sm"
+                    color="primary"
+                    icon="format_list_numbered"
+                    label="Calificaciones"
+                    @click="onRowClickGrades(props.row)"
+                  />
+                </q-item>
+                <q-item v-if="checkRole('Admin')">
+                  <q-btn
+                    flat
+                    size="sm"
+                    color="red"
+                    icon="delete"
+                    label="Borrar"
+                    @click="onRowClickDelete(props.row)"
+                  />
+                </q-item>
+              </q-list>
+            </q-btn-dropdown>
+          </q-td>
+        </template>
 
-    <template v-slot:body-cell-status="props">
-      <q-td :props="props">
-        <q-btn
-          round
-          size="xs"
-          icon="power_settings_new"
-          :color="props.row.status == 1 ? 'green' : 'grey'"
-          @click="changeStatus(props.row)"
-        />
-        <!-- <div v-if="props.row.status == 1">Activa</div>
-          <div v-else>Inactiva</div> -->
-      </q-td>
-    </template>
+        <template v-slot:body-cell-status="props">
+          <q-td :props="props">
+            <q-btn
+              round
+              size="xs"
+              icon="power_settings_new"
+              :color="props.row.status == 1 ? 'green' : 'grey'"
+              @click="changeStatus(props.row)"
+            />
+            <!-- <div v-if="props.row.status == 1">Activa</div>
+              <div v-else>Inactiva</div> -->
+          </q-td>
+        </template>
 
-    <template v-slot:body-cell-evaluee_count="props">
-      <q-td @click="onRowClickEvaluee(props.row)">
-        <q-btn flat>
-          {{ props.row.evaluee_count }}
-        </q-btn>
-      </q-td>
-    </template>
-    <template v-slot:body-cell-description="props">
-      <q-td :props="props">
-        {{
-          props.row.description && props.row.description.length > 40
-            ? props.row.description.slice(0, 40) + "..."
-            : props.row.description
-        }}
-        <q-tooltip
-          class="bg-purple text-body2"
-          v-if="props.row.description && props.row.description.length > 40"
-        >
-          {{ props.row.description }}
-        </q-tooltip>
-      </q-td>
-    </template>
-  </q-table>
+        <template v-slot:body-cell-evaluee_count="props">
+          <q-td @click="onRowClickEvaluee(props.row)">
+            <q-btn flat>
+              {{ props.row.evaluee_count }}
+            </q-btn>
+          </q-td>
+        </template>
+        <template v-slot:body-cell-description="props">
+          <q-td :props="props">
+            {{
+              props.row.description && props.row.description.length > 40
+                ? props.row.description.slice(0, 40) + "..."
+                : props.row.description
+            }}
+            <q-tooltip
+              class="bg-purple text-body2"
+              v-if="props.row.description && props.row.description.length > 40"
+            >
+              {{ props.row.description }}
+            </q-tooltip>
+          </q-td>
+        </template>
+      </q-table>
+    </q-item-section>
+  </q-item>
 
   <q-dialog
     v-model="showAdd"
@@ -163,10 +167,14 @@
     <q-layout view="hHh Lpr fff">
       <q-header elevated class="bg-primary text-white" height-hint="98">
         <q-toolbar>
-          <q-toolbar-title> Registrar encuesta </q-toolbar-title>
+          <q-toolbar-title> Registrar Evaluacion </q-toolbar-title>
           <q-card-actions align="right">
             <q-btn label="Cerrar" color="red" v-close-popup />
-            <q-btn label="Agregar encuesta" color="blue" @click="addSurvey()" />
+            <q-btn
+              label="Agregar Evaluacion"
+              color="blue"
+              @click="addSurvey()"
+            />
           </q-card-actions>
         </q-toolbar>
       </q-header>
@@ -188,12 +196,12 @@
       <q-header elevated class="bg-primary text-white" height-hint="98">
         <q-toolbar>
           <q-toolbar-title>
-            Actualizar Encuesta {{ selectedSurvey.title }}
+            Actualizar Evaluacion {{ selectedSurvey.title }}
           </q-toolbar-title>
           <q-card-actions align="right">
             <q-btn label="Cerrar" color="red" v-close-popup />
             <q-btn
-              label="Actualizar encuesta"
+              label="Actualizar Evaluacion"
               color="blue"
               @click="editSurvey()"
             />
@@ -219,21 +227,24 @@
     full-height
   >
     <q-card>
-      <q-card-section class="d-flex justify-between items-center q-pa-sm">
-        <div class="text-h6">Asignar encuesta {{ selectedSurvey.title }}</div>
-        <q-card-actions align="right">
-          <q-btn label="Cancelar" color="red" v-close-popup />
-          <q-btn
-            label="Asignar encuesta"
-            color="blue"
-            @click="evalueeSurvey()"
-          />
-        </q-card-actions>
-      </q-card-section>
-      <q-separator />
-      <div class="survey-form-container">
-        <add-evaluees-form ref="evaluees" :survey="selectedSurvey" />
-      </div>
+      <q-item class="text-white bg-primary">
+        <q-item-section>
+          <q-item-label class="text-h6">
+            Asignar {{ selectedSurvey.title }}
+          </q-item-label>
+        </q-item-section>
+        <q-item-section side>
+          <q-btn label="Cerrar" color="red" v-close-popup />
+        </q-item-section>
+        <q-item-section side>
+          <q-btn label="Asignar" color="blue" @click="evalueeSurvey()" />
+        </q-item-section>
+      </q-item>
+      <q-item>
+        <q-item-section>
+          <add-evaluees-form ref="evaluees" :survey="selectedSurvey" />
+        </q-item-section>
+      </q-item>
     </q-card>
   </q-dialog>
 
@@ -267,21 +278,23 @@
     transition-show="rotate"
     transition-hide="rotate"
     persistent
-    :maximized="true"
   >
     <q-card>
-      <q-card-section
-        class="d-flex bg-primary text-white justify-between items-center q-pa-sm"
-      >
-        <div class="text-h6">Calificar {{ selectedSurvey.title }}</div>
-        <q-card-actions align="right">
+      <q-item class="text-white bg-primary">
+        <q-item-section>
+          <q-item-label class="text-h6">
+            Calificar {{ selectedSurvey.title }}
+          </q-item-label>
+        </q-item-section>
+        <q-item-section side>
           <q-btn label="Cerrar" color="red" v-close-popup />
-        </q-card-actions>
-      </q-card-section>
-      <q-separator />
-      <div>
-        <add-comment-form ref="evaluator" :survey="selectedSurvey" />
-      </div>
+        </q-item-section>
+      </q-item>
+      <q-item>
+        <q-item-section>
+          <add-comment-form ref="evaluator" :survey="selectedSurvey" />
+        </q-item-section>
+      </q-item>
     </q-card>
   </q-dialog>
 
@@ -346,12 +359,12 @@
       <q-header elevated class="bg-primary text-white" height-hint="98">
         <q-toolbar>
           <q-toolbar-title>
-            Clonar Encuesta {{ selectedSurvey.title }}
+            Clonar Evaluacion {{ selectedSurvey.title }}
           </q-toolbar-title>
           <q-card-actions align="right">
             <q-btn label="Cerrar" color="red" v-close-popup />
             <q-btn
-              label="Clonar encuesta"
+              label="Clonar Evaluacion"
               color="blue"
               @click="addSurvey()"
               v-close-popup

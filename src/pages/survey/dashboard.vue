@@ -8,7 +8,7 @@
     align="justify"
   >
     <q-tab name="Kardex" label="Kardex" />
-    <q-tab name="Encuestas" label="Encuestas" />
+    <q-tab name="Evaluaciones" label="Evaluaciones" />
   </q-tabs>
 
   <q-separator />
@@ -17,7 +17,7 @@
     <q-tab-panel name="Kardex" class="q-pa-none">
       <surveys-kardex />
     </q-tab-panel>
-    <q-tab-panel name="Encuestas" class="q-pa-none">
+    <q-tab-panel name="Evaluaciones" class="q-pa-none">
       <index-survey />
     </q-tab-panel>
   </q-tab-panels>

@@ -174,18 +174,18 @@ const rows = (survey) => {
     row.total = totals[row.name] ? totals[row.name].toFixed(2) : "N/A";
   });
 
-  // Agregar los promedios de las encuestas como una fila adicional
+  // Agregar los promedios de las evaluaciones como una fila adicional
   const surveyAverageRow = {
-    name: "Promedio por Encuesta",
+    name: "Promedio por Evaluacion",
   };
   survey.forEach((s) => {
     surveyAverageRow[s.title] = surveyAverages[s.title]
       ? surveyAverages[s.title].toFixed(2)
       : "N/A";
   });
-  surveyAverageRow.total = totalAverage.toFixed(2); // Total promedio de encuestas
+  surveyAverageRow.total = totalAverage.toFixed(2); // Total promedio de evaluaciones
 
-  // Agregar la fila de promedio de encuestas al final
+  // Agregar la fila de promedio de evaluaciones al final
   dynamicRows.push(surveyAverageRow);
 
   return dynamicRows;

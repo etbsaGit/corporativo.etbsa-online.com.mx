@@ -47,6 +47,10 @@ const routes = [
         component: () => import("src/pages/catalogos/index.vue"),
       },
       {
+        path: "/festivos",
+        component: () => import("src/pages/Festivos/FestivosPage.vue"),
+      },
+      {
         path: "/vacation",
         component: () => import("src/pages/vacation/vacationPage.vue"),
       },
@@ -104,7 +108,7 @@ const routes = [
         component: () => import("src/pages/employees/PerfilPage.vue"),
       },
       {
-        path: "/encuestas",
+        path: "/evaluaciones",
         component: () => import("src/pages/survey/index.vue"),
       },
       {

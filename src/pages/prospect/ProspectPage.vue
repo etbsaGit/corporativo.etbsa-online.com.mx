@@ -17,7 +17,7 @@
       <q-select
         v-model="filterForm.empleado_id"
         :options="filterEmpleados"
-        label="Empleado"
+        label="Gerente"
         option-value="id"
         option-label="nombreCompleto"
         option-disable="inactive"
@@ -42,6 +42,7 @@
         </template>
       </q-select>
     </q-item-section>
+
     <q-item-section side>
       <q-btn
         dense
@@ -80,6 +81,12 @@
         <template v-slot:body-cell-empleado="props">
           <q-td :props="props">
             {{ props.row.empleado.nombreCompleto }}
+          </q-td>
+        </template>
+
+        <template v-slot:body-cell-vendedor="props">
+          <q-td :props="props">
+            {{ props.row.vendedor?.nombreCompleto }}
           </q-td>
         </template>
 
@@ -259,7 +266,13 @@ const columns = [
     name: "empleado",
     align: "left",
     field: "empleado",
-    label: "Empleado",
+    label: "Gerente",
+  },
+  {
+    name: "vendedor",
+    align: "left",
+    field: "vendedor",
+    label: "Vendedor",
   },
 ];
 

@@ -464,6 +464,11 @@
             {{ props.row.departamento.nombre }}
           </q-td>
         </template>
+        <template v-slot:body-cell-fecha_de_ingreso="props">
+          <q-td :props="props">
+            {{ formatDateplusoneSlim(props.row.fecha_de_ingreso) }}
+          </q-td>
+        </template>
 
         <template v-slot:top-right>
           <!-- <q-btn outline dense color="primary" @click="getRows" icon="refresh">
@@ -691,6 +696,7 @@ import EmployeeTimeLine from "src/components/Employeed/EmployeeTimeLine.vue";
 import CvEmployee from "src/components/Employeed/CvEmployee.vue";
 
 import EmployeeForm from "src/components/Employeed/EmployeeForm.vue";
+import { formatDateplusoneSlim } from "src/boot/formatFunctions";
 
 const rows = ref([]);
 const selectedRow = ref(null);
@@ -770,6 +776,13 @@ const columns = [
     label: "Puesto",
     align: "left",
     field: "puesto",
+    sortable: true,
+  },
+  {
+    name: "fecha_de_ingreso",
+    label: "Ingreso",
+    align: "left",
+    field: "fecha_de_ingreso",
     sortable: true,
   },
   {
@@ -898,18 +911,12 @@ bus.on("cargar_empleados", () => {
 });
 
 const getKardex = async (mes = null, anio = null) => {
-  let url;
-  if (mes === null && anio !== null) {
-    // Solo se proporciona el año
-    url = `/api/empleado/baja/${anio}`;
-  } else if (mes === null && anio === null) {
-    // No se proporcionan ni el mes ni el año
-    url = `/api/empleado/baja`;
-  } else {
-    // Se proporcionan tanto el mes como el año
-    url = `/api/empleado/baja/${anio}/${mes}`;
-  }
-  let res = await sendRequest("GET", null, url, "");
+  const final = {
+    year: anio,
+    month: mes,
+  };
+  let url = "/api/empleado/baja";
+  let res = await sendRequest("POST", final, url, "");
   rows.value = res;
   next_page_url.value = "";
   prev_page_url.value = "";
@@ -918,18 +925,13 @@ const getKardex = async (mes = null, anio = null) => {
 };
 
 const getKardexNew = async (mes = null, anio = null) => {
-  let url;
-  if (mes === null && anio !== null) {
-    // Solo se proporciona el año
-    url = `/api/empleado/alta/${anio}`;
-  } else if (mes === null && anio === null) {
-    // No se proporcionan ni el mes ni el año
-    url = `/api/empleado/alta`;
-  } else {
-    // Se proporcionan tanto el mes como el año
-    url = `/api/empleado/alta/${anio}/${mes}`;
-  }
-  let res = await sendRequest("GET", null, url, "");
+  const final = {
+    year: anio,
+    month: mes,
+  };
+  let url = "/api/empleado/alta";
+
+  let res = await sendRequest("POST", final, url, "");
   rows.value = res;
   next_page_url.value = "";
   prev_page_url.value = "";

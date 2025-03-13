@@ -32,7 +32,7 @@
           :options="evaluators"
           option-value="id"
           option-label="email"
-          label="Encuestador"
+          label="Evaluador"
           option-disable="inactive"
           emit-value
           map-options

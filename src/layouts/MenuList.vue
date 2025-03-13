@@ -167,6 +167,22 @@
 
         <q-item-section>Incapacidades para empleados</q-item-section>
       </q-item>
+      <q-item
+        v-if="checkRole('RRHH')"
+        clickable
+        dense
+        v-ripple
+        to="/festivos"
+        :active="link === 'festivos'"
+        @click="link = 'festivos'"
+        active-class="my-menu-link"
+      >
+        <q-item-section avatar>
+          <q-icon name="surfing" />
+        </q-item-section>
+
+        <q-item-section>Festivos</q-item-section>
+      </q-item>
     </q-expansion-item>
 
     <q-expansion-item
@@ -249,16 +265,16 @@
           <q-icon name="psychology_alt" />
         </q-item-section>
 
-        <q-item-section>Encuestas para empleados</q-item-section>
+        <q-item-section>Evaluaciones para empleados</q-item-section>
       </q-item>
       <q-item
         v-if="checkRole('Empleado')"
         clickable
         dense
         v-ripple
-        to="/encuestas"
-        :active="link === 'encuestas'"
-        @click="link = 'encuestas'"
+        to="/evaluaciones"
+        :active="link === 'evaluaciones'"
+        @click="link = 'evaluaciones'"
         active-class="my-menu-link"
       >
         <q-item-section avatar>
