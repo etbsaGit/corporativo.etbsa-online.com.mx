@@ -52,7 +52,6 @@
     </q-item>
 
     <q-item
-      v-if="checkRole('RRHH')"
       dense
       clickable
       v-ripple
@@ -66,6 +65,22 @@
       </q-item-section>
 
       <q-item-section>Vacaciones</q-item-section>
+    </q-item>
+
+    <q-item
+      dense
+      clickable
+      v-ripple
+      to="/suggestion"
+      :active="link === 'suggestion'"
+      @click="link = 'suggestion'"
+      active-class="my-menu-link"
+    >
+      <q-item-section avatar>
+        <q-icon name="support_agent" />
+      </q-item-section>
+
+      <q-item-section>Quejas y sugerencias</q-item-section>
     </q-item>
 
     <q-expansion-item
@@ -192,9 +207,14 @@
       icon="engineering"
       label="Taller"
       group="somegroup"
+      v-if="checkRole('Servicio') || checkRole('Taller')"
     >
       <q-item
-        v-if="checkRole('Servicio') || checkRole('Taller')"
+        v-if="
+          checkRole('Servicio') ||
+          checkRole('Taller') ||
+          checkPuestoIncludes('Gerente')
+        "
         clickable
         dense
         v-ripple

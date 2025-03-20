@@ -472,8 +472,26 @@
           v-model="formEmployee.jefe_directo_id"
           :options="jefesDirectos"
           option-value="id"
-          option-label="nombreCompleto"
+          option-label="apellidoCompleto"
           label="Jefe directo"
+          option-disable="inactive"
+          emit-value
+          map-options
+          transition-show="jump-up"
+          transition-hide="jump-up"
+          clearable
+          filled
+          dense
+          hint
+        />
+      </q-item-section>
+      <q-item-section>
+        <q-select
+          v-model="formEmployee.notificar_id"
+          :options="jefesDirectos"
+          option-value="id"
+          option-label="apellidoCompleto"
+          label="Notificar a: "
           option-disable="inactive"
           emit-value
           map-options
@@ -721,6 +739,7 @@ const formEmployee = ref({
   linea_id: empleado ? empleado.linea.id : null,
   departamento_id: empleado ? empleado.departamento.id : null,
   jefe_directo_id: empleado ? empleado.jefe_directo_id : null,
+  notificar_id: empleado ? empleado.notificar_id : null,
 
   // Incluyendo siempre la propiedad desvinculacion
   desvinculacion: {

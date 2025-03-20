@@ -50,10 +50,6 @@ const routes = [
         path: "/festivos",
         component: () => import("src/pages/Festivos/FestivosPage.vue"),
       },
-      {
-        path: "/vacation",
-        component: () => import("src/pages/vacation/vacationPage.vue"),
-      },
     ],
   },
   {
@@ -118,6 +114,14 @@ const routes = [
       {
         path: "/post",
         component: () => import("src/pages/post/postIndex.vue"),
+      },
+      {
+        path: "/suggestion",
+        component: () => import("src/pages/suggestion/SuggestionPage.vue"),
+      },
+      {
+        path: "/vacation",
+        component: () => import("src/pages/vacation/vacationPage.vue"),
       },
     ],
   },
