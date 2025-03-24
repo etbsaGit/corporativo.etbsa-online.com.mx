@@ -46,6 +46,14 @@
                   <strong>Puesto: </strong>
                   {{ employee.puesto.nombre }}
                 </q-item-label>
+                <q-item-label caption>
+                  <strong>Dias restantes de vacaciones: </strong>
+                  {{ employee.aniosVacaciones?.subtotal }}
+                </q-item-label>
+                <q-item-label caption>
+                  <strong>Periodo vacacional: </strong>
+                  {{ employee.vacationPeriod }}
+                </q-item-label>
               </q-item-section>
             </q-item>
           </div>

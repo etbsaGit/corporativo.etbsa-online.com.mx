@@ -71,7 +71,10 @@
               icon="check_box_outline_blank"
               label="Pendiente"
             />
-            <q-tooltip class="bg-purple text-body2">
+            <q-tooltip
+              v-if="props.row.comentarios"
+              class="bg-purple text-body2"
+            >
               {{ props.row.comentarios }}
             </q-tooltip>
           </q-td>

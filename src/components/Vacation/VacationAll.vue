@@ -89,6 +89,18 @@
           </q-td>
         </template>
 
+        <template v-slot:body-cell-created_at="props">
+          <q-td :props="props">
+            {{ formatDateSlim(props.row.created_at) }}
+          </q-td>
+        </template>
+
+        <template v-slot:body-cell-updated_at="props">
+          <q-td :props="props">
+            {{ formatDateSlim(props.row.updated_at) }}
+          </q-td>
+        </template>
+
         <template v-slot:body-cell-validated="props">
           <q-td :props="props">
             <q-btn-dropdown
@@ -230,7 +242,10 @@
 <script setup>
 import { ref, onMounted, watch, computed } from "vue";
 import { sendRequest, dataIncomplete, checkRole } from "src/boot/functions";
-import { formatDateplusoneSlim } from "src/boot/formatFunctions";
+import {
+  formatDateplusoneSlim,
+  formatDateSlim,
+} from "src/boot/formatFunctions";
 
 import VacationForm from "src/components/Vacation/VacationForm.vue";
 
@@ -295,6 +310,18 @@ const columns = [
     align: "left",
     field: "fecha_regreso",
     label: "Fecha Regreso",
+  },
+  {
+    name: "created_at",
+    align: "left",
+    field: "created_at",
+    label: "Creado",
+  },
+  {
+    name: "updated_at",
+    align: "left",
+    field: "updated_at",
+    label: "Modificado",
   },
   {
     name: "validated",

@@ -80,7 +80,7 @@
         <q-icon name="support_agent" />
       </q-item-section>
 
-      <q-item-section>Quejas y sugerencias</q-item-section>
+      <q-item-section>Sugerencias y mejoras</q-item-section>
     </q-item>
 
     <q-expansion-item
@@ -90,7 +90,11 @@
       dense
       dense-toggle
       group="somegroup"
-      v-if="checkPuestoIncludes('territorial') || checkSucursal('Corporativo')"
+      v-if="
+        checkPuestoIncludes('territorial') ||
+        checkPuestoIncludes('Gerente') ||
+        checkRole('Admin')
+      "
     >
       <q-item
         dense
@@ -115,7 +119,6 @@
         :active="link === 'prospect'"
         @click="link = 'prospect'"
         active-class="my-menu-link"
-        v-if="checkPuestoIncludes('Gerente')"
       >
         <q-item-section avatar>
           <q-icon name="assignment_ind" />
@@ -207,7 +210,9 @@
       icon="engineering"
       label="Taller"
       group="somegroup"
-      v-if="checkRole('Servicio') || checkRole('Taller')"
+      v-if="
+        checkRole('Servicio') || checkRole('Taller') || checkPuesto('Tecnico')
+      "
     >
       <q-item
         v-if="
