@@ -14,7 +14,11 @@
     <q-tab
       name="report"
       label="Reportes"
-      v-if="checkPuesto('Gerente corporativo') || checkRole('Admin')"
+      v-if="
+        checkPuesto('Gerente corporativo') ||
+        checkRole('Admin') ||
+        checkRole('Visits')
+      "
     />
   </q-tabs>
 
