@@ -22,6 +22,26 @@
       v-if="checkRole('Empleado')"
       clickable
       v-ripple
+      :active="link === 'etica'"
+      @click="link = 'etica'"
+      active-class="my-menu-link"
+      tag="a"
+      href="https://drive.google.com/file/d/1LwQJwRiGL1uVCnwVztddHp0RwUVft9fH/view?usp=sharing"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <q-item-section avatar>
+        <q-icon name="diversity_1" />
+      </q-item-section>
+
+      <q-item-section>Código de ética</q-item-section>
+    </q-item>
+
+    <q-item
+      dense
+      v-if="checkRole('Empleado')"
+      clickable
+      v-ripple
       to="/post"
       :active="link === 'post'"
       @click="link = 'post'"

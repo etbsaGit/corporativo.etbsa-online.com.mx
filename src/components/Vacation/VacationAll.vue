@@ -1,5 +1,24 @@
 <template>
   <q-item>
+    <q-item-section avatar>
+      <q-select
+        v-model="filterForm.validated"
+        :options="options"
+        label="Autorizacion"
+        option-value="value"
+        option-label="label"
+        option-disable="inactive"
+        emit-value
+        map-options
+        transition-show="jump-up"
+        transition-hide="jump-up"
+        outlined
+        dense
+        options-dense
+        @update:model-value="onInputChange"
+      />
+    </q-item-section>
+
     <q-item-section>
       <q-select
         v-model="filterForm.empleado_id"
@@ -267,6 +286,7 @@ const empleados = ref([]);
 
 const filterForm = ref({
   empleado_id: null,
+  validated: null,
 });
 
 const columns = [
@@ -486,4 +506,10 @@ onMounted(() => {
   getRows();
   getForms();
 });
+
+const options = ref([
+  { label: "Autorizada", value: 1 },
+  { label: "Rechazada", value: 0 },
+  { label: "Pendiente", value: null },
+]);
 </script>

@@ -1,11 +1,11 @@
 <template>
   <q-form ref="myForm" greedy>
-    <q-item>
+    <q-item dense>
       <q-item-section avatar>
         <q-date minimal v-model="model" range @range-end="onRangeEnd" />
       </q-item-section>
       <q-item-section>
-        <q-item>
+        <q-item dense>
           <q-item-section>
             <q-select
               v-model="formVacation.empleado_id"
@@ -29,7 +29,7 @@
               :rules="[(val) => val !== null || 'Obligatorio']"
             >
               <template v-slot:no-option>
-                <q-item>
+                <q-item dense>
                   <q-item-section class="text-grey">
                     no options
                   </q-item-section>
@@ -50,7 +50,7 @@
             </q-select>
           </q-item-section>
         </q-item>
-        <q-item>
+        <q-item dense>
           <q-item-section>
             <q-select
               v-model="formVacation.sucursal_id"
@@ -123,7 +123,7 @@
             />
           </q-item-section>
         </q-item>
-        <q-item>
+        <q-item dense>
           <q-item-section>
             <q-input
               v-model="formVacation.fecha_inicio"
@@ -161,7 +161,7 @@
             />
           </q-item-section>
         </q-item>
-        <q-item>
+        <q-item dense>
           <q-item-section>
             <q-input
               v-model="formVacation.subtotal_dias"
@@ -199,9 +199,42 @@
             />
           </q-item-section>
         </q-item>
+        <q-item dense>
+          <q-item-section>
+            <q-select
+              v-model="formVacation.cubre"
+              :options="filterEmpleadosC"
+              label="Quien cubre"
+              option-value="id"
+              option-label="apellidoCompleto"
+              option-disable="inactive"
+              emit-value
+              map-options
+              transition-show="jump-up"
+              transition-hide="jump-up"
+              outlined
+              dense
+              clearable
+              options-dense
+              use-input
+              @filter="filterFnC"
+              input-debounce="0"
+              behavior="menu"
+              :rules="[(val) => val !== null || 'Obligatorio']"
+            >
+              <template v-slot:no-option>
+                <q-item dense>
+                  <q-item-section class="text-grey">
+                    no options
+                  </q-item-section>
+                </q-item>
+              </template>
+            </q-select>
+          </q-item-section>
+        </q-item>
       </q-item-section>
     </q-item>
-    <q-item>
+    <q-item dense>
       <q-item-section avatar>
         <q-input
           v-model="formVacation.vehiculo_utilitario"
@@ -213,6 +246,7 @@
       </q-item-section>
       <q-item-section>
         <q-input
+          v-if="vacation"
           v-model="formVacation.comentarios"
           outlined
           dense
@@ -258,8 +292,10 @@ const myForm = ref(null);
 const sucursales = ref([]);
 const puestos = ref([]);
 const empleados = ref([]);
+const empleadosAll = ref([]);
 const holidays = ref([]);
 const filterEmpleados = ref(null);
+const filterEmpleadosC = ref(null);
 const selectedEmpleado = ref(null);
 const model = ref(null);
 
@@ -283,6 +319,7 @@ const formVacation = ref({
   fecha_regreso: vacation ? vacation.fecha_regreso : null,
   validated: vacation ? vacation.validated : null,
   comentarios: vacation ? vacation.comentarios : null,
+  cubre: vacation ? vacation.cubre : null,
 });
 
 // Función para formatear la fecha en YYYY-MM-DD
@@ -367,6 +404,7 @@ const getForms = async () => {
   empleados.value = res.empleados;
   sucursales.value = res.sucursales;
   puestos.value = res.puestos;
+  empleadosAll.value = res.empleadosAll;
   holidays.value = res.festivos.map((date) => date.replace(/\//g, "-")); // Convertir a YYYY-MM-DD
 };
 
@@ -381,6 +419,22 @@ const filterFn = (val, update) => {
   update(() => {
     const needle = val.toLowerCase();
     filterEmpleados.value = empleados.value.filter(
+      (empleado) => empleado?.nombreCompleto.toLowerCase().indexOf(needle) > -1
+    );
+  });
+};
+
+const filterFnC = (val, update) => {
+  if (val === "") {
+    update(() => {
+      filterEmpleadosC.value = empleadosAll.value;
+    });
+    return;
+  }
+
+  update(() => {
+    const needle = val.toLowerCase();
+    filterEmpleadosC.value = empleadosAll.value.filter(
       (empleado) => empleado?.nombreCompleto.toLowerCase().indexOf(needle) > -1
     );
   });

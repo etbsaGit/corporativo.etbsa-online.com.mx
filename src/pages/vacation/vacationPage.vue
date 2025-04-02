@@ -11,7 +11,16 @@
     <q-tab name="myVacation" label="Mis vacaciones" />
     <q-tab name="vacationsRH" label="Vacaciones" />
     <q-tab name="calendar" label="Calendario" />
-    <q-tab name="report" label="Reporte" v-if="checkRole('RRHH')" />
+    <q-tab
+      name="report"
+      label="Reporte por sucursal"
+      v-if="checkRole('RRHH')"
+    />
+    <q-tab
+      name="reportE"
+      label="Reporte por empleado"
+      v-if="checkRole('RRHH')"
+    />
     <q-tab
       name="acuenta"
       label="A cuenta de vacaciones"
@@ -42,6 +51,10 @@
       <vacation-report />
     </q-tab-panel>
 
+    <q-tab-panel name="reportE" class="q-pa-none">
+      <vacation-report-employee />
+    </q-tab-panel>
+
     <q-tab-panel name="acuenta" class="q-pa-none">
       <vacation-force />
     </q-tab-panel>
@@ -56,6 +69,7 @@ import VacationAll from "src/components/Vacation/VacationAll.vue";
 import VacationCalendar from "src/components/Vacation/VacationCalendar.vue";
 import VacationReport from "src/components/Vacation/VacationReport.vue";
 import VacationForce from "src/components/Vacation/VacationForce.vue";
+import VacationReportEmployee from "src/components/Vacation/VacationReportEmployee.vue";
 import { checkRole } from "src/boot/functions";
 
 const tab = ref("myVacation");
