@@ -21,6 +21,46 @@
 
     <q-item-section>
       <q-select
+        v-model="filterForm.sucursal_id"
+        :options="sucursales"
+        label="Sucursal"
+        option-value="id"
+        option-label="nombre"
+        option-disable="inactive"
+        emit-value
+        map-options
+        transition-show="jump-up"
+        transition-hide="jump-up"
+        outlined
+        clearable
+        dense
+        options-dense
+        @update:model-value="onInputChange"
+      />
+    </q-item-section>
+
+    <q-item-section>
+      <q-select
+        v-model="filterForm.departamento_id"
+        :options="departamentos"
+        label="Departamento"
+        option-value="id"
+        option-label="nombre"
+        option-disable="inactive"
+        emit-value
+        map-options
+        transition-show="jump-up"
+        transition-hide="jump-up"
+        clearable
+        outlined
+        dense
+        options-dense
+        @update:model-value="onInputChange"
+      />
+    </q-item-section>
+
+    <q-item-section>
+      <q-select
         v-model="filterForm.empleado_id"
         :options="filterEmpleados"
         label="Empleado"
@@ -283,9 +323,13 @@ const last_page = ref(0);
 const current_page = ref(1);
 
 const empleados = ref([]);
+const departamentos = ref([]);
+const sucursales = ref([]);
 
 const filterForm = ref({
   empleado_id: null,
+  sucursal_id: null,
+  departamento_id: null,
   validated: null,
 });
 
@@ -381,6 +425,8 @@ const getForms = async () => {
     ""
   );
   empleados.value = res.empleados;
+  sucursales.value = res.sucursales;
+  departamentos.value = res.departamentos;
 };
 
 const postRow = async () => {

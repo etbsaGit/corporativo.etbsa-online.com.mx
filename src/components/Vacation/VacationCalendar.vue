@@ -1,4 +1,44 @@
 <template>
+  <q-item v-if="checkSucursal('Corporativo')">
+    <q-item-section>
+      <q-select
+        v-model="filterForm.sucursal_id"
+        :options="sucursales"
+        label="Sucursal"
+        option-value="id"
+        option-label="nombre"
+        option-disable="inactive"
+        emit-value
+        map-options
+        transition-show="jump-up"
+        transition-hide="jump-up"
+        outlined
+        clearable
+        dense
+        options-dense
+        @update:model-value="onInputChange"
+      />
+    </q-item-section>
+    <q-item-section>
+      <q-select
+        v-model="filterForm.departamento_id"
+        :options="departamentos"
+        label="Departamento"
+        option-value="id"
+        option-label="nombre"
+        option-disable="inactive"
+        emit-value
+        map-options
+        transition-show="jump-up"
+        transition-hide="jump-up"
+        clearable
+        outlined
+        dense
+        options-dense
+        @update:model-value="onInputChange"
+      />
+    </q-item-section>
+  </q-item>
   <div class="q-pa-xs flex justify-between items-center">
     <q-btn icon="arrow_left" @click="prevMonth" />
     <div class="highlight">{{ currentMonthYear }}</div>
@@ -52,9 +92,16 @@ import "@quasar/quasar-ui-qcalendar/src/QCalendarVariables.sass";
 import "@quasar/quasar-ui-qcalendar/src/QCalendarTransitions.sass";
 import "@quasar/quasar-ui-qcalendar/src/QCalendarMonth.sass";
 
-import { sendRequest } from "src/boot/functions";
+import { checkSucursal, sendRequest } from "src/boot/functions";
 
 const vacations = ref([]);
+const sucursales = ref([]);
+const departamentos = ref([]);
+
+const filterForm = ref({
+  sucursal_id: null,
+  departamento_id: null,
+});
 
 const transformedVacations = computed(() =>
   vacations.value.map((vacation) => ({
@@ -211,18 +258,44 @@ const getOpaqueColor = (color) => {
   )}, ${parseInt(hexColor.slice(4, 6), 16)}, 0.5)`;
 };
 
-// Función para obtener los datos de la API
-const getVacations = async (date) => {
+const getForms = async () => {
+  const year = ref(new Date().getFullYear());
   let res = await sendRequest(
     "GET",
     null,
+    "/api/vacationDay/forms/" + year.value,
+    ""
+  );
+  sucursales.value = res.sucursales;
+  departamentos.value = res.departamentos;
+};
+
+// Función para obtener los datos de la API
+const getVacations = async (date) => {
+  const final = {
+    ...filterForm.value,
+  };
+  let res = await sendRequest(
+    "POST",
+    final,
     "/api/vacationDay/calendar/" + date,
     ""
   );
   vacations.value = res;
 };
 
+let timeout = null;
+
+const onInputChange = () => {
+  clearTimeout(timeout);
+
+  timeout = setTimeout(() => {
+    getVacations(selectedDate.value);
+  }, 1000);
+};
+
 onMounted(() => {
+  getForms();
   getVacations(selectedDate.value);
 });
 </script>

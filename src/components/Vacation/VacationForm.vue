@@ -2,7 +2,13 @@
   <q-form ref="myForm" greedy>
     <q-item dense>
       <q-item-section avatar>
-        <q-date minimal v-model="model" range @range-end="onRangeEnd" />
+        <q-date
+          minimal
+          v-model="model"
+          range
+          @range-end="onRangeEnd"
+          :options="options(selectedEmpleado?.fecha_de_ingreso)"
+        />
       </q-item-section>
       <q-item-section>
         <q-item dense>
@@ -72,6 +78,25 @@
           </q-item-section>
           <q-item-section>
             <q-select
+              v-model="formVacation.departamento_id"
+              :options="departamentos"
+              label="Departamento"
+              option-value="id"
+              option-label="nombre"
+              option-disable="inactive"
+              emit-value
+              map-options
+              transition-show="jump-up"
+              transition-hide="jump-up"
+              clearable
+              outlined
+              dense
+              readonly
+              hint
+            />
+          </q-item-section>
+          <q-item-section>
+            <q-select
               v-model="formVacation.puesto_id"
               :options="puestos"
               label="Puesto"
@@ -128,7 +153,7 @@
             <q-input
               v-model="formVacation.fecha_inicio"
               mask="date"
-              :rules="['date']"
+              :rules="[(val) => val !== null || 'Obligatorio']"
               outlined
               dense
               label="Fecha de inicio"
@@ -140,7 +165,7 @@
             <q-input
               v-model="formVacation.fecha_termino"
               mask="date"
-              :rules="['date']"
+              :rules="[(val) => val !== null || 'Obligatorio']"
               outlined
               dense
               label="Fecha de termino"
@@ -152,7 +177,7 @@
             <q-input
               v-model="formVacation.fecha_regreso"
               mask="date"
-              :rules="['date']"
+              :rules="[(val) => val !== null || 'Obligatorio']"
               outlined
               dense
               label="Fecha de regreso"
@@ -291,6 +316,7 @@ const { vacation } = defineProps(["vacation"]);
 const myForm = ref(null);
 const sucursales = ref([]);
 const puestos = ref([]);
+const departamentos = ref([]);
 const empleados = ref([]);
 const empleadosAll = ref([]);
 const holidays = ref([]);
@@ -307,6 +333,7 @@ const formVacation = ref({
   empleado_id: vacation ? vacation.empleado_id : null,
   sucursal_id: vacation ? vacation.sucursal_id : null,
   puesto_id: vacation ? vacation.puesto_id : null,
+  departamento_id: vacation ? vacation.departamento_id : null,
   vehiculo_utilitario: vacation ? vacation.vehiculo_utilitario : null,
   periodo_correspondiente: vacation ? vacation.periodo_correspondiente : null,
   anios_cumplidos: vacation ? vacation.anios_cumplidos : null,
@@ -404,6 +431,7 @@ const getForms = async () => {
   empleados.value = res.empleados;
   sucursales.value = res.sucursales;
   puestos.value = res.puestos;
+  departamentos.value = res.departamentos;
   empleadosAll.value = res.empleadosAll;
   holidays.value = res.festivos.map((date) => date.replace(/\//g, "-")); // Convertir a YYYY-MM-DD
 };
@@ -457,6 +485,8 @@ watch(
     if (selectedEmpleado.value) {
       formVacation.value.sucursal_id =
         selectedEmpleado.value.sucursal_id || null;
+      formVacation.value.departamento_id =
+        selectedEmpleado.value.departamento_id || null;
       formVacation.value.puesto_id = selectedEmpleado.value.puesto_id || null;
       formVacation.value.anios_cumplidos =
         selectedEmpleado.value.aniosVacaciones.cumplidos || null;
@@ -469,6 +499,7 @@ watch(
     } else {
       formVacation.value.sucursal_id = null;
       formVacation.value.puesto_id = null;
+      formVacation.value.departamento_id = null;
       formVacation.value.anios_cumplidos = null;
       formVacation.value.dias_periodo = null;
       formVacation.value.subtotal_dias = null;
@@ -484,6 +515,53 @@ const resetFormDates = () => {
   formVacation.value.fecha_regreso = null;
 };
 
+const options = (dateStr) => {
+  const today = new Date();
+  const originalDate = new Date(dateStr);
+  const currentYear = today.getFullYear();
+
+  const thisYearDate = new Date(
+    currentYear,
+    originalDate.getMonth(),
+    originalDate.getDate()
+  );
+
+  let startYear, endYear;
+
+  if (thisYearDate <= today) {
+    startYear = currentYear;
+    endYear = currentYear + 1;
+  } else {
+    startYear = currentYear - 1;
+    endYear = currentYear;
+  }
+
+  // Creamos fechas y les sumamos 1 día
+  const startDate = new Date(
+    startYear,
+    originalDate.getMonth(),
+    originalDate.getDate() + 1
+  );
+  const endDate = new Date(
+    endYear,
+    originalDate.getMonth(),
+    originalDate.getDate()
+  );
+
+  const dateArray = [];
+  let currentDate = new Date(startDate);
+
+  while (currentDate <= endDate) {
+    const year = currentDate.getFullYear();
+    const month = String(currentDate.getMonth() + 1).padStart(2, "0");
+    const day = String(currentDate.getDate()).padStart(2, "0");
+    dateArray.push(`${year}/${month}/${day}`);
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
+
+  return dateArray;
+};
+
 const validate = async () => {
   return await myForm.value.validate();
 };
@@ -492,6 +570,14 @@ onMounted(() => {
   getForms().then(() => {
     if (!vacation && usuario && usuario.empleado) {
       formVacation.value.empleado_id = usuario.empleado.id;
+    } else if (
+      formVacation.value.departamento_id == null &&
+      vacation &&
+      vacation.empleado
+    ) {
+      selectedEmpleado.value = vacation.empleado;
+      formVacation.value.departamento_id =
+        selectedEmpleado.value.departamento_id;
     }
     empleados.value.push(usuario.empleado);
   });
