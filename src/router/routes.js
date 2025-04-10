@@ -9,6 +9,7 @@ import {
   rental,
   gerentes,
   used,
+  cc,
 } from "./middleware";
 
 const routes = [
@@ -49,6 +50,19 @@ const routes = [
       {
         path: "/festivos",
         component: () => import("src/pages/Festivos/FestivosPage.vue"),
+      },
+    ],
+  },
+  {
+    path: "",
+    component: () => import("layouts/MainLayout.vue"),
+    meta: {
+      middlewares: [cc],
+    },
+    children: [
+      {
+        path: "/vehicles",
+        component: () => import("src/pages/Vehicles/VehiclePage.vue"),
       },
     ],
   },

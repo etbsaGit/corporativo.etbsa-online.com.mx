@@ -259,7 +259,7 @@
         </q-item>
       </q-item-section>
     </q-item>
-    <q-item dense>
+    <q-item dense v-if="checkRole('RRHH')">
       <q-item-section avatar>
         <q-input
           v-model="formVacation.vehiculo_utilitario"
@@ -267,11 +267,11 @@
           dense
           label="Vehiculo utilitario"
           lazy-rules
+          readonly
         />
       </q-item-section>
       <q-item-section>
         <q-input
-          v-if="vacation"
           v-model="formVacation.comentarios"
           outlined
           dense
@@ -327,6 +327,8 @@ const model = ref(null);
 
 const authStore = useAuthStore();
 const usuario = authStore.authUser;
+
+const placas = ref(selectedEmpleado.value?.vehicle?.placas);
 
 const formVacation = ref({
   id: vacation ? vacation.id : null,
@@ -496,6 +498,9 @@ watch(
         selectedEmpleado.value.aniosVacaciones.subtotal || null;
       formVacation.value.periodo_correspondiente =
         selectedEmpleado.value.vacationPeriod || null;
+      formVacation.value.vehiculo_utilitario = selectedEmpleado.value.vehicle
+        ? selectedEmpleado.value.vehicle.placas
+        : null || null;
     } else {
       formVacation.value.sucursal_id = null;
       formVacation.value.puesto_id = null;
@@ -504,6 +509,7 @@ watch(
       formVacation.value.dias_periodo = null;
       formVacation.value.subtotal_dias = null;
       formVacation.value.periodo_correspondiente = null;
+      formVacation.value.vehiculo_utilitario = null;
     }
   }
 );

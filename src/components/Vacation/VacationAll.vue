@@ -65,7 +65,7 @@
         :options="filterEmpleados"
         label="Empleado"
         option-value="id"
-        option-label="nombreCompleto"
+        option-label="apellidoCompleto"
         option-disable="inactive"
         emit-value
         map-options

@@ -72,6 +72,7 @@
     </q-item>
 
     <q-item
+      v-if="checkRole('Empleado')"
       dense
       clickable
       v-ripple
@@ -88,6 +89,7 @@
     </q-item>
 
     <q-item
+      v-if="checkRole('Empleado')"
       dense
       clickable
       v-ripple
@@ -224,6 +226,33 @@
     </q-expansion-item>
 
     <q-expansion-item
+      expand-separator
+      icon="payments"
+      label="Coordinación de compras"
+      dense
+      dense-toggle
+      group="somegroup"
+      v-if="checkRole('cc') || checkRole('Admin')"
+    >
+      <q-item
+        v-if="checkRole('cc') || checkRole('Admin')"
+        clickable
+        dense
+        v-ripple
+        to="/vehicles"
+        :active="link === 'vehicles'"
+        @click="link = 'vehicles'"
+        active-class="my-menu-link"
+      >
+        <q-item-section avatar>
+          <q-icon name="garage" />
+        </q-item-section>
+
+        <q-item-section>Vehiculos</q-item-section>
+      </q-item>
+    </q-expansion-item>
+
+    <q-expansion-item
       dense
       dense-toggle
       expand-separator
@@ -295,6 +324,7 @@
       icon="psychology_alt"
       label="Evaluaciones"
       group="somegroup"
+      v-if="checkRole('Empleado')"
     >
       <q-item
         v-if="checkRole('Encuestador') || checkRole('Evaluador')"

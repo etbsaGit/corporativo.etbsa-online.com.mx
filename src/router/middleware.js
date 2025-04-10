@@ -143,3 +143,18 @@ export function gerentes({ to, next }) {
 
   return next();
 }
+
+export function cc({ to, next }) {
+  const auth = useAuthStore();
+
+  if (!auth.user) {
+    auth.returnUrl = to.fullPath;
+    return next("/login");
+  }
+
+  if (!checkRole("cc")) {
+    return next("/perfil");
+  }
+
+  return next();
+}
