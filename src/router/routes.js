@@ -137,6 +137,10 @@ const routes = [
         path: "/vacation",
         component: () => import("src/pages/vacation/vacationPage.vue"),
       },
+      {
+        path: "/etica",
+        component: () => import("src/pages/CodigoEtica/CodigoEticaPage.vue"),
+      },
     ],
   },
   {

@@ -56,6 +56,7 @@
             </q-select>
           </q-item-section>
         </q-item>
+
         <q-item dense>
           <q-item-section>
             <q-select
@@ -256,6 +257,44 @@
               </template>
             </q-select>
           </q-item-section>
+          <q-item-section>
+            <q-select
+              v-model="autoriza"
+              :options="empleadosAll"
+              label="Quien autoriza"
+              option-value="id"
+              option-label="nombreCompleto"
+              option-disable="inactive"
+              emit-value
+              map-options
+              transition-show="jump-up"
+              transition-hide="jump-up"
+              clearable
+              outlined
+              dense
+              readonly
+              hint="Esta persona debera autorizar o recharar tu solicitud"
+            />
+          </q-item-section>
+          <q-item-section>
+            <q-select
+              v-model="notifica"
+              :options="empleadosAll"
+              label="A quien notifica"
+              option-value="id"
+              option-label="nombreCompleto"
+              option-disable="inactive"
+              emit-value
+              map-options
+              transition-show="jump-up"
+              transition-hide="jump-up"
+              clearable
+              outlined
+              dense
+              readonly
+              hint="A esta persona se le notifica sobre tu solicitud"
+            />
+          </q-item-section>
         </q-item>
       </q-item-section>
     </q-item>
@@ -312,6 +351,9 @@ import { sendRequest, dataIncomplete, checkRole } from "src/boot/functions";
 import { formatDateplusoneSlim } from "src/boot/formatFunctions";
 
 const { vacation } = defineProps(["vacation"]);
+
+const autoriza = ref(null);
+const notifica = ref(null);
 
 const myForm = ref(null);
 const sucursales = ref([]);
@@ -501,6 +543,8 @@ watch(
       formVacation.value.vehiculo_utilitario = selectedEmpleado.value.vehicle
         ? selectedEmpleado.value.vehicle.placas
         : null || null;
+      autoriza.value = selectedEmpleado.value.jefe_directo_id || null;
+      notifica.value = selectedEmpleado.value.notificar_id || null;
     } else {
       formVacation.value.sucursal_id = null;
       formVacation.value.puesto_id = null;
@@ -510,6 +554,8 @@ watch(
       formVacation.value.subtotal_dias = null;
       formVacation.value.periodo_correspondiente = null;
       formVacation.value.vehiculo_utilitario = null;
+      autoriza.value = null;
+      notifica.value = null;
     }
   }
 );

@@ -78,11 +78,22 @@
 
         <template v-slot:body-cell-cliente="props">
           <q-td :props="props">
-            {{
-              props.row.cliente && props.row.cliente.length > 20
-                ? props.row.cliente.slice(0, 20) + "..."
-                : props.row.cliente
-            }}
+            <q-item>
+              <q-item-section>
+                <q-item-label>
+                  {{
+                    props.row.cliente && props.row.cliente.length > 20
+                      ? props.row.cliente.slice(0, 20) + "..."
+                      : props.row.cliente
+                  }}
+                </q-item-label>
+                <q-item-label caption>
+                  <strong>Tel:</strong>
+                  {{ formatPhoneNumber(props.row.telefono) }}
+                </q-item-label>
+              </q-item-section>
+            </q-item>
+
             <q-tooltip
               class="bg-purple text-body2"
               v-if="props.row.cliente && props.row.cliente.length > 20"
@@ -158,7 +169,7 @@
                     flat
                     size="sm"
                     label="Archivos"
-                    color="green"
+                    color="purple"
                     icon="folder"
                   />
                 </q-item>
@@ -170,6 +181,16 @@
                     label="Borrar"
                     color="red"
                     icon="delete"
+                  />
+                </q-item>
+                <q-item v-if="props.row.telefono">
+                  <q-btn
+                    @click="sendMessage(props.row)"
+                    flat
+                    size="sm"
+                    label="WhatsApp"
+                    color="green"
+                    icon="fa-brands fa-whatsapp"
                   />
                 </q-item>
               </q-list>
@@ -314,14 +335,18 @@
 
 <script setup>
 import { ref, onMounted, watch } from "vue";
+import { useQuasar } from "quasar";
 import { sendRequest, dataIncomplete } from "src/boot/functions";
 import {
   formatDateplusoneSlim,
   formatCurrency,
+  formatPhoneNumber,
 } from "src/boot/formatFunctions";
 
 import WorkOrderForm from "./WorkOrderForm.vue";
 import WorkOrderDocsList from "./WorkOrderDocsList.vue";
+
+const $q = useQuasar();
 
 const wos = ref([]);
 const selectedWO = ref(null);
@@ -533,6 +558,28 @@ const onInputChange = () => {
   timeout = setTimeout(() => {
     getWOS();
   }, 1000);
+};
+
+const sendMessage = (wo) => {
+  const mensaje = `Hola *${wo.cliente}*,  Gracias por confiar en ETBSA, tu distribuidor autorizado John Deere.
+Te informamos sobre la recepción de tu máquina:
+
+Orden de Trabajo #${wo.ot}
+Máquina: ${wo.maquina}
+Fecha de ingreso: ${wo.fecha_ingreso}
+
+Descripción: ${wo.descripcion}
+
+Técnico asignado: ${wo.tecnico.nombreCompleto}
+Sucursal: ${wo.sucursal.nombre}
+Línea: ${wo.linea.nombre}
+
+Para más información, responda a esté mensaje.`;
+
+  const numero = `+52${wo.telefono}`;
+  const url = `https://wa.me/${numero}?text=${encodeURIComponent(mensaje)}`;
+
+  window.open(url, "_blank");
 };
 
 onMounted(() => {

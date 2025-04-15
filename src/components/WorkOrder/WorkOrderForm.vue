@@ -20,6 +20,32 @@
         <q-item>
           <q-item-section>
             <q-input
+              v-model="formWO.cliente"
+              filled
+              dense
+              label="Cliente"
+              :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
+            />
+          </q-item-section>
+          <q-item-section>
+            <q-input
+              filled
+              dense
+              v-model="formWO.telefono"
+              label="Telefono movil"
+              mask="(###) ### - ####"
+              unmasked-value
+              hint
+            >
+              <template v-slot:prepend>
+                <q-icon name="fa-brands fa-whatsapp" />
+              </template>
+            </q-input>
+          </q-item-section>
+        </q-item>
+        <q-item>
+          <q-item-section>
+            <q-input
               v-model="formWO.ot"
               filled
               dense
@@ -30,17 +56,6 @@
           </q-item-section>
           <q-item-section>
             <q-input
-              v-model="formWO.cliente"
-              filled
-              dense
-              label="Cliente"
-              :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
-            />
-          </q-item-section>
-        </q-item>
-        <q-item>
-          <q-item-section>
-            <q-input
               v-model="formWO.maquina"
               filled
               dense
@@ -48,11 +63,14 @@
               :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
             />
           </q-item-section>
+        </q-item>
+        <q-item>
           <q-item-section>
             <q-input
               v-model="formWO.descripcion"
               filled
               dense
+              type="textarea"
               label="descripcion"
               :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
             />
@@ -319,6 +337,7 @@
               v-model="formWO.comentarios"
               filled
               dense
+              type="textarea"
               label="Comentarios"
               hint
             />
