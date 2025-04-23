@@ -388,6 +388,16 @@
                     icon="face"
                   />
                 </q-item>
+                <q-item>
+                  <q-btn
+                    @click="onRowClickContacts(props.row)"
+                    color="primary"
+                    flat
+                    size="sm"
+                    label="Contactos"
+                    icon="fa-solid fa-address-book"
+                  />
+                </q-item>
                 <q-item v-if="checkRole('RRHH')">
                   <q-btn
                     color="primary"
@@ -685,6 +695,33 @@
       </q-item>
     </q-card>
   </q-dialog>
+
+  <q-dialog
+    v-model="showContacts"
+    transition-show="slide-up"
+    transition-hide="slide-down"
+    persistent
+    maximized
+  >
+    <q-card>
+      <q-item class="text-white bg-primary">
+        <q-item-section>
+          <q-item-label class="text-h6">
+            Contactos de {{ selectedRow.nombreCompleto }}
+          </q-item-label>
+        </q-item-section>
+        <q-item-section side>
+          <q-btn label="Cerrar" color="red" v-close-popup />
+        </q-item-section>
+      </q-item>
+      <q-separator />
+      <q-item>
+        <q-item-section>
+          <employee-contact :employee="selectedRow" />
+        </q-item-section>
+      </q-item>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script setup>
@@ -694,6 +731,7 @@ import EmployeedThreeForm from "src/components/Employeed/EmployeedThreeForm.vue"
 import SkillRatingForm from "src/components/Skill/SkillRatingForm.vue";
 import EmployeeTimeLine from "src/components/Employeed/EmployeeTimeLine.vue";
 import CvEmployee from "src/components/Employeed/CvEmployee.vue";
+import EmployeeContact from "src/components/Employeed/EmployeeContact.vue";
 
 import EmployeeForm from "src/components/Employeed/EmployeeForm.vue";
 import { formatDateplusoneSlim } from "src/boot/formatFunctions";
@@ -720,6 +758,7 @@ const showFiles = ref(false);
 const showSkill = ref(false);
 const showCareerDialog = ref(false);
 const showCV = ref(false);
+const showContacts = ref(false);
 const sucursales = ref([]);
 const lineas = ref([]);
 const departamentos = ref([]);
@@ -823,6 +862,11 @@ const onRowClickSkill = (row) => {
 const onRowClickFile = (row) => {
   selectedRow.value = row;
   showFiles.value = true;
+};
+
+const onRowClickContacts = (row) => {
+  selectedRow.value = row;
+  showContacts.value = true;
 };
 
 const postRow = async () => {

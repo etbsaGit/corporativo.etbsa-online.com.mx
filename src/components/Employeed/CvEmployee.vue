@@ -74,6 +74,11 @@
     </template>
 
     <template v-slot:after>
+      <div class="q-pa-sm" v-if="employee.empleados_contact.length">
+        <div class="text-h4 q-mb-md">Contactos</div>
+        <employee-contact-list :contacts="employee.empleados_contact" />
+      </div>
+      <q-separator v-if="employee.empleados_contact.length" />
       <div class="q-pa-sm">
         <div class="text-h4 q-mb-md">Habilidades</div>
         <skill-rating-chart
@@ -92,6 +97,7 @@ import { checkPuesto, sendRequest } from "src/boot/functions";
 import EmployeeTimeLine from "src/components/Employeed/EmployeeTimeLine.vue";
 import SkillRatingChart from "src/components/Skill/SkillRatingChart.vue";
 import TechnicianProd from "src/components/Employeed/TechnicianProd.vue";
+import EmployeeContactList from "src/components/Employeed/EmployeeContactList.vue";
 
 const { employee } = defineProps(["employee"]);
 
