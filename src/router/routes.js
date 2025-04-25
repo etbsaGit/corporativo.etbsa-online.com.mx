@@ -10,6 +10,7 @@ import {
   gerentes,
   used,
   cc,
+  caja,
 } from "./middleware";
 
 const routes = [
@@ -257,6 +258,20 @@ const routes = [
       {
         path: "/prospect",
         component: () => import("src/pages/prospect/ProspectPage.vue"),
+      },
+    ],
+  },
+
+  {
+    path: "",
+    component: () => import("layouts/MainLayout.vue"),
+    meta: {
+      middlewares: [caja],
+    },
+    children: [
+      {
+        path: "/caja/catalogos",
+        component: () => import("src/pages/Caja/CajaCatalogos.vue"),
       },
     ],
   },

@@ -158,3 +158,18 @@ export function cc({ to, next }) {
 
   return next();
 }
+
+export function caja({ to, next }) {
+  const auth = useAuthStore();
+
+  if (!auth.user) {
+    auth.returnUrl = to.fullPath;
+    return next("/login");
+  }
+
+  if (!checkRole("Caja")) {
+    return next("/perfil");
+  }
+
+  return next();
+}

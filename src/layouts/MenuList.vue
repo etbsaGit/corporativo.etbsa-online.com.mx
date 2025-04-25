@@ -429,6 +429,32 @@
       dense
       dense-toggle
       expand-separator
+      icon="point_of_sale"
+      label="Caja"
+      group="somegroup"
+      v-if="checkRole('Caja')"
+    >
+      <q-item
+        clickable
+        dense
+        v-ripple
+        to="/caja/catalogos"
+        :active="link === 'caja/catalogos'"
+        @click="link = 'caja/catalogos'"
+        active-class="my-menu-link"
+      >
+        <q-item-section avatar>
+          <q-icon name="fa-solid fa-file-invoice-dollar" />
+        </q-item-section>
+
+        <q-item-section>Catalogos</q-item-section>
+      </q-item>
+    </q-expansion-item>
+
+    <q-expansion-item
+      dense
+      dense-toggle
+      expand-separator
       icon="admin_panel_settings"
       label="Administracion"
       v-if="checkRoleEmpleado()"
