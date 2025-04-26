@@ -29,7 +29,7 @@
       <q-table
         flat
         bordered
-        title="Cuentas"
+        title="Denominaciones"
         :rows="rows"
         :columns="columns"
         row-key="name"
@@ -47,12 +47,6 @@
             >
               <q-tooltip>Editar</q-tooltip>
             </q-btn>
-          </q-td>
-        </template>
-
-        <template v-slot:body-cell-banco="props">
-          <q-td :props="props">
-            {{ props.row.caja_banco.nombre }}
           </q-td>
         </template>
 
@@ -100,7 +94,7 @@
       <q-separator />
       <q-item class="q-pa-none">
         <q-item-section>
-          <caja-cuenta-form ref="add" />
+          <caja-denominacion-form ref="add" />
         </q-item-section>
       </q-item>
     </q-card>
@@ -130,7 +124,7 @@
       <q-separator />
       <q-item>
         <q-item-section>
-          <caja-cuenta-form ref="edit" :cuenta="selectedRow" />
+          <caja-denominacion-form ref="edit" :denominacion="selectedRow" />
         </q-item-section>
       </q-item>
     </q-card>
@@ -141,7 +135,7 @@
 import { ref, onMounted, watch } from "vue";
 import { sendRequest, dataIncomplete } from "src/boot/functions";
 
-import CajaCuentaForm from "src/components/Caja/CajaCuenta/CajaCuentaForm.vue";
+import CajaDenominacionForm from "src/components/Caja/CajaDenominacion/CajaDenominacionForm.vue";
 
 const rows = ref([]);
 const selectedRow = ref(null);
@@ -149,8 +143,6 @@ const add = ref(null);
 const showAdd = ref(false);
 const edit = ref(null);
 const showEdit = ref(false);
-
-const bancos = ref([]);
 
 const next_page_url = ref("");
 const prev_page_url = ref("");
@@ -168,22 +160,16 @@ const columns = [
     field: "edit",
   },
   {
-    name: "numeroCuenta",
+    name: "nombre",
     align: "left",
-    field: "numeroCuenta",
-    label: "Numero de cuenta",
+    field: "nombre",
+    label: "Nombre",
   },
   {
-    name: "banco",
+    name: "tipo",
     align: "left",
-    field: "banco",
-    label: "Banco",
-  },
-  {
-    name: "descripcion",
-    align: "left",
-    field: "descripcion",
-    label: "descripcion",
+    field: "tipo",
+    label: "Tipo",
   },
 ];
 
@@ -200,7 +186,12 @@ const getRows = async (page = 1) => {
     ...filterForm.value,
     ...current,
   };
-  let res = await sendRequest("POST", final, "/api/caja/cajaCuentas", "");
+  let res = await sendRequest(
+    "POST",
+    final,
+    "/api/caja/cajaDenominaciones",
+    ""
+  );
   rows.value = res.data;
   filterForm.value.page = res.current_page;
   next_page_url.value = res.next_page_url;
@@ -215,9 +206,9 @@ const postRow = async () => {
     return;
   }
   const final = {
-    ...add.value.formCuenta,
+    ...add.value.formDenominacion,
   };
-  let res = await sendRequest("POST", final, "/api/caja/cajaCuenta", "");
+  let res = await sendRequest("POST", final, "/api/caja/cajaDenominacion", "");
   showAdd.value = false;
   getRows(current_page.value);
 };
@@ -229,12 +220,12 @@ const putRow = async () => {
     return;
   }
   const final = {
-    ...edit.value.formCuenta,
+    ...edit.value.formDenominacion,
   };
   let res = await sendRequest(
     "PUT",
     final,
-    "/api/caja/cajaCuenta/" + final.id,
+    "/api/caja/cajaDenominacion/" + final.id,
     ""
   );
   showEdit.value = false;
@@ -245,7 +236,7 @@ const deleteRow = async () => {
   let res = await sendRequest(
     "DELETE",
     null,
-    "/api/caja/cajaCuenta/" + selectedRow.value.id,
+    "/api/caja/cajaDenominacion/" + selectedRow.value.id,
     ""
   );
   selectedRow.value = null;

@@ -12,6 +12,7 @@
       <q-tab name="tiposFacturas" label="Tipos de facturas" />
       <q-tab name="bancos" label="Bancos" />
       <q-tab name="cuentas" label="Cuentas" />
+      <q-tab name="denominaciones" label="Denominaciones" />
     </q-tabs>
 
     <q-separator />
@@ -36,6 +37,10 @@
       <q-tab-panel name="cuentas">
         <caja-cuenta-index />
       </q-tab-panel>
+
+      <q-tab-panel name="denominaciones">
+        <caja-denominacion-index />
+      </q-tab-panel>
     </q-tab-panels>
   </q-card>
 </template>
@@ -47,6 +52,7 @@ import CajaTiposPagoIndex from "src/components/Caja/CajaTiposPago/CajaTiposPagoI
 import CajaTiposFacturaIndex from "src/components/Caja/CajaTiposFactura/CajaTiposFacturaIndex.vue";
 import CajaBancoIndex from "src/components/Caja/CajaBanco/CajaBancoIndex.vue";
 import CajaCuentaIndex from "src/components/Caja/CajaCuenta/CajaCuentaIndex.vue";
+import CajaDenominacionIndex from "src/components/Caja/CajaDenominacion/CajaDenominacionIndex.vue";
 
 const tab = ref("categorias");
 </script>
