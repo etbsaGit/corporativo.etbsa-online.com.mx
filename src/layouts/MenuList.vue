@@ -438,10 +438,43 @@
         clickable
         dense
         v-ripple
+        to="/caja/transaccion"
+        :active="link === 'caja/transaccion'"
+        @click="link = 'caja/transaccion'"
+        active-class="my-menu-link"
+      >
+        <q-item-section avatar>
+          <q-icon name="fa-solid fa-circle-dollar-to-slot" />
+        </q-item-section>
+
+        <q-item-section>Transaccion</q-item-section>
+      </q-item>
+
+      <q-item
+        clickable
+        dense
+        v-ripple
+        to="/caja/reportes"
+        :active="link === 'caja/reportes'"
+        @click="link = 'caja/reportes'"
+        active-class="my-menu-link"
+      >
+        <q-item-section avatar>
+          <q-icon name="fa-solid fa-magnifying-glass-dollar" />
+        </q-item-section>
+
+        <q-item-section>Reportes</q-item-section>
+      </q-item>
+
+      <q-item
+        clickable
+        dense
+        v-ripple
         to="/caja/catalogos"
         :active="link === 'caja/catalogos'"
         @click="link = 'caja/catalogos'"
         active-class="my-menu-link"
+        v-if="checkRole('AdminCaja')"
       >
         <q-item-section avatar>
           <q-icon name="fa-solid fa-file-invoice-dollar" />

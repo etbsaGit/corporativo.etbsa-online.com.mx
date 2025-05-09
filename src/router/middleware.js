@@ -173,3 +173,18 @@ export function caja({ to, next }) {
 
   return next();
 }
+
+export function adminCaja({ to, next }) {
+  const auth = useAuthStore();
+
+  if (!auth.user) {
+    auth.returnUrl = to.fullPath;
+    return next("/login");
+  }
+
+  if (!checkRole("AdminCaja")) {
+    return next("/perfil");
+  }
+
+  return next();
+}

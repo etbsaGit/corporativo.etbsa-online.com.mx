@@ -156,7 +156,25 @@
 
         <template v-slot:body-cell-updated_at="props">
           <q-td :props="props">
-            {{ formatDateSlim(props.row.updated_at) }}
+            <q-item dense class="q-pa-none">
+              <q-item-section>
+                <q-item-label>
+                  {{ formatDateSlim(props.row.updated_at) }}
+                </q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-td>
+        </template>
+
+        <template v-slot:body-cell-validated_by="props">
+          <q-td :props="props">
+            <q-item dense class="q-pa-none">
+              <q-item-section>
+                <q-item-label>
+                  {{ props.row.validate_by?.empleado.nombreCompleto }}
+                </q-item-label>
+              </q-item-section>
+            </q-item>
           </q-td>
         </template>
 
@@ -388,10 +406,16 @@ const columns = [
     label: "Modificado",
   },
   {
+    name: "validated_by",
+    align: "left",
+    field: "validated_by",
+    label: "Autorizado por",
+  },
+  {
     name: "validated",
     align: "left",
     field: "validated",
-    label: "Autorizado",
+    label: "Estatus",
   },
 ];
 

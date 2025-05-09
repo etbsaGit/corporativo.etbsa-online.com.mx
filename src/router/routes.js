@@ -11,6 +11,7 @@ import {
   used,
   cc,
   caja,
+  adminCaja,
 } from "./middleware";
 
 const routes = [
@@ -266,12 +267,30 @@ const routes = [
     path: "",
     component: () => import("layouts/MainLayout.vue"),
     meta: {
-      middlewares: [caja],
+      middlewares: [adminCaja],
     },
     children: [
       {
         path: "/caja/catalogos",
         component: () => import("src/pages/Caja/CajaCatalogos.vue"),
+      },
+    ],
+  },
+
+  {
+    path: "",
+    component: () => import("layouts/MainLayout.vue"),
+    meta: {
+      middlewares: [caja],
+    },
+    children: [
+      {
+        path: "/caja/transaccion",
+        component: () => import("src/pages/Caja/CajaTransaccionNow.vue"),
+      },
+      {
+        path: "/caja/reportes",
+        component: () => import("src/pages/Caja/CajaReport.vue"),
       },
     ],
   },
