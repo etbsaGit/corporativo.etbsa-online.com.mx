@@ -56,6 +56,18 @@
           </q-td>
         </template>
 
+        <template v-slot:body-cell-sucursal="props">
+          <q-td :props="props">
+            {{ props.row.sucursal.nombre }}
+          </q-td>
+        </template>
+
+        <template v-slot:body-cell-categoria="props">
+          <q-td :props="props">
+            {{ props.row.categoria.nombre }}
+          </q-td>
+        </template>
+
         <template v-slot:bottom>
           <q-space />
           <td>
@@ -178,6 +190,18 @@ const columns = [
     align: "left",
     field: "banco",
     label: "Banco",
+  },
+  {
+    name: "sucursal",
+    align: "left",
+    field: "sucursal",
+    label: "Sucursal",
+  },
+  {
+    name: "categoria",
+    align: "left",
+    field: "categoria",
+    label: "Categoria",
   },
   {
     name: "descripcion",

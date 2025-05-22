@@ -157,14 +157,21 @@
           outlined
           dense
           :rules="[(val) => val !== null || 'Obligatorio']"
+          behavior="dialog"
         >
           <template v-slot:option="scope">
             <q-item v-bind="scope.itemProps">
               <q-item-section>
+                Cuenta: {{ scope.opt.numeroCuenta }}
+              </q-item-section>
+              <q-item-section>
                 Banco: {{ scope.opt.caja_banco?.nombre }}
               </q-item-section>
               <q-item-section>
-                Cuenta: {{ scope.opt.numeroCuenta }}
+                Sucursal: {{ scope.opt.sucursal?.nombre }}
+              </q-item-section>
+              <q-item-section>
+                Categoria: {{ scope.opt.categoria?.nombre }}
               </q-item-section>
             </q-item>
           </template>
