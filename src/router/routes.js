@@ -274,6 +274,10 @@ const routes = [
         path: "/caja/catalogos",
         component: () => import("src/pages/Caja/CajaCatalogos.vue"),
       },
+      {
+        path: "/caja/admin",
+        component: () => import("src/pages/Caja/CajaAdmin.vue"),
+      },
     ],
   },
 

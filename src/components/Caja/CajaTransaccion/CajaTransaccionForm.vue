@@ -370,9 +370,9 @@ const clientes = ref([]);
 const filterClientes = ref([]);
 const tiposFacturas = ref([]);
 const sucursales = ref([]);
-const categorias = ref({});
+const categorias = ref([]);
 const cuentas = ref([]);
-const tiposPagos = ref({});
+const tiposPagos = ref([]);
 
 const showAdd = ref(false);
 const add = ref(null);

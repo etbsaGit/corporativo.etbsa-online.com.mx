@@ -470,6 +470,23 @@
         clickable
         dense
         v-ripple
+        to="/caja/admin"
+        :active="link === 'caja/admin'"
+        @click="link = 'caja/admin'"
+        active-class="my-menu-link"
+        v-if="checkRole('AdminCaja')"
+      >
+        <q-item-section avatar>
+          <q-icon name="fa-solid fa-sack-dollar" />
+        </q-item-section>
+
+        <q-item-section>Administracion</q-item-section>
+      </q-item>
+
+      <q-item
+        clickable
+        dense
+        v-ripple
         to="/caja/catalogos"
         :active="link === 'caja/catalogos'"
         @click="link = 'caja/catalogos'"
