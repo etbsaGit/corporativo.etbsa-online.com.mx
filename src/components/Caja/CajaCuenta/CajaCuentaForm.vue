@@ -32,6 +32,28 @@
           :rules="[(val) => val !== null || 'Obligatorio']"
         />
       </q-item-section>
+      <q-item-section>
+        <q-select
+          v-model="formCuenta.moneda"
+          :options="[
+            { id: 'MXN', nombre: 'Peso Mexicano (MXN)' },
+            { id: 'USD', nombre: 'Dolar (USD)' },
+          ]"
+          label="Moneda"
+          option-value="id"
+          option-label="nombre"
+          option-disable="inactive"
+          emit-value
+          map-options
+          transition-show="jump-up"
+          transition-hide="jump-up"
+          clearable
+          filled
+          dense
+          options-dense
+          :rules="[(val) => val !== null || 'Obligatorio']"
+        />
+      </q-item-section>
     </q-item>
     <q-item>
       <q-item-section>
@@ -104,6 +126,7 @@ const formCuenta = ref({
   id: cuenta ? cuenta.id : null,
   numeroCuenta: cuenta ? cuenta.numeroCuenta : null,
   descripcion: cuenta ? cuenta.descripcion : null,
+  moneda: cuenta ? cuenta.moneda : null,
   caja_banco_id: cuenta ? cuenta.caja_banco_id : null,
   sucursal_id: cuenta ? cuenta.sucursal_id : null,
   caja_categoria_id: cuenta ? cuenta.caja_categoria_id : null,

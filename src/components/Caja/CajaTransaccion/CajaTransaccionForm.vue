@@ -21,7 +21,7 @@
           @filter="filterFn"
           input-debounce="0"
           behavior="menu"
-          :rules="[(val) => val !== null || 'Obligatorio']"
+          hint
         >
           <template v-slot:no-option>
             <q-item dense>
@@ -39,14 +39,8 @@
           </template>
           <template v-slot:option="scope">
             <q-item v-bind="scope.itemProps">
-              <q-item-section>
-                {{ scope.opt.nombre }}
-              </q-item-section>
-              <q-item-section>
-                Telefono: {{ formatPhoneNumber(scope.opt.telefono) }}
-              </q-item-section>
-              <q-item-section> RFC: {{ scope.opt.rfc }} </q-item-section>
-              <q-item-section> CURP: {{ scope.opt.curp }} </q-item-section>
+              <q-item-section> Nombre: {{ scope.opt.nombre }} </q-item-section>
+              <q-item-section> Clave: {{ scope.opt.clave }} </q-item-section>
             </q-item>
           </template>
         </q-select>
@@ -60,7 +54,7 @@
           dense
           label="Factura"
           lazy-rules
-          :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
+          hint
         />
       </q-item-section>
       <q-item-section>
@@ -69,7 +63,7 @@
           :options="tiposFacturas"
           option-value="id"
           option-label="nombre"
-          label="Tipo de factura"
+          label="Tipo de ingreso"
           option-disable="inactive"
           emit-value
           map-options
@@ -85,7 +79,7 @@
           v-model="formTransaccion.folio"
           outlined
           dense
-          label="Folio"
+          label="Folio de la factura"
           lazy-rules
           :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
         />
@@ -97,7 +91,7 @@
           v-model="formTransaccion.serie"
           outlined
           dense
-          label="Serie"
+          label="Serie fiscal"
           lazy-rules
           :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
         />
@@ -121,7 +115,7 @@
           readonly
           v-model="formTransaccion.fecha_pago"
           mask="date"
-          label="Fecha del pago"
+          label="Fecha del ingreso"
           lazy-rules
           :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
         >
@@ -167,6 +161,7 @@
               <q-item-section>
                 Banco: {{ scope.opt.caja_banco?.nombre }}
               </q-item-section>
+              <q-item-section> Moneda: {{ scope.opt.moneda }} </q-item-section>
               <q-item-section>
                 Sucursal: {{ scope.opt.sucursal?.nombre }}
               </q-item-section>
@@ -183,7 +178,7 @@
           :options="tiposPagos"
           option-value="id"
           option-label="nombre"
-          label="Tipo de pago"
+          label="Forma de pago"
           option-disable="inactive"
           emit-value
           map-options
@@ -203,7 +198,7 @@
           readonly
           v-model="totalFactura"
           prefix="$"
-          label="Total factura"
+          label="Monto recibido"
           hint
           mask="#.##"
           fill-mask="0"
@@ -331,7 +326,6 @@
     transition-show="slide-up"
     transition-hide="slide-down"
     persistent
-    full-width
   >
     <q-card>
       <q-item class="text-white bg-primary">
@@ -348,7 +342,7 @@
       <q-separator />
       <q-item>
         <q-item-section>
-          <cliente-form ref="add" />
+          <caja-cliente-form ref="add" />
         </q-item-section>
       </q-item>
     </q-card>
@@ -361,6 +355,7 @@ import { sendRequest, dataIncomplete } from "src/boot/functions";
 import { formatPhoneNumber } from "src/boot/formatFunctions";
 
 import ClienteForm from "src/components/Cliente/ClienteForm.vue";
+import CajaClienteForm from "src/components/Caja/CajaCliente/CajaClienteForm.vue";
 
 const { transaccion } = defineProps(["transaccion"]);
 
@@ -463,7 +458,7 @@ const postItem = async () => {
   const final = {
     ...add.value.formCliente,
   };
-  let res = await sendRequest("POST", final, "/api/intranet/cliente", "");
+  let res = await sendRequest("POST", final, "/api/caja/cajaCliente", "");
   showAdd.value = false;
   getForms();
 };

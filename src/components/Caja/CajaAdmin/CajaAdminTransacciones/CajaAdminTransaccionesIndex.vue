@@ -180,7 +180,7 @@
 
         <template v-slot:body-cell-cliente="props">
           <q-td :props="props">
-            {{ props.row.cliente.nombre }}
+            {{ props.row.cliente?.nombre }}
           </q-td>
         </template>
 

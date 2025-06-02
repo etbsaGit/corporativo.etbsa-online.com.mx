@@ -52,7 +52,7 @@
 
         <template v-slot:body-cell-cliente="props">
           <q-td :props="props">
-            {{ props.row.cliente.nombre }}
+            {{ props.row.cliente?.nombre }}
           </q-td>
         </template>
 
@@ -127,7 +127,7 @@
     </q-item-section>
   </q-item>
 
-  <q-page-sticky position="bottom-right" :offset="[50, 50]">
+  <q-page-sticky position="bottom-left" :offset="[50, 50]">
     <q-btn fab icon="add" color="blue" @click="showAdd = true">
       <q-tooltip
         class="bg-blue text-body2"
