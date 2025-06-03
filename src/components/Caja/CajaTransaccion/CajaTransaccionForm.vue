@@ -58,6 +58,16 @@
         />
       </q-item-section>
       <q-item-section>
+        <q-input
+          v-model="formTransaccion.folio"
+          outlined
+          dense
+          label="Folio de la factura"
+          lazy-rules
+          :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
+        />
+      </q-item-section>
+      <q-item-section>
         <q-select
           v-model="formTransaccion.tipo_factura_id"
           :options="tiposFacturas"
@@ -72,17 +82,16 @@
           outlined
           dense
           :rules="[(val) => val !== null || 'Obligatorio']"
-        />
-      </q-item-section>
-      <q-item-section>
-        <q-input
-          v-model="formTransaccion.folio"
-          outlined
-          dense
-          label="Folio de la factura"
-          lazy-rules
-          :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
-        />
+        >
+          <template v-slot:after>
+            <q-toggle
+              :true-value="1"
+              :false-value="0"
+              v-model="formTransaccion.iva"
+              label="IVA"
+            />
+          </template>
+        </q-select>
       </q-item-section>
     </q-item>
     <q-item dense>
@@ -192,7 +201,7 @@
     </q-item>
     <q-item dense>
       <q-item-section>
-        <q-input
+        <!-- <q-input
           outlined
           dense
           readonly
@@ -209,7 +218,31 @@
               (val != null && val !== '' && parseFloat(val) !== 0) ||
               'El monto debe ser mayor que 0',
           ]"
-        />
+        /> -->
+        <q-card class="no-shadow rounded-borders">
+          <q-card-section>
+            <div class="row items-center justify-between">
+              <div class="text-subtitle2">Subtotal:</div>
+              <div class="text-subtitle2 text-weight-medium">
+                {{ formatCurrency(totalFactura.subtotal) }}
+              </div>
+            </div>
+            <div class="row items-center justify-between">
+              <div class="text-subtitle2">IVA (16%):</div>
+              <div class="text-subtitle2 text-weight-medium">
+                {{ formatCurrency(totalFactura.iva) }}
+              </div>
+            </div>
+            <q-separator spaced />
+
+            <div class="row items-center justify-between">
+              <div class="text-subtitle1 text-bold">Total:</div>
+              <div class="text-subtitle1 text-bold text-primary">
+                {{ formatCurrency(totalFactura.total) }}
+              </div>
+            </div>
+          </q-card-section>
+        </q-card>
       </q-item-section>
       <q-item-section>
         <q-input
@@ -304,7 +337,36 @@
               />
             </q-item-section>
           </q-item>
-          <q-item>
+          <q-item v-if="pago.categoria_id == 1 || pago.categoria_id == 4">
+            <q-item-section>
+              <q-select
+                v-model="pago.marca_id"
+                :options="marcas"
+                option-value="id"
+                option-label="name"
+                label="Marca"
+                option-disable="inactive"
+                emit-value
+                map-options
+                transition-show="jump-up"
+                transition-hide="jump-up"
+                outlined
+                dense
+                :rules="[(val) => val !== null || 'Obligatorio']"
+              />
+            </q-item-section>
+            <q-item-section>
+              <q-input
+                v-model="pago.serie"
+                outlined
+                dense
+                label="Serie del equipo"
+                lazy-rules
+                :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
+              />
+            </q-item-section>
+          </q-item>
+          <!-- <q-item v-else>
             <q-item-section>
               <q-input
                 v-model="pago.descripcion"
@@ -315,7 +377,7 @@
                 :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
               />
             </q-item-section>
-          </q-item>
+          </q-item> -->
         </q-card>
       </q-item-section>
     </q-item>
@@ -352,7 +414,7 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
 import { sendRequest, dataIncomplete } from "src/boot/functions";
-import { formatPhoneNumber } from "src/boot/formatFunctions";
+import { formatCurrency, formatPhoneNumber } from "src/boot/formatFunctions";
 
 import ClienteForm from "src/components/Cliente/ClienteForm.vue";
 import CajaClienteForm from "src/components/Caja/CajaCliente/CajaClienteForm.vue";
@@ -368,6 +430,7 @@ const sucursales = ref([]);
 const categorias = ref([]);
 const cuentas = ref([]);
 const tiposPagos = ref([]);
+const marcas = ref([]);
 
 const showAdd = ref(false);
 const add = ref(null);
@@ -380,6 +443,7 @@ const formTransaccion = ref({
   uuid: transaccion ? transaccion.uuid : null,
   comentarios: transaccion ? transaccion.comentarios : null,
   validado: transaccion ? transaccion.validado : 0,
+  iva: transaccion ? transaccion.iva : 0,
   cliente_id: transaccion ? transaccion.cliente_id : null,
   tipo_factura_id: transaccion ? transaccion.tipo_factura_id : null,
   cuenta_id: transaccion ? transaccion.cuenta_id : null,
@@ -392,6 +456,8 @@ const addPago = () => {
   formTransaccion.value.pagos.push({
     monto: null,
     descripcion: null,
+    serie: null,
+    marca_id: null,
     sucursal_id: null,
     categoria_id: null,
   });
@@ -410,6 +476,7 @@ const getForms = async () => {
   categorias.value = res.categorias;
   cuentas.value = res.cuentas;
   tiposPagos.value = res.tipos_pago;
+  marcas.value = res.marcas;
 };
 
 const filterFn = (val, update) => {
@@ -441,12 +508,20 @@ const eliminarPago = async (pago, index) => {
 };
 
 const totalFactura = computed(() => {
-  return formTransaccion.value.pagos
-    .reduce((acc, pago) => {
-      const monto = parseFloat(pago.monto);
-      return acc + (isNaN(monto) ? 0 : monto);
-    }, 0)
-    .toFixed(2); // Opcional: toFixed para mostrar dos decimales
+  const subtotal = formTransaccion.value.pagos.reduce((acc, pago) => {
+    const monto = parseFloat(pago.monto);
+    return acc + (isNaN(monto) ? 0 : monto);
+  }, 0);
+
+  const aplicaIVA = formTransaccion.value.iva === 1;
+  const iva = aplicaIVA ? subtotal * 0.16 : 0;
+  const total = subtotal + iva;
+
+  return {
+    subtotal: subtotal.toFixed(2),
+    iva: iva.toFixed(2),
+    total: total.toFixed(2),
+  };
 });
 
 const postItem = async () => {

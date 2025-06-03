@@ -2,12 +2,20 @@
   <q-card class="card-event">
     <q-list dense bordered separator>
       <q-item>
+        <q-item-section><strong>Serie</strong></q-item-section>
+        <q-item-section><strong>Marca</strong></q-item-section>
         <q-item-section><strong>Descripcion</strong></q-item-section>
         <q-item-section><strong>Monto</strong></q-item-section>
         <q-item-section><strong>Categoría</strong></q-item-section>
         <q-item-section><strong>Sucursal</strong></q-item-section>
       </q-item>
       <q-item v-for="pago in pagos" :key="pago.id">
+        <q-item-section>
+          {{ pago.serie }}
+        </q-item-section>
+        <q-item-section>
+          {{ pago.marca?.name }}
+        </q-item-section>
         <q-item-section>
           {{ pago.descripcion }}
         </q-item-section>

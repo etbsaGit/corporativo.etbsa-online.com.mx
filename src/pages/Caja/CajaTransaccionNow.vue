@@ -83,9 +83,15 @@
           </q-td>
         </template>
 
-        <template v-slot:body-cell-total="props">
+        <template v-slot:body-cell-total_con_iva="props">
           <q-td :props="props">
-            {{ formatCurrency(props.row.total) }}
+            {{ formatCurrency(props.row.total.total_con_iva) }}
+          </q-td>
+        </template>
+
+        <template v-slot:body-cell-total_sin_iva="props">
+          <q-td :props="props">
+            {{ formatCurrency(props.row.total.total_sin_iva) }}
           </q-td>
         </template>
 
@@ -233,10 +239,16 @@ const columns = [
     label: "Factura",
   },
   {
-    name: "total",
+    name: "total_sin_iva",
     align: "left",
-    field: "total",
-    label: "Total",
+    field: "total_sin_iva",
+    label: "Total sin IVA",
+  },
+  {
+    name: "total_con_iva",
+    align: "left",
+    field: "total_con_iva",
+    label: "Total con IVA",
   },
   {
     name: "tipo_factura",
@@ -317,7 +329,8 @@ const visibleColumns = ref([
   "cliente",
   "user",
   "caja_pagos",
-  "total",
+  "total_sin_iva",
+  "total_con_iva",
   "tipo_pago",
   "fecha_pago",
   "cuenta",

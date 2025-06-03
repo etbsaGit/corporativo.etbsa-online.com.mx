@@ -176,11 +176,13 @@ watch(data, (newVal) => {
   treeData.value = newVal.map((formaPago) => ({
     label: `💳 ${formaPago.nombre} - Total: $${formaPago.total.toFixed(2)}`,
     children: formaPago.transaccion.map((trx) => ({
-      label: `🧾 Folio: ${trx.folio} | Factura: ${trx.factura} | Serie: ${
-        trx.serie
-      } | Total: $${trx.total.toFixed(2)} | Fecha: ${
-        trx.fecha_pago
-      } | Cuenta: ${trx.cuenta.caja_banco.nombre} ${trx.cuenta.numeroCuenta}`,
+      label: `🧾 Folio: ${trx.folio}
+        | Factura: ${trx.factura}
+        | Serie: ${trx.serie}
+        | Total con IVA: $${trx.total.total_con_iva.toFixed(2)}
+        | Total sin IVA: $${trx.total.total_sin_iva.toFixed(2)}
+        | Fecha: ${trx.fecha_pago}
+        | Cuenta: ${trx.cuenta.caja_banco.nombre} ${trx.cuenta.numeroCuenta}`,
       children: trx.pagos.map((pago, idx) => ({
         label: `💰 Pago ${idx + 1}: $${parseFloat(pago.monto).toFixed(2)} - ${
           pago.sucursal.nombre
