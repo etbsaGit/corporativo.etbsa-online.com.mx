@@ -172,6 +172,9 @@
               </q-item-section>
               <q-item-section> Moneda: {{ scope.opt.moneda }} </q-item-section>
               <q-item-section>
+                # Banco: {{ scope.opt.numero_banco }}
+              </q-item-section>
+              <q-item-section>
                 Sucursal: {{ scope.opt.sucursal?.nombre }}
               </q-item-section>
               <q-item-section>

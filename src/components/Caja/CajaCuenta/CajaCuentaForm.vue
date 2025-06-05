@@ -13,6 +13,8 @@
           :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
         />
       </q-item-section>
+    </q-item>
+    <q-item>
       <q-item-section>
         <q-select
           v-model="formCuenta.caja_banco_id"
@@ -54,6 +56,18 @@
           :rules="[(val) => val !== null || 'Obligatorio']"
         />
       </q-item-section>
+      <q-item-section>
+        <q-input
+          v-model="formCuenta.numero_banco"
+          filled
+          dense
+          label="Numero de Banco"
+          type="number"
+          lazy-rules
+          hint
+          :rules="[(val) => val !== null || 'Obligatorio']"
+        />
+      </q-item-section>
     </q-item>
     <q-item>
       <q-item-section>
@@ -91,7 +105,7 @@
           filled
           dense
           options-dense
-          :rules="[(val) => val !== null || 'Obligatorio']"
+          hint
         />
       </q-item-section>
     </q-item>
@@ -127,6 +141,7 @@ const formCuenta = ref({
   numeroCuenta: cuenta ? cuenta.numeroCuenta : null,
   descripcion: cuenta ? cuenta.descripcion : null,
   moneda: cuenta ? cuenta.moneda : null,
+  numero_banco: cuenta ? cuenta.numero_banco : null,
   caja_banco_id: cuenta ? cuenta.caja_banco_id : null,
   sucursal_id: cuenta ? cuenta.sucursal_id : null,
   caja_categoria_id: cuenta ? cuenta.caja_categoria_id : null,

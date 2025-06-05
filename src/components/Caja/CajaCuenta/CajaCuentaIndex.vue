@@ -64,7 +64,7 @@
 
         <template v-slot:body-cell-categoria="props">
           <q-td :props="props">
-            {{ props.row.categoria.nombre }}
+            {{ props.row.categoria?.nombre }}
           </q-td>
         </template>
 
@@ -208,6 +208,12 @@ const columns = [
     align: "left",
     field: "categoria",
     label: "Categoria",
+  },
+  {
+    name: "numero_banco",
+    align: "left",
+    field: "numero_banco",
+    label: "Numero de banco",
   },
   {
     name: "descripcion",
