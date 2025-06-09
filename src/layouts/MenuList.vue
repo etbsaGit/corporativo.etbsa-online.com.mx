@@ -17,24 +17,8 @@
       <q-item-section>Perfil</q-item-section>
     </q-item>
 
-    <q-item
-      dense
-      clickable
-      v-ripple
-      active-class="my-menu-link"
-      href="https://forms.office.com/r/SsXJLUWhdL"
-      target="_blank"
-      disable
-    >
-      <q-tooltip class="text-h6">Sin encuestas activas</q-tooltip>
-      <q-item-section avatar>
-        <q-icon name="fa-solid fa-clipboard-list" />
-      </q-item-section>
-
-      <q-item-section>Encuesta de satisfacción laboral</q-item-section>
-    </q-item>
-
     <!-- <q-item
+      v-if="checkRole('Empleado')"
       dense
       clickable
       v-ripple
@@ -50,6 +34,22 @@
 
       <q-item-section>Encuesta de satisfacción laboral</q-item-section>
     </q-item> -->
+
+    <q-item
+      v-if="checkRole('Empleado')"
+      dense
+      clickable
+      v-ripple
+      active-class="my-menu-link"
+      href="https://forms.office.com/r/SsXJLUWhdL"
+      target="_blank"
+    >
+      <q-item-section avatar>
+        <q-icon name="fa-solid fa-clipboard-list" />
+      </q-item-section>
+
+      <q-item-section>Encuesta de satisfacción laboral</q-item-section>
+    </q-item>
 
     <q-item
       dense
