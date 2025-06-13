@@ -456,6 +456,16 @@
                     icon="work"
                   />
                 </q-item>
+                <q-item>
+                  <q-btn
+                    color="primary"
+                    @click="destroyPic(props.row.id)"
+                    flat
+                    size="sm"
+                    label="Borrar foto"
+                    icon="fa-solid fa-eraser"
+                  />
+                </q-item>
               </q-list>
             </q-btn-dropdown>
           </q-td>
@@ -914,6 +924,16 @@ const putRow = async () => {
   };
   let res = await sendRequest("PUT", final, "/api/empleado/" + final.id, "");
   showEdit.value = false;
+  getRows(current_page.value);
+};
+
+const destroyPic = async (id) => {
+  let res = await sendRequest(
+    "DELETE",
+    null,
+    "/api/empleado/destroyPic/" + id,
+    ""
+  );
   getRows(current_page.value);
 };
 
