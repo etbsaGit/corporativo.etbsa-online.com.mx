@@ -13,6 +13,16 @@
     <q-tab name="lineas" icon="engineering" label="Lineas" />
     <q-tab name="requisitos" icon="folder" label="Requisitos" />
     <q-tab name="skills" icon="grade" label="Skills" />
+    <q-tab
+      name="competencias"
+      icon="fa-solid fa-person-circle-check"
+      label="Competencias"
+    />
+    <q-tab
+      name="herramientas"
+      icon="fa-solid fa-screwdriver-wrench"
+      label="Herramientas"
+    />
   </q-tabs>
 
   <q-separator />
@@ -36,6 +46,12 @@
     <q-tab-panel name="skills" class="q-pa-none">
       <skills-index />
     </q-tab-panel>
+    <q-tab-panel name="competencias" class="q-pa-none">
+      <competencias-index />
+    </q-tab-panel>
+    <q-tab-panel name="herramientas" class="q-pa-none">
+      <herramientas-index />
+    </q-tab-panel>
   </q-tab-panels>
 </template>
 <script setup>
@@ -46,6 +62,8 @@ import sucursalIndex from "../sucursales/sucursalIndex.vue";
 import lineasIndex from "../lineas/lineasIndex.vue";
 import requisitosIndex from "../requisitos/requisitosIndex.vue";
 import skillsIndex from "../skills/skillsIndex.vue";
+import CompetenciasIndex from "../Competencias/CompetenciasIndex.vue";
+import HerramientasIndex from "../Herramientas/HerramientasIndex.vue";
 
 const tab = ref("puestos");
 </script>

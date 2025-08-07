@@ -21,7 +21,7 @@
           @filter="filterFn"
           input-debounce="0"
           behavior="menu"
-          hint
+          :rules="[(val) => val !== null || 'Obligatorio']"
         >
           <template v-slot:no-option>
             <q-item dense>

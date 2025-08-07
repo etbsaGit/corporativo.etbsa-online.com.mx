@@ -12,6 +12,7 @@ import {
   cc,
   caja,
   adminCaja,
+  requisiciones,
 } from "./middleware";
 
 const routes = [
@@ -27,6 +28,15 @@ const routes = [
       {
         path: "/expedientes",
         component: () => import("src/pages/expedientes/expedienteIndex.vue"),
+      },
+      {
+        path: "/reset-password",
+        component: () => import("src/pages/auth/ResetPassword.vue"),
+      },
+      {
+        path: "/forgot-password",
+        component: () => import("src/pages/auth/ForgotPassword.vue"),
+        meta: { requiresGuest: true },
       },
     ],
   },
@@ -142,6 +152,10 @@ const routes = [
       {
         path: "/etica",
         component: () => import("src/pages/CodigoEtica/CodigoEticaPage.vue"),
+      },
+      {
+        path: "/propuesta",
+        component: () => import("src/pages/Propuesta/PropuestaIndex.vue"),
       },
     ],
   },
@@ -259,6 +273,21 @@ const routes = [
       {
         path: "/prospect",
         component: () => import("src/pages/prospect/ProspectPage.vue"),
+      },
+    ],
+  },
+
+  {
+    path: "",
+    component: () => import("layouts/MainLayout.vue"),
+    meta: {
+      middlewares: [requisiciones],
+    },
+    children: [
+      {
+        path: "/requisiciones",
+        component: () =>
+          import("src/pages/RequisicionPersonal/RequisicionPersonalIndex.vue"),
       },
     ],
   },

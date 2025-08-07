@@ -104,6 +104,45 @@
     </q-item>
 
     <q-item
+      clickable
+      dense
+      v-ripple
+      to="/requisiciones"
+      :active="link === 'requisiciones'"
+      @click="link = 'requisiciones'"
+      active-class="my-menu-link"
+      v-if="
+        checkPuestoIncludes('Jefe') ||
+        checkPuestoIncludes('Gerente') ||
+        checkPuestoIncludes('Director') ||
+        checkRole('RRHH')
+      "
+    >
+      <q-item-section avatar>
+        <q-icon name="fa-solid fa-person-circle-plus" />
+      </q-item-section>
+
+      <q-item-section>Requisiciones de Personal</q-item-section>
+    </q-item>
+
+    <q-item
+      dense
+      v-if="checkRole('addProp')"
+      clickable
+      v-ripple
+      to="/propuesta"
+      :active="link === 'propuesta'"
+      @click="link = 'propuesta'"
+      active-class="my-menu-link"
+    >
+      <q-item-section avatar>
+        <q-icon name="fa-solid fa-lightbulb" />
+      </q-item-section>
+
+      <q-item-section>Propuestas de campañas</q-item-section>
+    </q-item>
+
+    <q-item
       v-if="checkRole('Empleado')"
       dense
       clickable

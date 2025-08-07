@@ -188,3 +188,25 @@ export function adminCaja({ to, next }) {
 
   return next();
 }
+
+export function requisiciones({ to, next }) {
+  const auth = useAuthStore();
+
+  if (!auth.user) {
+    auth.returnUrl = to.fullPath;
+    return next("/login");
+  }
+
+  // Redirigir al perfil si NO es Jefe, NO es Gerente y NO es RRHH
+  if (
+    !checkPuestoIncludes("Jefe") &&
+    !checkPuestoIncludes("Gerente") &&
+    !checkPuestoIncludes("Director") &&
+    !checkRole("RRHH")
+  ) {
+    return next("/perfil");
+  }
+
+  // Si es alguno de esos, sigue su camino
+  return next();
+}

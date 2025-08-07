@@ -1,13 +1,18 @@
 import axios from "axios";
 import { defineStore } from "pinia";
 import { LocalStorage, Notify } from "quasar";
-import { checkPuesto } from "src/boot/functions";
 
 export const useAuthStore = defineStore("auth", {
-  state: () => ({ authUser: null, authToken: null }),
+  state: () => ({
+    authUser: null,
+    authToken: null,
+    twoFactorUserId: null,
+    awaitingTwoFactor: false,
+  }),
   getters: {
     user: (state) => state.authUser,
     token: (state) => state.authToken,
+    isTwoFactorPending: (state) => state.awaitingTwoFactor,
   },
   actions: {
     async getToken() {
@@ -15,54 +20,45 @@ export const useAuthStore = defineStore("auth", {
     },
     async login(form) {
       await this.getToken();
-      await axios
-        .post("/api/auth/login", form)
-        .then((res) => {
+      try {
+        const res = await axios.post("/api/auth/login", form);
+        if (res.data.two_factor_required) {
+          this.twoFactorUserId = res.data.user_id;
+          this.awaitingTwoFactor = true;
+          Notify.create({
+            color: "info",
+            message: res.data.message || "Código 2FA enviado",
+            icon: "mail",
+          });
+        } else {
           this.authToken = res.data.token;
           this.authUser = res.data.data;
-          Notify.create({
-            color: "green",
-            position: "top",
-            message: res.data.message,
-            icon: "check",
-          });
-          if (checkPuesto("Tecnico")) {
-            this.router.push("/techlogs");
-          } else {
-            this.router.push("/");
-          }
-        })
-        .catch((errors) => {
-          Notify.create({
-            color: "negative",
-            position: "top",
-            message: errors.response.data,
-            icon: "report_problem",
-          });
+          this.awaitingTwoFactor = false;
+          this.twoFactorUserId = null;
+          this.router.push("/");
+        }
+      } catch (error) {
+        Notify.create({
+          color: "negative",
+          message: error.response?.data || "Login fallido",
+          icon: "report_problem",
         });
+      }
     },
-    async register(form) {
-      await this.getToken();
-      await axios
-        .post("/api/auth/register", form)
-        .then((res) => {
-          Notify.create({
-            color: "green",
-            position: "top",
-            message: res.data.message,
-            icon: "info",
-          });
-
-          setTimeout(() => this.router.push("/login"), 2000);
-        })
-        .catch((errors) => {
-          Notify.create({
-            color: "negative",
-            position: "top",
-            message: errors.response.data.message,
-            icon: "report_problem",
-          });
+    async verifyTwoFactor(code) {
+      try {
+        const res = await axios.post("/api/auth/verify", {
+          user_id: this.twoFactorUserId,
+          two_factor_code: code,
         });
+        this.authToken = res.data.token;
+        this.authUser = res.data.data;
+        this.awaitingTwoFactor = false;
+        this.twoFactorUserId = null;
+        this.router.push("/");
+      } catch (error) {
+        throw error; // se maneja en el componente
+      }
     },
     async logout() {
       // Primero, elimina los datos del almacenamiento local
