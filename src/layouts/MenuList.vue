@@ -18,6 +18,24 @@
     </q-item>
 
     <q-item
+      v-if="checkRole('Empleado')"
+      dense
+      clickable
+      v-ripple
+      active-class="my-menu-link"
+      href="https://forms.office.com/r/SsXJLUWhdL"
+      target="_blank"
+      disable
+    >
+      <q-tooltip class="text-h6">Sin encuestas activas</q-tooltip>
+      <q-item-section avatar>
+        <q-icon name="fa-solid fa-clipboard-list" />
+      </q-item-section>
+
+      <q-item-section>Encuesta de satisfacción laboral</q-item-section>
+    </q-item>
+
+    <q-item
       dense
       v-if="checkRole('Empleado')"
       clickable
@@ -83,6 +101,45 @@
       </q-item-section>
 
       <q-item-section>Vacaciones</q-item-section>
+    </q-item>
+
+    <q-item
+      clickable
+      dense
+      v-ripple
+      to="/requisiciones"
+      :active="link === 'requisiciones'"
+      @click="link = 'requisiciones'"
+      active-class="my-menu-link"
+      v-if="
+        checkPuestoIncludes('Jefe') ||
+        checkPuestoIncludes('Gerente') ||
+        checkPuestoIncludes('Director') ||
+        checkRole('RRHH')
+      "
+    >
+      <q-item-section avatar>
+        <q-icon name="fa-solid fa-person-circle-plus" />
+      </q-item-section>
+
+      <q-item-section>Requisiciones de Personal</q-item-section>
+    </q-item>
+
+    <q-item
+      dense
+      v-if="checkRole('addProp')"
+      clickable
+      v-ripple
+      to="/propuesta"
+      :active="link === 'propuesta'"
+      @click="link = 'propuesta'"
+      active-class="my-menu-link"
+    >
+      <q-item-section avatar>
+        <q-icon name="fa-solid fa-lightbulb" />
+      </q-item-section>
+
+      <q-item-section>Propuestas de campañas</q-item-section>
     </q-item>
 
     <q-item
@@ -422,6 +479,82 @@
         </q-item-section>
 
         <q-item-section>Inventario</q-item-section>
+      </q-item>
+    </q-expansion-item>
+
+    <q-expansion-item
+      dense
+      dense-toggle
+      expand-separator
+      icon="point_of_sale"
+      label="Caja"
+      group="somegroup"
+      v-if="checkRole('Caja')"
+    >
+      <q-item
+        clickable
+        dense
+        v-ripple
+        to="/caja/transaccion"
+        :active="link === 'caja/transaccion'"
+        @click="link = 'caja/transaccion'"
+        active-class="my-menu-link"
+      >
+        <q-item-section avatar>
+          <q-icon name="fa-solid fa-circle-dollar-to-slot" />
+        </q-item-section>
+
+        <q-item-section>Transaccion</q-item-section>
+      </q-item>
+
+      <q-item
+        clickable
+        dense
+        v-ripple
+        to="/caja/reportes"
+        :active="link === 'caja/reportes'"
+        @click="link = 'caja/reportes'"
+        active-class="my-menu-link"
+      >
+        <q-item-section avatar>
+          <q-icon name="fa-solid fa-magnifying-glass-dollar" />
+        </q-item-section>
+
+        <q-item-section>Reportes</q-item-section>
+      </q-item>
+
+      <q-item
+        clickable
+        dense
+        v-ripple
+        to="/caja/admin"
+        :active="link === 'caja/admin'"
+        @click="link = 'caja/admin'"
+        active-class="my-menu-link"
+        v-if="checkRole('AdminCaja')"
+      >
+        <q-item-section avatar>
+          <q-icon name="fa-solid fa-sack-dollar" />
+        </q-item-section>
+
+        <q-item-section>Administracion</q-item-section>
+      </q-item>
+
+      <q-item
+        clickable
+        dense
+        v-ripple
+        to="/caja/catalogos"
+        :active="link === 'caja/catalogos'"
+        @click="link = 'caja/catalogos'"
+        active-class="my-menu-link"
+        v-if="checkRole('AdminCaja')"
+      >
+        <q-item-section avatar>
+          <q-icon name="fa-solid fa-file-invoice-dollar" />
+        </q-item-section>
+
+        <q-item-section>Catalogos</q-item-section>
       </q-item>
     </q-expansion-item>
 

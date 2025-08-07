@@ -131,6 +131,24 @@
             @update:model-value="onInputChange"
           />
         </q-item-section>
+        <q-item-section>
+          <q-select
+            v-model="filterForm.estatus_id"
+            :options="estatus"
+            label="Estatus"
+            option-value="id"
+            option-label="nombre"
+            option-disable="inactive"
+            emit-value
+            map-options
+            transition-show="jump-up"
+            transition-hide="jump-up"
+            clearable
+            outlined
+            dense
+            @update:model-value="onInputChange"
+          />
+        </q-item-section>
       </q-item>
     </q-expansion-item>
     <q-separator />
@@ -436,6 +454,16 @@
                     size="sm"
                     label="Carreras"
                     icon="work"
+                  />
+                </q-item>
+                <q-item>
+                  <q-btn
+                    color="primary"
+                    @click="destroyPic(props.row.id)"
+                    flat
+                    size="sm"
+                    label="Borrar foto"
+                    icon="fa-solid fa-eraser"
                   />
                 </q-item>
               </q-list>
@@ -763,6 +791,7 @@ const sucursales = ref([]);
 const lineas = ref([]);
 const departamentos = ref([]);
 const puestos = ref([]);
+const estatus = ref([]);
 
 const mes = ref(new Date().getMonth() + 1); // getMonth() devuelve el mes 0-11, por eso sumamos 1
 const anio = ref(new Date().getFullYear());
@@ -778,6 +807,7 @@ const filterForm = ref({
   linea_id: null,
   departamento_id: null,
   puesto_id: null,
+  estatus_id: 5,
 });
 
 const columns = [
@@ -897,6 +927,16 @@ const putRow = async () => {
   getRows(current_page.value);
 };
 
+const destroyPic = async (id) => {
+  let res = await sendRequest(
+    "DELETE",
+    null,
+    "/api/empleado/destroyPic/" + id,
+    ""
+  );
+  getRows(current_page.value);
+};
+
 const saveSkillRatings = async () => {
   skill_valid.value = await skill.value.validate();
   if (!skill_valid.value) {
@@ -947,6 +987,7 @@ const getForms = async () => {
   lineas.value = res.lineas;
   departamentos.value = res.departamentos;
   puestos.value = res.puestos;
+  estatus.value = res.estatus;
 };
 
 bus.on("cargar_empleados", () => {

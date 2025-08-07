@@ -273,7 +273,7 @@
               outlined
               dense
               readonly
-              hint="Esta persona debera autorizar o recharar tu solicitud"
+              hint="Esta persona debera autorizar o rechazar tu solicitud"
             />
           </q-item-section>
           <q-item-section>
@@ -630,6 +630,10 @@ onMounted(() => {
       selectedEmpleado.value = vacation.empleado;
       formVacation.value.departamento_id =
         selectedEmpleado.value.departamento_id;
+    } else if (vacation) {
+      selectedEmpleado.value = vacation.empleado;
+      autoriza.value = selectedEmpleado.value.jefe_directo_id;
+      notifica.value = selectedEmpleado.value.notificar_id;
     }
     empleados.value.push(usuario.empleado);
   });

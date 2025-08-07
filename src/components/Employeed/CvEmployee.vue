@@ -74,11 +74,11 @@
     </template>
 
     <template v-slot:after>
-      <div class="q-pa-sm" v-if="employee.empleados_contact.length">
+      <div class="q-pa-sm" v-if="employee.empleados_contact?.length">
         <div class="text-h4 q-mb-md">Contactos</div>
         <employee-contact-list :contacts="employee.empleados_contact" />
       </div>
-      <q-separator v-if="employee.empleados_contact.length" />
+      <q-separator v-if="employee.empleados_contact?.length" />
       <div class="q-pa-sm">
         <div class="text-h4 q-mb-md">Habilidades</div>
         <skill-rating-chart

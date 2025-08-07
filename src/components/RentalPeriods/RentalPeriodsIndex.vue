@@ -164,8 +164,10 @@
             <q-chip
               class="glossy"
               icon="mail"
-              :label="getDaysUntilInvoice(props.row.billing_day)"
-              clickable
+              :label="
+                getDaysUntilInvoice(props.row.billing_day, props.row.end_date)
+              "
+              :clickable="!hasEndDatePassed(props.row.end_date)"
               @click="sendMail(props.row.id)"
             >
               <q-tooltip class="text-h6">
@@ -474,32 +476,41 @@ const filterFn = (val, update) => {
   });
 };
 
-const getDaysUntilInvoice = (invoiceDay) => {
-  const today = new Date(); // Fecha actual
-  const currentYear = today.getFullYear(); // Año actual
-  const currentMonth = today.getMonth(); // Mes actual
+const getDaysUntilInvoice = (invoiceDay, endDate) => {
+  const today = new Date();
+  const end = new Date(endDate);
 
-  // Crear la fecha de facturación con el día proporcionado
+  // Si la fecha de finalización ya pasó, retorna "Finalizado"
+  if (end < today) {
+    return "Finalizado";
+  }
+
+  const currentYear = today.getFullYear();
+  const currentMonth = today.getMonth();
+
+  // Crear la fecha de facturación
   let invoiceDate = new Date(currentYear, currentMonth, invoiceDay);
 
-  // Si la fecha de factura ya pasó en este mes, se establece para el próximo mes
+  // Si ya pasó este mes, calcula para el próximo mes
   if (invoiceDate < today) {
     invoiceDate = new Date(currentYear, currentMonth + 1, invoiceDay);
   }
 
-  // Calcular la diferencia en milisegundos
   const diffTime = invoiceDate - today;
-
-  // Convertir la diferencia a días
   const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
-  // Si no hay diferencia, significa que es hoy
   if (diffDays === 0) {
     return "Hoy";
   }
 
-  // Devolver los días que faltan
   return diffDays + " dias";
+};
+
+const hasEndDatePassed = (endDate) => {
+  if (!endDate) return true; // si no hay fecha, asumimos que ya pasó
+  const today = new Date();
+  const end = new Date(endDate);
+  return end < today;
 };
 
 onMounted(() => {

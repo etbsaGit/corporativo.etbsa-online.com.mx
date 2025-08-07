@@ -58,6 +58,7 @@
         </q-item-section>
       </q-item>
       <q-expansion-item
+        v-if="checkRole('Empleado')"
         expand-separator
         icon="perm_identity"
         :label="
@@ -121,7 +122,8 @@ import { useAuthStore } from "src/stores/auth";
 import { storeToRefs } from "pinia";
 import { onMounted, ref } from "vue";
 import { useQuasar } from "quasar";
-import { sendRequest } from "src/boot/functions";
+import { checkRoleEmpleado, sendRequest } from "src/boot/functions";
+import { checkRole } from "src/boot/functions";
 
 const $q = useQuasar();
 

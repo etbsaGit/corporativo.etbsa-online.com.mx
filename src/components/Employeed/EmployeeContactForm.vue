@@ -81,8 +81,8 @@ const formContact = ref({
 });
 
 const getForms = async () => {
-  let res = await sendRequest("GET", null, "/api/intranet/kinship", "");
-  kinships.value = res;
+  let res = await sendRequest("GET", null, "/api/empleadosContact/forms", "");
+  kinships.value = res.kinships;
 };
 
 const validate = async () => {

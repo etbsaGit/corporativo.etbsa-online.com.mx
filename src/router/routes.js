@@ -10,6 +10,9 @@ import {
   gerentes,
   used,
   cc,
+  caja,
+  adminCaja,
+  requisiciones,
 } from "./middleware";
 
 const routes = [
@@ -25,6 +28,15 @@ const routes = [
       {
         path: "/expedientes",
         component: () => import("src/pages/expedientes/expedienteIndex.vue"),
+      },
+      {
+        path: "/reset-password",
+        component: () => import("src/pages/auth/ResetPassword.vue"),
+      },
+      {
+        path: "/forgot-password",
+        component: () => import("src/pages/auth/ForgotPassword.vue"),
+        meta: { requiresGuest: true },
       },
     ],
   },
@@ -140,6 +152,10 @@ const routes = [
       {
         path: "/etica",
         component: () => import("src/pages/CodigoEtica/CodigoEticaPage.vue"),
+      },
+      {
+        path: "/propuesta",
+        component: () => import("src/pages/Propuesta/PropuestaIndex.vue"),
       },
     ],
   },
@@ -257,6 +273,57 @@ const routes = [
       {
         path: "/prospect",
         component: () => import("src/pages/prospect/ProspectPage.vue"),
+      },
+    ],
+  },
+
+  {
+    path: "",
+    component: () => import("layouts/MainLayout.vue"),
+    meta: {
+      middlewares: [requisiciones],
+    },
+    children: [
+      {
+        path: "/requisiciones",
+        component: () =>
+          import("src/pages/RequisicionPersonal/RequisicionPersonalIndex.vue"),
+      },
+    ],
+  },
+
+  {
+    path: "",
+    component: () => import("layouts/MainLayout.vue"),
+    meta: {
+      middlewares: [adminCaja],
+    },
+    children: [
+      {
+        path: "/caja/catalogos",
+        component: () => import("src/pages/Caja/CajaCatalogos.vue"),
+      },
+      {
+        path: "/caja/admin",
+        component: () => import("src/pages/Caja/CajaAdmin.vue"),
+      },
+    ],
+  },
+
+  {
+    path: "",
+    component: () => import("layouts/MainLayout.vue"),
+    meta: {
+      middlewares: [caja],
+    },
+    children: [
+      {
+        path: "/caja/transaccion",
+        component: () => import("src/pages/Caja/CajaTransaccionNow.vue"),
+      },
+      {
+        path: "/caja/reportes",
+        component: () => import("src/pages/Caja/CajaReport.vue"),
       },
     ],
   },

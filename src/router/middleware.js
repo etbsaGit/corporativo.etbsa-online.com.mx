@@ -158,3 +158,55 @@ export function cc({ to, next }) {
 
   return next();
 }
+
+export function caja({ to, next }) {
+  const auth = useAuthStore();
+
+  if (!auth.user) {
+    auth.returnUrl = to.fullPath;
+    return next("/login");
+  }
+
+  if (!checkRole("Caja")) {
+    return next("/perfil");
+  }
+
+  return next();
+}
+
+export function adminCaja({ to, next }) {
+  const auth = useAuthStore();
+
+  if (!auth.user) {
+    auth.returnUrl = to.fullPath;
+    return next("/login");
+  }
+
+  if (!checkRole("AdminCaja")) {
+    return next("/perfil");
+  }
+
+  return next();
+}
+
+export function requisiciones({ to, next }) {
+  const auth = useAuthStore();
+
+  if (!auth.user) {
+    auth.returnUrl = to.fullPath;
+    return next("/login");
+  }
+
+  // Redirigir al perfil si NO es Jefe, NO es Gerente y NO es RRHH
+  if (
+    !checkPuestoIncludes("Jefe") &&
+    !checkPuestoIncludes("Gerente") &&
+    !checkPuestoIncludes("Director") &&
+    !checkRole("RRHH")
+  ) {
+    return next("/perfil");
+  }
+
+  // Si es alguno de esos, sigue su camino
+  return next();
+}
