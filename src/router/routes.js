@@ -157,6 +157,10 @@ const routes = [
         path: "/propuesta",
         component: () => import("src/pages/Propuesta/PropuestaIndex.vue"),
       },
+      {
+        path: "/verificar-correo",
+        component: () => import("src/pages/auth/VerificarCorreo.vue"),
+      },
     ],
   },
   {

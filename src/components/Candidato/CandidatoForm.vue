@@ -139,7 +139,7 @@
           v-model="formCandidato.file"
           label="Subir CV"
           lazy-rules
-          accept=".jpg, .jpeg, .png, .jfif"
+          accept=".jpg, .jpeg, .png, .jfif, .pdf"
           @clear="formCandidato.base64 = null"
           @input="convertirFile($event)"
         />

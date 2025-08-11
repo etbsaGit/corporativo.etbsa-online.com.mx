@@ -93,6 +93,17 @@
     <q-page-container>
       <router-view />
     </q-page-container>
+    <q-page-sticky
+      position="bottom-left"
+      :offset="[20, 20]"
+      v-if="!user.email_verified_at"
+    >
+      <q-btn
+        label="Enviar verificación"
+        class="btn-verificar"
+        @click="enviarCorreoVerificacion"
+      />
+    </q-page-sticky>
   </q-layout>
 
   <q-dialog
@@ -163,6 +174,29 @@ const changePassword = async () => {
   logout();
 };
 
+const enviarCorreoVerificacion = async () => {
+  try {
+    const response = await sendRequest(
+      "POST",
+      {},
+      "/api/enviar-correo-verificacion",
+      ""
+    );
+
+    $q.notify({
+      type: "positive",
+      message: response.message || "Correo de verificación enviado",
+      icon: "email",
+    });
+  } catch (error) {
+    $q.notify({
+      type: "negative",
+      message: error.message || "Error al enviar correo",
+      icon: "error",
+    });
+  }
+};
+
 const toggleLeftDrawer = () => {
   leftDrawerOpen.value = !leftDrawerOpen.value;
 };
@@ -175,5 +209,25 @@ onMounted(() => {});
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.btn-verificar {
+  background: linear-gradient(135deg, #a020f0, #ff4dd2);
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+  padding: 10px 18px;
+  border-radius: 25px;
+  box-shadow: 0 4px 15px rgba(160, 32, 240, 0.5);
+  transition: all 0.3s ease;
+}
+
+.btn-verificar:hover {
+  transform: scale(1.08);
+  box-shadow: 0 6px 20px rgba(160, 32, 240, 0.7);
+}
+
+.btn-verificar:active {
+  transform: scale(0.96);
 }
 </style>

@@ -22,7 +22,9 @@ export const useAuthStore = defineStore("auth", {
       await this.getToken();
       try {
         const res = await axios.post("/api/auth/login", form);
+
         if (res.data.two_factor_required) {
+          // Usuario con email verificado → requiere 2FA
           this.twoFactorUserId = res.data.user_id;
           this.awaitingTwoFactor = true;
           Notify.create({
@@ -31,6 +33,7 @@ export const useAuthStore = defineStore("auth", {
             icon: "mail",
           });
         } else {
+          // Usuario sin email verificado → login directo
           this.authToken = res.data.token;
           this.authUser = res.data.data;
           this.awaitingTwoFactor = false;
@@ -45,6 +48,7 @@ export const useAuthStore = defineStore("auth", {
         });
       }
     },
+
     async verifyTwoFactor(code) {
       try {
         const res = await axios.post("/api/auth/verify", {
