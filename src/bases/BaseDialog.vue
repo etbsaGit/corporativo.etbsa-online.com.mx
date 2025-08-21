@@ -67,7 +67,7 @@ const props = defineProps({
   transitionHide: { type: String, default: "rotate" },
 });
 
-const emit = defineEmits(["update:modelValue", "submit"]);
+const emit = defineEmits(["update:modelValue", "submit", "close"]);
 
 // Computed para v-model compatible con eslint
 const dialogModel = computed({
@@ -78,6 +78,7 @@ const dialogModel = computed({
 // Cierra el diálogo
 const close = () => {
   dialogModel.value = false;
+  emit("close"); // <- aquí notificamos el cierre
 };
 
 // Emite la acción principal

@@ -446,13 +446,13 @@ import ActivityIndex from "src/components/Technician/ActivityIndex.vue";
 import TechnicianDisponibility from "src/components/Technician/TechnicianDisponibility.vue";
 
 const openPresentationConstruccion = () => {
-  const baseUrl = window.location.origin + "/#/";
+  const baseUrl = window.location.origin + "/";
   const newUrl = `${baseUrl}presentation/construccion`;
   window.open(newUrl, "_blank");
 };
 
 const openPresentationAgricola = () => {
-  const baseUrl = window.location.origin + "/#/";
+  const baseUrl = window.location.origin + "/";
   const newUrl = `${baseUrl}presentation/agricola`;
   window.open(newUrl, "_blank");
 };

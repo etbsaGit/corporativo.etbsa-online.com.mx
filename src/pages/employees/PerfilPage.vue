@@ -13,6 +13,11 @@
         <q-tab name="personal" label="Datos personales" />
         <q-tab name="negocios" label="Unidad de negocios" />
         <q-tab name="expediente" label="Expediente" />
+        <q-tab
+          name="servicio"
+          label="Servicio a unidades"
+          v-if="user.empleado.vehicle"
+        />
       </q-tabs>
 
       <q-separator />
@@ -33,6 +38,10 @@
         <q-tab-panel name="expediente" class="q-pa-none">
           <expediente :empleado="user.empleado" />
         </q-tab-panel>
+
+        <q-tab-panel name="servicio" class="q-pa-none">
+          <service-index></service-index>
+        </q-tab-panel>
       </q-tab-panels>
     </q-item-section>
   </div>
@@ -51,6 +60,7 @@ import Personal from "src/components/Perfil/Personal.vue";
 import Negocios from "src/components/Perfil/Negocios.vue";
 import Expediente from "src/components/Perfil/Expediente.vue";
 import CvEmployee from "src/components/Employeed/CvEmployee.vue";
+import ServiceIndex from "src/pages/Service/ServiceIndex.vue";
 
 const tab = ref("skill");
 

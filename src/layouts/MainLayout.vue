@@ -88,22 +88,20 @@
         </q-card>
       </q-expansion-item>
       <menu-list />
+      <q-item v-if="!user.email_verified_at">
+        <q-item-section>
+          <q-btn
+            label="Enviar verificación"
+            class="btn-verificar"
+            @click="enviarCorreoVerificacion"
+          />
+        </q-item-section>
+      </q-item>
     </q-drawer>
 
     <q-page-container>
       <router-view />
     </q-page-container>
-    <q-page-sticky
-      position="bottom-left"
-      :offset="[20, 20]"
-      v-if="!user.email_verified_at"
-    >
-      <q-btn
-        label="Enviar verificación"
-        class="btn-verificar"
-        @click="enviarCorreoVerificacion"
-      />
-    </q-page-sticky>
   </q-layout>
 
   <q-dialog
@@ -215,8 +213,7 @@ onMounted(() => {});
   background: linear-gradient(135deg, #a020f0, #ff4dd2);
   color: white;
   font-weight: bold;
-  font-size: 14px;
-  padding: 10px 18px;
+
   border-radius: 25px;
   box-shadow: 0 4px 15px rgba(160, 32, 240, 0.5);
   transition: all 0.3s ease;

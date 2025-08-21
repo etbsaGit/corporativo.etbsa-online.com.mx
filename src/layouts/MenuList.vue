@@ -304,6 +304,22 @@
 
         <q-item-section>Vehiculos</q-item-section>
       </q-item>
+      <q-item
+        v-if="checkRole('cc') || checkRole('Admin')"
+        clickable
+        dense
+        v-ripple
+        to="/services"
+        :active="link === 'services'"
+        @click="link = 'services'"
+        active-class="my-menu-link"
+      >
+        <q-item-section avatar>
+          <q-icon name="fa-solid fa-screwdriver-wrench" />
+        </q-item-section>
+
+        <q-item-section>Servicios</q-item-section>
+      </q-item>
     </q-expansion-item>
 
     <q-expansion-item
