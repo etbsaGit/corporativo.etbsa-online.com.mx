@@ -299,12 +299,40 @@
         />
       </q-item-section>
     </q-item>
+    <q-item v-if="checkRole('RRHH')">
+      <q-item-section>
+        <q-file
+          clearable
+          color="secondary"
+          dense
+          outlined
+          v-model="formRequisicion.file"
+          label="Subir Banner"
+          lazy-rules
+          accept=".jpg, .jpeg, .png, .jfif, .pdf"
+          @clear="formRequisicion.base64 = null"
+          @input="convertirFile($event)"
+        >
+          <template v-slot:before>
+            <q-btn
+              v-if="requisicion?.realpath"
+              outline
+              dense
+              icon="fa-solid fa-file-image"
+              color="primary"
+              label="Banner ya cargado"
+              @click="openDocument(requisicion.realpath)"
+            />
+          </template>
+        </q-file>
+      </q-item-section>
+    </q-item>
   </q-form>
 </template>
 
 <script setup>
 import { ref, onMounted, computed } from "vue";
-import { sendRequest } from "src/boot/functions";
+import { checkRole, sendRequest } from "src/boot/functions";
 
 const { requisicion } = defineProps(["requisicion"]);
 
@@ -349,8 +377,11 @@ const formRequisicion = ref({
   motivo_vacante: requisicion ? requisicion.motivo_vacante : null,
   especificar_vacante: requisicion ? requisicion.especificar_vacante : null,
 
-  competencias: requisicion ? requisicion.competencias : [],
-  herramientas: requisicion ? requisicion.herramientas : [],
+  base64: null,
+  file: [],
+
+  competencias: requisicion ? requisicion.competencias.map((c) => c.id) : [],
+  herramientas: requisicion ? requisicion.herramientas.map((h) => h.id) : [],
 });
 
 const rangeProxy = computed({
@@ -382,6 +413,24 @@ const getForms = async () => {
   escolaridades.value = res.escolaridades;
   competencias.value = res.competencias;
   herramientas.value = res.herramientas;
+};
+
+const convertirFile = (event) => {
+  const archivo = event.target.files[0];
+  if (archivo) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const base64Data = e.target.result;
+      formRequisicion.value.base64 = base64Data;
+    };
+    reader.readAsDataURL(archivo);
+  } else {
+    formRequisicion.value.base64.value = null; // Limpiar base64 cuando no hay archivo seleccionado
+  }
+};
+
+const openDocument = (url) => {
+  window.open(url, "_blank");
 };
 
 const validate = async () => {

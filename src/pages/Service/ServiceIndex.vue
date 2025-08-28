@@ -135,18 +135,30 @@
         </template>
         <template v-slot:body-cell-edit="props">
           <q-td :props="props">
-            <q-avatar v-if="props.row.status == null">
+            <q-avatar v-if="props.row.status == null || props.row.status == 2">
               <q-icon
                 color="red"
                 name="delete"
                 @click="openDelete(props.row)"
               />
             </q-avatar>
-            <q-avatar v-if="props.row.status == null">
+            <q-avatar v-if="props.row.status == null || props.row.status == 2">
               <q-icon
                 color="blue"
                 name="edit_square"
                 @click="openEdit(props.row)"
+              />
+            </q-avatar>
+          </q-td>
+        </template>
+
+        <template v-slot:body-cell-show="props">
+          <q-td :props="props">
+            <q-avatar>
+              <q-icon
+                color="purple"
+                name="fa-regular fa-eye"
+                @click="openShow(props.row)"
               />
             </q-avatar>
           </q-td>
@@ -176,6 +188,18 @@
           </q-td>
         </template>
 
+        <template v-slot:body-cell-sucursal="props">
+          <q-td :props="props">
+            {{ props.row.vehicle?.sucursal?.nombre }}
+          </q-td>
+        </template>
+
+        <template v-slot:body-cell-departamento="props">
+          <q-td :props="props">
+            {{ props.row.vehicle?.departamento?.nombre }}
+          </q-td>
+        </template>
+
         <template v-slot:body-cell-status="props">
           <q-td :props="props">
             <q-btn-dropdown
@@ -188,17 +212,33 @@
             >
               <q-list dense>
                 <q-item
+                  v-if="props.row.status != 2"
+                  clickable
+                  v-close-popup
+                  class="bg-blue-6"
+                  @click="changeEstatus(props.row.id, 2)"
+                >
+                  <q-item-section>
+                    <q-chip
+                      color="blue-6"
+                      text-color="white"
+                      icon="fa-solid fa-check"
+                      label="Pre-Autorizada"
+                    />
+                  </q-item-section>
+                </q-item>
+                <q-item
                   v-if="props.row.status != 1"
                   clickable
                   v-close-popup
-                  class="bg-green-3"
+                  class="bg-green-6"
                   @click="changeEstatus(props.row.id, 1)"
                 >
                   <q-item-section>
                     <q-chip
-                      color="green-3"
+                      color="green-6"
                       text-color="white"
-                      icon="fa-solid fa-circle-check"
+                      icon="fa-solid fa-check-double"
                       label="Autorizada"
                     />
                   </q-item-section>
@@ -208,14 +248,14 @@
                   v-if="props.row.status != 0"
                   clickable
                   v-close-popup
-                  class="bg-red-3"
+                  class="bg-red-6"
                   @click="changeEstatus(props.row.id, 0)"
                 >
                   <q-item-section>
                     <q-chip
-                      color="red-3"
+                      color="red-6"
                       text-color="white"
-                      icon="fa-solid fa-circle-xmark"
+                      icon="fa-solid fa-x"
                       label="Rechazada"
                     />
                   </q-item-section>
@@ -225,10 +265,10 @@
             <q-chip
               v-else
               square
-              :color="getDropdownPropsStatus(props.row.estatus).color"
-              :text-color="getDropdownPropsStatus(props.row.estatus).textColor"
-              :icon="getDropdownPropsStatus(props.row.estatus).icon"
-              :label="getDropdownPropsStatus(props.row.estatus).label"
+              :color="getDropdownPropsStatus(props.row.status).color"
+              :text-color="getDropdownPropsStatus(props.row.status).textColor"
+              :icon="getDropdownPropsStatus(props.row.status).icon"
+              :label="getDropdownPropsStatus(props.row.status).label"
             />
           </q-td>
         </template>
@@ -279,6 +319,12 @@
     </template>
   </BaseDialog>
 
+  <BaseDialog v-model="showShow" mode="show" titleShow="Detalle">
+    <template #form>
+      <service-card :service="selectedRow" />
+    </template>
+  </BaseDialog>
+
   <BaseDialog v-model="showDelete" mode="delete" @submit="deleteRow">
     <template #delete-message>
       ¿Estás seguro que deseas eliminar este elemento?
@@ -292,6 +338,7 @@ import { sendRequest, dataIncomplete, checkRole } from "src/boot/functions";
 
 import BaseDialog from "src/bases/BaseDialog.vue";
 import ServiceForm from "src/components/Service/ServiceForm.vue";
+import ServiceCard from "src/components/Service/ServiceCard.vue";
 import { formatDateSlim } from "src/boot/formatFunctions";
 
 const rows = ref([]);
@@ -302,6 +349,7 @@ const edit = ref(null);
 const showEdit = ref(false);
 const showFilters = ref(false);
 const showDelete = ref(false);
+const showShow = ref(false);
 
 const next_page_url = ref("");
 const prev_page_url = ref("");
@@ -327,6 +375,12 @@ const columns = [
     label: "Borrar / Editar",
   },
   {
+    name: "show",
+    align: "left",
+    field: "show",
+    label: "Ver",
+  },
+  {
     name: "vehicle",
     align: "left",
     field: "vehicle",
@@ -339,10 +393,22 @@ const columns = [
     label: "Placas",
   },
   {
+    name: "sucursal",
+    align: "left",
+    field: "sucursal",
+    label: "Sucursal",
+  },
+  {
+    name: "departamento",
+    align: "left",
+    field: "departamento",
+    label: "Departamento",
+  },
+  {
     name: "type",
     align: "left",
     field: "type",
-    label: "Tipo",
+    label: "Tipo de mantenimento",
   },
   {
     name: "empleado",
@@ -378,8 +444,11 @@ const columns = [
 
 const visibleColumns = ref([
   "edit",
+  "show",
   "vehicle",
   "placas",
+  "sucursal",
+  "departamento",
   "type",
   "empleado",
   "km",
@@ -400,6 +469,11 @@ const openEdit = (item) => {
 const openDelete = (item) => {
   selectedRow.value = item;
   showDelete.value = true;
+};
+
+const openShow = (item) => {
+  selectedRow.value = item;
+  showShow.value = true;
 };
 
 const getForms = async () => {
@@ -475,20 +549,27 @@ const changeEstatus = async (id, status) => {
   getRows(current_page.value);
 };
 
-function getDropdownPropsStatus(validated) {
-  if (validated === 0) {
+function getDropdownPropsStatus(status) {
+  if (status === 0) {
     return {
-      color: "red-3",
+      color: "red-6",
       textColor: "white",
-      icon: "fa-solid fa-circle-xmark",
+      icon: "fa-solid fa-x",
       label: "Rechazada",
     };
-  } else if (validated === 1) {
+  } else if (status === 1) {
     return {
-      color: "green-3",
+      color: "green-6",
       textColor: "white",
-      icon: "fa-solid fa-circle-check",
+      icon: "fa-solid fa-check-double",
       label: "Autorizada",
+    };
+  } else if (status === 2) {
+    return {
+      color: "blue-6",
+      textColor: "white",
+      icon: "fa-solid fa-check",
+      label: "Pre-Autorizada",
     };
   } else {
     return {

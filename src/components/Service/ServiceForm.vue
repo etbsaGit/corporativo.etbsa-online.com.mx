@@ -81,6 +81,35 @@
           options-dense
           clearable
           :rules="[requiredSelect]"
+        >
+          <template v-slot:option="scope">
+            <q-item v-bind="scope.itemProps">
+              <q-item-section>
+                <q-item-label>
+                  <strong>Placas:</strong>
+                  {{ scope.opt.placas }}
+                </q-item-label>
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>
+                  <strong>Tipo de vehiculo:</strong>
+                  {{ scope.opt.estatus.nombre }}
+                </q-item-label>
+              </q-item-section>
+            </q-item>
+          </template>
+        </q-select>
+      </q-item-section>
+    </q-item>
+    <q-item v-if="checkRole('cc')">
+      <q-item-section>
+        <q-input
+          v-model="formService.feedback"
+          outlined
+          dense
+          type="textarea"
+          label="Retroalimentacion o motivo de rechazo"
+          hint
         />
       </q-item-section>
     </q-item>
@@ -211,6 +240,7 @@ const formService = ref({
   vehicle_id: service ? service.vehicle_id : null,
   empleado_id: service ? service.empleado_id : null,
   estatus_id: service ? service.estatus_id : null,
+  feedback: service ? service.feedback : null,
   archives: service ? service.archives : [],
 
   base64: [],
@@ -253,7 +283,7 @@ const filteredVehicles = computed(() => {
   );
   if (!empleado) return [];
 
-  return vehicles.value.filter((v) => v.id === empleado.vehicle_id);
+  return vehicles.value.filter((v) => v.sucursal_id === empleado.sucursal_id);
 });
 
 const convertirFile = (event) => {

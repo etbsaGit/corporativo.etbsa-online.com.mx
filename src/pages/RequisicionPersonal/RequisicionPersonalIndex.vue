@@ -145,6 +145,7 @@
         row-key="name"
         dense
         :visible-columns="visibleColumns"
+        :rows-per-page-options="[0]"
       >
         <template v-slot:top>
           <strong>Solicitudes de personal</strong>
@@ -293,7 +294,16 @@
                   flat
                   icon="fa-regular fa-address-book"
                   @click="openCandidatos(props.row)"
-                />
+                >
+                  <q-badge
+                    color="red"
+                    floating
+                    transparent
+                    v-if="props.row.count != 0"
+                  >
+                    {{ props.row.count }}
+                  </q-badge>
+                </q-btn>
               </q-item-section>
             </q-item>
           </q-td>
@@ -466,6 +476,7 @@
     mode="show"
     v-model="showCandidatos"
     titleShow="Candidatos"
+    @close="getRows"
   >
     <template #form>
       <candidato-index :requisicion="selectedRow" />
@@ -711,7 +722,7 @@ const putRow = async () => {
     return;
   }
   const final = {
-    ...edit.value.formHerramienta,
+    ...edit.value.formRequisicion,
   };
   let res = await sendRequest(
     "PUT",

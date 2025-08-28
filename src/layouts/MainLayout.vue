@@ -21,6 +21,25 @@
 
         <q-space />
 
+        <div v-if="checkRole('RRHH')">
+          <q-btn dense round flat icon="fa-solid fa-person" to="/requisiciones">
+            <q-badge color="red" floating transparent v-if="candidates">
+              {{ candidates }}
+            </q-badge>
+          </q-btn>
+
+          <q-btn dense round flat icon="support_agent" to="/suggestion">
+            <q-badge
+              color="red"
+              floating
+              transparent
+              v-if="pending_suggestions"
+            >
+              {{ pending_suggestions }}
+            </q-badge>
+          </q-btn>
+        </div>
+
         <div v-if="user.empleado">
           {{ user.empleado.nombreCompleto }}
         </div>
@@ -148,6 +167,9 @@ const showChangePassword = ref(false);
 const authUser = ref(null);
 const password = ref(null);
 
+const pending_suggestions = ref(null);
+const candidates = ref(null);
+
 const openPassword = () => {
   authUser.value = user;
   showChangePassword.value = true;
@@ -195,11 +217,19 @@ const enviarCorreoVerificacion = async () => {
   }
 };
 
+const getNotify = async () => {
+  let res = await sendRequest("GET", null, "/api/notify/icon", "");
+  pending_suggestions.value = res.pending_suggestions;
+  candidates.value = res.candidates;
+};
+
 const toggleLeftDrawer = () => {
   leftDrawerOpen.value = !leftDrawerOpen.value;
 };
 
-onMounted(() => {});
+onMounted(() => {
+  getNotify();
+});
 </script>
 
 <style>

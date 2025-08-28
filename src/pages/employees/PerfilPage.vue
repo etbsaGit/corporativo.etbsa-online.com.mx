@@ -16,7 +16,7 @@
         <q-tab
           name="servicio"
           label="Servicio a unidades"
-          v-if="user.empleado.vehicle"
+          v-if="user.empleado.vehicle || checkRole('service')"
         />
       </q-tabs>
 
@@ -61,6 +61,7 @@ import Negocios from "src/components/Perfil/Negocios.vue";
 import Expediente from "src/components/Perfil/Expediente.vue";
 import CvEmployee from "src/components/Employeed/CvEmployee.vue";
 import ServiceIndex from "src/pages/Service/ServiceIndex.vue";
+import { checkRole } from "src/boot/functions";
 
 const tab = ref("skill");
 

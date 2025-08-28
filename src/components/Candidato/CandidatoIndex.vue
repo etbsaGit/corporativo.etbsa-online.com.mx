@@ -24,6 +24,7 @@
         row-key="name"
         dense
         :visible-columns="visibleColumns"
+        :rows-per-page-options="[0]"
       >
         <template v-slot:top>
           <strong>Candidatos</strong>
