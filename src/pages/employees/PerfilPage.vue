@@ -12,6 +12,8 @@
         <q-tab name="skill" label="Skill" />
         <q-tab name="personal" label="Datos personales" />
         <q-tab name="negocios" label="Unidad de negocios" />
+        <q-tab name="contactos" label="Contactos de emergencia" />
+
         <q-tab name="expediente" label="Expediente" />
         <q-tab
           name="servicio"
@@ -33,6 +35,10 @@
 
         <q-tab-panel name="negocios" class="q-pa-none">
           <negocios :empleado="user.empleado" />
+        </q-tab-panel>
+
+        <q-tab-panel name="contactos" class="q-pa-none">
+          <employee-contact :employee="user.empleado" />
         </q-tab-panel>
 
         <q-tab-panel name="expediente" class="q-pa-none">
@@ -61,6 +67,7 @@ import Negocios from "src/components/Perfil/Negocios.vue";
 import Expediente from "src/components/Perfil/Expediente.vue";
 import CvEmployee from "src/components/Employeed/CvEmployee.vue";
 import ServiceIndex from "src/pages/Service/ServiceIndex.vue";
+import EmployeeContact from "src/components/Employeed/EmployeeContact.vue";
 import { checkRole } from "src/boot/functions";
 
 const tab = ref("skill");

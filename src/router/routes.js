@@ -13,6 +13,7 @@ import {
   caja,
   adminCaja,
   requisiciones,
+  credito,
 } from "./middleware";
 
 const routes = [
@@ -332,6 +333,25 @@ const routes = [
       {
         path: "/caja/reportes",
         component: () => import("src/pages/Caja/CajaReport.vue"),
+      },
+    ],
+  },
+
+  {
+    path: "",
+    component: () => import("layouts/MainLayout.vue"),
+    meta: {
+      middlewares: [credito],
+    },
+    children: [
+      {
+        path: "/credito/conceptos",
+        component: () => import("src/pages/Credito/CreditoConceptoIndex.vue"),
+      },
+      {
+        path: "/credito/declaracion",
+        component: () =>
+          import("src/pages/Credito/CreditoDeclaracionIndex.vue"),
       },
     ],
   },

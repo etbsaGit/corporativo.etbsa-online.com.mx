@@ -210,3 +210,18 @@ export function requisiciones({ to, next }) {
   // Si es alguno de esos, sigue su camino
   return next();
 }
+
+export function credito({ to, next }) {
+  const auth = useAuthStore();
+
+  if (!auth.user) {
+    auth.returnUrl = to.fullPath;
+    return next("/login");
+  }
+
+  if (!checkRole("Credito")) {
+    return next("/perfil");
+  }
+
+  return next();
+}

@@ -323,6 +323,47 @@
     </q-expansion-item>
 
     <q-expansion-item
+      expand-separator
+      icon="fa-solid fa-credit-card"
+      label="Credito"
+      dense
+      dense-toggle
+      group="somegroup"
+      v-if="checkRole('Credito')"
+    >
+      <q-item
+        clickable
+        dense
+        v-ripple
+        to="/credito/conceptos"
+        :active="link === 'credito/conceptos'"
+        @click="link = 'credito/conceptos'"
+        active-class="my-menu-link"
+      >
+        <q-item-section avatar>
+          <q-icon name="fa-regular fa-rectangle-list" />
+        </q-item-section>
+
+        <q-item-section>Conceptos</q-item-section>
+      </q-item>
+      <q-item
+        clickable
+        dense
+        v-ripple
+        to="/credito/declaracion"
+        :active="link === 'credito/declaracion'"
+        @click="link = 'credito/declaracion'"
+        active-class="my-menu-link"
+      >
+        <q-item-section avatar>
+          <q-icon name="fa-regular fa-rectangle-list" />
+        </q-item-section>
+
+        <q-item-section>Declaración de la situación financiera</q-item-section>
+      </q-item>
+    </q-expansion-item>
+
+    <q-expansion-item
       dense
       dense-toggle
       expand-separator
