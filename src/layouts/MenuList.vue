@@ -104,6 +104,23 @@
     </q-item>
 
     <q-item
+      v-if="checkRole('Empleado')"
+      dense
+      clickable
+      v-ripple
+      to="/salidaPermiso"
+      :active="link === 'salidaPermiso'"
+      @click="link = 'salidaPermiso'"
+      active-class="my-menu-link"
+    >
+      <q-item-section avatar>
+        <q-icon name="fa-solid fa-clock" />
+      </q-item-section>
+
+      <q-item-section>Permiso 2 horas</q-item-section>
+    </q-item>
+
+    <q-item
       clickable
       dense
       v-ripple

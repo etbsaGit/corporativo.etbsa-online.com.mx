@@ -166,6 +166,11 @@ const routes = [
         path: "/verificar-correo",
         component: () => import("src/pages/auth/VerificarCorreo.vue"),
       },
+      {
+        path: "/salidaPermiso",
+        component: () =>
+          import("src/pages/SalidaPermiso/SalidaPermisoPage.vue"),
+      },
     ],
   },
   {
