@@ -294,6 +294,22 @@
 
         <q-item-section>Festivos</q-item-section>
       </q-item>
+      <q-item
+        v-if="checkRole('RRHH')"
+        clickable
+        dense
+        v-ripple
+        to="/softSkills"
+        :active="link === 'softSkills'"
+        @click="link = 'softSkills'"
+        active-class="my-menu-link"
+      >
+        <q-item-section avatar>
+          <q-icon name="fas fa-clipboard-check" />
+        </q-item-section>
+
+        <q-item-section>Competencias laborales</q-item-section>
+      </q-item>
     </q-expansion-item>
 
     <q-expansion-item

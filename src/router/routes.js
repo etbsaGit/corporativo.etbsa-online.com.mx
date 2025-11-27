@@ -64,6 +64,10 @@ const routes = [
         path: "/festivos",
         component: () => import("src/pages/Festivos/FestivosPage.vue"),
       },
+      {
+        path: "/softSkills",
+        component: () => import("src/pages/SoftSkill/SoftSkillPage.vue"),
+      },
     ],
   },
   {
