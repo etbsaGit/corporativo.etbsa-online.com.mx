@@ -62,7 +62,7 @@
         <q-item-section>
           <q-select
             v-model="filterForm.sucursal_id"
-            :options="sucursales"
+            :options="crud.items.sucursales"
             label="Sucursal"
             option-value="id"
             option-label="nombre"
@@ -80,7 +80,7 @@
         <q-item-section>
           <q-select
             v-model="filterForm.linea_id"
-            :options="lineas"
+            :options="crud.items.lineas"
             label="Linea"
             option-value="id"
             option-label="nombre"
@@ -98,7 +98,7 @@
         <q-item-section>
           <q-select
             v-model="filterForm.departamento_id"
-            :options="departamentos"
+            :options="crud.items.departamentos"
             label="Departamentos"
             option-value="id"
             option-label="nombre"
@@ -116,7 +116,7 @@
         <q-item-section>
           <q-select
             v-model="filterForm.puesto_id"
-            :options="puestos"
+            :options="crud.items.puestos"
             label="Puesto"
             option-value="id"
             option-label="nombre"
@@ -134,7 +134,7 @@
         <q-item-section>
           <q-select
             v-model="filterForm.estatus_id"
-            :options="estatus"
+            :options="crud.items.estatus"
             label="Estatus"
             option-value="id"
             option-label="nombre"
@@ -367,7 +367,7 @@
         flat
         bordered
         title="Empleados"
-        :rows="rows"
+        :rows="crud.paginatedItems"
         :columns="columns"
         row-key="name"
         dense
@@ -459,6 +459,16 @@
                 <q-item>
                   <q-btn
                     color="primary"
+                    @click="onRowClickCompetencias(props.row)"
+                    flat
+                    size="sm"
+                    label="Competencias laborales"
+                    icon="fas fa-clipboard-check"
+                  />
+                </q-item>
+                <q-item>
+                  <q-btn
+                    color="primary"
                     @click="destroyPic(props.row.id)"
                     flat
                     size="sm"
@@ -482,43 +492,8 @@
             </q-badge>
           </q-td>
         </template>
-        <template v-slot:body-cell-puesto="props">
-          <q-td :props="props">
-            {{ props.row.puesto.nombre }}
-          </q-td>
-        </template>
-        <template v-slot:body-cell-sucursal="props">
-          <q-td :props="props">
-            {{ props.row.sucursal.nombre }}
-          </q-td>
-        </template>
-        <template v-slot:body-cell-linea="props">
-          <q-td :props="props">
-            {{ props.row.linea.nombre }}
-          </q-td>
-        </template>
-        <template v-slot:body-cell-departamento="props">
-          <q-td :props="props">
-            {{ props.row.departamento.nombre }}
-          </q-td>
-        </template>
-        <template v-slot:body-cell-fecha_de_ingreso="props">
-          <q-td :props="props">
-            {{ formatDateplusoneSlim(props.row.fecha_de_ingreso) }}
-          </q-td>
-        </template>
 
         <template v-slot:top-right>
-          <!-- <q-btn outline dense color="primary" @click="getRows" icon="refresh">
-            <q-tooltip
-              anchor="center left"
-              self="center right"
-              :offset="[10, 10]"
-              class="text-h6"
-            >
-              Cargar a todos los empleados activos
-            </q-tooltip>
-          </q-btn> -->
           <q-btn outline dense color="primary" @click="getRows" icon="refresh">
             <q-tooltip
               anchor="center left"
@@ -532,266 +507,147 @@
         </template>
 
         <template v-slot:bottom>
-          <q-space />
-          <td>
-            <q-pagination
-              color="primary"
-              v-model="current_page"
-              :max="last_page"
-              :max-pages="6"
-              direction-links
-              boundary-links
-              gutter="10px"
-              icon-first="skip_previous"
-              icon-last="skip_next"
-              icon-prev="fast_rewind"
-              icon-next="fast_forward"
-            />
-          </td>
-          <q-space />
+          <base-pagination
+            :pagination="crud.pagination"
+            @update:currentPage="(val) => (crud.pagination.currentPage = val)"
+          />
         </template>
       </q-table>
     </q-item-section>
   </q-item>
 
-  <q-dialog
+  <!-- ------------------------------ -->
+  <BaseDialog
+    titleShow="Registrar empleado"
+    maximized
+    mode="create"
     v-model="showAdd"
-    transition-show="slide-up"
-    transition-hide="slide-down"
-    persistent
+    @submit="postRow"
+  >
+    <template #form>
+      <employee-form ref="add" />
+    </template>
+  </BaseDialog>
+
+  <BaseDialog
+    :titleShow="`Historico y habilidades de ${selectedRow?.nombreCompleto}`"
     maximized
-  >
-    <q-card>
-      <q-item class="text-white bg-primary">
-        <q-item-section>
-          <q-item-label class="text-h6">Registrar empleado</q-item-label>
-        </q-item-section>
-        <q-item-section side>
-          <q-btn label="Cerrar" color="red" v-close-popup />
-        </q-item-section>
-        <q-item-section side>
-          <q-btn label="Agregar" color="blue" @click="postRow" />
-        </q-item-section>
-      </q-item>
-      <q-separator />
-      <q-item>
-        <q-item-section>
-          <employee-form ref="add" />
-        </q-item-section>
-      </q-item>
-    </q-card>
-  </q-dialog>
-
-  <q-dialog
-    v-model="showEdit"
-    transition-show="slide-up"
-    transition-hide="slide-down"
-    persistent
-    maximized
-  >
-    <q-card>
-      <q-item class="text-white bg-primary">
-        <q-item-section>
-          <q-item-label class="text-h6">Actualizar</q-item-label>
-        </q-item-section>
-        <q-item-section side>
-          <q-btn label="Cerrar" color="red" v-close-popup />
-        </q-item-section>
-        <q-item-section side>
-          <q-btn label="Actualizar" color="blue" @click="putRow" />
-        </q-item-section>
-        <!-- <q-item-section side>
-          <q-btn label="Borrar" color="orange" @click="deleteRow" />
-        </q-item-section> -->
-      </q-item>
-      <q-separator />
-      <q-item>
-        <q-item-section>
-          <employee-form ref="edit" :empleado="selectedRow" />
-        </q-item-section>
-      </q-item>
-    </q-card>
-  </q-dialog>
-
-  <q-dialog
-    v-model="showFiles"
-    transition-show="slide-up"
-    transition-hide="slide-down"
-    persistent
-    maximized
-  >
-    <q-card>
-      <q-item class="text-white bg-primary">
-        <q-item-section>
-          <q-item-label class="text-h6">
-            Expediente de {{ selectedRow.nombreCompleto }}
-          </q-item-label>
-        </q-item-section>
-        <q-item-section side>
-          <q-btn label="Cerrar" color="red" v-close-popup />
-        </q-item-section>
-      </q-item>
-      <q-separator />
-      <q-item>
-        <q-item-section>
-          <employeed-three-form ref="edit_3" :empleado="selectedRow" />
-        </q-item-section>
-      </q-item>
-    </q-card>
-  </q-dialog>
-
-  <q-dialog
-    v-model="showSkill"
-    transition-show="slide-up"
-    transition-hide="slide-down"
-    persistent
-    maximized
-  >
-    <q-card>
-      <q-item class="text-white bg-primary">
-        <q-item-section>
-          <q-item-label class="text-h6">
-            Skill de {{ selectedRow.nombreCompleto }}
-          </q-item-label>
-        </q-item-section>
-        <q-item-section side>
-          <q-btn label="Cerrar" color="red" v-close-popup />
-        </q-item-section>
-        <q-item-section side>
-          <q-btn label="Guardar" color="blue" @click="saveSkillRatings" />
-        </q-item-section>
-      </q-item>
-      <q-separator />
-      <q-item>
-        <q-item-section>
-          <skill-rating-form :employee="selectedRow" ref="skill" />
-        </q-item-section>
-      </q-item>
-    </q-card>
-  </q-dialog>
-
-  <q-dialog
-    v-model="showCareerDialog"
-    transition-show="rotate"
-    transition-hide="rotate"
-    full-height
-    persistent
-  >
-    <q-card>
-      <q-item class="text-white bg-primary">
-        <q-item-section>
-          <q-item-label class="text-h6">
-            Carrera de {{ selectedRow.nombreCompleto }}
-          </q-item-label>
-        </q-item-section>
-        <q-item-section side>
-          <q-btn label="Cerrar" color="red" v-close-popup />
-        </q-item-section>
-      </q-item>
-      <q-separator />
-      <q-item>
-        <q-item-section>
-          <employee-time-line :empleado="selectedRow" :editable="true" />
-        </q-item-section>
-      </q-item>
-    </q-card>
-  </q-dialog>
-
-  <q-dialog
+    mode="show"
     v-model="showCV"
-    transition-show="slide-up"
-    transition-hide="slide-down"
-    persistent
-    maximized
   >
-    <q-card>
-      <q-item class="text-white bg-primary">
-        <q-item-section>
-          <q-item-label class="text-h6">
-            Historico y habilidades de {{ selectedRow.nombreCompleto }}
-          </q-item-label>
-        </q-item-section>
-        <q-item-section side>
-          <q-btn label="Cerrar" color="red" v-close-popup />
-        </q-item-section>
-      </q-item>
-      <q-separator />
-      <q-item>
-        <q-item-section>
-          <cv-employee :employee="selectedRow" />
-        </q-item-section>
-      </q-item>
-    </q-card>
-  </q-dialog>
+    <template #form>
+      <cv-employee :employee="selectedRow" />
+    </template>
+  </BaseDialog>
 
-  <q-dialog
-    v-model="showContacts"
-    transition-show="slide-up"
-    transition-hide="slide-down"
-    persistent
+  <BaseDialog
+    :titleShow="`Contactos de ${selectedRow?.nombreCompleto}`"
     maximized
+    v-model="showContacts"
+    mode="show"
   >
-    <q-card>
-      <q-item class="text-white bg-primary">
-        <q-item-section>
-          <q-item-label class="text-h6">
-            Contactos de {{ selectedRow.nombreCompleto }}
-          </q-item-label>
-        </q-item-section>
-        <q-item-section side>
-          <q-btn label="Cerrar" color="red" v-close-popup />
-        </q-item-section>
-      </q-item>
-      <q-separator />
-      <q-item>
-        <q-item-section>
-          <employee-contact :employee="selectedRow" />
-        </q-item-section>
-      </q-item>
-    </q-card>
-  </q-dialog>
+    <template #form>
+      <employee-contact :employee="selectedRow" />
+    </template>
+  </BaseDialog>
+
+  <BaseDialog
+    :titleShow="`Actualizar info de ${selectedRow?.nombreCompleto}`"
+    maximized
+    v-model="showEdit"
+    mode="edit"
+    @submit="putRow"
+  >
+    <template #form>
+      <employee-form ref="edit" :empleado="selectedRow" />
+    </template>
+  </BaseDialog>
+
+  <BaseDialog
+    :titleShow="`Expediente de ${selectedRow?.nombreCompleto}`"
+    maximized
+    v-model="showFiles"
+    mode="show"
+  >
+    <template #form>
+      <employeed-three-form ref="edit_3" :empleado="selectedRow" />
+    </template>
+  </BaseDialog>
+
+  <BaseDialog
+    :titleShow="`Skill de ${selectedRow?.nombreCompleto}`"
+    maximized
+    v-model="showSkill"
+    mode="edit"
+    @submit="saveSkillRatings"
+  >
+    <template #form>
+      <skill-rating-form :employee="selectedRow" ref="skill" />
+    </template>
+  </BaseDialog>
+
+  <BaseDialog
+    :titleShow="`Carrera de ${selectedRow?.nombreCompleto}`"
+    maximized
+    v-model="showCareerDialog"
+    mode="show"
+  >
+    <template #form>
+      <employee-time-line :empleado="selectedRow" :editable="true" />
+    </template>
+  </BaseDialog>
+
+  <BaseDialog
+    :titleShow="`Competencias laborales de ${selectedRow?.nombreCompleto}`"
+    maximized
+    v-model="showCompetencias"
+    mode="edit"
+    @submit="saveSkill"
+  >
+    <template #form>
+      <employee-skill :empleado="selectedRow" ref="competencias" />
+    </template>
+  </BaseDialog>
 </template>
 
 <script setup>
 import { ref, onMounted, inject, watch } from "vue";
 import { sendRequest, checkRole, dataIncomplete } from "src/boot/functions";
+import { months, years } from "src/boot/constants";
+import { formatDateplusoneSlim } from "src/boot/formatFunctions";
+import { useCrudStore } from "src/stores/crud";
+
 import EmployeedThreeForm from "src/components/Employeed/EmployeedThreeForm.vue";
 import SkillRatingForm from "src/components/Skill/SkillRatingForm.vue";
 import EmployeeTimeLine from "src/components/Employeed/EmployeeTimeLine.vue";
 import CvEmployee from "src/components/Employeed/CvEmployee.vue";
 import EmployeeContact from "src/components/Employeed/EmployeeContact.vue";
-
 import EmployeeForm from "src/components/Employeed/EmployeeForm.vue";
-import { formatDateplusoneSlim } from "src/boot/formatFunctions";
+import BaseDialog from "src/bases/BaseDialog.vue";
+import BasePagination from "src/bases/BasePagination.vue";
+import EmployeeSkill from "src/components/Employeed/EmployeeSkill.vue";
 
-const rows = ref([]);
-const selectedRow = ref(null);
-const add = ref(null);
-const showAdd = ref(false);
-const edit = ref(null);
-const showEdit = ref(false);
-
-const next_page_url = ref("");
-const prev_page_url = ref("");
-const last_page = ref(0);
-const current_page = ref(1);
+const crud = useCrudStore();
 
 const bus = inject("bus"); // inside setup()
 
+const selectedRow = ref(null);
+const add = ref(null);
+const edit = ref(null);
 const edit_3 = ref(null);
 const skill = ref(null);
-const skill_valid = ref();
+const competencias = ref(null);
 
+const showAdd = ref(false);
+const showEdit = ref(false);
 const showFiles = ref(false);
 const showSkill = ref(false);
 const showCareerDialog = ref(false);
 const showCV = ref(false);
 const showContacts = ref(false);
-const sucursales = ref([]);
-const lineas = ref([]);
-const departamentos = ref([]);
-const puestos = ref([]);
-const estatus = ref([]);
+const showCompetencias = ref(null);
+
+const baseURL = "/api/empleado";
 
 const mes = ref(new Date().getMonth() + 1); // getMonth() devuelve el mes 0-11, por eso sumamos 1
 const anio = ref(new Date().getFullYear());
@@ -811,61 +667,53 @@ const filterForm = ref({
 });
 
 const columns = [
-  { name: "id", label: "Foto", align: "left", field: "id", sortable: false },
+  { name: "id", label: "Foto", align: "left", field: "id" },
   {
     name: "nombreCompleto",
     label: "Nombre Completo",
     align: "left",
     field: "nombreCompleto",
-    sortable: true,
   },
   {
     name: "sucursal",
     label: "Sucursal",
     align: "left",
-    field: "sucursal",
-    sortable: true,
+    field: (row) => row.sucursal.nombre,
   },
   {
     name: "linea",
     label: "Linea",
     align: "left",
-    field: "linea",
-    sortable: true,
+    field: (row) => row.linea.nombre,
   },
   {
     name: "departamento",
     label: "Departamento",
     align: "left",
-    field: "departamento",
-    sortable: true,
+    field: (row) => row.departamento.nombre,
   },
   {
     name: "puesto",
     label: "Puesto",
     align: "left",
-    field: "puesto",
-    sortable: true,
+    field: (row) => row.puesto.nombre,
   },
   {
     name: "fecha_de_ingreso",
     label: "Ingreso",
     align: "left",
-    field: "fecha_de_ingreso",
-    sortable: true,
+    field: (row) => formatDateplusoneSlim(row.fecha_de_ingreso),
   },
   {
     name: "estatus",
     label: "Estatus",
     align: "left",
     field: "estatus",
-    sortable: true,
   },
   {
     name: "actions",
     label: "Acciones",
     align: "left",
-    sortable: true,
   },
 ];
 
@@ -899,95 +747,57 @@ const onRowClickContacts = (row) => {
   showContacts.value = true;
 };
 
+const onRowClickCompetencias = (row) => {
+  selectedRow.value = row;
+  showCompetencias.value = true;
+};
+
 const postRow = async () => {
-  const add_valid = await add.value.validate();
-  if (!add_valid) {
-    dataIncomplete();
-    return;
-  }
-  const final = {
-    ...add.value.formEmployee,
-  };
-  let res = await sendRequest("POST", final, "/api/empleado", "");
-  showAdd.value = false;
-  getRows();
+  const data = { ...add.value.formEmployee };
+  await crud.postItem(baseURL, data, add.value.validate, () => {
+    showAdd.value = false;
+    getRows();
+  });
 };
 
 const putRow = async () => {
-  const edit_valid = await edit.value.validate();
-  if (!edit_valid) {
-    dataIncomplete();
-    return;
-  }
-  const final = {
-    ...edit.value.formEmployee,
-  };
-  let res = await sendRequest("PUT", final, "/api/empleado/" + final.id, "");
-  showEdit.value = false;
-  getRows(current_page.value);
+  const data = { ...edit.value.formEmployee };
+  await crud.putItem(baseURL, data, edit.value.validate, () => {
+    showEdit.value = false;
+    getRows();
+  });
 };
 
 const destroyPic = async (id) => {
-  let res = await sendRequest(
-    "DELETE",
-    null,
-    "/api/empleado/destroyPic/" + id,
-    ""
-  );
-  getRows(current_page.value);
+  await crud.deleteItem(baseURL + "/destroyPic", id);
+  getRows();
 };
 
 const saveSkillRatings = async () => {
-  skill_valid.value = await skill.value.validate();
-  if (!skill_valid.value) {
-    dataIncomplete();
-    return;
-  }
-  let res = await sendRequest(
-    "PUT",
-    skill.value.skillratings,
-    "/api/skillratings",
-    ""
-  );
-  bus.emit("new-skill");
+  const data = { ...skill.value.skillratings };
+  await crud.postItem("/api/skillratings", data, skill.value.validate, () => {
+    bus.emit("new-skill");
+  });
+};
+
+const saveSkill = async () => {
+  const data = { ...competencias.value };
+
+  let res = await sendRequest("PUT", data, "/api/softSkillsEmpleado", "");
 };
 
 const getVacations = async () => {
-  const final = {
+  await crud.getPaginatedItems(baseURL + "s/vacations", {
     ...dates.value,
-  };
-  let res = await sendRequest("POST", final, "/api/empleados/vacations", "");
-  rows.value = res.data;
-  filterForm.value.page = res.current_page;
-  next_page_url.value = res.next_page_url;
-  prev_page_url.value = res.prev_page_url;
-  last_page.value = res.last_page;
-  current_page.value = 1;
+    page: 1,
+  });
 };
 
-const getRows = async (page = 1) => {
-  const current = {
-    page: page,
-  };
-  const final = {
+const getRows = async () => {
+  await crud.getPaginatedItems(baseURL + "s", {
     ...filterForm.value,
-    ...current,
-  };
-  let res = await sendRequest("POST", final, "/api/empleados", "");
-  rows.value = res.data;
-  filterForm.value.page = res.current_page;
-  next_page_url.value = res.next_page_url;
-  prev_page_url.value = res.prev_page_url;
-  last_page.value = res.last_page;
-};
-
-const getForms = async () => {
-  let res = await sendRequest("GET", null, "/api/empleado/index", "");
-  sucursales.value = res.sucursales;
-  lineas.value = res.lineas;
-  departamentos.value = res.departamentos;
-  puestos.value = res.puestos;
-  estatus.value = res.estatus;
+    page: crud.pagination.currentPage,
+  });
 };
 
 bus.on("cargar_empleados", () => {
@@ -996,37 +806,33 @@ bus.on("cargar_empleados", () => {
 });
 
 const getKardex = async (mes = null, anio = null) => {
-  const final = {
+  const data = {
     year: anio,
     month: mes,
   };
-  let url = "/api/empleado/baja";
-  let res = await sendRequest("POST", final, url, "");
-  rows.value = res;
-  next_page_url.value = "";
-  prev_page_url.value = "";
-  last_page.value = 0;
-  current_page.value = 1;
+  await crud.getPaginatedItems(baseURL + "/baja", {
+    ...data,
+    page: 1,
+  });
 };
 
 const getKardexNew = async (mes = null, anio = null) => {
-  const final = {
+  const data = {
     year: anio,
     month: mes,
   };
-  let url = "/api/empleado/alta";
-
-  let res = await sendRequest("POST", final, url, "");
-  rows.value = res;
-  next_page_url.value = "";
-  prev_page_url.value = "";
-  last_page.value = 0;
-  current_page.value = 1;
+  await crud.getPaginatedItems(baseURL + "/alta", {
+    ...data,
+    page: 1,
+  });
 };
 
-watch(current_page, (newPage) => {
-  getRows(newPage);
-});
+watch(
+  () => crud.pagination.currentPage,
+  () => {
+    getRows();
+  }
+);
 
 let timeout = null;
 
@@ -1040,7 +846,7 @@ const onInputChange = () => {
 
 onMounted(() => {
   getRows();
-  getForms();
+  crud.getItems(baseURL + "/index");
 });
 
 const onRowClickExcel = async () => {
@@ -1065,11 +871,6 @@ const onRowClickExcel = async () => {
 
     // Abrimos el archivo en una nueva pestaña o lo descargamos
     window.open(url, "_blank"); // Para abrirlo en una nueva pestaña
-    // Para descargarlo automáticamente, puedes usar:
-    // const link = document.createElement('a');
-    // link.href = url;
-    // link.download = 'empleados.xlsx';
-    // link.click();
   } catch (error) {
     console.error("Error al exportar el archivo Excel:", error);
   }
@@ -1101,45 +902,9 @@ const onRowClickExcelVacation = async () => {
     const url = URL.createObjectURL(blob);
 
     // Abrimos el archivo en una nueva pestaña o lo descargamos
-    window.open(url, "_blank"); // Para abrirlo en una nueva pestaña
-    // Para descargarlo automáticamente, puedes usar:
-    // const link = document.createElement('a');
-    // link.href = url;
-    // link.download = 'empleados.xlsx';
-    // link.click();
+    window.open(url, "_blank");
   } catch (error) {
     console.error("Error al exportar el archivo Excel:", error);
   }
 };
-
-// JSON
-
-const months = [
-  { id: 1, name: "Enero" },
-  { id: 2, name: "Febrero" },
-  { id: 3, name: "Marzo" },
-  { id: 4, name: "Abril" },
-  { id: 5, name: "Mayo" },
-  { id: 6, name: "Junio" },
-  { id: 7, name: "Julio" },
-  { id: 8, name: "Agosto" },
-  { id: 9, name: "Septiembre" },
-  { id: 10, name: "Octubre" },
-  { id: 11, name: "Noviembre" },
-  { id: 12, name: "Diciembre" },
-];
-
-const years = [
-  { id: 2020, name: 2020 },
-  { id: 2021, name: 2021 },
-  { id: 2022, name: 2022 },
-  { id: 2023, name: 2023 },
-  { id: 2024, name: 2024 },
-  { id: 2025, name: 2025 },
-  { id: 2026, name: 2026 },
-  { id: 2027, name: 2027 },
-  { id: 2028, name: 2028 },
-  { id: 2029, name: 2029 },
-  { id: 2030, name: 2030 },
-];
 </script>

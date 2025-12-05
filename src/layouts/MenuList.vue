@@ -295,7 +295,7 @@
         <q-item-section>Festivos</q-item-section>
       </q-item>
       <q-item
-        v-if="checkRole('RRHH')"
+        v-if="checkRole('Admin')"
         clickable
         dense
         v-ripple

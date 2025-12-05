@@ -80,11 +80,17 @@
       </div>
       <q-separator v-if="employee.empleados_contact?.length" />
       <div class="q-pa-sm">
-        <div class="text-h4 q-mb-md">Habilidades</div>
+        <!-- <div class="text-h4 q-mb-md">Habilidades</div>
         <skill-rating-chart
           v-if="initial == true"
           :ratings="skillratings"
           :key="skillratings"
+        /> -->
+        <div class="text-h4 q-mb-none">Competencias laborales</div>
+        <employee-skill-chart
+          v-if="initial == true"
+          :ratings="skills"
+          :key="skills"
         />
       </div>
     </template>
@@ -98,10 +104,12 @@ import EmployeeTimeLine from "src/components/Employeed/EmployeeTimeLine.vue";
 import SkillRatingChart from "src/components/Skill/SkillRatingChart.vue";
 import TechnicianProd from "src/components/Employeed/TechnicianProd.vue";
 import EmployeeContactList from "src/components/Employeed/EmployeeContactList.vue";
+import EmployeeSkillChart from "src/components/Employeed/EmployeeSkillChart.vue";
 
 const { employee } = defineProps(["employee"]);
 
 const skillratings = ref([]);
+const skills = ref([]);
 const initial = ref(false);
 const splitterModel = ref(40);
 const insideModel = ref(25);
@@ -116,8 +124,13 @@ const getSkillRating = async () => {
   skillratings.value = res;
 };
 
+const getRows = async (id) => {
+  let res = await sendRequest("GET", null, "/api/softSkillEmpleado/" + id, "");
+  skills.value = res;
+};
+
 onMounted(() => {
-  getSkillRating();
-  initial.value = true;
+  // getSkillRating();
+  getRows(employee.id).then((initial.value = true));
 });
 </script>
