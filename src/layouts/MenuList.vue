@@ -176,6 +176,22 @@
       <q-item-section>Sugerencias y mejoras</q-item-section>
     </q-item>
 
+    <q-item
+      v-if="checkRole('Empleado')"
+      dense
+      clickable
+      v-ripple
+      active-class="my-menu-link"
+      href="https://intranet.etbsa-online.com.mx/login"
+      target="_blank"
+    >
+      <q-item-section avatar>
+        <q-icon name="fa-solid fa-people-carry-box" />
+      </q-item-section>
+
+      <q-item-section>Modulo clientes</q-item-section>
+    </q-item>
+
     <q-expansion-item
       expand-separator
       icon="folder_shared"

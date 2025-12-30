@@ -481,6 +481,7 @@ const formWO = ref({
   bay_id: wo ? wo.bay_id : null,
   horas_facturadas: wo ? wo.horas_facturadas : null,
   horas_reales: wo ? wo.horas_reales : null,
+  telefono: wo ? wo.telefono : null,
   comentarios: wo ? wo.comentarios : null,
   sucursal_id: wo
     ? wo.sucursal_id
