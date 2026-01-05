@@ -262,7 +262,7 @@ import {
   checkSucursal,
   dataIncomplete,
 } from "src/boot/functions";
-import { formatTime, formatDateplusone } from "src/boot/formatFunctions";
+import { formatDateplusone } from "src/boot/formatFunctions";
 
 import EventForm from "src/components/Calendar/EventForm.vue";
 import EventCard from "src/components/Calendar/EventCard.vue";
@@ -270,7 +270,6 @@ import Kardex from "src/components/Calendar/kardex.vue";
 import EventCardList from "src/components/Calendar/EventCardList.vue";
 
 const bus = inject("bus");
-const calendar = ref(null);
 const selectedDate = ref(today());
 const addForm = ref(false);
 const kardex = ref(false);
@@ -284,9 +283,13 @@ const selectedEvent = ref(null);
 const events = ref(null);
 const sucursales = ref([]);
 
+const init = date.extractDate(selectedDate.value, "YYYY-MM-DD");
+
 const formFilter = ref({
   start_point: null,
   end_point: null,
+  month: init.getMonth() + 1, // 1-12
+  year: init.getFullYear(),
 });
 
 bus.on("delete_event", () => {
@@ -295,9 +298,9 @@ bus.on("delete_event", () => {
 });
 
 const getMonthYear = (dateString) => {
-  const dateObject = new Date(dateString);
-  const month = dateObject.toLocaleString("default", { month: "long" });
-  const year = dateObject.getFullYear();
+  const d = date.extractDate(dateString, "YYYY-MM-DD"); // ✅ local, sin salto UTC
+  const month = d.toLocaleString("default", { month: "long" });
+  const year = d.getFullYear();
   return `${month} ${year}`;
 };
 
@@ -316,17 +319,27 @@ const onClickEvent = (event) => {
 };
 
 const prevMonth = () => {
-  const current = new Date(selectedDate.value);
-  current.setMonth(current.getMonth() - 1);
-  selectedDate.value = date.formatDate(current, "YYYY-MM-DD");
-  currentMonthYear.value = getMonthYear(selectedDate.value);
+  const d = date.extractDate(selectedDate.value, "YYYY-MM-DD");
+  d.setMonth(d.getMonth() - 1);
+
+  selectedDate.value = date.formatDate(d, "YYYY-MM-DD");
+
+  formFilter.value.month = d.getMonth() + 1;
+  formFilter.value.year = d.getFullYear();
+
+  getEventsFilter();
 };
 
 const nextMonth = () => {
-  const current = new Date(selectedDate.value);
-  current.setMonth(current.getMonth() + 1);
-  selectedDate.value = date.formatDate(current, "YYYY-MM-DD");
-  currentMonthYear.value = getMonthYear(selectedDate.value);
+  const d = date.extractDate(selectedDate.value, "YYYY-MM-DD");
+  d.setMonth(d.getMonth() + 1);
+
+  selectedDate.value = date.formatDate(d, "YYYY-MM-DD");
+
+  formFilter.value.month = d.getMonth() + 1;
+  formFilter.value.year = d.getFullYear();
+
+  getEventsFilter();
 };
 
 watch(selectedDate, (newDate) => {
