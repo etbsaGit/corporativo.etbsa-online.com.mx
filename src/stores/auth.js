@@ -46,11 +46,6 @@ export const useAuthStore = defineStore("auth", {
 
         return res;
       } catch (error) {
-        Notify.create({
-          color: "negative",
-          message: error?.response?.data || "Login fallido",
-          icon: "report_problem",
-        });
         throw error;
       }
     },
