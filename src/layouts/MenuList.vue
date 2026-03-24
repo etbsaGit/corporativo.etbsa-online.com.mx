@@ -25,7 +25,7 @@
       active-class="my-menu-link"
       href="https://forms.office.com/r/SsXJLUWhdL"
       target="_blank"
-      disable
+
     >
       <q-tooltip class="text-h6">Sin encuestas activas</q-tooltip>
       <q-item-section avatar>
