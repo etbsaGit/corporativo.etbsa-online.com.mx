@@ -1,40 +1,15 @@
 <template>
   <q-item>
     <q-item-section>
-      <q-select
-        options-dense
-        v-model="formReport.empleado_id"
-        :options="empleados"
-        label="Empleados"
-        option-value="id"
-        option-label="apellidoCompleto"
-        option-disable="inactive"
-        emit-value
-        map-options
-        transition-show="jump-up"
-        transition-hide="jump-up"
-        outlined
-        dense
-        hint
-      />
+      <q-select options-dense v-model="formReport.empleado_id" :options="empleados" label="Empleados" option-value="id"
+        option-label="apellidoCompleto" option-disable="inactive" emit-value map-options transition-show="jump-up"
+        transition-hide="jump-up" outlined dense hint />
     </q-item-section>
     <q-item-section class="col-2">
-      <q-input
-        readonly
-        outlined
-        dense
-        v-model="formReport.start"
-        mask="date"
-        :rules="['date']"
-        label="Del:"
-      >
+      <q-input readonly outlined dense v-model="formReport.start" mask="date" :rules="['date']" label="Del:">
         <template v-slot:append>
           <q-icon name="event" class="cursor-pointer">
-            <q-popup-proxy
-              cover
-              transition-show="scale"
-              transition-hide="scale"
-            >
+            <q-popup-proxy cover transition-show="scale" transition-hide="scale">
               <q-date minimal v-model="formReport.start">
                 <div class="row items-center justify-end">
                   <q-btn v-close-popup label="Close" color="primary" flat />
@@ -46,22 +21,10 @@
       </q-input>
     </q-item-section>
     <q-item-section>
-      <q-input
-        readonly
-        outlined
-        dense
-        v-model="formReport.end"
-        mask="date"
-        :rules="['date']"
-        label="Al: "
-      >
+      <q-input readonly outlined dense v-model="formReport.end" mask="date" :rules="['date']" label="Al: ">
         <template v-slot:append>
           <q-icon name="event" class="cursor-pointer">
-            <q-popup-proxy
-              cover
-              transition-show="scale"
-              transition-hide="scale"
-            >
+            <q-popup-proxy cover transition-show="scale" transition-hide="scale">
               <q-date minimal v-model="formReport.end">
                 <div class="row items-center justify-end">
                   <q-btn v-close-popup label="Close" color="primary" flat />
@@ -76,11 +39,10 @@
               <q-btn color="primary" label="Consultar" @click="getEmpleado" />
             </q-item-section>
             <q-item-section>
-              <q-btn
-                color="primary"
-                label="Descargar"
-                @click="onRowClickExcelVacation"
-              />
+              <q-btn color="primary" label="Descargar PDF" @click="onRowClickExcelVacation" />
+            </q-item-section>
+            <q-item-section>
+              <q-btn color="primary" label="Descargar Excel" @click="onRowClickExcelReport" />
             </q-item-section>
           </q-item>
         </template>
@@ -92,12 +54,7 @@
     <q-card v-if="empleado" :key="index" bordered class="no-shadow">
       <q-item>
         <q-item-section avatar>
-          <q-avatar
-            size="60px"
-            color="primary"
-            text-color="white"
-            v-if="empleado.picture"
-          >
+          <q-avatar size="60px" color="primary" text-color="white" v-if="empleado.picture">
             <img :src="empleado.picture" alt="Foto del empleado" />
           </q-avatar>
           <q-avatar size="60px" v-else color="primary" text-color="white">
@@ -123,12 +80,7 @@
       <q-card-section class="text-grey-8">
         <div>Dias tomados en el periodo seleccionado</div>
         <q-list bordered separator>
-          <q-item
-            clickable
-            v-ripple
-            v-for="(day, index) in empleado.vacationDetails"
-            :key="index"
-          >
+          <q-item clickable v-ripple v-for="(day, index) in empleado.vacationDetails" :key="index">
             <q-item-section>{{ formatDateplusoneSlim(day) }}</q-item-section>
           </q-item>
         </q-list>
@@ -141,7 +93,9 @@
 import { ref, onMounted } from "vue";
 import { sendRequest } from "src/boot/functions";
 import { formatDateplusoneSlim } from "src/boot/formatFunctions";
+import axios from "axios";
 
+const token = JSON.parse(localStorage.getItem("auth")).authToken;
 const today = new Date().toISOString().split("T")[0]; // Formato YYYY-MM-DD
 
 const empleado = ref(null);
@@ -194,6 +148,37 @@ const onRowClickExcelVacation = async () => {
   window.open(url, "_blank");
 };
 
+const onRowClickExcelReport = async () => {
+  const response = await fetch(
+    // "http://127.0.0.1:8000/api/vacationDays/report-xlsx",
+    "https://api.etbsa-online.com.mx/api/vacationDays/report-xlsx",
+    // "https://api-test.etbsa-online.com.mx/api/vacationDays/report-xlsx",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(formReport.value),
+    }
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text(); // o .json() si tu API devuelve JSON
+    throw new Error(errorText || "Error al generar el reporte");
+  }
+
+  const blob = await response.blob();
+  const url = window.URL.createObjectURL(blob);
+
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "reporte_vacaciones.xlsx";
+  link.click();
+
+  URL.revokeObjectURL(url);
+};
+
 onMounted(() => {
   getForms();
 });
@@ -202,10 +187,9 @@ onMounted(() => {
 <style scoped>
 .grid-container {
   display: grid;
-  grid-template-columns: repeat(
-    auto-fit,
-    minmax(300px, 1fr)
-  ); /* Ajusta el tamaño mínimo aquí 200px para que sean 6 y 300px para 4 px*/
+  grid-template-columns: repeat(auto-fit,
+      minmax(300px, 1fr));
+  /* Ajusta el tamaño mínimo aquí 200px para que sean 6 y 300px para 4 px*/
   gap: 10px;
 }
 </style>
