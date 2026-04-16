@@ -230,7 +230,7 @@
 import { ref, onMounted, watch } from "vue";
 import { sendRequest, dataIncomplete, checkRole } from "src/boot/functions";
 import { formatDateplusoneSlim } from "src/boot/formatFunctions";
-import { formatDate } from "src/boot/formatFunctions";
+import { formatDateSlim } from "src/boot/formatFunctions";
 
 import BaseDialog from "src/bases/BaseDialog.vue";
 import PermisoForm from "src/components/SalidaPermisos/PermisoForm.vue";
@@ -290,7 +290,7 @@ const columns = [
     name: "created_at",
     align: "left",
     label: "Creacion",
-    field: (row) => formatDate(row.created_at),
+    field: (row) => formatDateSlim(row.created_at),
   },
   {
     name: "status",
