@@ -133,19 +133,34 @@ const getEmpleado = async () => {
 };
 
 const onRowClickExcelVacation = async () => {
-  const final = {
-    ...formReport.value,
-  };
-  let res = await sendRequest(
-    "POST",
-    final,
-    "/api/vacationDay/employeeReportPdf",
-    ""
-  );
-  const base64Response = await fetch(`data:application/pdf;base64,${res}`);
-  const blob = await base64Response.blob();
-  const url = URL.createObjectURL(blob);
-  window.open(url, "_blank");
+  try {
+    const res = await axios.post(
+      "https://api.etbsa-online.com.mx/api/vacationDay/employeeReportPdf",
+      // "http://127.0.0.1:8000/api/vacationDay/employeeReportPdf",
+      formReport.value,
+      {
+        responseType: "blob",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const url = URL.createObjectURL(res.data);
+    window.open(url, "_blank");
+
+  } catch (error) {
+    console.error(error);
+
+    if (error.response) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        console.error("BACKEND ERROR:", reader.result);
+        alert(reader.result);
+      };
+      reader.readAsText(error.response.data);
+    }
+  }
 };
 
 const onRowClickExcelReport = async () => {
