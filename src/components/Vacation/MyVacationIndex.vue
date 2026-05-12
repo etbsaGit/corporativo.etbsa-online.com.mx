@@ -162,7 +162,7 @@
         <q-item-section side>
           <q-btn label="Actualizar" color="blue" @click="putRow" />
         </q-item-section>
-        <q-item-section side>
+        <q-item-section side v-if="checkRole('RRHH' || 'Admin')">
           <q-btn label="Borrar" color="orange" @click="deleteRow" />
         </q-item-section>
       </q-item>
@@ -181,6 +181,7 @@ import { sendRequest, dataIncomplete } from "src/boot/functions";
 import { formatDateplusoneSlim } from "src/boot/formatFunctions";
 
 import VacationForm from "src/components/Vacation/VacationForm.vue";
+import {checkRole } from "src/boot/functions";
 
 const rows = ref([]);
 const selectedRow = ref(null);
