@@ -1,86 +1,28 @@
 <template>
   <q-item>
     <q-item-section avatar>
-      <q-select
-        v-model="filterForm.validated"
-        :options="options"
-        label="Autorizacion"
-        option-value="value"
-        option-label="label"
-        option-disable="inactive"
-        emit-value
-        map-options
-        transition-show="jump-up"
-        transition-hide="jump-up"
-        outlined
-        dense
-        options-dense
-        @update:model-value="onInputChange"
-      />
+      <q-select v-model="filterForm.validated" :options="options" label="Autorizacion" option-value="value"
+        option-label="label" option-disable="inactive" emit-value map-options transition-show="jump-up"
+        transition-hide="jump-up" outlined dense options-dense @update:model-value="onInputChange" />
     </q-item-section>
 
     <q-item-section>
-      <q-select
-        v-model="filterForm.sucursal_id"
-        :options="sucursales"
-        label="Sucursal"
-        option-value="id"
-        option-label="nombre"
-        option-disable="inactive"
-        emit-value
-        map-options
-        transition-show="jump-up"
-        transition-hide="jump-up"
-        outlined
-        clearable
-        dense
-        options-dense
-        @update:model-value="onInputChange"
-      />
+      <q-select v-model="filterForm.sucursal_id" :options="sucursales" label="Sucursal" option-value="id"
+        option-label="nombre" option-disable="inactive" emit-value map-options transition-show="jump-up"
+        transition-hide="jump-up" outlined clearable dense options-dense @update:model-value="onInputChange" />
     </q-item-section>
 
     <q-item-section>
-      <q-select
-        v-model="filterForm.departamento_id"
-        :options="departamentos"
-        label="Departamento"
-        option-value="id"
-        option-label="nombre"
-        option-disable="inactive"
-        emit-value
-        map-options
-        transition-show="jump-up"
-        transition-hide="jump-up"
-        clearable
-        outlined
-        dense
-        options-dense
-        @update:model-value="onInputChange"
-      />
+      <q-select v-model="filterForm.departamento_id" :options="departamentos" label="Departamento" option-value="id"
+        option-label="nombre" option-disable="inactive" emit-value map-options transition-show="jump-up"
+        transition-hide="jump-up" clearable outlined dense options-dense @update:model-value="onInputChange" />
     </q-item-section>
 
     <q-item-section>
-      <q-select
-        v-model="filterForm.empleado_id"
-        :options="filterEmpleados"
-        label="Empleado"
-        option-value="id"
-        option-label="apellidoCompleto"
-        option-disable="inactive"
-        emit-value
-        map-options
-        transition-show="jump-up"
-        transition-hide="jump-up"
-        outlined
-        dense
-        clearable
-        options-dense
-        use-input
-        @filter="filterFn"
-        input-debounce="0"
-        behavior="menu"
-        @update:model-value="onInputChange"
-      >
+      <q-select v-model="filterForm.empleado_id" :options="filterEmpleados" label="Empleado" option-value="id"
+        option-label="apellidoCompleto" option-disable="inactive" emit-value map-options transition-show="jump-up"
+        transition-hide="jump-up" outlined dense clearable options-dense use-input @filter="filterFn" input-debounce="0"
+        behavior="menu" @update:model-value="onInputChange">
         <template v-slot:no-option>
           <q-item>
             <q-item-section class="text-grey"> no options </q-item-section>
@@ -89,38 +31,18 @@
       </q-select>
     </q-item-section>
     <q-item-section side>
-      <q-btn
-        dense
-        label="Crear solicitud"
-        color="primary"
-        @click="showAdd = true"
-        icon="add_circle"
-      />
+      <q-btn dense label="Crear solicitud" color="primary" @click="showAdd = true" icon="add_circle" />
     </q-item-section>
   </q-item>
 
   <q-item>
     <q-item-section>
-      <q-table
-        flat
-        bordered
-        title="Solicitudes de vacaciones"
-        :rows="rows"
-        :columns="columns"
-        row-key="name"
-        dense
-        :rows-per-page-options="[0]"
-      >
+      <q-table flat bordered title="Solicitudes de vacaciones" :rows="rows" :columns="columns" row-key="name" dense
+        :rows-per-page-options="[0]">
         <template v-slot:body-cell-edit="props">
           <q-td :props="props">
-            <q-btn
-              v-if="props.row.validated == null || checkRole('RRHH')"
-              dense
-              color="primary"
-              flat
-              icon="edit_square"
-              @click="openEdit(props.row)"
-            />
+            <q-btn v-if="props.row.validated == null || checkRole('RRHH')" dense color="primary" flat icon="edit_square"
+              @click="openEdit(props.row)" />
           </q-td>
         </template>
 
@@ -180,44 +102,21 @@
 
         <template v-slot:body-cell-validated="props">
           <q-td :props="props">
-            <q-btn-dropdown
-              :color="getDropdownProps(props.row.validated).color"
+            <q-btn-dropdown :color="getDropdownProps(props.row.validated).color"
               :text-color="getDropdownProps(props.row.validated).textColor"
-              :icon="getDropdownProps(props.row.validated).icon"
-              :label="getDropdownProps(props.row.validated).label"
-            >
+              :icon="getDropdownProps(props.row.validated).icon" :label="getDropdownProps(props.row.validated).label">
               <q-list>
-                <q-item
-                  v-if="props.row.validated != 0"
-                  clickable
-                  v-close-popup
-                  @click="putOff(props.row.id)"
-                  class="bg-red"
-                >
+                <q-item v-if="props.row.validated != 0" clickable v-close-popup @click="putOff(props.row.id)"
+                  class="bg-red">
                   <q-item-section>
-                    <q-chip
-                      color="red"
-                      text-color="white"
-                      icon="disabled_by_default"
-                      label="No autorizada"
-                    />
+                    <q-chip color="red" text-color="white" icon="disabled_by_default" label="No autorizada" />
                   </q-item-section>
                 </q-item>
 
-                <q-item
-                  v-if="props.row.validated != 1"
-                  clickable
-                  v-close-popup
-                  @click="putOn(props.row.id)"
-                  class="bg-green"
-                >
+                <q-item v-if="props.row.validated != 1" clickable v-close-popup @click="putOn(props.row.id)"
+                  class="bg-green">
                   <q-item-section>
-                    <q-chip
-                      color="green"
-                      text-color="white"
-                      icon="check_box"
-                      label="Autorizada"
-                    />
+                    <q-chip color="green" text-color="white" icon="check_box" label="Autorizada" />
                   </q-item-section>
                 </q-item>
               </q-list>
@@ -228,19 +127,9 @@
         <template v-slot:bottom>
           <q-space />
           <td>
-            <q-pagination
-              color="primary"
-              v-model="current_page"
-              :max="last_page"
-              :max-pages="6"
-              direction-links
-              boundary-links
-              gutter="10px"
-              icon-first="skip_previous"
-              icon-last="skip_next"
-              icon-prev="fast_rewind"
-              icon-next="fast_forward"
-            />
+            <q-pagination color="primary" v-model="current_page" :max="last_page" :max-pages="6" direction-links
+              boundary-links gutter="10px" icon-first="skip_previous" icon-last="skip_next" icon-prev="fast_rewind"
+              icon-next="fast_forward" />
           </td>
           <q-space />
         </template>
@@ -248,13 +137,7 @@
     </q-item-section>
   </q-item>
 
-  <q-dialog
-    v-model="showAdd"
-    transition-show="rotate"
-    transition-hide="rotate"
-    persistent
-    full-width
-  >
+  <q-dialog v-model="showAdd" transition-show="rotate" transition-hide="rotate" persistent full-width>
     <q-card>
       <q-item class="text-white bg-primary">
         <q-item-section>
@@ -267,12 +150,7 @@
           <q-btn label="Agregar y notificar" color="blue" @click="postRow" />
         </q-item-section>
         <q-item-section side>
-          <q-btn
-            v-if="checkRole('RRHH')"
-            label="Agregar sin notificar"
-            color="blue"
-            @click="onlyPostRow"
-          />
+          <q-btn v-if="checkRole('RRHH')" label="Agregar sin notificar" color="blue" @click="onlyPostRow" />
         </q-item-section>
       </q-item>
       <q-separator />
@@ -284,13 +162,7 @@
     </q-card>
   </q-dialog>
 
-  <q-dialog
-    v-model="showEdit"
-    transition-show="rotate"
-    transition-hide="rotate"
-    persistent
-    full-width
-  >
+  <q-dialog v-model="showEdit" transition-show="rotate" transition-hide="rotate" persistent full-width>
     <q-card>
       <q-item class="text-white bg-primary">
         <q-item-section>
@@ -349,6 +221,7 @@ const filterForm = ref({
   sucursal_id: null,
   departamento_id: null,
   validated: null,
+  deleted: false,
 });
 
 const columns = [
@@ -432,8 +305,18 @@ const getRows = async (page = 1) => {
     ...filterForm.value,
     ...current,
   };
+
+    // si son eliminados no mandar validated
+  if (final.validated === "deleted") {
+    delete final.validated;
+  }
+
   let res = await sendRequest("POST", final, "/api/vacationDays", "");
-  rows.value = res.data;
+
+  let data = res.data;
+
+
+  rows.value = data;
   filterForm.value.page = res.current_page;
   next_page_url.value = res.next_page_url;
   prev_page_url.value = res.prev_page_url;
@@ -524,6 +407,24 @@ watch(current_page, (newPage) => {
 let timeout = null;
 
 const onInputChange = () => {
+
+  if (filterForm.value.validated === "deleted") {
+
+    filterForm.value.deleted = true;
+
+    // quitar validated completamente
+    // delete filterForm.value.validated;
+
+  } else {
+
+    filterForm.value.deleted = false;
+
+    // restaurar si no existe
+    // if (!("validated" in filterForm.value)) {
+    //   filterForm.value.validated = null;
+    // }
+  }
+
   clearTimeout(timeout);
 
   timeout = setTimeout(() => {
@@ -581,5 +482,6 @@ const options = ref([
   { label: "Autorizada", value: 1 },
   { label: "Rechazada", value: 0 },
   { label: "Pendiente", value: null },
+  { label: "Eliminada", value: "deleted" },
 ]);
 </script>
