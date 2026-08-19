@@ -688,6 +688,21 @@
 
         <q-item-section>Usuarios Empleados</q-item-section>
       </q-item>
+      <q-item
+        clickable
+        dense
+        v-ripple
+        to="/users-clientes"
+        :active="link === 'users-clientes'"
+        @click="link = 'users-clientes'"
+        active-class="my-menu-link"
+      >
+        <q-item-section avatar>
+          <q-icon name="manage_accounts" />
+        </q-item-section>
+
+        <q-item-section>Usuarios Clientes</q-item-section>
+      </q-item>
     </q-expansion-item>
   </q-list>
 </template>

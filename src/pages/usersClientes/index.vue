@@ -7,8 +7,8 @@
     indicator-color="primary"
     align="justify"
   >
-    <q-tab name="users" icon="manage_accounts" label="users Empleados" />
-    <q-tab name="roles" icon="shield" label="Roles Empleados" />
+    <q-tab name="users" icon="manage_accounts" label="users Clientes" />
+    <q-tab name="roles" icon="shield" label="Roles Clientes" />
     <q-tab name="permissions" icon="key" label="Permisos" />
     <q-tab name="estatus" icon="settings_applications" label="Estatus" />
   </q-tabs>
@@ -34,7 +34,7 @@
 <script setup>
 import { ref } from "vue";
 import userIndex from "./userIndex.vue";
-import rolesIndex from "../rolesEmployees/rolesIndex.vue";
+import rolesIndex from "../rolesClientes/rolesIndex.vue";
 import permissionsIndex from "../permissions/permissionsIndex.vue";
 import estatusIndex from "../estatus/estatusIndex.vue";
 

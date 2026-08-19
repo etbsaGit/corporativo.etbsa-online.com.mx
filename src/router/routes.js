@@ -190,6 +190,19 @@ const routes = [
       },
     ],
   },
+  {
+    path: "/users-clientes",
+    component: () => import("layouts/MainLayout.vue"),
+    meta: {
+      middlewares: [admin],
+    },
+    children: [
+      {
+        path: "",
+        component: () => import("src/pages/usersClientes/index.vue"),
+      },
+    ],
+  },
 
   {
     path: "/surveys",
