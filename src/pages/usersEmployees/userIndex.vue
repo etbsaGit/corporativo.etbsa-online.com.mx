@@ -16,7 +16,7 @@
     <q-item-section side>
       <q-btn
         dense
-        label="Agregar usuario"
+        label="Agregar usuario de empleado"
         color="primary"
         @click="showAdd = true"
         icon="add_circle"
@@ -29,7 +29,7 @@
       <q-table
         flat
         bordered
-        title="Usuarios"
+        title="Usuarios Empleados"
         :rows="rows"
         :columns="columns"
         row-key="name"
@@ -133,7 +133,7 @@
 import { ref, onMounted, watch } from "vue";
 import { sendRequest, passwordError, dataIncomplete } from "src/boot/functions";
 
-import UserForm from "src/components/User/UserForm.vue";
+import UserForm from "src/components/User/EmployeeUserForm.vue";
 
 const rows = ref([]);
 const selectedRow = ref(null);
@@ -159,7 +159,7 @@ const columns = [
   },
   {
     name: "name",
-    label: "Name",
+    label: "Empleado",
     align: "left",
     field: "name",
     sortable: true,
@@ -186,7 +186,7 @@ const getRows = async (page = 1) => {
     ...filterForm.value,
     ...current,
   };
-  let res = await sendRequest("POST", final, "/api/users/all", "");
+  let res = await sendRequest("POST", final, "/api/users/Empleados", "");
   rows.value = res.data;
   filterForm.value.page = res.current_page;
   next_page_url.value = res.next_page_url;

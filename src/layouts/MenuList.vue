@@ -677,16 +677,16 @@
         clickable
         dense
         v-ripple
-        to="/users"
-        :active="link === 'users'"
-        @click="link = 'users'"
+        to="/users-employees"
+        :active="link === 'users-employees'"
+        @click="link = 'users-employees'"
         active-class="my-menu-link"
       >
         <q-item-section avatar>
           <q-icon name="manage_accounts" />
         </q-item-section>
 
-        <q-item-section>Usuarios</q-item-section>
+        <q-item-section>Usuarios Empleados</q-item-section>
       </q-item>
     </q-expansion-item>
   </q-list>

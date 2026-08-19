@@ -34,7 +34,7 @@
 <script setup>
 import { ref } from "vue";
 import userIndex from "./userIndex.vue";
-import rolesIndex from "../roles/rolesIndex.vue";
+import rolesIndex from "../rolesEmployees/rolesIndex.vue";
 import permissionsIndex from "../permissions/permissionsIndex.vue";
 import estatusIndex from "../estatus/estatusIndex.vue";
 

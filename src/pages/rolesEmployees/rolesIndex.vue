@@ -1,69 +1,33 @@
 <template>
   <q-item>
     <q-item-section>
-      <q-input
-        outlined
-        dense
-        label="Buscar por nombre"
-        v-model="filterForm.search"
-        @update:model-value="onInputChange"
-      >
+      <q-input outlined dense label="Buscar por nombre" v-model="filterForm.search" @update:model-value="onInputChange">
         <template v-slot:prepend>
           <q-icon name="search" />
         </template>
       </q-input>
     </q-item-section>
     <q-item-section side>
-      <q-btn
-        dense
-        label="Agregar rol"
-        color="primary"
-        @click="showAdd = true"
-        icon="add_circle"
-      />
+      <q-btn dense label="Agregar rol" color="primary" @click="showAdd = true" icon="add_circle" />
     </q-item-section>
   </q-item>
 
   <q-item>
     <q-item-section>
-      <q-table
-        flat
-        bordered
-        title="Roles"
-        :rows="rows"
-        :columns="columns"
-        row-key="name"
-        dense
-        :rows-per-page-options="[0]"
-      >
+      <q-table flat bordered title="Roles" :rows="rows" :columns="columns" row-key="name" dense
+        :rows-per-page-options="[0]">
         <template v-slot:body-cell-edit="props">
           <q-td :props="props">
-            <q-btn
-              dense
-              color="primary"
-              flat
-              icon="edit_square"
-              @click="openEdit(props.row)"
-            />
+            <q-btn dense color="primary" flat icon="edit_square" @click="openEdit(props.row)" />
           </q-td>
         </template>
 
         <template v-slot:bottom>
           <q-space />
           <td>
-            <q-pagination
-              color="primary"
-              v-model="current_page"
-              :max="last_page"
-              :max-pages="6"
-              direction-links
-              boundary-links
-              gutter="10px"
-              icon-first="skip_previous"
-              icon-last="skip_next"
-              icon-prev="fast_rewind"
-              icon-next="fast_forward"
-            />
+            <q-pagination color="primary" v-model="current_page" :max="last_page" :max-pages="6" direction-links
+              boundary-links gutter="10px" icon-first="skip_previous" icon-last="skip_next" icon-prev="fast_rewind"
+              icon-next="fast_forward" />
           </td>
           <q-space />
         </template>
@@ -71,12 +35,7 @@
     </q-item-section>
   </q-item>
 
-  <q-dialog
-    v-model="showAdd"
-    transition-show="rotate"
-    transition-hide="rotate"
-    persistent
-  >
+  <q-dialog v-model="showAdd" transition-show="rotate" transition-hide="rotate" persistent>
     <q-card>
       <q-item class="text-white bg-primary">
         <q-item-section>
@@ -98,12 +57,7 @@
     </q-card>
   </q-dialog>
 
-  <q-dialog
-    v-model="showEdit"
-    transition-show="rotate"
-    transition-hide="rotate"
-    persistent
-  >
+  <q-dialog v-model="showEdit" transition-show="rotate" transition-hide="rotate" persistent>
     <q-card>
       <q-item class="text-white bg-primary">
         <q-item-section>
@@ -133,9 +87,10 @@
 import { ref, onMounted, watch } from "vue";
 import { sendRequest, dataIncomplete } from "src/boot/functions";
 
-import RoleForm from "src/components/Role/RoleForm.vue";
+import RoleForm from "src/components/Role/EmployeeRoleForm.vue";
 
 const rows = ref([]);
+const tipoUser = ref([]);
 const selectedRow = ref(null);
 const add = ref(null);
 const showAdd = ref(false);
@@ -179,13 +134,18 @@ const getRows = async (page = 1) => {
     ...filterForm.value,
     ...current,
   };
-  let res = await sendRequest("POST", final, "/api/roles", "");
+  let res = await sendRequest("POST", final, "/api/roles/Empleado", "");
   rows.value = res.data;
   filterForm.value.page = res.current_page;
   next_page_url.value = res.next_page_url;
   prev_page_url.value = res.prev_page_url;
   last_page.value = res.last_page;
 };
+
+const getTipoUser = async () => {
+  let res = await sendRequest("GET","","/api/roles/TipoUser/Empleado");
+  tipoUser.value = res.tipoUser.id;
+}
 
 const postRow = async () => {
   const add_valid = await add.value.validate();
@@ -195,6 +155,7 @@ const postRow = async () => {
   }
   const final = {
     ...add.value.formRole,
+    user_tipo_id: tipoUser.value
   };
   let res = await sendRequest("POST", final, "/api/role", "");
   showAdd.value = false;
@@ -243,6 +204,6 @@ const onInputChange = () => {
 
 onMounted(() => {
   getRows();
+  getTipoUser();
 });
 </script>
-

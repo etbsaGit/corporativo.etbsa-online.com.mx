@@ -6,7 +6,7 @@
           v-model="formUser.name"
           filled
           dense
-          label="Name"
+          label="Empleado"
           lazy-rules
           :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
         />
@@ -47,7 +47,7 @@
     <q-separator />
     <q-item>
       <q-item-section>
-        <div class="text-h6">Que roles tendra el usuario</div>
+        <div class="text-h6">Que roles tendra el empleado</div>
       </q-item-section>
     </q-item>
     <div class="row items-start">
@@ -66,7 +66,7 @@
     <q-separator />
     <q-item>
       <q-item-section>
-        <div class="text-h6">Que permisos tendra el usuario</div>
+        <div class="text-h6">Que permisos tendra el empleado</div>
       </q-item-section>
     </q-item>
     <div class="row items-start">
@@ -97,6 +97,7 @@ const { user } = defineProps(["user"]);
 const myForm = ref(null);
 const roles = ref([]);
 const permissions = ref([]);
+const tipoUser = ref([]);
 
 const formUser = ref({
   id: user ? user.id : null,
@@ -106,12 +107,15 @@ const formUser = ref({
   confirmPassword: null,
   roles: [],
   permissions: [],
+  user_tipo_id: null,
 });
 
 const getAll = async () => {
-  let res = await sendRequest("GET", null, "/api/user/role/permission/all", "");
+  let res = await sendRequest("GET", null, "/api/user/role/permission/Empleado", "");
   roles.value = res.roles;
   permissions.value = res.permissions;
+  tipoUser.value = res.tipoUser.id;
+  formUser.value.user_tipo_id = tipoUser.value;
 };
 
 const validate = async () => {

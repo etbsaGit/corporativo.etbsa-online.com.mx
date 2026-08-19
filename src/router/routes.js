@@ -178,7 +178,7 @@ const routes = [
     ],
   },
   {
-    path: "/users",
+    path: "/users-employees",
     component: () => import("layouts/MainLayout.vue"),
     meta: {
       middlewares: [admin],
@@ -186,7 +186,7 @@ const routes = [
     children: [
       {
         path: "",
-        component: () => import("src/pages/users/index.vue"),
+        component: () => import("src/pages/usersEmployees/index.vue"),
       },
     ],
   },
