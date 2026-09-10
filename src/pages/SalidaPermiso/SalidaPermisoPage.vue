@@ -56,7 +56,8 @@ const allTabs = [
     name: "permisos",
     label: "Permisos",
     component: PermisosIndex,
-    show: usuario.empleado?.hasEmpleados || checkRole("Admin"),
+    show:
+      usuario.empleado?.hasEmpleados || checkRole("Admin") || checkRole("RRHH"),
   },
   {
     name: "calendar",
