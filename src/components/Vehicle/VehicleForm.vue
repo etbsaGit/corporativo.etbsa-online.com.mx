@@ -15,6 +15,19 @@
     </q-item>
     <q-item>
       <q-item-section>
+        <q-input
+          v-model="formVehicle.serie"
+          filled
+          dense
+          label="Serie"
+          lazy-rules
+          hint
+          :rules="[(val) => (val && val.length > 0) || 'Obligatorio']"
+        />
+      </q-item-section>
+    </q-item>
+    <q-item>
+      <q-item-section>
         <q-select
           v-model="formVehicle.estatus_id"
           :options="types"
@@ -116,6 +129,7 @@ const myForm = ref(null);
 const formVehicle = ref({
   id: vehicle ? vehicle.id : null,
   placas: vehicle ? vehicle.placas : null,
+  serie: vehicle ? vehicle.serie : null,
   departamento_id: vehicle ? vehicle.departamento_id : null,
   linea_id: vehicle ? vehicle.linea_id : null,
   sucursal_id: vehicle ? vehicle.sucursal_id : null,

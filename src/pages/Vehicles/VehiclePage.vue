@@ -1,52 +1,160 @@
 <template>
   <q-item>
     <q-item-section>
-      <q-input outlined dense label="Buscar por placa" v-model="filterForm.search" @update:model-value="onInputChange">
+      <q-input
+        outlined
+        dense
+        label="Buscar por placa o serie"
+        v-model="filterForm.search"
+        @update:model-value="onInputChange"
+      >
         <template v-slot:prepend>
           <q-icon name="search" />
         </template>
       </q-input>
     </q-item-section>
     <q-item-section>
-      <q-select v-model="filterForm.sucursal_id" :options="sucursales" label="Sucursal" option-value="id"
-        option-label="nombre" option-disable="inactive" emit-value map-options transition-show="jump-up"
-        transition-hide="jump-up" clearable outlined dense options-dense @update:model-value="getRows()" />
+      <q-select
+        v-model="filterForm.sucursal_id"
+        :options="sucursales"
+        label="Sucursal"
+        option-value="id"
+        option-label="nombre"
+        option-disable="inactive"
+        emit-value
+        map-options
+        transition-show="jump-up"
+        transition-hide="jump-up"
+        clearable
+        outlined
+        dense
+        options-dense
+        @update:model-value="getRows()"
+      />
     </q-item-section>
     <q-item-section>
-      <q-select v-model="filterForm.linea_id" :options="lineas" label="Linea" option-value="id" option-label="nombre"
-        option-disable="inactive" emit-value map-options transition-show="jump-up" transition-hide="jump-up" clearable
-        outlined dense options-dense @update:model-value="getRows()" />
+      <q-select
+        v-model="filterForm.linea_id"
+        :options="lineas"
+        label="Linea"
+        option-value="id"
+        option-label="nombre"
+        option-disable="inactive"
+        emit-value
+        map-options
+        transition-show="jump-up"
+        transition-hide="jump-up"
+        clearable
+        outlined
+        dense
+        options-dense
+        @update:model-value="getRows()"
+      />
     </q-item-section>
     <q-item-section>
-      <q-select v-model="filterForm.departamento_id" :options="departamentos" label="Departamento" option-value="id"
-        option-label="nombre" option-disable="inactive" emit-value map-options transition-show="jump-up"
-        transition-hide="jump-up" clearable outlined dense options-dense @update:model-value="getRows()" />
+      <q-select
+        v-model="filterForm.departamento_id"
+        :options="departamentos"
+        label="Departamento"
+        option-value="id"
+        option-label="nombre"
+        option-disable="inactive"
+        emit-value
+        map-options
+        transition-show="jump-up"
+        transition-hide="jump-up"
+        clearable
+        outlined
+        dense
+        options-dense
+        @update:model-value="getRows()"
+      />
     </q-item-section>
     <q-item-section>
-      <q-select v-model="filterForm.estatus_id" :options="types" label="Tipo de vehiculo" option-value="id"
-        option-label="nombre" option-disable="inactive" emit-value map-options transition-show="jump-up"
-        transition-hide="jump-up" clearable outlined dense options-dense @update:model-value="getRows()" />
+      <q-select
+        v-model="filterForm.estatus_id"
+        :options="types"
+        label="Tipo de vehiculo"
+        option-value="id"
+        option-label="nombre"
+        option-disable="inactive"
+        emit-value
+        map-options
+        transition-show="jump-up"
+        transition-hide="jump-up"
+        clearable
+        outlined
+        dense
+        options-dense
+        @update:model-value="getRows()"
+      />
     </q-item-section>
     <q-item-section>
-      <q-select v-model="filterForm.activo" :options="activoOptions" label="Estatus" emit-value map-options clearable
-        outlined dense options-dense @update:model-value="getRows()" />
+      <q-select
+        v-model="filterForm.activo"
+        :options="activoOptions"
+        label="Estatus"
+        emit-value
+        map-options
+        clearable
+        outlined
+        dense
+        options-dense
+        @update:model-value="getRows()"
+      />
     </q-item-section>
     <q-item-section side>
-      <q-btn dense label="Agregar" color="primary" @click="showAdd = true" icon="add_circle" />
+      <q-btn
+        dense
+        label="Agregar"
+        color="primary"
+        @click="showAdd = true"
+        icon="add_circle"
+      />
     </q-item-section>
   </q-item>
 
   <q-item>
     <q-item-section>
-      <q-table flat bordered title="Vehiculos" :rows="rows" :columns="columns" row-key="name" dense
-        :rows-per-page-options="[0]">
+      <q-table
+        flat
+        bordered
+        title="Vehiculos"
+        :rows="rows"
+        :columns="columns"
+        row-key="name"
+        dense
+        :rows-per-page-options="[0]"
+      >
         <template v-slot:body-cell-edit="props">
           <q-td :props="props">
-            <q-btn dense color="blue" flat icon="edit_square" @click="openEdit(props.row)">
+            <q-btn
+              dense
+              color="teal"
+              flat
+              icon="visibility"
+              @click="openInfo(props.row)"
+            >
+              <q-tooltip>Ver información</q-tooltip>
+            </q-btn>
+
+            <q-btn
+              dense
+              color="blue"
+              flat
+              icon="edit_square"
+              @click="openEdit(props.row)"
+            >
               <q-tooltip>Editar</q-tooltip>
             </q-btn>
 
-            <q-btn dense color="green" flat icon="person_add" @click="openAsing(props.row)">
+            <q-btn
+              dense
+              color="green"
+              flat
+              icon="person_add"
+              @click="openAsing(props.row)"
+            >
               <q-tooltip>Asignar</q-tooltip>
             </q-btn>
           </q-td>
@@ -86,14 +194,15 @@
 
         <template v-slot:body-cell-activo="props">
           <q-td :props="props" class="text-center">
-
-            <q-icon :name="props.row.activo == 1 ? 'check_circle' : 'cancel'"
-              :color="props.row.activo == 1 ? 'positive' : 'negative'" size="md">
+            <q-icon
+              :name="props.row.activo == 1 ? 'check_circle' : 'cancel'"
+              :color="props.row.activo == 1 ? 'positive' : 'negative'"
+              size="md"
+            >
               <q-tooltip>
-                {{ props.row.activo == 1 ? 'Activo' : 'Inactivo' }}
+                {{ props.row.activo == 1 ? "Activo" : "Inactivo" }}
               </q-tooltip>
             </q-icon>
-
           </q-td>
         </template>
 
@@ -106,9 +215,19 @@
         <template v-slot:bottom>
           <q-space />
           <td>
-            <q-pagination color="primary" v-model="current_page" :max="last_page" :max-pages="6" direction-links
-              boundary-links gutter="10px" icon-first="skip_previous" icon-last="skip_next" icon-prev="fast_rewind"
-              icon-next="fast_forward" />
+            <q-pagination
+              color="primary"
+              v-model="current_page"
+              :max="last_page"
+              :max-pages="6"
+              direction-links
+              boundary-links
+              gutter="10px"
+              icon-first="skip_previous"
+              icon-last="skip_next"
+              icon-prev="fast_rewind"
+              icon-next="fast_forward"
+            />
           </td>
           <q-space />
         </template>
@@ -116,7 +235,12 @@
     </q-item-section>
   </q-item>
 
-  <q-dialog v-model="showAdd" transition-show="rotate" transition-hide="rotate" persistent>
+  <q-dialog
+    v-model="showAdd"
+    transition-show="rotate"
+    transition-hide="rotate"
+    persistent
+  >
     <q-card>
       <q-item class="text-white bg-primary">
         <q-item-section>
@@ -138,7 +262,12 @@
     </q-card>
   </q-dialog>
 
-  <q-dialog v-model="showEdit" transition-show="rotate" transition-hide="rotate" persistent>
+  <q-dialog
+    v-model="showEdit"
+    transition-show="rotate"
+    transition-hide="rotate"
+    persistent
+  >
     <q-card>
       <q-item class="text-white bg-primary">
         <q-item-section>
@@ -150,9 +279,9 @@
         <q-item-section side>
           <q-btn label="Actualizar" color="blue" @click="putRow" />
         </q-item-section>
-        <q-item-section side>
+        <!-- <q-item-section side>
           <q-btn label="Borrar" color="amber" @click="deleteRow" />
-        </q-item-section>
+        </q-item-section> -->
       </q-item>
       <q-separator />
       <q-item>
@@ -162,18 +291,26 @@
       </q-item>
       <q-item v-if="selectedRow?.activo == 1">
         <q-item-section side>
-          <q-btn label="Dar de Baja" color="negative" icon="block" @click="showBajaDialog = true" />
+          <q-btn
+            label="Dar de Baja"
+            color="negative"
+            icon="block"
+            @click="showBajaDialog = true"
+          />
         </q-item-section>
       </q-item>
       <q-item v-if="selectedRow?.activo == 0">
         <q-item-section side>
-          <q-btn label="Activar" color="positive" icon="check" @click="activarVehicle" />
+          <q-btn
+            label="Activar"
+            color="positive"
+            icon="check"
+            @click="activarVehicle"
+          />
         </q-item-section>
       </q-item>
     </q-card>
   </q-dialog>
-
-
 
   <!-- Dialog para razón de baja -->
   <q-dialog v-model="showBajaDialog" persistent>
@@ -183,7 +320,13 @@
       </q-card-section>
 
       <q-card-section>
-        <q-input v-model="motivoBaja" type="textarea" label="Razón de la baja" outlined autogrow />
+        <q-input
+          v-model="motivoBaja"
+          type="textarea"
+          label="Razón de la baja"
+          outlined
+          autogrow
+        />
       </q-card-section>
 
       <q-card-actions align="right">
@@ -193,7 +336,12 @@
     </q-card>
   </q-dialog>
 
-  <q-dialog v-model="showAsing" transition-show="rotate" transition-hide="rotate" persistent>
+  <q-dialog
+    v-model="showAsing"
+    transition-show="rotate"
+    transition-hide="rotate"
+    persistent
+  >
     <q-card style="width: 100%">
       <q-item class="text-white bg-primary">
         <q-item-section>
@@ -214,6 +362,10 @@
       </q-item>
     </q-card>
   </q-dialog>
+
+  <q-dialog v-model="showInfo" transition-show="scale" transition-hide="scale">
+    <vehicle-card :vehicle="infoVehicle" />
+  </q-dialog>
 </template>
 
 <script setup>
@@ -223,9 +375,12 @@ import { computed } from "vue";
 
 import VehicleForm from "src/components/Vehicle/VehicleForm.vue";
 import VehicleEmployee from "src/components/Vehicle/VehicleEmployee.vue";
+import VehicleCard from "src/components/Vehicle/VehicleCard.vue";
 
 const rows = ref([]);
 const selectedRow = ref(null);
+const infoVehicle = ref(null);
+const showInfo = ref(false);
 const add = ref(null);
 const showAdd = ref(false);
 const edit = ref(null);
@@ -258,7 +413,7 @@ const filterForm = ref({
 
 const activoOptions = [
   { label: "Activos", value: 1 },
-  { label: "Inactivos", value: 0 }
+  { label: "Inactivos", value: 0 },
 ];
 
 const columns = computed(() => {
@@ -273,6 +428,12 @@ const columns = computed(() => {
       align: "left",
       field: "placas",
       label: "Placas",
+    },
+    {
+      name: "serie",
+      align: "left",
+      field: "serie",
+      label: "Serie",
     },
     {
       name: "tipo",
@@ -309,7 +470,7 @@ const columns = computed(() => {
       name: "activo",
       align: "center",
       field: "activo",
-      label: "Activo"
+      label: "Activo",
     },
   ];
   if (filterForm.value.activo == 0) {
@@ -317,12 +478,21 @@ const columns = computed(() => {
       name: "motivo",
       align: "left",
       field: "motivo",
-      label: "Motivo Baja"
+      label: "Motivo Baja",
     });
   }
 
   return base;
 });
+
+const openInfo = async (item) => {
+  infoVehicle.value = item;
+  showInfo.value = true;
+  let res = await sendRequest("GET", null, "/api/vehicle/" + item.id, "");
+  if (res) {
+    infoVehicle.value = res;
+  }
+};
 
 const openEdit = (item) => {
   selectedRow.value = item;
@@ -406,7 +576,7 @@ const darDeBaja = async () => {
 
   let payload = {
     baja: 0,
-    motivo_baja: motivoBaja.value
+    motivo_baja: motivoBaja.value,
   };
 
   await sendRequest(
@@ -424,10 +594,9 @@ const darDeBaja = async () => {
 };
 
 const activarVehicle = async () => {
-
   let payload = {
     baja: 1,
-    motivo_baja: null
+    motivo_baja: null,
   };
 
   await sendRequest(
