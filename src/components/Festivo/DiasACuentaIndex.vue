@@ -17,9 +17,24 @@
             color="primary"
             @click="showAdd = true"
             icon="add_circle"
-          />
+          >
+            <q-tooltip>Agregar día a cuenta</q-tooltip>
+          </q-btn>
         </q-item-section>
         <q-item-section class="highlight"> Días a Cuenta </q-item-section>
+        <q-item-section side>
+          <q-btn
+            rounded
+            dense
+            color="secondary"
+            icon="history"
+            label="Bitácora"
+            @click="showBitacora = true"
+            class="q-ml-sm text-weight-bold"
+          >
+            <q-tooltip>Ver movimientos y registros en la bitácora</q-tooltip>
+          </q-btn>
+        </q-item-section>
       </q-item>
       <q-space></q-space>
       <q-item dense>
@@ -108,6 +123,9 @@
       </q-item>
     </q-card>
   </q-dialog>
+
+  <!-- Modal de Bitácora de Movimientos -->
+  <dias-a-cuenta-bitacora v-model="showBitacora" />
 </template>
 
 <script setup>
@@ -115,6 +133,7 @@ import { ref, onMounted, watch } from "vue";
 import { sendRequest, dataIncomplete } from "src/boot/functions";
 
 import FestivoForm from "src/components/Festivo/FestivoForm.vue";
+import DiasACuentaBitacora from "src/components/Festivo/DiasACuentaBitacora.vue";
 import { formatDateplusone } from "src/boot/formatFunctions";
 
 const year = ref(new Date().getFullYear());
@@ -125,6 +144,7 @@ const add = ref(null);
 const showAdd = ref(false);
 const edit = ref(null);
 const showEdit = ref(false);
+const showBitacora = ref(false);
 
 const columns = [
   {
