@@ -50,6 +50,20 @@
             </span>
           </div>
         </div>
+        <q-btn
+          unelevated
+          color="positive"
+          icon="file_download"
+          label="Exportar Excel"
+          class="q-mr-sm text-weight-bold"
+          :loading="exportingExcel"
+          :disable="loading || !vehicle?.id"
+          @click="exportToExcel"
+        >
+          <q-tooltip>
+            Descargar Excel con Dashboard, Tabla Interactiva y Gráficas
+          </q-tooltip>
+        </q-btn>
         <q-btn icon="close" flat round dense v-close-popup />
       </div>
     </q-card-section>
@@ -649,6 +663,16 @@
           label="Limpiar filtros"
           @click="resetFilters"
         />
+        <q-btn
+          outline
+          dense
+          color="positive"
+          icon="table_view"
+          label="Descargar Excel con Gráficas"
+          :loading="exportingExcel"
+          :disable="loading || !vehicle?.id"
+          @click="exportToExcel"
+        />
         <q-btn flat label="Cerrar" color="grey-8" v-close-popup />
       </div>
     </q-card-actions>
@@ -658,6 +682,7 @@
 <script setup>
 import { ref, computed } from "vue";
 import { date } from "quasar";
+import { sendRequest, show_notify } from "src/boot/functions";
 
 const props = defineProps({
   vehicle: {
@@ -671,6 +696,51 @@ const props = defineProps({
 });
 
 const viewMode = ref("detalles");
+const exportingExcel = ref(false);
+
+const exportToExcel = async () => {
+  if (!props.vehicle?.id) return;
+  exportingExcel.value = true;
+  try {
+    const res = await sendRequest(
+      "GET",
+      null,
+      `/api/vehicle/export-services/${props.vehicle.id}`
+    );
+    if (res && res.file_base64) {
+      const byteCharacters = atob(res.file_base64);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+
+      const link = document.createElement("a");
+      const url = URL.createObjectURL(blob);
+      link.href = url;
+      link.setAttribute(
+        "download",
+        res.file_name ||
+          `Historial_Servicios_${props.vehicle.placas || props.vehicle.id}.xlsx`
+      );
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      show_notify(
+        "Archivo Excel con tabla y gráficas descargado correctamente",
+        "check_circle",
+        "positive"
+      );
+    }
+  } finally {
+    exportingExcel.value = false;
+  }
+};
 
 const filters = ref({
   search: "",
