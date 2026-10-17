@@ -140,6 +140,16 @@
 
             <q-btn
               dense
+              color="deep-purple"
+              flat
+              icon="build_circle"
+              @click="openServices(props.row)"
+            >
+              <q-tooltip>Historial de Servicios</q-tooltip>
+            </q-btn>
+
+            <q-btn
+              dense
               color="blue"
               flat
               icon="edit_square"
@@ -366,6 +376,17 @@
   <q-dialog v-model="showInfo" transition-show="scale" transition-hide="scale">
     <vehicle-card :vehicle="infoVehicle" />
   </q-dialog>
+
+  <q-dialog
+    v-model="showServices"
+    transition-show="scale"
+    transition-hide="scale"
+  >
+    <vehicle-services-dashboard
+      :vehicle="servicesVehicle"
+      :loading="loadingServices"
+    />
+  </q-dialog>
 </template>
 
 <script setup>
@@ -376,11 +397,15 @@ import { computed } from "vue";
 import VehicleForm from "src/components/Vehicle/VehicleForm.vue";
 import VehicleEmployee from "src/components/Vehicle/VehicleEmployee.vue";
 import VehicleCard from "src/components/Vehicle/VehicleCard.vue";
+import VehicleServicesDashboard from "src/components/Vehicle/VehicleServicesDashboard.vue";
 
 const rows = ref([]);
 const selectedRow = ref(null);
 const infoVehicle = ref(null);
 const showInfo = ref(false);
+const servicesVehicle = ref(null);
+const showServices = ref(false);
+const loadingServices = ref(false);
 const add = ref(null);
 const showAdd = ref(false);
 const edit = ref(null);
@@ -491,6 +516,20 @@ const openInfo = async (item) => {
   let res = await sendRequest("GET", null, "/api/vehicle/" + item.id, "");
   if (res) {
     infoVehicle.value = res;
+  }
+};
+
+const openServices = async (item) => {
+  servicesVehicle.value = item;
+  loadingServices.value = true;
+  showServices.value = true;
+  try {
+    let res = await sendRequest("GET", null, "/api/vehicle/" + item.id, "");
+    if (res) {
+      servicesVehicle.value = res;
+    }
+  } finally {
+    loadingServices.value = false;
   }
 };
 
