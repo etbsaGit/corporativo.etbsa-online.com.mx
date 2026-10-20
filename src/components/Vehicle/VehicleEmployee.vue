@@ -2,9 +2,43 @@
   <q-item>
     <q-item-section>
       <q-select
+        v-model="selectedResponsable"
+        :options="filterEmpleados"
+        label="Responsable (Responsable mayor)"
+        option-value="id"
+        option-label="apellidoCompleto"
+        option-disable="inactive"
+        emit-value
+        map-options
+        transition-show="jump-up"
+        transition-hide="jump-up"
+        clearable
+        outlined
+        dense
+        options-dense
+        use-input
+        @filter="filterFn"
+        input-debounce="0"
+        behavior="menu"
+      >
+        <template v-slot:prepend>
+          <q-icon name="manage_accounts" color="primary" />
+        </template>
+        <template v-slot:no-option>
+          <q-item dense>
+            <q-item-section class="text-grey"> no options </q-item-section>
+          </q-item>
+        </template>
+      </q-select>
+    </q-item-section>
+  </q-item>
+
+  <q-item>
+    <q-item-section>
+      <q-select
         v-model="selectedEmpleados"
         :options="filterEmpleados"
-        label="Empleados"
+        label="Usuarios"
         option-value="id"
         option-label="apellidoCompleto"
         option-disable="inactive"
@@ -21,8 +55,10 @@
         @filter="filterFn"
         input-debounce="0"
         behavior="menu"
-        :rules="[(val) => val !== null || 'Obligatorio']"
       >
+        <template v-slot:prepend>
+          <q-icon name="groups" color="primary" />
+        </template>
         <template v-slot:no-option>
           <q-item dense>
             <q-item-section class="text-grey"> no options </q-item-section>
@@ -40,6 +76,7 @@ import { sendRequest } from "src/boot/functions";
 const { vehicle } = defineProps(["vehicle"]);
 
 const empleados = ref([]);
+const selectedResponsable = ref(null);
 const selectedEmpleados = ref([]);
 const filterEmpleados = ref(null);
 
@@ -65,9 +102,22 @@ const getForms = async () => {
 };
 
 const marcarToggles = () => {
-  if (vehicle.empleados) {
+  if (vehicle?.responsable?.id) {
+    selectedResponsable.value = vehicle.responsable.id;
+  } else if (vehicle?.empleados) {
+    const resp = vehicle.empleados.find(
+      (u) => Number(u.vehicle_id) === Number(vehicle.id)
+    );
+    if (resp) {
+      selectedResponsable.value = resp.id;
+    }
+  }
+
+  if (vehicle?.empleados) {
     for (const usuario of vehicle.empleados) {
-      selectedEmpleados.value.push(usuario.id);
+      if (usuario.id !== selectedResponsable.value) {
+        selectedEmpleados.value.push(usuario.id);
+      }
     }
   }
 };
@@ -78,6 +128,7 @@ onMounted(() => {
 });
 
 defineExpose({
+  selectedResponsable,
   selectedEmpleados,
 });
 </script>

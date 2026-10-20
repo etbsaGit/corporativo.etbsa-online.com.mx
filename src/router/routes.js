@@ -175,6 +175,10 @@ const routes = [
         component: () =>
           import("src/pages/SalidaPermiso/SalidaPermisoPage.vue"),
       },
+      {
+        path: "/serviciosUnidad",
+        component: () => import("src/pages/Service/ServiceIndex.vue"),
+      },
     ],
   },
   {

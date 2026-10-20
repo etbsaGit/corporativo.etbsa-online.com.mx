@@ -196,8 +196,29 @@
 
         <template v-slot:body-cell-empleados="props">
           <q-td :props="props">
-            <div v-for="emp in props.row.empleados" :key="emp.id">
-              {{ emp.nombreCompleto }}
+            <div
+              v-for="emp in getVehicleEmpleadosList(props.row)"
+              :key="emp.id"
+              class="row items-center no-wrap q-gutter-x-xs"
+            >
+              <span
+                :class="
+                  props.row.responsable?.id === emp.id ||
+                  emp.vehicle_id === props.row.id
+                    ? 'text-weight-bold text-primary'
+                    : ''
+                "
+              >
+                {{ emp.nombreCompleto }}
+              </span>
+              <q-badge
+                v-if="
+                  props.row.responsable?.id === emp.id ||
+                  emp.vehicle_id === props.row.id
+                "
+                color="primary"
+                label="Responsable"
+              />
             </div>
           </q-td>
         </template>
@@ -510,6 +531,17 @@ const columns = computed(() => {
   return base;
 });
 
+const getVehicleEmpleadosList = (row) => {
+  const list = [...(row?.empleados || [])];
+  if (
+    row?.responsable &&
+    !list.some((e) => Number(e.id) === Number(row.responsable.id))
+  ) {
+    list.unshift(row.responsable);
+  }
+  return list;
+};
+
 const openInfo = async (item) => {
   infoVehicle.value = item;
   showInfo.value = true;
@@ -654,7 +686,8 @@ const activarVehicle = async () => {
 
 const asignEmployees = async () => {
   const final = {
-    ...asign.value.selectedEmpleados,
+    responsable_id: asign.value.selectedResponsable,
+    usuarios: asign.value.selectedEmpleados,
   };
   let res = await sendRequest(
     "POST",

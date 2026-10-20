@@ -25,7 +25,6 @@
       active-class="my-menu-link"
       href="https://forms.office.com/r/SsXJLUWhdL"
       target="_blank"
-
     >
       <q-tooltip class="text-h6">Sin encuestas activas</q-tooltip>
       <q-item-section avatar>
@@ -118,6 +117,23 @@
       </q-item-section>
 
       <q-item-section>Permiso 2 horas</q-item-section>
+    </q-item>
+
+    <q-item
+      v-if="checkRole('Empleado')"
+      dense
+      clickable
+      v-ripple
+      to="/serviciosUnidad"
+      :active="link === 'serviciosUnidad'"
+      @click="link = 'serviciosUnidad'"
+      active-class="my-menu-link"
+    >
+      <q-item-section avatar>
+        <q-icon name="garage" />
+      </q-item-section>
+
+      <q-item-section>Servicios Unidad</q-item-section>
     </q-item>
 
     <q-item
@@ -782,5 +798,3 @@ const link = ref("perfil");
   transition: background-color 0.3s ease, transform 0.2s ease;
 }
 </style>
-
-

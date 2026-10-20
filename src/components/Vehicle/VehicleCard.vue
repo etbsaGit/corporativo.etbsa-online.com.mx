@@ -97,27 +97,75 @@
         </q-card-section>
       </q-card>
 
-      <!-- Encargados -->
+      <!-- Responsable y Usuarios -->
       <div class="text-subtitle1 text-weight-bold text-primary q-mb-xs flex items-center">
         <q-icon name="groups" class="q-mr-xs" size="sm" />
-        Encargados / Responsables Asignados
+        Responsable y Usuarios Asignados
       </div>
       <q-card flat bordered class="q-mb-md bg-grey-1">
-        <q-card-section class="q-pa-sm">
-          <div v-if="vehicle?.empleados && vehicle.empleados.length > 0" class="row q-gutter-xs">
-            <q-chip
-              v-for="emp in vehicle.empleados"
-              :key="emp.id"
-              color="primary"
-              text-color="white"
-              icon="person"
-              size="md"
-            >
-              {{ emp.nombreCompleto || `${emp.nombre || ''} ${emp.apellido_paterno || ''}` }}
-            </q-chip>
+        <q-card-section class="q-pa-md q-gutter-y-sm">
+          <!-- Responsable Mayor -->
+          <div>
+            <div class="text-caption text-grey-7 q-mb-xs">
+              Responsable (Responsable mayor):
+            </div>
+            <div v-if="responsableUnidad">
+              <q-chip
+                color="primary"
+                text-color="white"
+                icon="manage_accounts"
+                size="md"
+                class="q-ma-none"
+              >
+                {{
+                  responsableUnidad.nombreCompleto ||
+                  `${responsableUnidad.nombre || ""} ${responsableUnidad.apellido_paterno || ""}`
+                }}
+                <q-badge
+                  color="amber-9"
+                  text-color="white"
+                  label="Responsable"
+                  class="q-ml-sm"
+                />
+              </q-chip>
+            </div>
+            <div v-else class="text-caption text-grey-6 italic">
+              Sin responsable asignado.
+            </div>
           </div>
-          <div v-else class="text-caption text-grey-6 q-pa-xs italic">
-            Sin encargados asignados actualmente.
+
+          <q-separator />
+
+          <!-- Usuarios de la Unidad -->
+          <div>
+            <div class="text-caption text-grey-7 q-mb-xs">
+              Usuarios de la unidad ({{ usuariosUnidad.length }}):
+            </div>
+            <div v-if="usuariosUnidad.length > 0" class="row q-gutter-xs">
+              <q-chip
+                v-for="emp in usuariosUnidad"
+                :key="emp.id"
+                :color="isResponsable(emp) ? 'primary' : 'blue-grey-7'"
+                text-color="white"
+                :icon="isResponsable(emp) ? 'manage_accounts' : 'person'"
+                size="md"
+              >
+                {{
+                  emp.nombreCompleto ||
+                  `${emp.nombre || ""} ${emp.apellido_paterno || ""}`
+                }}
+                <q-badge
+                  v-if="isResponsable(emp)"
+                  color="amber-9"
+                  text-color="white"
+                  label="Responsable"
+                  class="q-ml-xs"
+                />
+              </q-chip>
+            </div>
+            <div v-else class="text-caption text-grey-6 italic">
+              Sin usuarios asignados actualmente.
+            </div>
           </div>
         </q-card-section>
       </q-card>
@@ -200,6 +248,35 @@ const props = defineProps({
     type: Object,
     default: () => ({}),
   },
+});
+
+const responsableUnidad = computed(() => {
+  if (props.vehicle?.responsable) {
+    return props.vehicle.responsable;
+  }
+  const list = props.vehicle?.empleados || [];
+  return (
+    list.find((e) => Number(e.vehicle_id) === Number(props.vehicle?.id)) || null
+  );
+});
+
+const isResponsable = (emp) => {
+  if (!emp) return false;
+  return (
+    Number(responsableUnidad.value?.id) === Number(emp.id) ||
+    Number(emp.vehicle_id) === Number(props.vehicle?.id)
+  );
+};
+
+const usuariosUnidad = computed(() => {
+  const list = [...(props.vehicle?.empleados || [])];
+  if (
+    responsableUnidad.value &&
+    !list.some((e) => Number(e.id) === Number(responsableUnidad.value.id))
+  ) {
+    list.unshift(responsableUnidad.value);
+  }
+  return list;
 });
 
 const historialList = computed(() => {
