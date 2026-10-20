@@ -258,8 +258,8 @@
         :rows-per-page-options="[0]"
       >
         <template v-slot:top>
-          <div class="row full-width items-center justify-between q-py-xs">
-            <div class="row items-center q-gutter-x-sm">
+          <div class="row full-width items-center justify-between q-py-xs q-col-gutter-y-xs">
+            <div class="row items-center q-gutter-x-sm wrap">
               <q-icon name="build_circle" color="primary" size="26px" />
               <span class="text-h6 text-weight-bold text-dark">
                 {{
@@ -277,6 +277,89 @@
                 outline
                 :label="`${totalRegistros} orden(es)`"
               />
+
+              <q-separator vertical inset class="q-mx-xs gt-xs" />
+
+              <!-- Botón 1: Por Revisar (Azul) con contador -->
+              <q-btn
+                dense
+                no-caps
+                :unelevated="isEstatusActive(estatusSolicitadoId)"
+                :outline="!isEstatusActive(estatusSolicitadoId)"
+                color="primary"
+                class="q-px-sm text-weight-bold"
+                @click="filterByStatus(estatusSolicitadoId)"
+              >
+                <span>Por Revisar</span>
+                <q-badge
+                  :color="isEstatusActive(estatusSolicitadoId) ? 'white' : 'primary'"
+                  :text-color="isEstatusActive(estatusSolicitadoId) ? 'primary' : 'white'"
+                  class="q-ml-xs text-weight-bolder"
+                >
+                  {{ countPorRevisar }}
+                </q-badge>
+                <q-tooltip>
+                  {{
+                    isEstatusActive(estatusSolicitadoId)
+                      ? "Filtro activo: clic para mostrar todas"
+                      : "Filtrar por solicitudes Por Revisar (Solicitado)"
+                  }}
+                </q-tooltip>
+              </q-btn>
+
+              <!-- Botón 2: Autorizadas (Verde) -->
+              <q-btn
+                dense
+                no-caps
+                :unelevated="isEstatusActive(estatusAutorizadoId)"
+                :outline="!isEstatusActive(estatusAutorizadoId)"
+                color="positive"
+                class="q-px-sm text-weight-bold"
+                @click="filterByStatus(estatusAutorizadoId)"
+              >
+                <span>Autorizadas</span>
+                <q-tooltip>
+                  {{
+                    isEstatusActive(estatusAutorizadoId)
+                      ? "Filtro activo: clic para mostrar todas"
+                      : "Filtrar por solicitudes Autorizadas"
+                  }}
+                </q-tooltip>
+              </q-btn>
+
+              <!-- Botón 3: No Autorizadas (Rojo) -->
+              <q-btn
+                dense
+                no-caps
+                :unelevated="isEstatusActive(estatusNoAutorizadoId)"
+                :outline="!isEstatusActive(estatusNoAutorizadoId)"
+                color="negative"
+                class="q-px-sm text-weight-bold"
+                @click="filterByStatus(estatusNoAutorizadoId)"
+              >
+                <span>No Autorizadas</span>
+                <q-tooltip>
+                  {{
+                    isEstatusActive(estatusNoAutorizadoId)
+                      ? "Filtro activo: clic para mostrar todas"
+                      : "Filtrar por solicitudes No Autorizadas"
+                  }}
+                </q-tooltip>
+              </q-btn>
+
+              <!-- Botón Quitar Filtro de Estatus -->
+              <q-btn
+                v-if="filterForm.estatus_id"
+                flat
+                dense
+                round
+                size="sm"
+                color="grey-7"
+                icon="close"
+                @click="clearStatusFilter"
+              >
+                <q-tooltip>Quitar filtro de estatus (mostrar todas)</q-tooltip>
+              </q-btn>
             </div>
 
             <div class="row items-center q-gutter-x-sm">
@@ -952,6 +1035,7 @@ const catalogs = ref({
   servicios_cat: [],
   sucursales_cargo: [],
   deptos_cargo: [],
+  estatus: [],
 });
 
 const filteredVehicles = ref([]);
@@ -967,7 +1051,84 @@ const filterForm = ref({
   servicio_id: null,
   suc_cargo_id: null,
   depto_cargo_id: null,
+  estatus_id: null,
 });
+
+const statusCounts = ref({
+  solicitado: 0,
+  autorizado: 0,
+  no_autorizado: 0,
+  solicitado_id: 176,
+  autorizado_id: 177,
+  no_autorizado_id: 178,
+});
+
+const estatusSolicitadoId = computed(() => {
+  return (
+    statusCounts.value?.solicitado_id ||
+    catalogs.value?.estatus?.find(
+      (e) => (e.nombre || "").trim().toLowerCase() === "solicitado"
+    )?.id ||
+    176
+  );
+});
+
+const estatusAutorizadoId = computed(() => {
+  return (
+    statusCounts.value?.autorizado_id ||
+    catalogs.value?.estatus?.find(
+      (e) => (e.nombre || "").trim().toLowerCase() === "autorizado"
+    )?.id ||
+    177
+  );
+});
+
+const estatusNoAutorizadoId = computed(() => {
+  return (
+    statusCounts.value?.no_autorizado_id ||
+    catalogs.value?.estatus?.find(
+      (e) => (e.nombre || "").trim().toLowerCase() === "no autorizado"
+    )?.id ||
+    178
+  );
+});
+
+const countPorRevisar = computed(() => {
+  if (
+    statusCounts.value &&
+    statusCounts.value.solicitado !== undefined &&
+    statusCounts.value.solicitado !== null
+  ) {
+    return Number(statusCounts.value.solicitado);
+  }
+  return rows.value.filter(
+    (r) =>
+      Number(r.estatus_id) === Number(estatusSolicitadoId.value) ||
+      (r.estatus?.nombre || "").trim().toLowerCase() === "solicitado"
+  ).length;
+});
+
+const isEstatusActive = (estatusId) => {
+  return (
+    filterForm.value.estatus_id !== null &&
+    filterForm.value.estatus_id !== undefined &&
+    Number(filterForm.value.estatus_id) === Number(estatusId)
+  );
+};
+
+const filterByStatus = (estatusId) => {
+  if (isEstatusActive(estatusId)) {
+    filterForm.value.estatus_id = null;
+  } else {
+    filterForm.value.estatus_id = estatusId;
+  }
+  getRows(1);
+};
+
+const clearStatusFilter = () => {
+  filterForm.value.estatus_id = null;
+  getRows(1);
+};
 
 const hasActiveFilters = computed(() => {
   return Boolean(
@@ -977,7 +1138,8 @@ const hasActiveFilters = computed(() => {
       filterForm.value.tipo_servicio_id ||
       filterForm.value.servicio_id ||
       filterForm.value.suc_cargo_id ||
-      filterForm.value.depto_cargo_id
+      filterForm.value.depto_cargo_id ||
+      filterForm.value.estatus_id
   );
 });
 
@@ -1020,6 +1182,7 @@ const clearFilters = () => {
     servicio_id: null,
     suc_cargo_id: null,
     depto_cargo_id: null,
+    estatus_id: null,
   };
   getRows(1);
 };
@@ -1259,7 +1422,14 @@ const getForms = async () => {
       servicios_cat: res.servicios_cat || [],
       sucursales_cargo: res.sucursales_cargo || [],
       deptos_cargo: res.deptos_cargo || [],
+      estatus: res.estatus || [],
     };
+    if (res.status_counts) {
+      statusCounts.value = {
+        ...statusCounts.value,
+        ...res.status_counts,
+      };
+    }
     filteredVehicles.value = onlyMyUnit.value
       ? assignedVehicles.value
       : catalogs.value.vehicles;
@@ -1284,6 +1454,12 @@ const getRows = async (page = 1) => {
       prev_page_url.value = res.prev_page_url;
       last_page.value = res.last_page || 1;
       totalRegistros.value = res.total || rows.value.length;
+      if (res.status_counts) {
+        statusCounts.value = {
+          ...statusCounts.value,
+          ...res.status_counts,
+        };
+      }
       if (onlyMyUnit.value) {
         if (Array.isArray(res.assigned_vehicles)) {
           assignedVehicles.value = res.assigned_vehicles;
