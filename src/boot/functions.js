@@ -219,7 +219,7 @@ export function checkPuesto(puesto) {
     usuario.roles.some((usuarioRol) => usuarioRol.name === "Admin")
   ) {
     // Si el usuario tiene el rol de "admin", devuelve true
-    return false;
+    return true;
   }
   if (
     usuario &&

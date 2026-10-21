@@ -420,13 +420,147 @@
           </q-markup-table>
         </q-expansion-item>
       </q-card>
+
+      <!-- SECCIÓN: Autorización de la Orden de Compra -->
+      <q-card
+        flat
+        bordered
+        class="bg-white q-mt-md shadow-1"
+        v-if="checkPuesto(['Director administrativo'])"
+      >
+        <q-card-section
+          class="q-py-xs q-px-md flex items-center justify-between"
+          :class="autorizacionForm.autorizado ? 'bg-green-1' : 'bg-red-1'"
+        >
+          <div class="row items-center q-gutter-x-sm">
+            <q-avatar
+              :icon="autorizacionForm.autorizado ? 'verified' : 'gpp_bad'"
+              :color="autorizacionForm.autorizado ? 'positive' : 'negative'"
+              text-color="white"
+              size="28px"
+            />
+            <div
+              class="text-subtitle2 text-weight-bold"
+              :class="
+                autorizacionForm.autorizado ? 'text-positive' : 'text-negative'
+              "
+            >
+              Autorización de la Orden de Compra
+            </div>
+          </div>
+          <q-badge
+            :color="autorizacionForm.autorizado ? 'positive' : 'negative'"
+            class="text-weight-bold q-px-sm"
+          >
+            {{ autorizacionForm.autorizado ? "AUTORIZAR" : "NO AUTORIZAR" }}
+          </q-badge>
+        </q-card-section>
+
+        <q-separator />
+
+        <q-card-section class="q-pa-md">
+          <q-form ref="autorizarFormRef" @submit.prevent="submitAutorizacion">
+            <div class="row q-col-gutter-md items-center">
+              <!-- Switch de Autorización (Verdadero o Falso) -->
+              <div class="col-12 col-md-5">
+                <div class="q-pa-sm rounded-borders bg-grey-1 border-grey">
+                  <div
+                    class="text-caption text-grey-8 text-weight-medium q-mb-xs"
+                  >
+                    Decisión de Autorización *
+                  </div>
+                  <q-toggle
+                    v-model="autorizacionForm.autorizado"
+                    :label="
+                      autorizacionForm.autorizado
+                        ? 'Autorizar compra'
+                        : 'No autorizar compra'
+                    "
+                    :color="
+                      autorizacionForm.autorizado ? 'positive' : 'negative'
+                    "
+                    keep-color
+                    class="text-weight-bold"
+                  />
+                  <div class="text-caption text-grey-6 q-mt-xs">
+                    {{
+                      autorizacionForm.autorizado
+                        ? 'Al marcar como verdadero, la orden pasará a estatus "Autorizado".'
+                        : 'Al marcar como falso, la orden pasará a estatus "No Autorizado" y es obligatorio indicar los motivos o comentarios.'
+                    }}
+                  </div>
+                </div>
+              </div>
+
+              <!-- TextInput para notas o comentario -->
+              <div class="col-12 col-md-7">
+                <q-input
+                  v-model="autorizacionForm.comentarios"
+                  type="textarea"
+                  rows="2"
+                  autogrow
+                  outlined
+                  dense
+                  bg-color="white"
+                  :label="
+                    autorizacionForm.autorizado
+                      ? 'Notas o comentarios (Opcional)'
+                      : 'Notas o comentarios del motivo *'
+                  "
+                  :placeholder="
+                    autorizacionForm.autorizado
+                      ? 'Observaciones o notas opcionales...'
+                      : 'Indique obligatoriamente el motivo por el cual no se autoriza la orden...'
+                  "
+                  :rules="[
+                    (val) =>
+                      autorizacionForm.autorizado ||
+                      (val && String(val).trim().length > 0) ||
+                      'El comentario es obligatorio cuando no se autoriza la orden',
+                  ]"
+                  lazy-rules
+                >
+                  <template v-slot:prepend>
+                    <q-icon
+                      name="comment"
+                      :color="
+                        autorizacionForm.autorizado ? 'primary' : 'negative'
+                      "
+                    />
+                  </template>
+                </q-input>
+              </div>
+
+              <!-- Botón para confirmar -->
+              <div class="col-12 text-right">
+                <q-btn
+                  unelevated
+                  :color="autorizacionForm.autorizado ? 'positive' : 'negative'"
+                  :icon="
+                    autorizacionForm.autorizado ? 'check_circle' : 'cancel'
+                  "
+                  :label="
+                    autorizacionForm.autorizado
+                      ? 'Confirmar Autorización'
+                      : 'Confirmar Rechazo'
+                  "
+                  :loading="submittingAuth"
+                  type="submit"
+                  class="q-px-md text-weight-bold"
+                />
+              </div>
+            </div>
+          </q-form>
+        </q-card-section>
+      </q-card>
     </q-card-section>
   </q-card>
 </template>
 
 <script setup>
-import { computed } from "vue";
+import { ref, computed, watch } from "vue";
 import { date } from "quasar";
+import { sendRequest, dataIncomplete, checkPuesto } from "src/boot/functions";
 
 const props = defineProps({
   service: {
@@ -434,6 +568,67 @@ const props = defineProps({
     default: () => ({}),
   },
 });
+
+const emit = defineEmits(["authorized"]);
+
+const autorizarFormRef = ref(null);
+const submittingAuth = ref(false);
+
+const autorizacionForm = ref({
+  autorizado: true,
+  comentarios: "",
+});
+
+watch(
+  () => props.service,
+  (newSrv) => {
+    if (newSrv) {
+      const isNoAutorizado =
+        (newSrv.estatus?.nombre || "").toLowerCase() === "no autorizado";
+      autorizacionForm.value = {
+        autorizado: !isNoAutorizado,
+        comentarios: "",
+      };
+      if (autorizarFormRef.value) {
+        autorizarFormRef.value.resetValidation();
+      }
+    }
+  },
+  { immediate: true }
+);
+
+watch(
+  () => autorizacionForm.value.autorizado,
+  (val) => {
+    if (val && autorizarFormRef.value) {
+      autorizarFormRef.value.resetValidation();
+    }
+  }
+);
+
+const submitAutorizacion = async () => {
+  if (!props.service?.id) return;
+
+  const isValid = await autorizarFormRef.value.validate();
+  if (!isValid) {
+    dataIncomplete();
+    return;
+  }
+
+  submittingAuth.value = true;
+  try {
+    const payload = {
+      orden_servicio_id: props.service.id,
+      autorizado: autorizacionForm.value.autorizado,
+      comentarios: autorizacionForm.value.comentarios?.trim() || null,
+    };
+
+    const res = await sendRequest("POST", payload, "/api/service/autorizar");
+    emit("authorized", res || props.service);
+  } finally {
+    submittingAuth.value = false;
+  }
+};
 
 const detallesList = computed(() => {
   return (
@@ -515,5 +710,8 @@ const openPdf = (url) => {
 <style scoped>
 .font-mono {
   font-family: monospace;
+}
+.border-grey {
+  border: 1px dashed #b0bec5;
 }
 </style>

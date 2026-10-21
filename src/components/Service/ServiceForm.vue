@@ -264,7 +264,10 @@
               @click="openPdf(formService.cotizacion_url)"
             >
               <q-icon name="attach_file" size="14px" class="q-mr-xs" />
-              <span>Cotización registrada previamente (clic aquí para ver el PDF)</span>
+              <span
+                >Cotización registrada previamente (clic aquí para ver el
+                PDF)</span
+              >
             </div>
           </div>
         </div>
@@ -695,7 +698,8 @@ const formService = ref({
 const onRejectedFile = () => {
   $q.notify({
     type: "negative",
-    message: "El archivo no es válido. Asegúrese de que sea un PDF de máximo 15 MB.",
+    message:
+      "El archivo no es válido. Asegúrese de que sea un PDF de máximo 15 MB.",
   });
 };
 
@@ -707,8 +711,7 @@ const onCotizacionFileChange = (file) => {
   }
 
   const isPdf =
-    file.type === "application/pdf" ||
-    file.name.toLowerCase().endsWith(".pdf");
+    file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
 
   if (!isPdf) {
     $q.notify({

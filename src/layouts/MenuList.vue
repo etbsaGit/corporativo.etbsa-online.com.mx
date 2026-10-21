@@ -383,7 +383,7 @@
           <q-icon name="fa-solid fa-screwdriver-wrench" />
         </q-item-section>
 
-        <q-item-section>Servicios</q-item-section>
+        <q-item-section>Órdenes Compra - Vehículos</q-item-section>
       </q-item>
     </q-expansion-item>
 

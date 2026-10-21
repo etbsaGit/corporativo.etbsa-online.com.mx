@@ -964,7 +964,10 @@
       style="width: 980px; max-width: 96vw; max-height: 90vh"
       class="scroll"
     >
-      <service-card :service="selectedRow" />
+      <service-card
+        :service="selectedRow"
+        @authorized="handleOrderAuthorized"
+      />
       <q-card-actions align="right" class="bg-grey-2">
         <q-btn flat label="Cerrar" color="grey-8" v-close-popup />
       </q-card-actions>
@@ -1408,6 +1411,15 @@ const openDelete = (item) => {
 const openShow = (item) => {
   selectedRow.value = item;
   showShow.value = true;
+};
+
+const handleOrderAuthorized = (updatedOrden) => {
+  if (updatedOrden && typeof updatedOrden === "object") {
+    selectedRow.value = updatedOrden;
+  }
+  showShow.value = false;
+  getRows(current_page.value);
+  getForms();
 };
 
 const getForms = async () => {
