@@ -1,5 +1,9 @@
 <template>
-  <q-card style="width: 1180px; max-width: 96vw" class="q-pa-none bg-grey-1">
+  <q-card
+    :style="embedded ? 'width: 100%' : 'width: 1180px; max-width: 96vw'"
+    :flat="embedded"
+    class="q-pa-none bg-grey-1"
+  >
     <!-- Encabezado Principal -->
     <q-card-section class="bg-primary text-white q-py-md q-px-lg">
       <div class="row items-center no-wrap">
@@ -13,7 +17,11 @@
         <div class="col">
           <div class="row items-center q-gutter-x-sm">
             <div class="text-h6 text-weight-bold leading-tight">
-              Dashboard de Historial de Servicios
+              {{
+                onlyGasolina
+                  ? "Dashboard de Historial de Cargas de Gasolina"
+                  : "Dashboard de Historial de Servicios"
+              }}
             </div>
             <q-badge
               :color="vehicle?.activo == 1 ? 'positive' : 'negative'"
@@ -64,7 +72,7 @@
             Descargar Excel con Dashboard, Tabla Interactiva y Gráficas
           </q-tooltip>
         </q-btn>
-        <q-btn icon="close" flat round dense v-close-popup />
+        <q-btn v-if="!embedded" icon="close" flat round dense v-close-popup />
       </div>
     </q-card-section>
 
@@ -74,15 +82,19 @@
     <div v-if="loading" class="q-pa-xl text-center">
       <q-spinner-dots color="primary" size="3.5em" />
       <div class="text-subtitle1 text-grey-7 q-mt-sm">
-        Cargando historial de servicios de la unidad...
+        {{
+          onlyGasolina
+            ? "Cargando historial de gasolina de la unidad..."
+            : "Cargando historial de servicios de la unidad..."
+        }}
       </div>
     </div>
 
     <!-- Contenido del Dashboard -->
     <q-card-section
       v-else
-      class="q-pa-md scroll"
-      style="max-height: 82vh"
+      :class="embedded ? 'q-pa-md' : 'q-pa-md scroll'"
+      :style="embedded ? '' : 'max-height: 82vh'"
     >
       <!-- Tarjetas de KPIs Principales -->
       <div class="row q-col-gutter-md q-mb-md">
@@ -331,25 +343,49 @@
             <div class="col-12 col-sm-3">
               <q-select
                 v-model="filters.tipoServicio"
-                :options="tipoServicioOptions"
+                :options="filteredTipoServicioOptions"
                 label="Tipo de Servicio"
                 outlined
                 dense
                 options-dense
                 clearable
-              />
+                use-input
+                input-debounce="0"
+                behavior="menu"
+                @filter="filterTipoServicioFn"
+              >
+                <template v-slot:no-option>
+                  <q-item>
+                    <q-item-section class="text-grey">
+                      Sin opciones
+                    </q-item-section>
+                  </q-item>
+                </template>
+              </q-select>
             </div>
 
             <div class="col-12 col-sm-3">
               <q-select
                 v-model="filters.servicio"
-                :options="servicioOptions"
+                :options="filteredServicioOptions"
                 label="Servicio"
                 outlined
                 dense
                 options-dense
                 clearable
-              />
+                use-input
+                input-debounce="0"
+                behavior="menu"
+                @filter="filterServicioFn"
+              >
+                <template v-slot:no-option>
+                  <q-item>
+                    <q-item-section class="text-grey">
+                      Sin opciones
+                    </q-item-section>
+                  </q-item>
+                </template>
+              </q-select>
             </div>
 
             <div class="col-12 col-sm-2 flex justify-end">
@@ -432,6 +468,12 @@
             <q-td :props="props">
               <div class="text-weight-bold text-primary">
                 {{ props.row.servicio_nombre }}
+                <span
+                  v-if="isGasolinaService(props.row) && props.row.cantidad"
+                  class="text-weight-bolder text-orange-9 q-ml-xs"
+                >
+                  ({{ props.row.cantidad }} Lts)
+                </span>
               </div>
               <div
                 v-if="props.row.intervalo_km_sugerido || props.row.intervalo_meses_sugerido"
@@ -623,6 +665,12 @@
                     </td>
                     <td class="text-weight-bold text-primary">
                       {{ det.servicio?.nombre || "Servicio" }}
+                      <span
+                        v-if="isGasolinaDetalle(det) && det.cantidad"
+                        class="text-weight-bolder text-orange-9 q-ml-xs"
+                      >
+                        ({{ det.cantidad }} Lts)
+                      </span>
                     </td>
                     <td style="max-width: 320px; white-space: normal">
                       {{ det.descripcion }}
@@ -673,14 +721,14 @@
           :disable="loading || !vehicle?.id"
           @click="exportToExcel"
         />
-        <q-btn flat label="Cerrar" color="grey-8" v-close-popup />
+        <q-btn v-if="!embedded" flat label="Cerrar" color="grey-8" v-close-popup />
       </div>
     </q-card-actions>
   </q-card>
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import { date } from "quasar";
 import { sendRequest, show_notify } from "src/boot/functions";
 
@@ -690,6 +738,14 @@ const props = defineProps({
     default: () => ({}),
   },
   loading: {
+    type: Boolean,
+    default: false,
+  },
+  embedded: {
+    type: Boolean,
+    default: false,
+  },
+  onlyGasolina: {
     type: Boolean,
     default: false,
   },
@@ -754,6 +810,8 @@ const resetFilters = () => {
     tipoServicio: null,
     servicio: null,
   };
+  filteredTipoServicioOptions.value = tipoServicioOptions.value;
+  filteredServicioOptions.value = servicioOptions.value;
 };
 
 const toggleTipoFilter = (nombre) => {
@@ -765,10 +823,57 @@ const toggleServicioFilter = (nombre) => {
   filters.value.servicio = filters.value.servicio === nombre ? null : nombre;
 };
 
+// Helpers para determinar si es gasolina
+const isGasolinaService = (row) => {
+  const sName = (row.servicio_nombre || "").toLowerCase();
+  const tName = (row.tipo_servicio_nombre || "").toLowerCase();
+  const tId = Number(row.tipo_servicio_id || 0);
+  return tName === "gasolina" || tId === 14 || sName.includes("gasolina");
+};
+
+const isGasolinaDetalle = (det) => {
+  const sName = (det.servicio?.nombre || "").toLowerCase();
+  const tName = (
+    det.servicio?.tipo_servicio?.nombre ||
+    det.servicio?.tipoServicio?.nombre ||
+    ""
+  ).toLowerCase();
+  const tId = Number(
+    det.servicio?.tipo_servicio_id || det.servicio?.tipoServicio?.id || 0
+  );
+  return tName === "gasolina" || tId === 14 || sName.includes("gasolina");
+};
+
+// Helper para determinar si una orden es de gasolina
+const isGasolinaOrden = (orden) => {
+  const detalles =
+    orden.detalles ||
+    orden.detalles_servicio ||
+    orden.detallesServicio ||
+    [];
+  return detalles.some((d) => {
+    const sName = (d.servicio?.nombre || "").toLowerCase();
+    const tName = (
+      d.servicio?.tipo_servicio?.nombre ||
+      d.servicio?.tipoServicio?.nombre ||
+      ""
+    ).toLowerCase();
+    const tId = Number(
+      d.servicio?.tipo_servicio_id || d.servicio?.tipoServicio?.id || 0
+    );
+    return tName === "gasolina" || tId === 14 || sName.includes("gasolina");
+  });
+};
+
 // Lista de órdenes normalizada
 const ordenesList = computed(() => {
-  const raw =
+  let raw =
     props.vehicle?.ordenes_servicio || props.vehicle?.ordenesServicio || [];
+
+  if (props.onlyGasolina) {
+    raw = raw.filter(isGasolinaOrden);
+  }
+
   return raw.map((orden) => {
     const detallesList =
       orden.detalles ||
@@ -818,6 +923,10 @@ const flatServices = computed(() => {
         intervalo_km_sugerido: servicioObj?.intervalo_km_sugerido || null,
         intervalo_meses_sugerido: servicioObj?.intervalo_meses_sugerido || null,
         descripcion: det.descripcion,
+        cantidad:
+          det.cantidad !== null && det.cantidad !== undefined
+            ? Number(det.cantidad)
+            : null,
         km_evento:
           det.km_evento !== null && det.km_evento !== undefined
             ? Number(det.km_evento)
@@ -847,6 +956,66 @@ const servicioOptions = computed(() => {
   const set = new Set(base.map((s) => s.servicio_nombre));
   return Array.from(set).sort();
 });
+
+const filteredTipoServicioOptions = ref([]);
+const filteredServicioOptions = ref([]);
+
+watch(
+  tipoServicioOptions,
+  (val) => {
+    filteredTipoServicioOptions.value = val;
+  },
+  { immediate: true }
+);
+
+watch(
+  servicioOptions,
+  (val) => {
+    filteredServicioOptions.value = val;
+  },
+  { immediate: true }
+);
+
+watch(
+  () => filters.value.tipoServicio,
+  (newVal) => {
+    if (newVal && filters.value.servicio) {
+      if (!servicioOptions.value.includes(filters.value.servicio)) {
+        filters.value.servicio = null;
+      }
+    }
+  }
+);
+
+const filterTipoServicioFn = (val, update) => {
+  if (val === "") {
+    update(() => {
+      filteredTipoServicioOptions.value = tipoServicioOptions.value;
+    });
+    return;
+  }
+  update(() => {
+    const q = val.toLowerCase();
+    filteredTipoServicioOptions.value = tipoServicioOptions.value.filter((t) =>
+      t.toLowerCase().includes(q)
+    );
+  });
+};
+
+const filterServicioFn = (val, update) => {
+  if (val === "") {
+    update(() => {
+      filteredServicioOptions.value = servicioOptions.value;
+    });
+    return;
+  }
+  update(() => {
+    const q = val.toLowerCase();
+    filteredServicioOptions.value = servicioOptions.value.filter((s) =>
+      s.toLowerCase().includes(q)
+    );
+  });
+};
 
 // Servicios filtrados
 const filteredServices = computed(() => {

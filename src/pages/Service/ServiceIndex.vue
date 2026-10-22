@@ -961,7 +961,7 @@
   <!-- Modal: Ver Detalle de Orden de Servicio -->
   <q-dialog v-model="showShow">
     <q-card
-      style="width: 980px; max-width: 96vw; max-height: 90vh"
+      style="width: 1200px; max-width: 96vw; max-height: 92vh"
       class="scroll"
     >
       <service-card

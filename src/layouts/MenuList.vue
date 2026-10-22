@@ -385,6 +385,22 @@
 
         <q-item-section>Órdenes Compra - Vehículos</q-item-section>
       </q-item>
+      <q-item
+        v-if="checkRole('cc') || checkRole('Admin')"
+        clickable
+        dense
+        v-ripple
+        to="/gasolina"
+        :active="link === 'gasolina'"
+        @click="link = 'gasolina'"
+        active-class="my-menu-link"
+      >
+        <q-item-section avatar>
+          <q-icon name="local_gas_station" />
+        </q-item-section>
+
+        <q-item-section>Órdenes Compra - Gasolina</q-item-section>
+      </q-item>
     </q-expansion-item>
 
     <q-expansion-item

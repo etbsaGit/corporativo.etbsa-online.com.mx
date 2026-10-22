@@ -101,6 +101,24 @@
                     {{ service?.vehicle?.departamento?.nombre || "-" }}
                   </div>
                 </div>
+                <div class="col-12 q-mt-xs">
+                  <q-badge
+                    :color="onlyGasolina ? 'amber-1' : 'indigo-1'"
+                    :text-color="onlyGasolina ? 'amber-10' : 'indigo-9'"
+                    class="q-px-sm q-py-xs"
+                  >
+                    <q-icon
+                      :name="onlyGasolina ? 'local_gas_station' : 'analytics'"
+                      size="14px"
+                      class="q-mr-xs"
+                    />
+                    {{
+                      onlyGasolina
+                        ? "Historial de cargas de gasolina disponible abajo"
+                        : "Historial de servicios de la unidad disponible abajo"
+                    }}
+                  </q-badge>
+                </div>
               </div>
             </q-card-section>
           </q-card>
@@ -250,6 +268,12 @@
                 </td>
                 <td class="text-weight-bold text-primary">
                   {{ det.servicio?.nombre || "Servicio" }}
+                  <span
+                    v-if="isGasolinaDetalle(det) && det.cantidad"
+                    class="text-weight-bolder text-orange-9 q-ml-xs"
+                  >
+                    ({{ det.cantidad }} Lts)
+                  </span>
                 </td>
                 <td style="max-width: 240px; white-space: normal">
                   {{ det.descripcion }}
@@ -311,8 +335,63 @@
         </q-expansion-item>
       </q-card>
 
+      <!-- Desplegable: Historial de Servicios de la Unidad (Dashboard) -->
+      <q-card flat bordered class="bg-white q-mb-md">
+        <q-expansion-item
+          default-opened
+          header-class="bg-grey-2 text-primary"
+          expand-icon-class="text-primary"
+        >
+          <template v-slot:header>
+            <q-item-section avatar>
+              <q-avatar
+                :icon="onlyGasolina ? 'local_gas_station' : 'analytics'"
+                :color="onlyGasolina ? 'amber-9' : 'indigo-8'"
+                text-color="white"
+                size="30px"
+              />
+            </q-item-section>
+            <q-item-section>
+              <div
+                class="text-subtitle2 text-weight-bold text-primary flex items-center"
+              >
+                {{
+                  onlyGasolina
+                    ? "Historial de Cargas de Gasolina de la Unidad (Dashboard)"
+                    : "Historial de Servicios de la Unidad (Dashboard)"
+                }}
+                <q-badge
+                  :color="onlyGasolina ? 'amber-9' : 'indigo-8'"
+                  class="q-ml-sm"
+                >
+                  {{ dashboardOrdersCount }}
+                  órdenes registradas
+                </q-badge>
+              </div>
+            </q-item-section>
+            <q-item-section side>
+              <div class="text-caption text-grey-8">
+                Unidad:
+                <strong class="text-primary">{{
+                  service?.vehicle?.placas || "S/P"
+                }}</strong>
+              </div>
+            </q-item-section>
+          </template>
+
+          <q-separator />
+
+          <vehicle-services-dashboard
+            :vehicle="vehicleHistory || service?.vehicle"
+            :loading="loadingHistory"
+            :only-gasolina="onlyGasolina"
+            embedded
+          />
+        </q-expansion-item>
+      </q-card>
+
       <!-- Desplegable: Bitácora de Acciones y Movimientos -->
-      <q-card flat bordered class="bg-white">
+      <q-card flat bordered class="bg-white q-mb-md">
         <q-expansion-item
           default-opened
           header-class="bg-grey-2 text-primary"
@@ -561,15 +640,103 @@
 import { ref, computed, watch } from "vue";
 import { date } from "quasar";
 import { sendRequest, dataIncomplete, checkPuesto } from "src/boot/functions";
+import VehicleServicesDashboard from "src/components/Vehicle/VehicleServicesDashboard.vue";
 
 const props = defineProps({
   service: {
     type: Object,
     default: () => ({}),
   },
+  authEndpoint: {
+    type: String,
+    default: "/api/service/autorizar",
+  },
+  onlyGasolina: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const emit = defineEmits(["authorized"]);
+
+const vehicleHistory = ref(null);
+const loadingHistory = ref(false);
+
+const loadVehicleHistory = async (vehicleId) => {
+  if (!vehicleId) {
+    vehicleHistory.value = null;
+    return;
+  }
+  loadingHistory.value = true;
+  try {
+    const res = await sendRequest("GET", null, `/api/vehicle/${vehicleId}`, "");
+    if (res) {
+      vehicleHistory.value = res;
+    }
+  } catch (e) {
+    console.error("Error al cargar historial del vehículo:", e);
+  } finally {
+    loadingHistory.value = false;
+  }
+};
+
+const isGasolinaDetalle = (det) => {
+  const sName = (det.servicio?.nombre || "").toLowerCase();
+  const tName = (
+    det.servicio?.tipo_servicio?.nombre ||
+    det.servicio?.tipoServicio?.nombre ||
+    ""
+  ).toLowerCase();
+  const tId = Number(
+    det.servicio?.tipo_servicio_id || det.servicio?.tipoServicio?.id || 0
+  );
+  return tName === "gasolina" || tId === 14 || sName.includes("gasolina");
+};
+
+const isGasolinaOrden = (orden) => {
+  const detalles =
+    orden.detalles ||
+    orden.detalles_servicio ||
+    orden.detallesServicio ||
+    [];
+  return detalles.some((d) => {
+    const sName = (d.servicio?.nombre || "").toLowerCase();
+    const tName = (
+      d.servicio?.tipo_servicio?.nombre ||
+      d.servicio?.tipoServicio?.nombre ||
+      ""
+    ).toLowerCase();
+    const tId = Number(
+      d.servicio?.tipo_servicio_id || d.servicio?.tipoServicio?.id || 0
+    );
+    return tName === "gasolina" || tId === 14 || sName.includes("gasolina");
+  });
+};
+
+const dashboardOrdersCount = computed(() => {
+  const raw =
+    vehicleHistory.value?.ordenes_servicio ||
+    vehicleHistory.value?.ordenesServicio ||
+    props.service?.vehicle?.ordenes_servicio ||
+    props.service?.vehicle?.ordenesServicio ||
+    [];
+  if (!props.onlyGasolina) {
+    return raw.length;
+  }
+  return raw.filter(isGasolinaOrden).length;
+});
+
+watch(
+  () => props.service?.vehicle_id || props.service?.vehicle?.id,
+  (newId) => {
+    if (newId) {
+      loadVehicleHistory(newId);
+    } else {
+      vehicleHistory.value = null;
+    }
+  },
+  { immediate: true }
+);
 
 const autorizarFormRef = ref(null);
 const submittingAuth = ref(false);
@@ -623,7 +790,11 @@ const submitAutorizacion = async () => {
       comentarios: autorizacionForm.value.comentarios?.trim() || null,
     };
 
-    const res = await sendRequest("POST", payload, "/api/service/autorizar");
+    const res = await sendRequest(
+      "POST",
+      payload,
+      props.authEndpoint || "/api/service/autorizar"
+    );
     emit("authorized", res || props.service);
   } finally {
     submittingAuth.value = false;

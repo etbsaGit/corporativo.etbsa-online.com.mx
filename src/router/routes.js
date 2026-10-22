@@ -85,6 +85,10 @@ const routes = [
         path: "/services",
         component: () => import("src/pages/Service/ServiceIndex.vue"),
       },
+      {
+        path: "/gasolina",
+        component: () => import("src/pages/Gasolina/GasolinaIndex.vue"),
+      },
     ],
   },
   {
