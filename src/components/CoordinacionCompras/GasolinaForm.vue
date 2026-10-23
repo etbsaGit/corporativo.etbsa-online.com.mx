@@ -72,7 +72,9 @@
             >
               <div class="text-caption text-weight-medium flex items-center">
                 <q-icon name="speed" size="16px" class="q-mr-xs" />
-                Último kilometraje registrado ({{ selectedVehicle.placas || "S/P" }}):
+                Último kilometraje registrado ({{
+                  selectedVehicle.placas || "S/P"
+                }}):
               </div>
               <div class="text-subtitle2 text-weight-bolder">
                 {{
@@ -160,6 +162,11 @@
               options-dense
               clearable
               bg-color="white"
+              :disable="
+                !checkRole('Admin') ||
+                !checkPuestoIncludes('Coordinador de compras') ||
+                !checkPuestoIncludes('Director administrativo')
+              "
             >
               <template v-slot:prepend>
                 <q-icon name="person" color="grey-7" />
@@ -243,6 +250,11 @@
 <script setup>
 import { ref, computed, watch, onMounted } from "vue";
 import { date } from "quasar";
+import {
+  sendRequest,
+  checkRole,
+  checkPuestoIncludes,
+} from "src/boot/functions";
 
 const props = defineProps({
   orden: {
@@ -379,8 +391,9 @@ const filterEmpleadosFn = (val, update) => {
   update(() => {
     const q = val.toLowerCase();
     filteredEmpleados.value = baseList.filter((e) => {
-      const nombre = (e.nombreCompleto || `${e.nombre} ${e.apellido_paterno}`)
-        .toLowerCase();
+      const nombre = (
+        e.nombreCompleto || `${e.nombre} ${e.apellido_paterno}`
+      ).toLowerCase();
       return nombre.includes(q);
     });
   });
@@ -434,7 +447,8 @@ const initForm = () => {
       vehicle_id: ord.vehicle_id,
       fecha_elaboracion: ord.fecha_elaboracion || getTodayDate(),
       km_evento:
-        primerDetalle.km_evento !== undefined && primerDetalle.km_evento !== null
+        primerDetalle.km_evento !== undefined &&
+        primerDetalle.km_evento !== null
           ? Number(primerDetalle.km_evento)
           : null,
       cantidad:
@@ -448,14 +462,28 @@ const initForm = () => {
       estatus_id: ord.estatus_id || null,
     };
   } else {
+    const defaultVehId = props.fixedVehicleId
+      ? Number(props.fixedVehicleId)
+      : null;
+    let initialKm = null;
+    if (defaultVehId) {
+      const list = props.allowedVehicles || props.catalogs?.vehicles || [];
+      const found = list.find((v) => Number(v.id) === Number(defaultVehId));
+      if (found) {
+        initialKm = found.ultimo_km || found.km || null;
+      }
+    }
+
     formGasolina.value = {
       id: null,
-      vehicle_id: props.fixedVehicleId ? Number(props.fixedVehicleId) : null,
+      vehicle_id: defaultVehId,
       fecha_elaboracion: getTodayDate(),
-      km_evento: null,
+      km_evento: initialKm,
       cantidad: null,
       descripcion: "",
-      solicitante_id: null,
+      solicitante_id: props.defaultSolicitanteId
+        ? Number(props.defaultSolicitanteId)
+        : null,
       suc_cargo_id: null,
       depto_cargo_id: null,
       estatus_id: null,
@@ -481,8 +509,7 @@ watch(
   () => props.catalogs,
   (cats) => {
     if (cats) {
-      filteredVehicles.value =
-        props.allowedVehicles || cats.vehicles || [];
+      filteredVehicles.value = props.allowedVehicles || cats.vehicles || [];
       filteredEmpleados.value = cats.empleados || [];
       filteredSucursalesCargo.value = cats.sucursales_cargo || [];
       filteredDeptosCargo.value = cats.deptos_cargo || [];

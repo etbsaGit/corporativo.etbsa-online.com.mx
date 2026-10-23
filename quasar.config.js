@@ -106,6 +106,7 @@ module.exports = configure(function (/* ctx */) {
         "LoadingBar",
         "LocalStorage",
         "SessionStorage",
+        "Dialog",
       ],
     },
 

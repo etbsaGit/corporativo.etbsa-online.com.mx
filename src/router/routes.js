@@ -82,12 +82,14 @@ const routes = [
         component: () => import("src/pages/Vehicles/VehiclePage.vue"),
       },
       {
-        path: "/services",
-        component: () => import("src/pages/Service/ServiceIndex.vue"),
+        path: "/oc-services",
+        component: () =>
+          import("src/pages/CoordinacionCompras/ServiceIndex.vue"),
       },
       {
-        path: "/gasolina",
-        component: () => import("src/pages/Gasolina/GasolinaIndex.vue"),
+        path: "/oc-gasolina",
+        component: () =>
+          import("src/pages/CoordinacionCompras/GasolinaIndex.vue"),
       },
     ],
   },
@@ -181,7 +183,13 @@ const routes = [
       },
       {
         path: "/serviciosUnidad",
-        component: () => import("src/pages/Service/ServiceIndex.vue"),
+        component: () =>
+          import("src/pages/CoordinacionCompras/ServiceIndex.vue"),
+      },
+      {
+        path: "/dispersionGasolina",
+        component: () =>
+          import("src/pages/CoordinacionCompras/GasolinaIndex.vue"),
       },
     ],
   },

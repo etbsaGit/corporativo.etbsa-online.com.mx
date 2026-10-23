@@ -1,5 +1,5 @@
 <template>
-  <!-- Banner informativo cuando se visualiza desde "Servicios Unidad" -->
+  <!-- Banner informativo cuando se visualiza desde "Gasolina Unidad" / Mi Unidad -->
   <q-card
     v-if="onlyMyUnit"
     flat
@@ -98,7 +98,7 @@
             outlined
             dense
             clearable
-            label="Buscar placa, serie, OC, factura, descripción..."
+            label="Buscar placa, serie, OC, factura, solicitante..."
             v-model="filterForm.search"
             @update:model-value="onInputChange"
           >
@@ -108,10 +108,10 @@
           </q-input>
         </div>
 
-        <!-- Vehículo (visible en /services o cuando el empleado tiene más de 1 unidad asignada) -->
+        <!-- Selector de Unidad (Placa) -->
         <div
           v-if="!onlyMyUnit || assignedVehicles.length > 1"
-          class="col-12 col-sm-6 col-md-2"
+          class="col-12 col-sm-6 col-md-3"
         >
           <q-select
             v-model="filterForm.vehicle_id"
@@ -135,25 +135,16 @@
           />
         </div>
 
-        <!-- Proveedor -->
-        <div
-          :class="
-            !onlyMyUnit || assignedVehicles.length > 1
-              ? 'col-12 col-sm-6 col-md-2'
-              : 'col-12 col-sm-4 col-md-3'
-          "
-        >
+        <!-- Selector Sucursal Cargo -->
+        <div class="col-12 col-sm-6 col-md-3">
           <q-select
-            v-model="filterForm.proveedor_id"
-            :options="filteredProveedores"
-            label="Proveedor"
+            v-model="filterForm.suc_cargo_id"
+            :options="catalogs.sucursales_cargo"
+            label="Sucursal Cargo"
             option-value="id"
             option-label="nombre"
             emit-value
             map-options
-            use-input
-            input-debounce="0"
-            @filter="filterProveedoresFn"
             clearable
             outlined
             dense
@@ -162,54 +153,18 @@
           />
         </div>
 
-        <!-- Tipo de Servicio -->
-        <div
-          :class="
-            !onlyMyUnit || assignedVehicles.length > 1
-              ? 'col-12 col-sm-6 col-md-2'
-              : 'col-12 col-sm-4 col-md-2'
-          "
-        >
-          <q-select
-            v-model="filterForm.tipo_servicio_id"
-            :options="filteredTiposServicio"
-            label="Tipo de Servicio"
-            option-value="id"
-            option-label="nombre"
-            emit-value
-            map-options
-            use-input
-            input-debounce="0"
-            @filter="filterTiposServicioFn"
-            clearable
-            outlined
-            dense
-            options-dense
-            @update:model-value="onFilterTipoChange"
-          />
-        </div>
-
-        <!-- Servicio Específico -->
-        <div
-          :class="
-            !onlyMyUnit || assignedVehicles.length > 1
-              ? 'col-12 col-sm-6 col-md-3'
-              : 'col-12 col-sm-4 col-md-3'
-          "
-        >
+        <!-- Selector Depto Cargo y Acciones -->
+        <div class="col-12 col-sm-6 col-md-3">
           <div class="row no-wrap items-center q-gutter-x-xs">
             <q-select
               class="col"
-              v-model="filterForm.servicio_id"
-              :options="filteredServiciosCat"
-              label="Servicio"
+              v-model="filterForm.depto_cargo_id"
+              :options="catalogs.deptos_cargo"
+              label="Depto Cargo"
               option-value="id"
               option-label="nombre"
               emit-value
               map-options
-              use-input
-              input-debounce="0"
-              @filter="filterServiciosCatFn"
               clearable
               outlined
               dense
@@ -232,24 +187,28 @@
               unelevated
               dense
               color="primary"
-              icon="add_circle"
-              label="Nueva Orden de Compra"
+              icon="local_gas_station"
+              :label="onlyMyUnit ? 'Nueva Solicitud' : 'Nueva Orden'"
               class="q-px-sm"
               @click="openCreate"
-            />
+            >
+              <q-tooltip>Registrar nueva solicitud de gasolina</q-tooltip>
+            </q-btn>
           </div>
         </div>
       </div>
     </q-card-section>
   </q-card>
 
-  <!-- Tabla Principal de Órdenes de Servicio con Detalles Desplegables -->
+  <!-- Tabla Principal de Órdenes Compra - Gasolina -->
   <q-item class="q-pt-none">
     <q-item-section>
       <q-table
         flat
         bordered
-        title="Órdenes de Compra Registradas"
+        :title="
+          onlyMyUnit ? 'Dispersión de Gasolina' : 'Órdenes de Compra - Gasolina'
+        "
         :rows="rows"
         :columns="columns"
         row-key="id"
@@ -257,19 +216,22 @@
         :loading="loading"
         :rows-per-page-options="[0]"
       >
+        <!-- Top bar slot -->
         <template v-slot:top>
-          <div class="row full-width items-center justify-between q-py-xs q-col-gutter-y-xs">
+          <div
+            class="row full-width items-center justify-between q-py-xs q-col-gutter-y-xs"
+          >
             <div class="row items-center q-gutter-x-sm wrap">
-              <q-icon name="build_circle" color="primary" size="26px" />
+              <q-icon name="local_gas_station" color="primary" size="26px" />
               <span class="text-h6 text-weight-bold text-dark">
                 {{
                   onlyMyUnit
                     ? assignedVehicles.length === 1
-                      ? `Órdenes de Compra de mi Unidad (${
+                      ? `Dispersión de Gasolina (${
                           assignedVehicles[0]?.placas || "S/P"
                         })`
-                      : "Órdenes de Compra de mis Unidades Asignadas"
-                    : "Órdenes de Compra"
+                      : "Dispersión de Gasolina"
+                    : "Órdenes Compra - Gasolina"
                 }}
               </span>
               <q-badge
@@ -292,8 +254,12 @@
               >
                 <span>Por Revisar</span>
                 <q-badge
-                  :color="isEstatusActive(estatusSolicitadoId) ? 'white' : 'primary'"
-                  :text-color="isEstatusActive(estatusSolicitadoId) ? 'primary' : 'white'"
+                  :color="
+                    isEstatusActive(estatusSolicitadoId) ? 'white' : 'primary'
+                  "
+                  :text-color="
+                    isEstatusActive(estatusSolicitadoId) ? 'primary' : 'white'
+                  "
                   class="q-ml-xs text-weight-bolder"
                 >
                   {{ countPorRevisar }}
@@ -307,22 +273,53 @@
                 </q-tooltip>
               </q-btn>
 
+              <!-- Botón 1: Por dispersar (Azul) con contador -->
+              <q-btn
+                dense
+                no-caps
+                :unelevated="isEstatusActive(estatusPorDispersarId)"
+                :outline="!isEstatusActive(estatusPorDispersarId)"
+                color="primary"
+                class="q-px-sm text-weight-bold"
+                @click="filterByStatus(estatusPorDispersarId)"
+              >
+                <span>Por dispersar</span>
+                <q-badge
+                  :color="
+                    isEstatusActive(estatusPorDispersarId) ? 'white' : 'primary'
+                  "
+                  :text-color="
+                    isEstatusActive(estatusPorDispersarId) ? 'primary' : 'white'
+                  "
+                  class="q-ml-xs text-weight-bolder"
+                >
+                  {{ countPorDispersar }}
+                </q-badge>
+                <q-tooltip>
+                  {{
+                    isEstatusActive(estatusPorDispersarId)
+                      ? "Filtro activo: clic para mostrar todas"
+                      : "Filtrar por solicitudes Por dispersar"
+                  }}
+                </q-tooltip>
+              </q-btn>
+
               <!-- Botón 2: Autorizadas (Verde) -->
               <q-btn
                 dense
                 no-caps
-                :unelevated="isEstatusActive(estatusAutorizadoId)"
-                :outline="!isEstatusActive(estatusAutorizadoId)"
+                :unelevated="isEstatusActive(estatusDispersadoId)"
+                :outline="!isEstatusActive(estatusDispersadoId)"
                 color="positive"
                 class="q-px-sm text-weight-bold"
-                @click="filterByStatus(estatusAutorizadoId)"
+                @click="filterByStatus(estatusDispersadoId)"
               >
-                <span>Autorizadas</span>
+                <span>Dispersadas</span>
                 <q-tooltip>
                   {{
-                    isEstatusActive(estatusAutorizadoId)
+                    isEstatusActive(estatusDispersadoId)
                       ? "Filtro activo: clic para mostrar todas"
-                      : "Filtrar por solicitudes Autorizadas"
+                      : "Filtrar por solicitudes Dispersadas"
                   }}
                 </q-tooltip>
               </q-btn>
@@ -380,6 +377,7 @@
           </div>
         </template>
 
+        <!-- Cabecera de la tabla -->
         <template v-slot:header="props">
           <q-tr :props="props" class="bg-grey-2">
             <q-th auto-width class="text-center">Detalles</q-th>
@@ -395,10 +393,11 @@
           </q-tr>
         </template>
 
+        <!-- Filas de datos -->
         <template v-slot:body="props">
           <q-tr
             :props="props"
-            :class="isExpanded(props.row.id) ? 'bg-blue-1' : ''"
+            :class="isExpanded(props.row.id) ? 'bg-amber-1' : ''"
           >
             <!-- Botón Desplegar Detalles -->
             <q-td auto-width class="text-center">
@@ -419,8 +418,8 @@
                 <q-tooltip>
                   {{
                     isExpanded(props.row.id)
-                      ? "Ocultar servicios"
-                      : "Ver servicios de la orden"
+                      ? "Ocultar conceptos de gasolina"
+                      : "Ver conceptos de la orden"
                   }}
                 </q-tooltip>
               </q-btn>
@@ -430,7 +429,7 @@
                 :label="getDetalles(props.row).length"
               >
                 <q-tooltip>
-                  {{ getDetalles(props.row).length }} servicio(s) en esta orden
+                  {{ getDetalles(props.row).length }} concepto(s) en esta orden
                 </q-tooltip>
               </q-badge>
             </q-td>
@@ -452,10 +451,22 @@
                 color="blue"
                 icon="edit_square"
                 @click="openEdit(props.row)"
+                :disable="!canEdit(props.row)"
               >
                 <q-tooltip>Editar orden</q-tooltip>
               </q-btn>
+              <!-- marcar como dispersada -->
               <q-btn
+                v-if="canMarcarDispersada(props.row)"
+                dense
+                flat
+                color="deep-orange"
+                icon="local_gas_station"
+                @click="marcarDispersada(props.row)"
+              >
+                <q-tooltip>Marcar como dispersada</q-tooltip>
+              </q-btn>
+              <!-- <q-btn
                 dense
                 flat
                 color="negative"
@@ -463,7 +474,7 @@
                 @click="openDelete(props.row)"
               >
                 <q-tooltip>Eliminar orden</q-tooltip>
-              </q-btn>
+              </q-btn> -->
             </q-td>
 
             <!-- Folios (OC / Aut / Factura) -->
@@ -526,32 +537,19 @@
               </div>
             </q-td>
 
-            <!-- Servicios Resumen -->
-            <q-td
-              key="servicios_resumen"
-              :props="props"
-              style="max-width: 280px; white-space: normal"
-            >
-              <div class="row q-gutter-xs">
-                <q-badge
-                  v-for="det in getDetalles(props.row).slice(0, 3)"
-                  :key="det.id"
-                  outline
-                  color="primary"
-                  class="ellipsis"
-                  style="max-width: 220px"
-                >
-                  {{ det.servicio?.nombre || "Servicio" }}
-                </q-badge>
-                <q-badge
-                  v-if="getDetalles(props.row).length > 3"
-                  color="grey-7"
-                  :label="`+${getDetalles(props.row).length - 3} más`"
-                />
-              </div>
+            <!-- Litros de Gasolina -->
+            <q-td key="litros" :props="props" class="text-center">
+              <q-badge
+                color="amber-10"
+                text-color="white"
+                class="q-px-sm q-py-xs"
+              >
+                <q-icon name="local_gas_station" size="14px" class="q-mr-xs" />
+                {{ getTotalLitros(props.row) }} L
+              </q-badge>
             </q-td>
 
-            <!-- KM Máximo en la Orden -->
+            <!-- KM Carga / Evento -->
             <q-td key="km" :props="props" class="text-right">
               <span
                 v-if="getMaxKm(props.row)"
@@ -595,7 +593,7 @@
             </q-td>
           </q-tr>
 
-          <!-- Fila Desplegable: Detalles de Servicios y Bitácora de la Orden -->
+          <!-- Fila Desplegable: Detalles de Gasolina y Bitácora -->
           <q-tr
             v-show="isExpanded(props.row.id)"
             :props="props"
@@ -603,25 +601,31 @@
           >
             <q-td colspan="100%" class="q-pa-sm">
               <div class="q-mx-md q-gutter-y-sm">
-                <!-- Desplegable 1: Servicios incluidos en la Orden -->
+                <!-- Desplegable 1: Conceptos de Combustible incluidos -->
                 <q-card flat bordered class="bg-white">
                   <q-expansion-item
                     default-opened
-                    header-class="bg-blue-grey-1 text-blue-grey-9"
-                    expand-icon-class="text-blue-grey-9"
+                    header-class="bg-amber-1 text-grey-9"
+                    expand-icon-class="text-primary"
                   >
                     <template v-slot:header>
                       <q-item-section avatar>
-                        <q-icon name="handyman" color="primary" size="20px" />
+                        <q-icon
+                          name="local_gas_station"
+                          color="amber-9"
+                          size="22px"
+                        />
                       </q-item-section>
                       <q-item-section>
                         <div
-                          class="text-caption text-weight-bold text-blue-grey-9 flex items-center"
+                          class="text-caption text-weight-bold text-grey-9 flex items-center"
                         >
-                          Conceptos de la Orden #{{ props.row.id }} (Placa:
-                          {{ props.row.vehicle?.placas || "S/P" }})
+                          Dispersión de Combustible - Orden #{{
+                            props.row.id
+                          }}
+                          (Placa: {{ props.row.vehicle?.placas || "S/P" }})
                           <q-badge color="primary" class="q-ml-sm">
-                            {{ getDetalles(props.row).length }}
+                            {{ getDetalles(props.row).length }} concepto(s)
                           </q-badge>
                         </div>
                       </q-item-section>
@@ -647,61 +651,25 @@
                     <q-markup-table flat dense separator="horizontal">
                       <thead>
                         <tr class="bg-grey-2 text-grey-8">
-                          <th class="text-left">Tipo de Servicio</th>
-                          <th class="text-left">Conceptos</th>
-                          <th class="text-left">Descripción / Detalle</th>
-                          <th class="text-center">Medida Llanta</th>
+                          <th class="text-left">Concepto</th>
+                          <th class="text-left">Descripción / Observación</th>
                           <th class="text-right">Kilometraje (KM)</th>
-                          <th class="text-center">Cant.</th>
-                          <th class="text-right">P. Unitario</th>
+                          <th class="text-center">Litros / Cantidad</th>
+                          <th class="text-right">Precio por Litro</th>
                           <th class="text-right">Subtotal</th>
                           <th class="text-right">IVA</th>
-                          <th class="text-right">Total Invertido</th>
+                          <th class="text-right">Total</th>
                         </tr>
                       </thead>
                       <tbody>
                         <tr v-for="det in getDetalles(props.row)" :key="det.id">
-                          <td>
-                            <q-badge
-                              :color="
-                                getTipoColor(
-                                  det.servicio?.tipo_servicio?.nombre ||
-                                    det.servicio?.tipoServicio?.nombre
-                                )
-                              "
-                              class="q-px-sm"
-                            >
-                              {{
-                                det.servicio?.tipo_servicio?.nombre ||
-                                det.servicio?.tipoServicio?.nombre ||
-                                "General"
-                              }}
-                            </q-badge>
-                          </td>
                           <td class="text-weight-bold text-primary">
-                            {{ det.servicio?.nombre || "Servicio" }}
+                            {{
+                              det.servicio?.nombre || "Dispersión de gasolina"
+                            }}
                           </td>
                           <td style="max-width: 340px; white-space: normal">
-                            {{ det.descripcion }}
-                          </td>
-                          <td class="text-center">
-                            <q-badge
-                              v-if="
-                                det.llanta_anchura ||
-                                det.llanta_altura ||
-                                det.llanta_rin
-                              "
-                              color="indigo-7"
-                              outline
-                            >
-                              {{ det.llanta_anchura || "-" }}/{{
-                                det.llanta_altura || "-"
-                              }}
-                              R{{ det.llanta_rin || "-" }}
-                            </q-badge>
-                            <span v-else class="text-caption text-grey-5"
-                              >-</span
-                            >
+                            {{ det.descripcion || "-" }}
                           </td>
                           <td class="text-right text-weight-medium">
                             {{
@@ -710,8 +678,8 @@
                                 : "No reg."
                             }}
                           </td>
-                          <td class="text-center">
-                            {{ det.cantidad || "-" }}
+                          <td class="text-center font-mono text-weight-bold">
+                            {{ det.cantidad || 0 }} L
                           </td>
                           <td class="text-right">
                             {{
@@ -776,7 +744,7 @@
                       v-if="getBitacora(props.row).length === 0"
                       class="q-pa-sm text-center text-caption text-grey-6"
                     >
-                      No hay registros de bitácora para esta orden de servicio.
+                      No hay registros de bitácora para esta orden de gasolina.
                     </div>
                     <q-markup-table v-else flat dense separator="horizontal">
                       <thead>
@@ -847,6 +815,7 @@
           </q-tr>
         </template>
 
+        <!-- Bottom Pagination slot -->
         <template v-slot:bottom>
           <q-space />
           <td>
@@ -870,26 +839,31 @@
     </q-item-section>
   </q-item>
 
-  <!-- Modal: Registrar Nueva Orden de Servicio -->
+  <!-- Modal: Registrar Nueva Orden de Gasolina -->
   <q-dialog v-model="showAdd" persistent>
-    <q-card style="width: 1050px; max-width: 96vw">
+    <q-card style="width: 960px; max-width: 96vw">
       <q-item class="bg-primary text-white">
         <q-item-section avatar>
-          <q-icon name="add_circle" size="md" />
+          <q-icon name="local_gas_station" size="md" />
         </q-item-section>
         <q-item-section>
-          <q-item-label class="text-h6"
-            >Registrar Nueva Orden de Compra</q-item-label
-          >
+          <q-item-label class="text-h6">
+            {{
+              onlyMyUnit
+                ? "Registrar Solicitud de Dispersión de Gasolina"
+                : "Registrar Orden de Compra - Gasolina"
+            }}
+          </q-item-label>
         </q-item-section>
         <q-item-section side>
           <div class="row q-gutter-x-sm">
             <q-btn flat label="Cancelar" color="white" v-close-popup />
             <q-btn
               unelevated
-              label="Guardar Orden"
+              :label="onlyMyUnit ? 'Enviar Solicitud' : 'Guardar Orden'"
               color="positive"
               icon="save"
+              :loading="saving"
               @click="postRow"
             />
           </div>
@@ -897,7 +871,7 @@
       </q-item>
       <q-separator />
       <q-card-section class="scroll" style="max-height: 80vh">
-        <service-form
+        <gasolina-form
           v-if="showAdd"
           ref="add"
           :catalogs="catalogs"
@@ -915,16 +889,20 @@
     </q-card>
   </q-dialog>
 
-  <!-- Modal: Editar Orden de Servicio -->
+  <!-- Modal: Editar Orden de Gasolina -->
   <q-dialog v-model="showEdit" persistent>
-    <q-card style="width: 1050px; max-width: 96vw">
+    <q-card style="width: 960px; max-width: 96vw">
       <q-item class="bg-primary text-white">
         <q-item-section avatar>
           <q-icon name="edit_square" size="md" />
         </q-item-section>
         <q-item-section>
           <q-item-label class="text-h6">
-            Editar Orden de Servicio #{{ selectedRow?.id }}
+            {{
+              onlyMyUnit
+                ? `Editar Solicitud de Gasolina #${selectedRow?.id}`
+                : `Editar Orden de Gasolina #${selectedRow?.id}`
+            }}
           </q-item-label>
         </q-item-section>
         <q-item-section side>
@@ -935,6 +913,7 @@
               label="Actualizar"
               color="positive"
               icon="save"
+              :loading="saving"
               @click="putRow"
             />
           </div>
@@ -942,10 +921,10 @@
       </q-item>
       <q-separator />
       <q-card-section class="scroll" style="max-height: 80vh">
-        <service-form
+        <gasolina-form
           v-if="showEdit"
           ref="edit"
-          :service="selectedRow"
+          :orden="selectedRow"
           :catalogs="catalogs"
           :fixed-vehicle-id="
             onlyMyUnit && assignedVehicles.length === 1
@@ -953,12 +932,15 @@
               : null
           "
           :allowed-vehicles="onlyMyUnit ? assignedVehicles : null"
+          :default-solicitante-id="
+            onlyMyUnit ? authStore.authUser?.empleado?.id : null
+          "
         />
       </q-card-section>
     </q-card>
   </q-dialog>
 
-  <!-- Modal: Ver Detalle de Orden de Servicio -->
+  <!-- Modal: Ver Detalle de Orden de Gasolina -->
   <q-dialog v-model="showShow">
     <q-card
       style="width: 1200px; max-width: 96vw; max-height: 92vh"
@@ -966,6 +948,8 @@
     >
       <service-card
         :service="selectedRow"
+        :auth-endpoint="'/api/gasolina/autorizar'"
+        only-gasolina
         @authorized="handleOrderAuthorized"
       />
       <q-card-actions align="right" class="bg-grey-2">
@@ -977,22 +961,58 @@
   <!-- Modal: Confirmar Eliminación -->
   <BaseDialog v-model="showDelete" mode="delete" @submit="deleteRow">
     <template #delete-message>
-      ¿Estás seguro que deseas eliminar esta orden de servicio y todos sus
-      conceptos asociados?
+      ¿Estás seguro que deseas eliminar esta orden de gasolina (#{{
+        selectedRow?.id
+      }}) y todos sus conceptos asociados?
     </template>
   </BaseDialog>
+
+  <!-- Modal: Confirmar Dispersión -->
+  <q-dialog v-model="showDispersar" persistent>
+    <q-card style="width: 500px; max-width: 90vw">
+      <q-card-section class="row items-center q-pb-none bg-primary text-white">
+        <q-avatar icon="local_gas_station" color="white" text-color="primary" />
+        <span class="q-ml-sm text-h6">Confirmar Dispersión</span>
+        <q-space />
+        <q-btn icon="close" flat round dense v-close-popup />
+      </q-card-section>
+
+      <q-card-section class="q-pt-md text-body1">
+        ¿Estás seguro que deseas marcar la orden de gasolina
+        <strong>#{{ selectedRow?.id }}</strong> como <strong>DISPERSADA</strong>?
+      </q-card-section>
+
+      <q-card-actions align="right" class="bg-grey-1">
+        <q-btn flat label="Cancelar" color="grey-8" v-close-popup />
+        <q-btn
+          unelevated
+          label="Marcar Dispersada"
+          color="positive"
+          icon="check"
+          :loading="savingDispersar"
+          @click="submitDispersar"
+        />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
 import { useRoute } from "vue-router";
-import { date } from "quasar";
+import { date, useQuasar } from "quasar";
 import { useAuthStore } from "src/stores/auth";
-import { sendRequest, dataIncomplete } from "src/boot/functions";
+import {
+  sendRequest,
+  dataIncomplete,
+  show_notify,
+  checkRole,
+  checkPuestoIncludes,
+} from "src/boot/functions";
 
 import BaseDialog from "src/bases/BaseDialog.vue";
-import ServiceForm from "src/components/Service/ServiceForm.vue";
-import ServiceCard from "src/components/Service/ServiceCard.vue";
+import ServiceCard from "src/components/CoordinacionCompras/ServiceCard.vue";
+import GasolinaForm from "src/components/CoordinacionCompras/GasolinaForm.vue";
 
 const props = defineProps({
   onlyMyUnit: {
@@ -1001,11 +1021,16 @@ const props = defineProps({
   },
 });
 
+const $q = useQuasar();
 const route = useRoute();
 const authStore = useAuthStore();
 
 const onlyMyUnit = computed(() => {
-  return props.onlyMyUnit || route.path === "/serviciosUnidad";
+  return (
+    props.onlyMyUnit ||
+    route.path === "/gasolinaUnidad" ||
+    route.path === "/dispersionGasolina"
+  );
 });
 
 const assignedVehicle = ref(null);
@@ -1018,8 +1043,11 @@ const add = ref(null);
 const showAdd = ref(false);
 const edit = ref(null);
 const showEdit = ref(false);
+const saving = ref(false);
 const showDelete = ref(false);
 const showShow = ref(false);
+const showDispersar = ref(false);
+const savingDispersar = ref(false);
 
 const expandedIds = ref([]);
 const allExpanded = ref(false);
@@ -1031,6 +1059,7 @@ const current_page = ref(1);
 const totalRegistros = ref(0);
 
 const catalogs = ref({
+  next_id: null,
   vehicles: [],
   empleados: [],
   proveedores: [],
@@ -1042,16 +1071,10 @@ const catalogs = ref({
 });
 
 const filteredVehicles = ref([]);
-const filteredProveedores = ref([]);
-const filteredTiposServicio = ref([]);
-const servicioCatSearch = ref("");
 
 const filterForm = ref({
   search: null,
   vehicle_id: null,
-  proveedor_id: null,
-  tipo_servicio_id: null,
-  servicio_id: null,
   suc_cargo_id: null,
   depto_cargo_id: null,
   estatus_id: null,
@@ -1059,40 +1082,31 @@ const filterForm = ref({
 
 const statusCounts = ref({
   solicitado: 0,
-  autorizado: 0,
+  por_dispersar: 0,
+  dispersado: 0,
   no_autorizado: 0,
-  solicitado_id: 176,
-  autorizado_id: 177,
-  no_autorizado_id: 178,
 });
 
 const estatusSolicitadoId = computed(() => {
-  return (
-    statusCounts.value?.solicitado_id ||
-    catalogs.value?.estatus?.find(
-      (e) => (e.nombre || "").trim().toLowerCase() === "solicitado"
-    )?.id ||
-    176
+  return catalogs.value?.estatus?.find(
+    (e) => (e.nombre || "").trim().toLowerCase() === "solicitado"
   );
 });
 
-const estatusAutorizadoId = computed(() => {
-  return (
-    statusCounts.value?.autorizado_id ||
-    catalogs.value?.estatus?.find(
-      (e) => (e.nombre || "").trim().toLowerCase() === "autorizado"
-    )?.id ||
-    177
+const estatusPorDispersarId = computed(() => {
+  return catalogs.value?.estatus?.find(
+    (e) => (e.nombre || "").trim().toLowerCase() === "por dispersar"
+  );
+});
+const estatusDispersadoId = computed(() => {
+  return catalogs.value?.estatus?.find(
+    (e) => (e.nombre || "").trim().toLowerCase() === "dispersada"
   );
 });
 
 const estatusNoAutorizadoId = computed(() => {
-  return (
-    statusCounts.value?.no_autorizado_id ||
-    catalogs.value?.estatus?.find(
-      (e) => (e.nombre || "").trim().toLowerCase() === "no autorizado"
-    )?.id ||
-    178
+  return catalogs.value?.estatus?.find(
+    (e) => (e.nombre || "").trim().toLowerCase() === "no autorizado"
   );
 });
 
@@ -1106,8 +1120,23 @@ const countPorRevisar = computed(() => {
   }
   return rows.value.filter(
     (r) =>
-      Number(r.estatus_id) === Number(estatusSolicitadoId.value) ||
+      Number(r.estatus_id) === Number(estatusSolicitadoId.value?.id) ||
       (r.estatus?.nombre || "").trim().toLowerCase() === "solicitado"
+  ).length;
+});
+
+const countPorDispersar = computed(() => {
+  if (
+    statusCounts.value &&
+    statusCounts.value.por_dispersar !== undefined &&
+    statusCounts.value.por_dispersar !== null
+  ) {
+    return Number(statusCounts.value.por_dispersar);
+  }
+  return rows.value.filter(
+    (r) =>
+      Number(r.estatus_id) === Number(estatusPorDispersarId.value?.id) ||
+      (r.estatus?.nombre || "").trim().toLowerCase() === "por dispersar"
   ).length;
 });
 
@@ -1137,9 +1166,6 @@ const hasActiveFilters = computed(() => {
   return Boolean(
     filterForm.value.search ||
       filterForm.value.vehicle_id ||
-      filterForm.value.proveedor_id ||
-      filterForm.value.tipo_servicio_id ||
-      filterForm.value.servicio_id ||
       filterForm.value.suc_cargo_id ||
       filterForm.value.depto_cargo_id ||
       filterForm.value.estatus_id
@@ -1156,38 +1182,22 @@ const toggleUnitFilter = (vehicleId) => {
   getRows(1);
 };
 
-const filteredServiciosCat = computed(() => {
-  let list = catalogs.value.servicios_cat || [];
-  if (filterForm.value.tipo_servicio_id) {
-    list = list.filter(
-      (s) =>
-        Number(s.tipo_servicio_id) === Number(filterForm.value.tipo_servicio_id)
-    );
-  }
-  if (servicioCatSearch.value) {
-    const q = servicioCatSearch.value.toLowerCase();
-    list = list.filter((s) => s.nombre && s.nombre.toLowerCase().includes(q));
-  }
-  return list;
-});
-
-const onFilterTipoChange = () => {
-  filterForm.value.servicio_id = null;
-  getRows(1);
-};
-
 const clearFilters = () => {
   filterForm.value = {
     search: null,
     vehicle_id: null,
-    proveedor_id: null,
-    tipo_servicio_id: null,
-    servicio_id: null,
     suc_cargo_id: null,
     depto_cargo_id: null,
     estatus_id: null,
   };
   getRows(1);
+};
+
+const notifyNewOrder = () => {
+  show_notify(
+    "El formulario de captura de órdenes de gasolina se encuentra en desarrollo.",
+    "info"
+  );
 };
 
 const columns = [
@@ -1217,16 +1227,16 @@ const columns = [
     label: "Unidad / Placas",
   },
   {
-    name: "servicios_resumen",
-    align: "left",
-    field: "servicios_resumen",
-    label: "Resumen",
+    name: "litros",
+    align: "center",
+    field: "litros",
+    label: "Litros Carga",
   },
   {
     name: "km",
     align: "right",
     field: "km",
-    label: "KM Evento",
+    label: "KM Carga",
   },
   {
     name: "cargo",
@@ -1248,6 +1258,26 @@ const columns = [
   },
 ];
 
+const canEdit = (row) => {
+  const isAdmin = checkRole("Admin");
+  const isCoordinadorCompras = checkPuestoIncludes("Coordinador de compras");
+  const isDirectorAdmin = checkRole("Director administrativo");
+  const estatus = getOrdenEstatus(row)?.nombre;
+  // console.log(estatus);
+  return (
+    isAdmin ||
+    (isCoordinadorCompras && estatus !== "Solicitado") ||
+    isDirectorAdmin ||
+    estatus === "Solicitado"
+  );
+};
+
+const canMarcarDispersada = (row) => {
+  const estatus = (getOrdenEstatus(row)?.nombre || "").trim().toLowerCase();
+  const isCoordinadorCompras = checkPuestoIncludes("Coordinador de compras");
+  return estatus === "por dispersar" && isCoordinadorCompras;
+};
+
 const getOrdenEstatus = (row) => {
   if (row?.estatus) return row.estatus;
   const bitacora = getBitacora(row);
@@ -1259,6 +1289,11 @@ const getOrdenEstatus = (row) => {
 
 const getDetalles = (row) => {
   return row?.detalles || row?.detalles_servicio || row?.detallesServicio || [];
+};
+
+const getTotalLitros = (row) => {
+  const detalles = getDetalles(row);
+  return detalles.reduce((acc, d) => acc + Number(d.cantidad || 0), 0);
 };
 
 const getOrderSubtotal = (row) => {
@@ -1356,42 +1391,6 @@ const filterVehiclesFn = (val, update) => {
   });
 };
 
-const filterProveedoresFn = (val, update) => {
-  if (val === "") {
-    update(() => {
-      filteredProveedores.value = catalogs.value.proveedores || [];
-    });
-    return;
-  }
-  update(() => {
-    const q = val.toLowerCase();
-    filteredProveedores.value = (catalogs.value.proveedores || []).filter(
-      (p) => p.nombre && p.nombre.toLowerCase().includes(q)
-    );
-  });
-};
-
-const filterTiposServicioFn = (val, update) => {
-  if (val === "") {
-    update(() => {
-      filteredTiposServicio.value = catalogs.value.tipos_servicio || [];
-    });
-    return;
-  }
-  update(() => {
-    const q = val.toLowerCase();
-    filteredTiposServicio.value = (catalogs.value.tipos_servicio || []).filter(
-      (t) => t.nombre && t.nombre.toLowerCase().includes(q)
-    );
-  });
-};
-
-const filterServiciosCatFn = (val, update) => {
-  update(() => {
-    servicioCatSearch.value = val || "";
-  });
-};
-
 const openCreate = () => {
   selectedRow.value = null;
   getForms();
@@ -1400,6 +1399,7 @@ const openCreate = () => {
 
 const openEdit = (item) => {
   selectedRow.value = item;
+  getForms();
   showEdit.value = true;
 };
 
@@ -1413,6 +1413,32 @@ const openShow = (item) => {
   showShow.value = true;
 };
 
+const marcarDispersada = (item) => {
+  selectedRow.value = item;
+  showDispersar.value = true;
+};
+
+const submitDispersar = async () => {
+  if (!selectedRow.value?.id) return;
+  savingDispersar.value = true;
+  try {
+    const res = await sendRequest(
+      "POST",
+      null,
+      `/api/gasolina/${selectedRow.value.id}/dispersada`
+    );
+    if (res) {
+      showDispersar.value = false;
+      getRows(current_page.value);
+      getForms();
+    }
+  } catch (err) {
+    console.error("Error al marcar como dispersada:", err);
+  } finally {
+    savingDispersar.value = false;
+  }
+};
+
 const handleOrderAuthorized = (updatedOrden) => {
   if (updatedOrden && typeof updatedOrden === "object") {
     selectedRow.value = updatedOrden;
@@ -1423,7 +1449,7 @@ const handleOrderAuthorized = (updatedOrden) => {
 };
 
 const getForms = async () => {
-  const res = await sendRequest("GET", null, "/api/service/forms", "");
+  const res = await sendRequest("GET", null, "/api/gasolina/forms", "");
   if (res) {
     catalogs.value = {
       next_id: res.next_id || null,
@@ -1445,8 +1471,6 @@ const getForms = async () => {
     filteredVehicles.value = onlyMyUnit.value
       ? assignedVehicles.value
       : catalogs.value.vehicles;
-    filteredProveedores.value = catalogs.value.proveedores;
-    filteredTiposServicio.value = catalogs.value.tipos_servicio;
   }
 };
 
@@ -1457,7 +1481,9 @@ const getRows = async (page = 1) => {
       ...filterForm.value,
       page,
     };
-    const endpoint = onlyMyUnit.value ? "/api/services/auth" : "/api/services";
+    const endpoint = onlyMyUnit.value
+      ? "/api/gasolinas/auth"
+      : "/api/gasolinas";
     const res = await sendRequest("POST", final, endpoint, "");
     if (res) {
       rows.value = res.data || [];
@@ -1494,13 +1520,18 @@ const postRow = async () => {
     dataIncomplete();
     return;
   }
-  const final = {
-    ...add.value.formService,
-  };
-  await sendRequest("POST", final, "/api/service", "");
-  showAdd.value = false;
-  getRows(current_page.value);
-  getForms();
+  saving.value = true;
+  try {
+    const final = add.value.formGasolina;
+    const res = await sendRequest("POST", final, "/api/gasolina", "");
+    if (res) {
+      showAdd.value = false;
+      getRows(current_page.value);
+      getForms();
+    }
+  } finally {
+    saving.value = false;
+  }
 };
 
 const putRow = async () => {
@@ -1509,30 +1540,36 @@ const putRow = async () => {
     dataIncomplete();
     return;
   }
-  const final = {
-    ...edit.value.formService,
-  };
-  await sendRequest("PUT", final, "/api/service/" + final.id, "");
-  showEdit.value = false;
-  getRows(current_page.value);
-  getForms();
+  saving.value = true;
+  try {
+    const final = edit.value.formGasolina;
+    const res = await sendRequest(
+      "PUT",
+      final,
+      "/api/gasolina/" + selectedRow.value.id,
+      ""
+    );
+    if (res) {
+      showEdit.value = false;
+      getRows(current_page.value);
+      getForms();
+    }
+  } finally {
+    saving.value = false;
+  }
 };
 
 const deleteRow = async () => {
-  await sendRequest("DELETE", null, "/api/service/" + selectedRow.value.id, "");
+  await sendRequest(
+    "DELETE",
+    null,
+    "/api/gasolina/" + selectedRow.value.id,
+    ""
+  );
   selectedRow.value = null;
   showDelete.value = false;
   getRows(current_page.value);
   getForms();
-};
-
-const getTipoColor = (tipoNombre = "") => {
-  const lower = (tipoNombre || "").toLowerCase();
-  if (lower.includes("preventivo")) return "teal-7";
-  if (lower.includes("correctivo")) return "deep-orange-7";
-  if (lower.includes("llanta") || lower.includes("neum")) return "indigo-7";
-  if (lower.includes("estét") || lower.includes("carrocer")) return "purple-7";
-  return "primary";
 };
 
 const formatCurrency = (val) => {

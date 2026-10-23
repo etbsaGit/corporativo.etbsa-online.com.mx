@@ -137,6 +137,23 @@
     </q-item>
 
     <q-item
+      v-if="checkRole('Empleado')"
+      dense
+      clickable
+      v-ripple
+      to="/dispersionGasolina"
+      :active="link === 'dispersionGasolina'"
+      @click="link = 'dispersionGasolina'"
+      active-class="my-menu-link"
+    >
+      <q-item-section avatar>
+        <q-icon name="local_gas_station" />
+      </q-item-section>
+
+      <q-item-section>Dispersión de Gasolina</q-item-section>
+    </q-item>
+
+    <q-item
       clickable
       dense
       v-ripple
@@ -374,7 +391,7 @@
         clickable
         dense
         v-ripple
-        to="/services"
+        to="/oc-services"
         :active="link === 'services'"
         @click="link = 'services'"
         active-class="my-menu-link"
@@ -390,7 +407,7 @@
         clickable
         dense
         v-ripple
-        to="/gasolina"
+        to="/oc-gasolina"
         :active="link === 'gasolina'"
         @click="link = 'gasolina'"
         active-class="my-menu-link"

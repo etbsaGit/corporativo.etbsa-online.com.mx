@@ -169,6 +169,11 @@
               options-dense
               clearable
               bg-color="white"
+              :disable="
+                !checkRole('Admin') ||
+                !checkPuestoIncludes('Coordinador de compras') ||
+                !checkPuestoIncludes('Director administrativo')
+              "
             >
               <template v-slot:prepend>
                 <q-icon name="person" color="grey-7" />
@@ -559,7 +564,11 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import { useQuasar } from "quasar";
-import { sendRequest } from "src/boot/functions";
+import {
+  sendRequest,
+  checkRole,
+  checkPuestoIncludes,
+} from "src/boot/functions";
 
 const props = defineProps({
   service: {

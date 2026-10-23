@@ -66,7 +66,7 @@ import Personal from "src/components/Perfil/Personal.vue";
 import Negocios from "src/components/Perfil/Negocios.vue";
 import Expediente from "src/components/Perfil/Expediente.vue";
 import CvEmployee from "src/components/Employeed/CvEmployee.vue";
-import ServiceIndex from "src/pages/Service/ServiceIndex.vue";
+import ServiceIndex from "src/pages/CoordinacionCompras/ServiceIndex.vue";
 import EmployeeContact from "src/components/Employeed/EmployeeContact.vue";
 import { checkRole } from "src/boot/functions";
 
