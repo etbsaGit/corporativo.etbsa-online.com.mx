@@ -131,6 +131,7 @@
             outlined
             dense
             options-dense
+            behavior="menu"
             @update:model-value="getRows(1)"
           />
         </div>
@@ -158,6 +159,7 @@
             outlined
             dense
             options-dense
+            behavior="menu"
             @update:model-value="getRows(1)"
           />
         </div>
@@ -185,6 +187,7 @@
             outlined
             dense
             options-dense
+            behavior="menu"
             @update:model-value="onFilterTipoChange"
           />
         </div>
@@ -214,6 +217,7 @@
               outlined
               dense
               options-dense
+              behavior="menu"
               @update:model-value="getRows(1)"
             />
             <q-btn
@@ -433,10 +437,10 @@
               <q-badge
                 color="blue-grey-7"
                 class="q-ml-xs"
-                :label="getDetalles(props.row).length"
+                :label="getConceptosUnicos(props.row).length"
               >
                 <q-tooltip>
-                  {{ getDetalles(props.row).length }} servicio(s) en esta orden
+                  {{ getConceptosUnicos(props.row).length }} concepto(s) ({{ getDetalles(props.row).length }} cotización(es) en total)
                 </q-tooltip>
               </q-badge>
             </q-td>
@@ -541,20 +545,30 @@
             >
               <div class="row q-gutter-xs">
                 <q-badge
-                  v-for="det in getDetalles(props.row).slice(0, 3)"
-                  :key="det.id"
+                  v-for="c in getConceptosUnicos(props.row).slice(0, 3)"
+                  :key="c.id"
                   outline
                   color="primary"
                   class="ellipsis"
                   style="max-width: 220px"
                 >
-                  {{ det.servicio?.nombre || "Servicio" }}
+                  {{ c.nombre }}
                 </q-badge>
                 <q-badge
-                  v-if="getDetalles(props.row).length > 3"
+                  v-if="getConceptosUnicos(props.row).length > 3"
                   color="grey-7"
-                  :label="`+${getDetalles(props.row).length - 3} más`"
-                />
+                  :label="`+${getConceptosUnicos(props.row).length - 3} más`"
+                >
+                  <q-tooltip>
+                    {{ getConceptosUnicos(props.row).map((c) => c.nombre).join(", ") }}
+                  </q-tooltip>
+                </q-badge>
+                <span
+                  v-if="getConceptosUnicos(props.row).length === 0"
+                  class="text-caption text-grey-5"
+                >
+                  Sin conceptos
+                </span>
               </div>
             </q-td>
 
@@ -596,7 +610,13 @@
 
             <!-- Total de la Orden -->
             <q-td key="total" :props="props" class="text-right">
-              <span class="text-subtitle2 text-weight-bolder text-positive">
+              <span
+                v-if="isTotalPending(props.row)"
+                class="text-subtitle2 text-weight-bold text-orange-9"
+              >
+                Pendiente
+              </span>
+              <span v-else class="text-subtitle2 text-weight-bolder text-positive">
                 {{ formatCurrency(getOrderTotal(props.row)) }}
               </span>
             </q-td>
@@ -628,12 +648,18 @@
                           Conceptos de la Orden #{{ props.row.id }} (Placa:
                           {{ props.row.vehicle?.placas || "S/P" }})
                           <q-badge color="primary" class="q-ml-sm">
-                            {{ getDetalles(props.row).length }}
+                            {{ getConceptosUnicos(props.row).length }}
                           </q-badge>
+                          <span class="text-caption text-grey-7 q-ml-sm">
+                            ({{ getDetalles(props.row).length }} cotizaciones)
+                          </span>
                         </div>
                       </q-item-section>
                       <q-item-section side>
-                        <div class="text-caption text-grey-8">
+                        <div v-if="isTotalPending(props.row)" class="text-caption text-grey-8">
+                          Total Orden: <strong class="text-orange-9">Pendiente de Autorización</strong>
+                        </div>
+                        <div v-else class="text-caption text-grey-8">
                           Subtotal:
                           <strong>{{
                             formatCurrency(getOrderSubtotal(props.row))
@@ -651,94 +677,168 @@
                     </template>
 
                     <q-separator />
-                    <q-markup-table flat dense separator="horizontal">
-                      <thead>
-                        <tr class="bg-grey-2 text-grey-8">
-                          <th class="text-left">Tipo de Servicio</th>
-                          <th class="text-left">Conceptos</th>
-                          <th class="text-left">Descripción / Detalle</th>
-                          <th class="text-center">Medida Llanta</th>
-                          <th class="text-right">Kilometraje (KM)</th>
-                          <th class="text-center">Cant.</th>
-                          <th class="text-right">P. Unitario</th>
-                          <th class="text-right">Subtotal</th>
-                          <th class="text-right">IVA</th>
-                          <th class="text-right">Total Invertido</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr v-for="det in getDetalles(props.row)" :key="det.id">
-                          <td>
-                            <q-badge
-                              :color="
-                                getTipoColor(
-                                  det.servicio?.tipo_servicio?.nombre ||
-                                    det.servicio?.tipoServicio?.nombre
-                                )
-                              "
-                              class="q-px-sm"
-                            >
-                              {{
-                                det.servicio?.tipo_servicio?.nombre ||
-                                det.servicio?.tipoServicio?.nombre ||
-                                "General"
-                              }}
-                            </q-badge>
-                          </td>
-                          <td class="text-weight-bold text-primary">
-                            {{ det.servicio?.nombre || "Servicio" }}
-                          </td>
-                          <td style="max-width: 340px; white-space: normal">
-                            {{ det.descripcion }}
-                          </td>
-                          <td class="text-center">
-                            <q-badge
-                              v-if="
-                                det.llanta_anchura ||
-                                det.llanta_altura ||
-                                det.llanta_rin
-                              "
-                              color="indigo-7"
-                              outline
-                            >
-                              {{ det.llanta_anchura || "-" }}/{{
-                                det.llanta_altura || "-"
-                              }}
-                              R{{ det.llanta_rin || "-" }}
-                            </q-badge>
-                            <span v-else class="text-caption text-grey-5"
-                              >-</span
-                            >
-                          </td>
-                          <td class="text-right text-weight-medium">
-                            {{
-                              det.km_evento
-                                ? formatKm(det.km_evento)
-                                : "No reg."
-                            }}
-                          </td>
-                          <td class="text-center">
-                            {{ det.cantidad || "-" }}
-                          </td>
-                          <td class="text-right">
-                            {{
-                              det.precio_unitario
-                                ? formatCurrency(det.precio_unitario)
-                                : "-"
-                            }}
-                          </td>
-                          <td class="text-right">
-                            {{ formatCurrency(det.subtotal) }}
-                          </td>
-                          <td class="text-right">
-                            {{ formatCurrency(det.iva) }}
-                          </td>
-                          <td class="text-right text-weight-bold text-positive">
-                            {{ formatCurrency(det.total) }}
-                          </td>
-                        </tr>
-                      </tbody>
-                    </q-markup-table>
+
+                    <!-- Lista de Conceptos con sus Cotizaciones Desglosables -->
+                    <div class="q-pa-sm q-gutter-y-sm">
+                      <q-card
+                        v-for="(concepto, cIdx) in getConceptosAgrupados(props.row)"
+                        :key="concepto.key"
+                        flat
+                        bordered
+                        class="bg-white border-concept"
+                      >
+                        <q-expansion-item
+                          default-opened
+                          header-class="bg-blue-grey-1 text-blue-grey-9 q-py-xs"
+                          expand-icon-class="text-blue-grey-9"
+                        >
+                          <template v-slot:header>
+                            <q-item-section avatar>
+                              <q-badge color="primary" class="text-weight-bold q-px-sm">
+                                Concepto #{{ cIdx + 1 }}
+                              </q-badge>
+                            </q-item-section>
+
+                            <q-item-section>
+                              <div class="row items-center q-gutter-x-xs wrap">
+                                <q-badge
+                                  :color="getTipoColor(concepto.tipo_servicio?.nombre)"
+                                  class="q-px-sm"
+                                >
+                                  {{ concepto.tipo_servicio?.nombre || "General" }}
+                                </q-badge>
+                                <span class="text-subtitle2 text-weight-bold text-primary q-ml-xs">
+                                  {{ concepto.servicio?.nombre || "Servicio" }}
+                                </span>
+                                <q-badge
+                                  v-if="
+                                    concepto.llanta_anchura ||
+                                    concepto.llanta_altura ||
+                                    concepto.llanta_rin
+                                  "
+                                  color="indigo-7"
+                                  outline
+                                  class="q-ml-xs"
+                                >
+                                  <q-icon name="tire_repair" size="14px" class="q-mr-xs" />
+                                  {{ concepto.llanta_anchura || "-" }}/{{ concepto.llanta_altura || "-" }} R{{ concepto.llanta_rin || "-" }}
+                                </q-badge>
+                              </div>
+                              <div class="text-caption text-grey-8 q-mt-xs">
+                                <strong>Descripción:</strong> {{ concepto.descripcion || "Sin descripción" }}
+                                <span v-if="concepto.km_evento" class="q-ml-sm text-grey-7">
+                                  &bull; <strong>KM:</strong> {{ formatKm(concepto.km_evento) }}
+                                </span>
+                              </div>
+                            </q-item-section>
+
+                            <q-item-section side>
+                              <q-badge color="teal-8" class="q-px-sm text-weight-bold">
+                                {{ concepto.cotizaciones.length }} {{ concepto.cotizaciones.length === 1 ? 'cotización' : 'cotizaciones' }}
+                              </q-badge>
+                            </q-item-section>
+                          </template>
+
+                          <q-separator />
+
+                          <q-markup-table flat dense separator="horizontal">
+                            <thead>
+                              <tr class="bg-grey-2 text-grey-8 text-caption">
+                                <th class="text-center" style="width: 120px;">Cotización</th>
+                                <th class="text-left">Proveedor / Taller</th>
+                                <th class="text-center">Cant.</th>
+                                <th class="text-right">P. Unitario</th>
+                                <th class="text-right">Subtotal</th>
+                                <th class="text-right">IVA</th>
+                                <th class="text-right">Total</th>
+                                <th class="text-center" style="width: 120px;">Archivo Cotización</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr
+                                v-for="(cot, qIdx) in concepto.cotizaciones"
+                                :key="cot.id || qIdx"
+                              >
+                                <td class="text-center">
+                                  <q-badge color="teal-8" outline class="text-weight-bold q-px-sm">
+                                    Cotización #{{ qIdx + 1 }}
+                                  </q-badge>
+                                </td>
+                                <td class="text-left text-weight-medium">
+                                  <div class="row items-center q-gutter-x-xs">
+                                    <q-icon name="storefront" color="primary" size="16px" />
+                                    <span>{{ cot.proveedor?.nombre || props.row.proveedor?.nombre || "-" }}</span>
+                                  </div>
+                                  <div
+                                    v-if="cot.forma_pago || cot.formaPago || cot.metodo_pago || cot.metodoPago || cot.uso_cfdi || cot.usoCfdi"
+                                    class="row items-center q-gutter-x-xs q-mt-xs wrap"
+                                  >
+                                    <q-badge
+                                      v-if="cot.formaPago || cot.forma_pago"
+                                      color="blue-grey-1"
+                                      text-color="blue-grey-9"
+                                      class="text-caption text-weight-normal border-grey"
+                                    >
+                                      <q-icon name="payments" size="12px" class="q-mr-xs" />
+                                      {{ (cot.formaPago || cot.forma_pago).clave }} - {{ (cot.formaPago || cot.forma_pago).nombre }}
+                                    </q-badge>
+                                    <q-badge
+                                      v-if="cot.metodoPago || cot.metodo_pago"
+                                      color="blue-grey-1"
+                                      text-color="blue-grey-9"
+                                      class="text-caption text-weight-normal border-grey"
+                                    >
+                                      <q-icon name="credit_card" size="12px" class="q-mr-xs" />
+                                      {{ (cot.metodoPago || cot.metodo_pago).clave }}
+                                    </q-badge>
+                                    <q-badge
+                                      v-if="cot.usoCfdi || cot.uso_cfdi"
+                                      color="blue-grey-1"
+                                      text-color="blue-grey-9"
+                                      class="text-caption text-weight-normal border-grey"
+                                    >
+                                      <q-icon name="receipt_long" size="12px" class="q-mr-xs" />
+                                      {{ (cot.usoCfdi || cot.uso_cfdi).clave }}
+                                    </q-badge>
+                                  </div>
+                                </td>
+                                <td class="text-center font-mono">
+                                  {{ cot.cantidad || 1 }}
+                                </td>
+                                <td class="text-right">
+                                  {{ cot.precio_unitario ? formatCurrency(cot.precio_unitario) : "-" }}
+                                </td>
+                                <td class="text-right font-mono">
+                                  {{ formatCurrency(cot.subtotal) }}
+                                </td>
+                                <td class="text-right font-mono">
+                                  {{ formatCurrency(cot.iva) }}
+                                </td>
+                                <td class="text-right font-mono text-weight-bold text-positive text-subtitle2">
+                                  {{ formatCurrency(cot.total) }}
+                                </td>
+                                <td class="text-center">
+                                  <q-btn
+                                    v-if="cot.cotizacion_url || props.row.cotizacion_url"
+                                    unelevated
+                                    dense
+                                    size="sm"
+                                    color="red-8"
+                                    icon="picture_as_pdf"
+                                    label="Ver PDF"
+                                    class="q-px-xs"
+                                    @click="openPdf(cot.cotizacion_url || props.row.cotizacion_url)"
+                                  >
+                                    <q-tooltip>Abrir cotización PDF</q-tooltip>
+                                  </q-btn>
+                                  <span v-else class="text-caption text-grey-5">-</span>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </q-markup-table>
+                        </q-expansion-item>
+                      </q-card>
+                    </div>
                   </q-expansion-item>
                 </q-card>
 
@@ -1272,6 +1372,66 @@ const getDetalles = (row) => {
   return row?.detalles || row?.detalles_servicio || row?.detallesServicio || [];
 };
 
+const getConceptosUnicos = (row) => {
+  const detalles = getDetalles(row);
+  const map = new Map();
+  detalles.forEach((d) => {
+    const srv = d.servicio;
+    if (srv && srv.nombre) {
+      const key = srv.id || srv.nombre;
+      if (!map.has(key)) {
+        map.set(key, {
+          id: key,
+          nombre: srv.nombre,
+          tipo_nombre: srv.tipo_servicio?.nombre || srv.tipoServicio?.nombre || "",
+        });
+      }
+    } else if (d.descripcion) {
+      if (!map.has(d.descripcion)) {
+        map.set(d.descripcion, {
+          id: d.descripcion,
+          nombre: d.descripcion,
+          tipo_nombre: "",
+        });
+      }
+    }
+  });
+  return Array.from(map.values());
+};
+
+const getConceptosAgrupados = (row) => {
+  const detalles = getDetalles(row);
+  const map = new Map();
+  detalles.forEach((d) => {
+    const srvId = d.servicio_id || d.servicio?.id || "sin_id";
+    const desc = (d.descripcion || "").trim();
+    const anchura = d.llanta_anchura ?? "";
+    const altura = d.llanta_altura ?? "";
+    const rin = d.llanta_rin ?? "";
+
+    const key = `${srvId}_${desc}_${anchura}_${altura}_${rin}`;
+
+    if (!map.has(key)) {
+      map.set(key, {
+        key,
+        servicio: d.servicio,
+        tipo_servicio:
+          d.servicio?.tipo_servicio || d.servicio?.tipoServicio || null,
+        descripcion: d.descripcion,
+        km_evento: d.km_evento,
+        llanta_anchura: d.llanta_anchura,
+        llanta_altura: d.llanta_altura,
+        llanta_rin: d.llanta_rin,
+        cotizaciones: [],
+      });
+    }
+
+    map.get(key).cotizaciones.push(d);
+  });
+
+  return Array.from(map.values());
+};
+
 const getOrderSubtotal = (row) => {
   return getDetalles(row).reduce((acc, d) => acc + Number(d.subtotal || 0), 0);
 };
@@ -1282,6 +1442,11 @@ const getOrderIva = (row) => {
 
 const getOrderTotal = (row) => {
   return getDetalles(row).reduce((acc, d) => acc + Number(d.total || 0), 0);
+};
+
+const isTotalPending = (row) => {
+  const estatusNombre = (getOrdenEstatus(row)?.nombre || "").trim().toLowerCase();
+  return estatusNombre === "solicitado" || estatusNombre === "no autorizado";
 };
 
 const getMaxKm = (row) => {
@@ -1546,6 +1711,12 @@ const getTipoColor = (tipoNombre = "") => {
   return "primary";
 };
 
+const openPdf = (url) => {
+  if (url) {
+    window.open(url, "_blank");
+  }
+};
+
 const formatCurrency = (val) => {
   return Number(val || 0).toLocaleString("es-MX", {
     style: "currency",
@@ -1602,5 +1773,8 @@ onMounted(() => {
 }
 .border-primary {
   border: 1px solid var(--q-primary);
+}
+.border-concept {
+  border-left: 4px solid var(--q-primary);
 }
 </style>
