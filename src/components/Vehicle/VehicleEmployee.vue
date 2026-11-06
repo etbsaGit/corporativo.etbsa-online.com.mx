@@ -73,7 +73,7 @@
 import { ref, onMounted } from "vue";
 import { sendRequest } from "src/boot/functions";
 
-const { vehicle } = defineProps(["vehicle"]);
+const { vehicle, empleadosList } = defineProps(["vehicle", "empleadosList"]);
 
 const empleados = ref([]);
 const selectedResponsable = ref(null);
@@ -97,8 +97,14 @@ const filterFn = (val, update) => {
 };
 
 const getForms = async () => {
+  if (empleadosList && empleadosList.length > 0) {
+    empleados.value = empleadosList;
+    filterEmpleados.value = empleadosList;
+    return;
+  }
   let res = await sendRequest("GET", null, "/api/vehicle/forms", "");
   empleados.value = res.empleados;
+  filterEmpleados.value = res.empleados;
 };
 
 const marcarToggles = () => {

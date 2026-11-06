@@ -67,9 +67,31 @@
               </div>
             </div>
             <div class="col-12 col-sm-6">
-              <div class="text-caption text-grey-7">Tipo de Vehículo:</div>
+              <div class="text-caption text-grey-7">Marca / Modelo:</div>
               <div class="text-body1 text-weight-medium">
-                {{ vehicle?.estatus?.nombre || 'No definido' }}
+                {{
+                  [vehicle?.marca?.nombre, vehicle?.modelo?.nombre]
+                    .filter(Boolean)
+                    .join(' ') || 'No definido'
+                }}
+              </div>
+            </div>
+            <div class="col-12 col-sm-4">
+              <div class="text-caption text-grey-7">Tipo:</div>
+              <div class="text-body1 text-weight-medium">
+                {{ vehicle?.tipo?.nombre || 'No definido' }}
+              </div>
+            </div>
+            <div class="col-12 col-sm-4">
+              <div class="text-caption text-grey-7">Versión:</div>
+              <div class="text-body1 text-weight-medium">
+                {{ vehicle?.version || 'No definida' }}
+              </div>
+            </div>
+            <div class="col-12 col-sm-4">
+              <div class="text-caption text-grey-7">Año:</div>
+              <div class="text-body1 text-weight-medium">
+                {{ vehicle?.anio || 'No definido' }}
               </div>
             </div>
             <div class="col-12 col-sm-6">

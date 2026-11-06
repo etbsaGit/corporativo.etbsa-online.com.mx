@@ -1,10 +1,10 @@
 <template>
-  <q-form ref="myForm" greedy class="q-pa-xs">
+  <q-form ref="myForm" greedy class="q-pa-sm service-form-expanded">
     <!-- SECCIÓN 1: Datos Generales de la Orden de Compra -->
     <div
-      class="text-subtitle1 text-weight-bold text-primary q-mb-sm flex items-center"
+      class="text-h6 text-weight-bolder text-primary q-mb-sm flex items-center"
     >
-      <q-icon name="receipt_long" size="sm" class="q-mr-xs" />
+      <q-icon name="receipt_long" size="md" class="q-mr-xs" />
       Datos Generales de la Orden
     </div>
 
@@ -33,7 +33,7 @@
               @filter="filterVehiclesFn"
               outlined
               dense
-              options-dense
+              popup-content-class="service-select-popup"
               behavior="menu"
               :clearable="!fixedVehicleId"
               :disable="!!fixedVehicleId"
@@ -44,21 +44,21 @@
                 <q-icon name="directions_car" color="primary" />
               </template>
               <template v-slot:option="scope">
-                <q-item v-bind="scope.itemProps">
+                <q-item v-bind="scope.itemProps" class="q-py-md">
                   <q-item-section>
-                    <q-item-label class="text-weight-bold">
+                    <q-item-label class="text-subtitle1 text-weight-bold">
                       {{ scope.opt.placas || "Sin placa" }}
-                      <span class="text-caption text-grey-7 q-ml-xs">
+                      <span class="text-caption text-grey-8 q-ml-xs">
                         ({{ scope.opt.estatus?.nombre || "Unidad" }})
                       </span>
                     </q-item-label>
-                    <q-item-label caption>
+                    <q-item-label caption class="text-body2 text-grey-8">
                       Serie: {{ scope.opt.serie || "N/A" }} &bull; Sucursal:
                       {{ scope.opt.sucursal?.nombre || "N/A" }}
                     </q-item-label>
                   </q-item-section>
                   <q-item-section side>
-                    <q-badge color="orange-9" outline>
+                    <q-badge color="orange-9" outline class="text-subtitle2 q-px-sm q-py-xs">
                       Último KM: {{ formatKm(scope.opt.ultimo_km || 0) }}
                     </q-badge>
                   </q-item-section>
@@ -69,13 +69,13 @@
             <!-- Indicador de Último Kilometraje Registrado de la Unidad -->
             <div
               v-if="selectedVehicle"
-              class="q-mt-xs q-px-sm q-py-xs rounded-borders bg-orange-1 text-orange-10 row items-center justify-between border-orange"
+              class="q-mt-sm q-px-md q-py-sm rounded-borders bg-orange-1 text-orange-10 row items-center justify-between border-orange"
             >
-              <div class="text-caption text-weight-medium flex items-center">
-                <q-icon name="speed" size="16px" class="q-mr-xs" />
+              <div class="text-body2 text-weight-bold flex items-center">
+                <q-icon name="speed" size="20px" class="q-mr-xs" />
                 Último kilometraje registrado ({{ selectedVehicle.placas }}):
               </div>
-              <div class="text-subtitle2 text-weight-bolder">
+              <div class="text-subtitle1 text-weight-bolder">
                 {{
                   ultimoKmUnidad > 0
                     ? formatKm(ultimoKmUnidad)
@@ -138,7 +138,7 @@
               @filter="filterEmpleadosFn"
               outlined
               dense
-              options-dense
+              popup-content-class="service-select-popup"
               behavior="menu"
               clearable
               bg-color="white"
@@ -169,7 +169,7 @@
               @filter="filterSucursalesCargoFn"
               outlined
               dense
-              options-dense
+              popup-content-class="service-select-popup"
               behavior="menu"
               clearable
               bg-color="white"
@@ -195,7 +195,7 @@
               @filter="filterDeptosCargoFn"
               outlined
               dense
-              options-dense
+              popup-content-class="service-select-popup"
               behavior="menu"
               clearable
               bg-color="white"
@@ -208,24 +208,33 @@
 
           <!-- Separador y título para Datos Fiscales Predeterminados -->
           <div class="col-12 q-pt-xs">
-            <q-separator class="q-my-xs" />
+            <q-separator class="q-my-sm" />
             <div class="row items-center justify-between q-py-xs">
-              <div class="text-caption text-weight-bold text-blue-grey-9 flex items-center">
-                <q-icon name="tune" size="16px" class="q-mr-xs text-primary" />
+              <div
+                class="text-subtitle2 text-weight-bold text-blue-grey-9 flex items-center"
+              >
+                <q-icon name="tune" size="20px" class="q-mr-xs text-primary" />
                 Datos Fiscales Predeterminados (Se seleccionarán automáticamente en cada cotización agregada)
               </div>
               <q-btn
-                v-if="formHeader.forma_pago_id || formHeader.metodo_pago_id || formHeader.uso_cfdi_id"
+                v-if="
+                  formHeader.forma_pago_id ||
+                  formHeader.metodo_pago_id ||
+                  formHeader.uso_cfdi_id
+                "
                 flat
                 dense
-                size="xs"
+                size="sm"
                 color="primary"
                 icon="sync"
                 label="Aplicar a todas las cotizaciones actuales"
                 @click="applyHeaderFiscalToAllCotizaciones"
                 class="text-weight-bold"
               >
-                <q-tooltip>Rellenar o actualizar todas las cotizaciones registradas con estos datos</q-tooltip>
+                <q-tooltip
+                  >Rellenar o actualizar todas las cotizaciones registradas con
+                  estos datos</q-tooltip
+                >
               </q-btn>
             </div>
           </div>
@@ -237,7 +246,9 @@
               :options="filteredFormasPago"
               label="Forma de Pago (Predeterminada)"
               option-value="id"
-              :option-label="(opt) => opt ? `${opt.clave} - ${opt.nombre}` : ''"
+              :option-label="
+                (opt) => (opt ? `${opt.clave} - ${opt.nombre}` : '')
+              "
               emit-value
               map-options
               use-input
@@ -245,7 +256,7 @@
               @filter="filterFormasPagoFn"
               outlined
               dense
-              options-dense
+              popup-content-class="service-select-popup"
               behavior="menu"
               clearable
               bg-color="white"
@@ -263,7 +274,9 @@
               :options="filteredMetodosPago"
               label="Método de Pago (Predeterminado)"
               option-value="id"
-              :option-label="(opt) => opt ? `${opt.clave} - ${opt.nombre}` : ''"
+              :option-label="
+                (opt) => (opt ? `${opt.clave} - ${opt.nombre}` : '')
+              "
               emit-value
               map-options
               use-input
@@ -271,7 +284,7 @@
               @filter="filterMetodosPagoFn"
               outlined
               dense
-              options-dense
+              popup-content-class="service-select-popup"
               behavior="menu"
               clearable
               bg-color="white"
@@ -289,7 +302,9 @@
               :options="filteredUsosCfdi"
               label="Uso de CFDI (Predeterminado)"
               option-value="id"
-              :option-label="(opt) => opt ? `${opt.clave} - ${opt.nombre}` : ''"
+              :option-label="
+                (opt) => (opt ? `${opt.clave} - ${opt.nombre}` : '')
+              "
               emit-value
               map-options
               use-input
@@ -297,7 +312,7 @@
               @filter="filterUsosCfdiFn"
               outlined
               dense
-              options-dense
+              popup-content-class="service-select-popup"
               behavior="menu"
               clearable
               bg-color="white"
@@ -312,22 +327,13 @@
     </q-card>
 
     <!-- SECCIÓN 2: Conceptos y Múltiples Cotizaciones -->
-    <div class="row items-center justify-between q-mb-sm">
+    <div class="row items-center justify-between q-mb-md">
       <div
-        class="text-subtitle1 text-weight-bold text-primary flex items-center"
+        class="text-h6 text-weight-bolder text-primary flex items-center"
       >
-        <q-icon name="handyman" size="sm" class="q-mr-xs" />
+        <q-icon name="handyman" size="md" class="q-mr-xs" />
         Conceptos Solicitados ({{ conceptos.length }})
       </div>
-      <q-btn
-        unelevated
-        dense
-        color="primary"
-        icon="add_circle"
-        label="Agregar otro concepto"
-        class="q-px-sm"
-        @click="addConcepto"
-      />
     </div>
 
     <!-- Lista de Conceptos -->
@@ -341,12 +347,17 @@
       >
         <!-- Encabezado del Concepto -->
         <q-card-section
-          class="q-py-xs q-px-md bg-blue-grey-2 flex items-center justify-between"
+          class="q-py-sm q-px-md bg-blue-grey-2 flex items-center justify-between"
         >
-          <div class="text-subtitle2 text-weight-bolder text-blue-grey-10 flex items-center">
-            <q-icon name="category" size="18px" class="q-mr-xs" />
+          <div
+            class="text-subtitle1 text-weight-bolder text-blue-grey-10 flex items-center"
+          >
+            <q-icon name="category" size="22px" class="q-mr-xs" />
             Concepto #{{ cIndex + 1 }}
-            <span v-if="getConceptoServiceName(concepto)" class="q-ml-xs text-primary text-weight-bold">
+            <span
+              v-if="getConceptoServiceName(concepto)"
+              class="q-ml-xs text-primary text-weight-bold"
+            >
               - {{ getConceptoServiceName(concepto) }}
             </span>
           </div>
@@ -357,7 +368,7 @@
             round
             color="negative"
             icon="delete"
-            size="sm"
+            size="md"
             @click="removeConcepto(cIndex)"
           >
             <q-tooltip>Eliminar este concepto completo</q-tooltip>
@@ -382,7 +393,7 @@
                 @filter="filterTiposServicioFn"
                 outlined
                 dense
-                options-dense
+                popup-content-class="service-select-popup"
                 behavior="menu"
                 clearable
                 bg-color="white"
@@ -403,11 +414,12 @@
                 use-input
                 input-debounce="0"
                 @filter="
-                  (val, update) => filterServiciosConceptFn(concepto, val, update)
+                  (val, update) =>
+                    filterServiciosConceptFn(concepto, val, update)
                 "
                 outlined
                 dense
-                options-dense
+                popup-content-class="service-select-popup"
                 behavior="menu"
                 clearable
                 bg-color="white"
@@ -441,7 +453,11 @@
                 <div
                   class="text-caption text-weight-bold text-blue-grey-9 q-mb-xs flex items-center"
                 >
-                  <q-icon name="tire_repair" size="18px" class="q-mr-xs text-primary" />
+                  <q-icon
+                    name="tire_repair"
+                    size="18px"
+                    class="q-mr-xs text-primary"
+                  />
                   Especificaciones de Medida de Llanta
                 </div>
                 <div class="row q-col-gutter-sm">
@@ -490,19 +506,18 @@
         <!-- Subsección: Cotizaciones Comparativas para este Concepto -->
         <q-card-section class="q-pa-md">
           <div class="row items-center justify-between q-mb-sm">
-            <div class="text-subtitle2 text-weight-bold text-blue-grey-9 flex items-center">
-              <q-icon name="request_quote" size="20px" class="q-mr-xs text-teal-8" />
-              Cotizaciones para este concepto ({{ concepto.cotizaciones.length }})
+            <div
+              class="text-subtitle1 text-weight-bold text-blue-grey-9 flex items-center"
+            >
+              <q-icon
+                name="request_quote"
+                size="24px"
+                class="q-mr-xs text-teal-8"
+              />
+              Cotizaciones para este concepto ({{
+                concepto.cotizaciones.length
+              }})
             </div>
-            <q-btn
-              unelevated
-              dense
-              color="teal-8"
-              icon="add"
-              label="+ Agregar cotización"
-              class="q-px-sm text-caption"
-              @click="addCotizacion(concepto)"
-            />
           </div>
 
           <!-- Lista de Cotizaciones por Concepto -->
@@ -518,10 +533,16 @@
                 class="q-py-xs q-px-sm bg-blue-grey-1 flex items-center justify-between"
               >
                 <div class="row items-center q-gutter-x-xs">
-                  <q-badge color="teal-8" class="text-weight-bold q-px-sm">
+                  <q-badge
+                    color="teal-8"
+                    class="text-subtitle2 text-weight-bold q-px-md q-py-xs"
+                  >
                     Cotización #{{ qIndex + 1 }}
                   </q-badge>
-                  <span v-if="getProveedorName(cot.proveedor_id)" class="text-caption text-weight-bold text-grey-9 q-ml-xs">
+                  <span
+                    v-if="getProveedorName(cot.proveedor_id)"
+                    class="text-subtitle2 text-weight-bold text-grey-9 q-ml-sm"
+                  >
                     {{ getProveedorName(cot.proveedor_id) }}
                   </span>
                 </div>
@@ -556,11 +577,12 @@
                       @filter="filterProveedoresFn"
                       outlined
                       dense
-                      options-dense
+                      popup-content-class="service-select-popup"
                       behavior="menu"
                       clearable
                       bg-color="white"
                       :rules="[(val) => !!val || 'Seleccione el proveedor']"
+                      @update:model-value="(val) => onProveedorChange(cot, val)"
                     >
                       <template v-slot:prepend>
                         <q-icon name="storefront" color="primary" />
@@ -579,7 +601,9 @@
                       accept=".pdf,application/pdf"
                       max-file-size="15728640"
                       @rejected="onRejectedFile"
-                      @update:model-value="(file) => onCotizacionFileChange(file, cot)"
+                      @update:model-value="
+                        (file) => onCotizacionFileChange(file, cot)
+                      "
                       clearable
                       @clear="clearCotizacion(cot)"
                     >
@@ -695,7 +719,7 @@
                       outlined
                       dense
                       bg-color="green-1"
-                      class="text-weight-bold"
+                      class="text-weight-bold quote-total-input"
                       :rules="[
                         (val) =>
                           (val !== null && val !== '' && Number(val) >= 0) ||
@@ -711,7 +735,9 @@
                       :options="filteredFormasPago"
                       label="Forma de Pago *"
                       option-value="id"
-                      :option-label="(opt) => opt ? `${opt.clave} - ${opt.nombre}` : ''"
+                      :option-label="
+                        (opt) => (opt ? `${opt.clave} - ${opt.nombre}` : '')
+                      "
                       emit-value
                       map-options
                       use-input
@@ -719,11 +745,12 @@
                       @filter="filterFormasPagoFn"
                       outlined
                       dense
-                      options-dense
+                      popup-content-class="service-select-popup"
                       behavior="menu"
                       clearable
                       bg-color="white"
                       :rules="[(val) => !!val || 'Seleccione la forma de pago']"
+                      @update:model-value="(val) => syncFiscalByProveedor(cot, 'forma_pago_id', val)"
                     >
                       <template v-slot:prepend>
                         <q-icon name="payments" color="primary" />
@@ -737,7 +764,9 @@
                       :options="filteredMetodosPago"
                       label="Método de Pago *"
                       option-value="id"
-                      :option-label="(opt) => opt ? `${opt.clave} - ${opt.nombre}` : ''"
+                      :option-label="
+                        (opt) => (opt ? `${opt.clave} - ${opt.nombre}` : '')
+                      "
                       emit-value
                       map-options
                       use-input
@@ -745,11 +774,14 @@
                       @filter="filterMetodosPagoFn"
                       outlined
                       dense
-                      options-dense
+                      popup-content-class="service-select-popup"
                       behavior="menu"
                       clearable
                       bg-color="white"
-                      :rules="[(val) => !!val || 'Seleccione el método de pago']"
+                      :rules="[
+                        (val) => !!val || 'Seleccione el método de pago',
+                      ]"
+                      @update:model-value="(val) => syncFiscalByProveedor(cot, 'metodo_pago_id', val)"
                     >
                       <template v-slot:prepend>
                         <q-icon name="credit_card" color="primary" />
@@ -763,7 +795,9 @@
                       :options="filteredUsosCfdi"
                       label="Uso de CFDI *"
                       option-value="id"
-                      :option-label="(opt) => opt ? `${opt.clave} - ${opt.nombre}` : ''"
+                      :option-label="
+                        (opt) => (opt ? `${opt.clave} - ${opt.nombre}` : '')
+                      "
                       emit-value
                       map-options
                       use-input
@@ -771,11 +805,12 @@
                       @filter="filterUsosCfdiFn"
                       outlined
                       dense
-                      options-dense
+                      popup-content-class="service-select-popup"
                       behavior="menu"
                       clearable
                       bg-color="white"
                       :rules="[(val) => !!val || 'Seleccione el uso de CFDI']"
+                      @update:model-value="(val) => syncFiscalByProveedor(cot, 'uso_cfdi_id', val)"
                     >
                       <template v-slot:prepend>
                         <q-icon name="receipt_long" color="primary" />
@@ -786,27 +821,57 @@
               </q-card-section>
             </q-card>
           </div>
+
+          <!-- Botón Agregar Cotización al final de las cotizaciones -->
+          <div class="row justify-end q-mt-md">
+            <q-btn
+              unelevated
+              color="teal-8"
+              icon="add"
+              label="+ Agregar cotización"
+              class="q-px-lg q-py-xs text-weight-bold"
+              @click="addCotizacion(concepto)"
+            />
+          </div>
         </q-card-section>
       </q-card>
     </div>
 
+    <!-- Botón Agregar Otro Concepto al final de la lista de conceptos -->
+    <div class="row justify-end q-my-md">
+      <q-btn
+        unelevated
+        color="primary"
+        icon="add_circle"
+        label="+ Agregar otro concepto"
+        size="md"
+        class="q-px-xl q-py-sm text-weight-bolder"
+        @click="addConcepto"
+      />
+    </div>
+
     <!-- Resumen General de la Orden -->
     <q-card flat bordered class="q-mt-md bg-green-1 border-positive">
-      <q-card-section class="q-py-sm q-px-md row items-center justify-between">
-        <div class="text-subtitle2 text-grey-9 flex items-center">
-          <q-icon name="summarize" size="20px" class="q-mr-xs text-positive" />
-          Resumen: {{ conceptos.length }} concepto(s) &bull; {{ totalCotizacionesCount }} cotización(es) en total
+      <q-card-section class="q-py-md q-px-lg row items-center justify-between">
+        <div class="text-subtitle1 text-weight-bold text-grey-9 flex items-center">
+          <q-icon name="summarize" size="24px" class="q-mr-xs text-positive" />
+          Resumen: {{ conceptos.length }} concepto(s) &bull;
+          {{ totalCotizacionesCount }} cotización(es) en total
         </div>
-        <div class="row q-gutter-x-lg items-center">
-          <div class="text-caption text-grey-8">
+        <div class="row q-gutter-x-xl items-center">
+          <div class="text-body2 text-grey-8">
             Subtotal acumulado:
-            <strong class="text-body2">{{ formatCurrency(summaryTotals.subtotal) }}</strong>
+            <strong class="text-subtitle1 text-weight-bold">{{
+              formatCurrency(summaryTotals.subtotal)
+            }}</strong>
           </div>
-          <div class="text-caption text-grey-8">
+          <div class="text-body2 text-grey-8">
             IVA acumulado:
-            <strong class="text-body2">{{ formatCurrency(summaryTotals.iva) }}</strong>
+            <strong class="text-subtitle1 text-weight-bold">{{
+              formatCurrency(summaryTotals.iva)
+            }}</strong>
           </div>
-          <div class="text-subtitle1 text-weight-bolder text-positive">
+          <div class="text-h6 text-weight-bolder text-positive">
             Total acumulado: {{ formatCurrency(summaryTotals.total) }}
           </div>
         </div>
@@ -995,8 +1060,10 @@ const mapInitialConceptos = (srv) => {
     map.get(groupKey).cotizaciones.push({
       id: d.id,
       proveedor_id: d.proveedor_id || d.proveedor?.id || null,
-      forma_pago_id: d.forma_pago_id || d.forma_pago?.id || d.formaPago?.id || null,
-      metodo_pago_id: d.metodo_pago_id || d.metodo_pago?.id || d.metodoPago?.id || null,
+      forma_pago_id:
+        d.forma_pago_id || d.forma_pago?.id || d.formaPago?.id || null,
+      metodo_pago_id:
+        d.metodo_pago_id || d.metodo_pago?.id || d.metodoPago?.id || null,
       uso_cfdi_id: d.uso_cfdi_id || d.uso_cfdi?.id || d.usoCfdi?.id || null,
       cantidad:
         d.cantidad !== null && d.cantidad !== undefined
@@ -1333,14 +1400,14 @@ const summaryTotals = computed(() => {
 });
 
 const filterVehiclesFn = (val, update) => {
-  if (val === "") {
+  if (!val) {
     update(() => {
       filteredVehicles.value = vehicles.value;
     });
     return;
   }
   update(() => {
-    const q = val.toLowerCase();
+    const q = val.toLowerCase().trim();
     filteredVehicles.value = vehicles.value.filter(
       (v) =>
         (v.placas && v.placas.toLowerCase().includes(q)) ||
@@ -1351,14 +1418,14 @@ const filterVehiclesFn = (val, update) => {
 };
 
 const filterProveedoresFn = (val, update) => {
-  if (val === "") {
+  if (!val) {
     update(() => {
       filteredProveedores.value = proveedores.value;
     });
     return;
   }
   update(() => {
-    const q = val.toLowerCase();
+    const q = val.toLowerCase().trim();
     filteredProveedores.value = proveedores.value.filter(
       (p) => p.nombre && p.nombre.toLowerCase().includes(q)
     );
@@ -1366,14 +1433,14 @@ const filterProveedoresFn = (val, update) => {
 };
 
 const filterEmpleadosFn = (val, update) => {
-  if (val === "") {
+  if (!val) {
     update(() => {
       filteredEmpleados.value = empleados.value;
     });
     return;
   }
   update(() => {
-    const q = val.toLowerCase();
+    const q = val.toLowerCase().trim();
     filteredEmpleados.value = empleados.value.filter(
       (e) => e.nombreCompleto && e.nombreCompleto.toLowerCase().includes(q)
     );
@@ -1381,14 +1448,14 @@ const filterEmpleadosFn = (val, update) => {
 };
 
 const filterSucursalesCargoFn = (val, update) => {
-  if (val === "") {
+  if (!val) {
     update(() => {
       filteredSucursalesCargo.value = sucursalesCargo.value;
     });
     return;
   }
   update(() => {
-    const q = val.toLowerCase();
+    const q = val.toLowerCase().trim();
     filteredSucursalesCargo.value = sucursalesCargo.value.filter(
       (s) => s.nombre && s.nombre.toLowerCase().includes(q)
     );
@@ -1396,14 +1463,14 @@ const filterSucursalesCargoFn = (val, update) => {
 };
 
 const filterDeptosCargoFn = (val, update) => {
-  if (val === "") {
+  if (!val) {
     update(() => {
       filteredDeptosCargo.value = deptosCargo.value;
     });
     return;
   }
   update(() => {
-    const q = val.toLowerCase();
+    const q = val.toLowerCase().trim();
     filteredDeptosCargo.value = deptosCargo.value.filter(
       (d) => d.nombre && d.nombre.toLowerCase().includes(q)
     );
@@ -1411,67 +1478,76 @@ const filterDeptosCargoFn = (val, update) => {
 };
 
 const filterTiposServicioFn = (val, update) => {
-  if (val === "") {
+  if (!val) {
     update(() => {
       filteredTiposServicio.value = tiposServicio.value;
     });
     return;
   }
   update(() => {
-    const q = val.toLowerCase();
+    const q = val.toLowerCase().trim();
     filteredTiposServicio.value = tiposServicio.value.filter(
       (t) => t.nombre && t.nombre.toLowerCase().includes(q)
     );
   });
 };
 
-const filterFormasPagoFn = (val, update) => {
-  if (val === "") {
+const filterFormasPagoFn = async (val, update) => {
+  if (!formasPago.value.length) {
+    await getForms();
+  }
+  if (!val) {
     update(() => {
       filteredFormasPago.value = formasPago.value;
     });
     return;
   }
   update(() => {
-    const q = val.toLowerCase();
+    const q = val.toLowerCase().trim();
     filteredFormasPago.value = formasPago.value.filter(
       (f) =>
-        (f.clave && f.clave.toLowerCase().includes(q)) ||
-        (f.nombre && f.nombre.toLowerCase().includes(q))
+        (f.clave && String(f.clave).toLowerCase().includes(q)) ||
+        (f.nombre && String(f.nombre).toLowerCase().includes(q))
     );
   });
 };
 
-const filterMetodosPagoFn = (val, update) => {
-  if (val === "") {
+const filterMetodosPagoFn = async (val, update) => {
+  if (!metodosPago.value.length) {
+    await getForms();
+  }
+  if (!val) {
     update(() => {
       filteredMetodosPago.value = metodosPago.value;
     });
     return;
   }
   update(() => {
-    const q = val.toLowerCase();
+    const q = val.toLowerCase().trim();
     filteredMetodosPago.value = metodosPago.value.filter(
       (m) =>
-        (m.clave && m.clave.toLowerCase().includes(q)) ||
-        (m.nombre && m.nombre.toLowerCase().includes(q))
+        (m.clave && String(m.clave).toLowerCase().includes(q)) ||
+        (m.nombre && String(m.nombre).toLowerCase().includes(q))
     );
   });
 };
 
-const filterUsosCfdiFn = (val, update) => {
-  if (val === "") {
+const filterUsosCfdiFn = async (val, update) => {
+  if (!usosCfdi.value.length) {
+    await getForms();
+  }
+  if (!val) {
     update(() => {
       filteredUsosCfdi.value = usosCfdi.value;
     });
     return;
   }
   update(() => {
-    const q = val.toLowerCase();
+    const q = val.toLowerCase().trim();
     filteredUsosCfdi.value = usosCfdi.value.filter(
       (u) =>
-        (u.clave && u.clave.toLowerCase().includes(q)) ||
-        (u.nombre && u.nombre.toLowerCase().includes(q))
+        (u.clave && String(u.clave).toLowerCase().includes(q)) ||
+        (u.nombre && String(u.nombre).toLowerCase().includes(q))
     );
   });
 };
@@ -1489,33 +1565,74 @@ const applyCatalogs = (res) => {
     vehicles.value = allVehicles;
   }
   filteredVehicles.value = vehicles.value;
-  empleados.value = res.empleados || [];
-  filteredEmpleados.value = empleados.value;
-  proveedores.value = res.proveedores || [];
-  filteredProveedores.value = proveedores.value;
-  tiposServicio.value = res.tipos_servicio || [];
-  filteredTiposServicio.value = tiposServicio.value;
-  serviciosCat.value = res.servicios_cat || [];
-  sucursalesCargo.value = res.sucursales_cargo || [];
-  filteredSucursalesCargo.value = sucursalesCargo.value;
-  deptosCargo.value = res.deptos_cargo || [];
-  filteredDeptosCargo.value = deptosCargo.value;
-  formasPago.value = res.formas_pago || [];
-  filteredFormasPago.value = formasPago.value;
-  metodosPago.value = res.metodos_pago || [];
-  filteredMetodosPago.value = metodosPago.value;
-  usosCfdi.value = res.usos_cfdi || [];
-  filteredUsosCfdi.value = usosCfdi.value;
+  if (res.empleados?.length) {
+    empleados.value = res.empleados;
+    filteredEmpleados.value = res.empleados;
+  }
+  if (res.proveedores?.length) {
+    proveedores.value = res.proveedores;
+    filteredProveedores.value = res.proveedores;
+  }
+  if (res.tipos_servicio?.length) {
+    tiposServicio.value = res.tipos_servicio;
+    filteredTiposServicio.value = res.tipos_servicio;
+  }
+  if (res.servicios_cat?.length) {
+    serviciosCat.value = res.servicios_cat;
+  }
+  if (res.sucursales_cargo?.length) {
+    sucursalesCargo.value = res.sucursales_cargo;
+    filteredSucursalesCargo.value = res.sucursales_cargo;
+  }
+  if (res.deptos_cargo?.length) {
+    deptosCargo.value = res.deptos_cargo;
+    filteredDeptosCargo.value = res.deptos_cargo;
+  }
+  if (res.formas_pago && res.formas_pago.length) {
+    formasPago.value = res.formas_pago;
+    filteredFormasPago.value = res.formas_pago;
+  }
+  if (res.metodos_pago && res.metodos_pago.length) {
+    metodosPago.value = res.metodos_pago;
+    filteredMetodosPago.value = res.metodos_pago;
+  }
+  if (res.usos_cfdi && res.usos_cfdi.length) {
+    usosCfdi.value = res.usos_cfdi;
+    filteredUsosCfdi.value = res.usos_cfdi;
+  }
 };
 
 const getForms = async () => {
-  if (props.catalogs && props.catalogs.vehicles?.length) {
+  if (
+    props.catalogs &&
+    props.catalogs.vehicles?.length &&
+    props.catalogs.formas_pago?.length &&
+    props.catalogs.metodos_pago?.length &&
+    props.catalogs.usos_cfdi?.length
+  ) {
     applyCatalogs(props.catalogs);
     return;
   }
   const res = await sendRequest("GET", null, "/api/service/forms", "");
   applyCatalogs(res);
 };
+
+watch(
+  () => props.catalogs,
+  (newCatalogs) => {
+    if (newCatalogs) {
+      applyCatalogs(newCatalogs);
+      if (
+        !formasPago.value.length ||
+        !metodosPago.value.length ||
+        !usosCfdi.value.length
+      ) {
+        getForms();
+      }
+    }
+  },
+  { deep: true }
+);
 
 const formatCurrency = (val) => {
   return Number(val || 0).toLocaleString("es-MX", {
@@ -1529,7 +1646,123 @@ const formatKm = (val) => {
   return `${Number(val || 0).toLocaleString("es-MX")} km`;
 };
 
+const onProveedorChange = (cot, provId) => {
+  cot.proveedor_id = provId;
+  if (!provId) return;
+
+  // Buscar si ya existe otra cotización en cualquier concepto con este mismo proveedor que tenga datos fiscales
+  for (const c of conceptos.value) {
+    for (const otherCot of c.cotizaciones) {
+      if (
+        otherCot !== cot &&
+        Number(otherCot.proveedor_id) === Number(provId)
+      ) {
+        if (otherCot.forma_pago_id) cot.forma_pago_id = otherCot.forma_pago_id;
+        if (otherCot.metodo_pago_id)
+          cot.metodo_pago_id = otherCot.metodo_pago_id;
+        if (otherCot.uso_cfdi_id) cot.uso_cfdi_id = otherCot.uso_cfdi_id;
+        return;
+      }
+    }
+  }
+};
+
+const syncFiscalByProveedor = (currentCot, field, newVal) => {
+  currentCot[field] = newVal;
+  if (!currentCot.proveedor_id) return;
+
+  // Sincronizar automáticamente todas las cotizaciones del mismo proveedor
+  conceptos.value.forEach((c) => {
+    c.cotizaciones.forEach((otherCot) => {
+      if (
+        otherCot !== currentCot &&
+        Number(otherCot.proveedor_id) === Number(currentCot.proveedor_id)
+      ) {
+        otherCot[field] = newVal;
+      }
+    });
+  });
+};
+
+const getProveedoresFiscalSummary = () => {
+  const provMap = new Map();
+  conceptos.value.forEach((concepto) => {
+    concepto.cotizaciones.forEach((cot) => {
+      if (!cot.proveedor_id) return;
+      const provId = Number(cot.proveedor_id);
+      if (!provMap.has(provId)) {
+        const provObj = proveedores.value.find(
+          (p) => Number(p.id) === provId
+        );
+        const fpObj = formasPago.value.find(
+          (f) => Number(f.id) === Number(cot.forma_pago_id)
+        );
+        const mpObj = metodosPago.value.find(
+          (m) => Number(m.id) === Number(cot.metodo_pago_id)
+        );
+        const cfdiObj = usosCfdi.value.find(
+          (u) => Number(u.id) === Number(cot.uso_cfdi_id)
+        );
+
+        provMap.set(provId, {
+          proveedor_id: provId,
+          nombre: provObj?.nombre || `Proveedor #${provId}`,
+          rfc: provObj?.rfc || null,
+          forma_pago: fpObj
+            ? `${fpObj.clave} - ${fpObj.nombre}`
+            : cot.forma_pago_id
+            ? `Forma #${cot.forma_pago_id}`
+            : "No especificada",
+          metodo_pago: mpObj
+            ? `${mpObj.clave} - ${mpObj.nombre}`
+            : cot.metodo_pago_id
+            ? `Método #${cot.metodo_pago_id}`
+            : "No especificado",
+          uso_cfdi: cfdiObj
+            ? `${cfdiObj.clave} - ${cfdiObj.nombre}`
+            : cot.uso_cfdi_id
+            ? `CFDI #${cot.uso_cfdi_id}`
+            : "No especificado",
+          conceptosCount: 1,
+          total: Number(cot.total || 0),
+        });
+      } else {
+        const entry = provMap.get(provId);
+        entry.conceptosCount += 1;
+        entry.total += Number(cot.total || 0);
+      }
+    });
+  });
+  return Array.from(provMap.values());
+};
+
 const validate = async () => {
+  // Asegurar consistencia de datos fiscales por proveedor antes de validar
+  const provFiscalMap = {};
+  conceptos.value.forEach((c) => {
+    c.cotizaciones.forEach((cot) => {
+      if (!cot.proveedor_id) return;
+      const pid = Number(cot.proveedor_id);
+      if (!provFiscalMap[pid]) {
+        provFiscalMap[pid] = {
+          forma_pago_id: cot.forma_pago_id,
+          metodo_pago_id: cot.metodo_pago_id,
+          uso_cfdi_id: cot.uso_cfdi_id,
+        };
+      } else {
+        if (provFiscalMap[pid].forma_pago_id && !cot.forma_pago_id) {
+          cot.forma_pago_id = provFiscalMap[pid].forma_pago_id;
+        }
+        if (provFiscalMap[pid].metodo_pago_id && !cot.metodo_pago_id) {
+          cot.metodo_pago_id = provFiscalMap[pid].metodo_pago_id;
+        }
+        if (provFiscalMap[pid].uso_cfdi_id && !cot.uso_cfdi_id) {
+          cot.uso_cfdi_id = provFiscalMap[pid].uso_cfdi_id;
+        }
+      }
+    });
+  });
+
   return await myForm.value.validate();
 };
 
@@ -1598,6 +1831,7 @@ onMounted(() => {
 defineExpose({
   formService,
   validate,
+  getProveedoresFiscalSummary,
 });
 </script>
 
@@ -1617,5 +1851,80 @@ defineExpose({
 }
 .border-grey {
   border: 1px dashed #b0bec5;
+}
+
+/* Tipografía de campos ampliada, nítida y visible */
+.service-form-expanded :deep(.q-field--dense .q-field__control) {
+  min-height: 48px;
+  height: auto;
+  border-radius: 6px;
+}
+
+.service-form-expanded :deep(.q-field--dense .q-field__marginal) {
+  height: 48px;
+}
+
+.service-form-expanded :deep(.q-field__native),
+.service-form-expanded :deep(.q-field__input) {
+  font-size: 15.5px !important;
+  font-weight: 500;
+  color: #1e293b !important;
+  line-height: 1.4;
+}
+
+.service-form-expanded :deep(.q-field__prefix),
+.service-form-expanded :deep(.q-field__suffix) {
+  font-size: 15.5px !important;
+  font-weight: 600;
+  color: #475569 !important;
+}
+
+.service-form-expanded :deep(.q-field__label) {
+  font-size: 15px !important;
+  font-weight: 600;
+  color: #475569 !important;
+}
+
+.service-form-expanded :deep(.q-field--float .q-field__label) {
+  font-size: 13.5px !important;
+  font-weight: 700;
+  color: #0f172a !important;
+  transform: translateY(-44%) scale(0.85);
+}
+
+.service-form-expanded :deep(.q-field__prepend .q-icon),
+.service-form-expanded :deep(.q-field__append .q-icon) {
+  font-size: 22px;
+}
+
+.service-form-expanded :deep(.quote-total-input .q-field__native) {
+  font-size: 18px !important;
+  font-weight: 800 !important;
+  color: #1b5e20 !important;
+}
+
+.service-form-expanded :deep(.q-field__bottom) {
+  font-size: 12.5px;
+  font-weight: 500;
+  padding-top: 4px;
+}
+</style>
+
+<style>
+/* Estilos globales para los menús desplegables del formulario */
+.service-select-popup .q-item {
+  min-height: 44px;
+  padding: 8px 14px;
+}
+
+.service-select-popup .q-item__label {
+  font-size: 15px !important;
+  font-weight: 500;
+  color: #1e293b;
+}
+
+.service-select-popup .q-item__label--caption {
+  font-size: 13px !important;
+  color: #64748b;
 }
 </style>

@@ -28,7 +28,21 @@
             </div>
           </div>
         </div>
-        <div class="row items-center q-gutter-x-md">
+        <div class="row items-center q-gutter-x-sm">
+          <q-btn
+            v-if="isAutorizado"
+            unelevated
+            dense
+            color="white"
+            text-color="purple-9"
+            icon="print"
+            label="Imprimir Orden"
+            class="q-px-sm text-weight-bold"
+            @click="printOrdenCompra"
+            :loading="printing"
+          >
+            <q-tooltip>Imprimir formato oficial de Orden de Compra</q-tooltip>
+          </q-btn>
           <q-btn
             v-if="service?.cotizacion_url"
             unelevated
@@ -45,7 +59,9 @@
           <div class="text-right">
             <div class="text-caption text-blue-1">Total de la Orden</div>
             <div class="text-h6 text-weight-bolder text-white">
-              {{ isTotalPending ? "Pendiente" : formatCurrency(orderTotals.total) }}
+              {{
+                isTotalPending ? "Pendiente" : formatCurrency(orderTotals.total)
+              }}
             </div>
           </div>
         </div>
@@ -235,8 +251,14 @@
             <q-item-section side>
               <div class="text-caption text-grey-8">
                 Total:
-                <strong :class="isTotalPending ? 'text-orange-9' : 'text-positive'">
-                  {{ isTotalPending ? "Pendiente" : formatCurrency(orderTotals.total) }}
+                <strong
+                  :class="isTotalPending ? 'text-orange-9' : 'text-positive'"
+                >
+                  {{
+                    isTotalPending
+                      ? "Pendiente"
+                      : formatCurrency(orderTotals.total)
+                  }}
                 </strong>
               </div>
             </q-item-section>
@@ -273,7 +295,9 @@
                       >
                         {{ concepto.tipo_servicio?.nombre || "General" }}
                       </q-badge>
-                      <span class="text-subtitle2 text-weight-bold text-primary q-ml-xs">
+                      <span
+                        class="text-subtitle2 text-weight-bold text-primary q-ml-xs"
+                      >
                         {{ concepto.servicio?.nombre || "Servicio" }}
                       </span>
                       <q-badge
@@ -286,14 +310,26 @@
                         outline
                         class="q-ml-xs"
                       >
-                        <q-icon name="tire_repair" size="14px" class="q-mr-xs" />
-                        {{ concepto.llanta_anchura || "-" }}/{{ concepto.llanta_altura || "-" }} R{{ concepto.llanta_rin || "-" }}
+                        <q-icon
+                          name="tire_repair"
+                          size="14px"
+                          class="q-mr-xs"
+                        />
+                        {{ concepto.llanta_anchura || "-" }}/{{
+                          concepto.llanta_altura || "-"
+                        }}
+                        R{{ concepto.llanta_rin || "-" }}
                       </q-badge>
                     </div>
                     <div class="text-caption text-grey-8 q-mt-xs">
-                      <strong>Descripción:</strong> {{ concepto.descripcion || "Sin descripción" }}
-                      <span v-if="concepto.km_evento" class="q-ml-sm text-grey-7">
-                        &bull; <strong>KM:</strong> {{ formatKm(concepto.km_evento) }}
+                      <strong>Descripción:</strong>
+                      {{ concepto.descripcion || "Sin descripción" }}
+                      <span
+                        v-if="concepto.km_evento"
+                        class="q-ml-sm text-grey-7"
+                      >
+                        &bull; <strong>KM:</strong>
+                        {{ formatKm(concepto.km_evento) }}
                       </span>
                     </div>
                   </q-item-section>
@@ -306,7 +342,11 @@
                           color="positive"
                           class="q-px-sm text-weight-bold"
                         >
-                          <q-icon name="check_circle" size="14px" class="q-mr-xs" />
+                          <q-icon
+                            name="check_circle"
+                            size="14px"
+                            class="q-mr-xs"
+                          />
                           Cotización seleccionada
                         </q-badge>
                         <q-badge
@@ -329,11 +369,19 @@
                           icon="close"
                           @click.stop="selectedQuotes[concepto.key] = null"
                         >
-                          <q-tooltip>Deseleccionar / Omitir este concepto de la orden</q-tooltip>
+                          <q-tooltip
+                            >Deseleccionar / Omitir este concepto de la
+                            orden</q-tooltip
+                          >
                         </q-btn>
                       </template>
                       <q-badge color="teal-8" class="q-px-sm text-weight-bold">
-                        {{ concepto.cotizaciones.length }} {{ concepto.cotizaciones.length === 1 ? 'cotización' : 'cotizaciones' }}
+                        {{ concepto.cotizaciones.length }}
+                        {{
+                          concepto.cotizaciones.length === 1
+                            ? "cotización"
+                            : "cotizaciones"
+                        }}
                       </q-badge>
                     </div>
                   </q-item-section>
@@ -344,24 +392,42 @@
                 <q-markup-table flat dense separator="horizontal">
                   <thead>
                     <tr class="bg-grey-2 text-grey-8 text-caption">
-                      <th v-if="canAuthorize" class="text-center" style="width: 80px;">Elegir</th>
-                      <th class="text-center" style="width: 130px;">Cotización</th>
+                      <th
+                        v-if="canAuthorize"
+                        class="text-center"
+                        style="width: 80px"
+                      >
+                        Elegir
+                      </th>
+                      <th class="text-center" style="width: 130px">
+                        Cotización
+                      </th>
                       <th class="text-left">Proveedor / Taller</th>
                       <th class="text-center">Cant.</th>
                       <th class="text-right">P. Unitario</th>
                       <th class="text-right">Subtotal</th>
                       <th class="text-right">IVA</th>
                       <th class="text-right">Total</th>
-                      <th class="text-center" style="width: 120px;">Archivo Cotización</th>
+                      <th class="text-center" style="width: 120px">
+                        Archivo Cotización
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr
                       v-for="(cot, qIdx) in concepto.cotizaciones"
                       :key="cot.id || qIdx"
-                      :class="canAuthorize && selectedQuotes[concepto.key] === cot.id ? 'selected-quote-row' : ''"
+                      :class="
+                        canAuthorize && selectedQuotes[concepto.key] === cot.id
+                          ? 'selected-quote-row'
+                          : ''
+                      "
                       :style="canAuthorize ? 'cursor: pointer;' : ''"
-                      @click="canAuthorize ? selectQuoteForConcept(concepto.key, cot.id) : null"
+                      @click="
+                        canAuthorize
+                          ? selectQuoteForConcept(concepto.key, cot.id)
+                          : null
+                      "
                     >
                       <td v-if="canAuthorize" class="text-center" @click.stop>
                         <q-radio
@@ -373,12 +439,23 @@
                       </td>
                       <td class="text-center">
                         <q-badge
-                          :color="canAuthorize && selectedQuotes[concepto.key] === cot.id ? 'positive' : 'teal-8'"
-                          :outline="!canAuthorize || selectedQuotes[concepto.key] !== cot.id"
+                          :color="
+                            canAuthorize &&
+                            selectedQuotes[concepto.key] === cot.id
+                              ? 'positive'
+                              : 'teal-8'
+                          "
+                          :outline="
+                            !canAuthorize ||
+                            selectedQuotes[concepto.key] !== cot.id
+                          "
                           class="text-weight-bold q-px-sm"
                         >
                           <q-icon
-                            v-if="canAuthorize && selectedQuotes[concepto.key] === cot.id"
+                            v-if="
+                              canAuthorize &&
+                              selectedQuotes[concepto.key] === cot.id
+                            "
                             name="check"
                             size="14px"
                             class="q-mr-xs"
@@ -388,11 +465,26 @@
                       </td>
                       <td class="text-left text-weight-medium">
                         <div class="row items-center q-gutter-x-xs">
-                          <q-icon name="storefront" color="primary" size="16px" />
-                          <span>{{ cot.proveedor?.nombre || props.service?.proveedor?.nombre || "-" }}</span>
+                          <q-icon
+                            name="storefront"
+                            color="primary"
+                            size="16px"
+                          />
+                          <span>{{
+                            cot.proveedor?.nombre ||
+                            props.service?.proveedor?.nombre ||
+                            "-"
+                          }}</span>
                         </div>
                         <div
-                          v-if="cot.forma_pago || cot.formaPago || cot.metodo_pago || cot.metodoPago || cot.uso_cfdi || cot.usoCfdi"
+                          v-if="
+                            cot.forma_pago ||
+                            cot.formaPago ||
+                            cot.metodo_pago ||
+                            cot.metodoPago ||
+                            cot.uso_cfdi ||
+                            cot.usoCfdi
+                          "
                           class="row items-center q-gutter-x-xs q-mt-xs wrap"
                         >
                           <q-badge
@@ -401,8 +493,13 @@
                             text-color="blue-grey-9"
                             class="text-caption text-weight-normal border-grey"
                           >
-                            <q-icon name="payments" size="12px" class="q-mr-xs" />
-                            {{ (cot.formaPago || cot.forma_pago).clave }} - {{ (cot.formaPago || cot.forma_pago).nombre }}
+                            <q-icon
+                              name="payments"
+                              size="12px"
+                              class="q-mr-xs"
+                            />
+                            {{ (cot.formaPago || cot.forma_pago).clave }} -
+                            {{ (cot.formaPago || cot.forma_pago).nombre }}
                           </q-badge>
                           <q-badge
                             v-if="cot.metodoPago || cot.metodo_pago"
@@ -410,7 +507,11 @@
                             text-color="blue-grey-9"
                             class="text-caption text-weight-normal border-grey"
                           >
-                            <q-icon name="credit_card" size="12px" class="q-mr-xs" />
+                            <q-icon
+                              name="credit_card"
+                              size="12px"
+                              class="q-mr-xs"
+                            />
                             {{ (cot.metodoPago || cot.metodo_pago).clave }}
                           </q-badge>
                           <q-badge
@@ -419,7 +520,11 @@
                             text-color="blue-grey-9"
                             class="text-caption text-weight-normal border-grey"
                           >
-                            <q-icon name="receipt_long" size="12px" class="q-mr-xs" />
+                            <q-icon
+                              name="receipt_long"
+                              size="12px"
+                              class="q-mr-xs"
+                            />
                             {{ (cot.usoCfdi || cot.uso_cfdi).clave }}
                           </q-badge>
                         </div>
@@ -428,7 +533,11 @@
                         {{ cot.cantidad || 1 }}
                       </td>
                       <td class="text-right">
-                        {{ cot.precio_unitario ? formatCurrency(cot.precio_unitario) : "-" }}
+                        {{
+                          cot.precio_unitario
+                            ? formatCurrency(cot.precio_unitario)
+                            : "-"
+                        }}
                       </td>
                       <td class="text-right font-mono">
                         {{ formatCurrency(cot.subtotal) }}
@@ -436,12 +545,16 @@
                       <td class="text-right font-mono">
                         {{ formatCurrency(cot.iva) }}
                       </td>
-                      <td class="text-right font-mono text-weight-bold text-positive text-subtitle2">
+                      <td
+                        class="text-right font-mono text-weight-bold text-positive text-subtitle2"
+                      >
                         {{ formatCurrency(cot.total) }}
                       </td>
                       <td class="text-center" @click.stop>
                         <q-btn
-                          v-if="cot.cotizacion_url || props.service?.cotizacion_url"
+                          v-if="
+                            cot.cotizacion_url || props.service?.cotizacion_url
+                          "
                           unelevated
                           dense
                           size="sm"
@@ -449,7 +562,12 @@
                           icon="picture_as_pdf"
                           label="Ver PDF"
                           class="q-px-xs"
-                          @click="openPdf(cot.cotizacion_url || props.service?.cotizacion_url)"
+                          @click="
+                            openPdf(
+                              cot.cotizacion_url ||
+                                props.service?.cotizacion_url
+                            )
+                          "
                         >
                           <q-tooltip>Abrir cotización PDF</q-tooltip>
                         </q-btn>
@@ -463,25 +581,48 @@
           </div>
 
           <!-- Pie con resumen total de la orden -->
-          <div class="q-px-md q-py-sm bg-grey-1 row items-center justify-between border-top">
+          <div
+            class="q-px-md q-py-sm bg-grey-1 row items-center justify-between border-top"
+          >
             <div class="text-caption text-grey-7">
-              Total de conceptos: <strong>{{ conceptosAgrupados.length }}</strong> &bull; Total de cotizaciones: <strong>{{ detallesList.length }}</strong>
+              Total de conceptos:
+              <strong>{{ conceptosAgrupados.length }}</strong> &bull; Total de
+              cotizaciones: <strong>{{ detallesList.length }}</strong>
               <template v-if="canAuthorize && autorizacionForm.autorizado">
-                &bull; Conceptos seleccionados para autorizar: <strong class="text-positive">{{ selectedQuotesList.length }}</strong>
+                &bull; Conceptos seleccionados para autorizar:
+                <strong class="text-positive">{{
+                  selectedQuotesList.length
+                }}</strong>
               </template>
             </div>
             <div class="row q-gutter-x-md items-center">
               <span class="text-caption text-grey-8">
-                {{ canAuthorize && autorizacionForm.autorizado ? 'Total Autorizado Seleccionado:' : 'Total de la Orden:' }}
+                {{
+                  canAuthorize && autorizacionForm.autorizado
+                    ? "Total Autorizado Seleccionado:"
+                    : "Total de la Orden:"
+                }}
               </span>
               <span
                 class="text-subtitle1 text-weight-bolder"
-                :class="canAuthorize && autorizacionForm.autorizado && selectedQuotesList.length > 0 ? 'text-positive' : (isTotalPending ? 'text-orange-9' : 'text-positive')"
+                :class="
+                  canAuthorize &&
+                  autorizacionForm.autorizado &&
+                  selectedQuotesList.length > 0
+                    ? 'text-positive'
+                    : isTotalPending
+                    ? 'text-orange-9'
+                    : 'text-positive'
+                "
               >
                 {{
                   canAuthorize && autorizacionForm.autorizado
-                    ? (selectedQuotesList.length > 0 ? formatCurrency(selectedQuotesTotals.total) : 'Pendiente de selección')
-                    : (isTotalPending ? "Pendiente" : formatCurrency(orderTotals.total))
+                    ? selectedQuotesList.length > 0
+                      ? formatCurrency(selectedQuotesTotals.total)
+                      : "Pendiente de selección"
+                    : isTotalPending
+                    ? "Pendiente"
+                    : formatCurrency(orderTotals.total)
                 }}
               </span>
             </div>
@@ -769,24 +910,47 @@
                 <q-banner
                   rounded
                   dense
-                  :class="selectedQuotesList.length > 0 ? 'bg-green-1 text-green-10 border-positive' : 'bg-orange-1 text-orange-10 border-orange'"
+                  :class="
+                    selectedQuotesList.length > 0
+                      ? 'bg-green-1 text-green-10 border-positive'
+                      : 'bg-orange-1 text-orange-10 border-orange'
+                  "
                   class="q-pa-sm"
                 >
                   <template v-slot:avatar>
                     <q-icon
-                      :name="selectedQuotesList.length > 0 ? 'check_circle' : 'warning'"
-                      :color="selectedQuotesList.length > 0 ? 'positive' : 'warning'"
+                      :name="
+                        selectedQuotesList.length > 0
+                          ? 'check_circle'
+                          : 'warning'
+                      "
+                      :color="
+                        selectedQuotesList.length > 0 ? 'positive' : 'warning'
+                      "
                       size="20px"
                     />
                   </template>
                   <div class="row items-center justify-between">
                     <div>
-                      <strong>{{ selectedQuotesList.length }} de {{ conceptosAgrupados.length }} conceptos seleccionados</strong> para autorizar.
-                      <span v-if="selectedQuotesList.length === 0" class="text-weight-bold">
-                        (Debes seleccionar al menos una cotización en los conceptos de arriba).
+                      <strong
+                        >{{ selectedQuotesList.length }} de
+                        {{ conceptosAgrupados.length }} conceptos
+                        seleccionados</strong
+                      >
+                      para autorizar.
+                      <span
+                        v-if="selectedQuotesList.length === 0"
+                        class="text-weight-bold"
+                      >
+                        (Debes seleccionar al menos una cotización en los
+                        conceptos de arriba).
                       </span>
                       <span v-else class="text-caption text-grey-8 q-ml-sm">
-                        Total a autorizar: <strong>{{ formatCurrency(selectedQuotesTotals.total) }}</strong> &bull; Las cotizaciones no elegidas se eliminarán de BD y S3.
+                        Total a autorizar:
+                        <strong>{{
+                          formatCurrency(selectedQuotesTotals.total)
+                        }}</strong>
+                        &bull; Las cotizaciones no elegidas se eliminarán.
                       </span>
                     </div>
                   </div>
@@ -820,12 +984,26 @@
 
   <!-- Modal de Decisión / Resumen para Autorización -->
   <q-dialog v-model="confirmAuthModal" persistent>
-    <q-card style="width: 900px; max-width: 95vw;">
+    <q-card style="width: 900px; max-width: 95vw">
       <q-card-section class="bg-primary text-white row items-center q-py-sm">
-        <q-avatar icon="verified" color="white" text-color="primary" size="32px" />
-        <div class="text-subtitle1 text-weight-bold q-ml-sm">Confirmar Autorización de Orden de Compra</div>
+        <q-avatar
+          icon="verified"
+          color="white"
+          text-color="primary"
+          size="32px"
+        />
+        <div class="text-subtitle1 text-weight-bold q-ml-sm">
+          Confirmar Autorización de Orden de Compra
+        </div>
         <q-space />
-        <q-btn icon="close" flat round dense v-close-popup :disable="submittingAuth" />
+        <q-btn
+          icon="close"
+          flat
+          round
+          dense
+          v-close-popup
+          :disable="submittingAuth"
+        />
       </q-card-section>
 
       <q-card-section class="q-pa-md">
@@ -833,7 +1011,8 @@
           ¿Estás seguro de autorizar los siguientes conceptos?
         </div>
         <div class="text-caption text-grey-7 q-mb-md">
-          Se autorizará la orden de compra con las cotizaciones seleccionadas a continuación:
+          Se autorizará la orden de compra con las cotizaciones seleccionadas a
+          continuación:
         </div>
 
         <!-- Resumen de Órdenes a Generar por Proveedor -->
@@ -851,11 +1030,15 @@
                 </div>
                 <div class="text-caption text-blue-9">
                   Todos los conceptos pertenecen al mismo proveedor:
-                  <strong>{{ proveedoresSeleccionados[0].nombre }}</strong>.
+                  <strong>{{ proveedoresSeleccionados[0].nombre }}</strong
+                  >.
                 </div>
               </div>
             </div>
-            <q-badge color="primary" class="text-subtitle2 text-weight-bolder q-px-sm">
+            <q-badge
+              color="primary"
+              class="text-subtitle2 text-weight-bolder q-px-sm"
+            >
               {{ formatCurrency(proveedoresSeleccionados[0].total) }}
             </q-badge>
           </div>
@@ -869,10 +1052,13 @@
               <q-icon name="alt_route" size="24px" color="indigo-8" />
               <div>
                 <div class="text-subtitle2 text-weight-bold">
-                  Se generarán {{ proveedoresSeleccionados.length }} Órdenes de Compra independientes
+                  Se generarán {{ proveedoresSeleccionados.length }} Órdenes de
+                  Compra independientes
                 </div>
                 <div class="text-caption text-grey-8">
-                  Al haber diferentes proveedores, se creará una orden de compra para cada uno. Todas compartirán el <strong>mismo folio de Autorización de Compras</strong>:
+                  Al haber diferentes proveedores, se creará una orden de compra
+                  para cada uno. Todas compartirán el
+                  <strong>mismo folio de Autorización de Compras</strong>:
                 </div>
               </div>
             </div>
@@ -882,15 +1068,28 @@
                 :key="provGroup.id"
                 class="col-12 col-sm-6"
               >
-                <div class="q-pa-xs q-px-sm rounded-borders bg-white border-grey row items-center justify-between">
-                  <div class="row items-center q-gutter-x-xs ellipsis" style="max-width: 70%;">
+                <div
+                  class="q-pa-xs q-px-sm rounded-borders bg-white border-grey row items-center justify-between"
+                >
+                  <div
+                    class="row items-center q-gutter-x-xs ellipsis"
+                    style="max-width: 70%"
+                  >
                     <q-badge color="indigo-8" outline class="text-weight-bold">
                       OC #{{ pIdx + 1 }}
                     </q-badge>
-                    <span class="text-weight-bold ellipsis text-caption">{{ provGroup.nombre }}</span>
-                    <span class="text-caption text-grey-7">({{ provGroup.conceptosCount }} concepto{{ provGroup.conceptosCount > 1 ? 's' : '' }})</span>
+                    <span class="text-weight-bold ellipsis text-caption">{{
+                      provGroup.nombre
+                    }}</span>
+                    <span class="text-caption text-grey-7"
+                      >({{ provGroup.conceptosCount }} concepto{{
+                        provGroup.conceptosCount > 1 ? "s" : ""
+                      }})</span
+                    >
                   </div>
-                  <div class="text-caption text-weight-bolder text-positive font-mono">
+                  <div
+                    class="text-caption text-weight-bolder text-positive font-mono"
+                  >
                     {{ formatCurrency(provGroup.total) }}
                   </div>
                 </div>
@@ -900,11 +1099,17 @@
         </div>
 
         <!-- Tabla resumen de cotizaciones seleccionadas -->
-        <q-markup-table flat bordered dense separator="horizontal" class="q-mb-md">
+        <q-markup-table
+          flat
+          bordered
+          dense
+          separator="horizontal"
+          class="q-mb-md"
+        >
           <thead>
             <tr class="bg-blue-grey-1 text-grey-8 text-caption">
-              <th class="text-left" style="width: 220px;">Concepto</th>
-              <th class="text-center" style="width: 120px;">Cotización</th>
+              <th class="text-left" style="width: 220px">Concepto</th>
+              <th class="text-center" style="width: 120px">Cotización</th>
               <th class="text-left">Proveedor / Taller</th>
               <th class="text-center">Cant.</th>
               <th class="text-right">P. Unitario</th>
@@ -921,13 +1126,26 @@
                 </div>
                 <div class="text-caption text-grey-7">
                   {{ item.concepto.descripcion || "Sin descripción" }}
-                  <span v-if="item.concepto.llanta_anchura || item.concepto.llanta_altura || item.concepto.llanta_rin">
-                    ({{ item.concepto.llanta_anchura || "-" }}/{{ item.concepto.llanta_altura || "-" }} R{{ item.concepto.llanta_rin || "-" }})
+                  <span
+                    v-if="
+                      item.concepto.llanta_anchura ||
+                      item.concepto.llanta_altura ||
+                      item.concepto.llanta_rin
+                    "
+                  >
+                    ({{ item.concepto.llanta_anchura || "-" }}/{{
+                      item.concepto.llanta_altura || "-"
+                    }}
+                    R{{ item.concepto.llanta_rin || "-" }})
                   </span>
                 </div>
               </td>
               <td class="text-center">
-                <q-badge color="teal-8" outline class="text-weight-bold q-px-xs">
+                <q-badge
+                  color="teal-8"
+                  outline
+                  class="text-weight-bold q-px-xs"
+                >
                   Cotización #{{ item.cotizacionIndex }}
                 </q-badge>
               </td>
@@ -937,26 +1155,50 @@
                   <span>{{ item.cotizacion.proveedor?.nombre || "-" }}</span>
                 </div>
                 <div
-                  v-if="item.cotizacion.forma_pago || item.cotizacion.formaPago || item.cotizacion.metodo_pago || item.cotizacion.metodoPago || item.cotizacion.uso_cfdi || item.cotizacion.usoCfdi"
+                  v-if="
+                    item.cotizacion.forma_pago ||
+                    item.cotizacion.formaPago ||
+                    item.cotizacion.metodo_pago ||
+                    item.cotizacion.metodoPago ||
+                    item.cotizacion.uso_cfdi ||
+                    item.cotizacion.usoCfdi
+                  "
                   class="row items-center q-gutter-x-xs q-mt-xs wrap"
                 >
                   <q-badge
-                    v-if="item.cotizacion.formaPago || item.cotizacion.forma_pago"
+                    v-if="
+                      item.cotizacion.formaPago || item.cotizacion.forma_pago
+                    "
                     color="blue-grey-1"
                     text-color="blue-grey-9"
                     class="text-caption text-weight-normal border-grey"
                   >
                     <q-icon name="payments" size="11px" class="q-mr-xs" />
-                    {{ (item.cotizacion.formaPago || item.cotizacion.forma_pago).clave }} - {{ (item.cotizacion.formaPago || item.cotizacion.forma_pago).nombre }}
+                    {{
+                      (item.cotizacion.formaPago || item.cotizacion.forma_pago)
+                        .clave
+                    }}
+                    -
+                    {{
+                      (item.cotizacion.formaPago || item.cotizacion.forma_pago)
+                        .nombre
+                    }}
                   </q-badge>
                   <q-badge
-                    v-if="item.cotizacion.metodoPago || item.cotizacion.metodo_pago"
+                    v-if="
+                      item.cotizacion.metodoPago || item.cotizacion.metodo_pago
+                    "
                     color="blue-grey-1"
                     text-color="blue-grey-9"
                     class="text-caption text-weight-normal border-grey"
                   >
                     <q-icon name="credit_card" size="11px" class="q-mr-xs" />
-                    {{ (item.cotizacion.metodoPago || item.cotizacion.metodo_pago).clave }}
+                    {{
+                      (
+                        item.cotizacion.metodoPago ||
+                        item.cotizacion.metodo_pago
+                      ).clave
+                    }}
                   </q-badge>
                   <q-badge
                     v-if="item.cotizacion.usoCfdi || item.cotizacion.uso_cfdi"
@@ -965,7 +1207,10 @@
                     class="text-caption text-weight-normal border-grey"
                   >
                     <q-icon name="receipt_long" size="11px" class="q-mr-xs" />
-                    {{ (item.cotizacion.usoCfdi || item.cotizacion.uso_cfdi).clave }}
+                    {{
+                      (item.cotizacion.usoCfdi || item.cotizacion.uso_cfdi)
+                        .clave
+                    }}
                   </q-badge>
                 </div>
               </td>
@@ -973,7 +1218,11 @@
                 {{ item.cotizacion.cantidad || 1 }}
               </td>
               <td class="text-right font-mono">
-                {{ item.cotizacion.precio_unitario ? formatCurrency(item.cotizacion.precio_unitario) : "-" }}
+                {{
+                  item.cotizacion.precio_unitario
+                    ? formatCurrency(item.cotizacion.precio_unitario)
+                    : "-"
+                }}
               </td>
               <td class="text-right font-mono">
                 {{ formatCurrency(item.cotizacion.subtotal) }}
@@ -988,10 +1237,18 @@
           </tbody>
           <tfoot>
             <tr class="bg-grey-2 text-weight-bolder">
-              <td colspan="5" class="text-right text-subtitle2">Total Autorizado:</td>
-              <td class="text-right font-mono">{{ formatCurrency(selectedQuotesTotals.subtotal) }}</td>
-              <td class="text-right font-mono">{{ formatCurrency(selectedQuotesTotals.iva) }}</td>
-              <td class="text-right font-mono text-positive text-subtitle1">{{ formatCurrency(selectedQuotesTotals.total) }}</td>
+              <td colspan="5" class="text-right text-subtitle2">
+                Total Autorizado:
+              </td>
+              <td class="text-right font-mono">
+                {{ formatCurrency(selectedQuotesTotals.subtotal) }}
+              </td>
+              <td class="text-right font-mono">
+                {{ formatCurrency(selectedQuotesTotals.iva) }}
+              </td>
+              <td class="text-right font-mono text-positive text-subtitle1">
+                {{ formatCurrency(selectedQuotesTotals.total) }}
+              </td>
             </tr>
           </tfoot>
         </q-markup-table>
@@ -1001,9 +1258,14 @@
           <template v-slot:avatar>
             <q-icon name="warning" color="amber-9" size="24px" />
           </template>
-          <div class="text-weight-bold">Aviso importante sobre el almacenamiento:</div>
+          <div class="text-weight-bold">
+            Aviso importante sobre el almacenamiento:
+          </div>
           <div class="text-caption">
-            Al confirmar la autorización, todas las cotizaciones <strong>no seleccionadas</strong> se eliminarán permanentemente de la base de datos junto con sus archivos de cotización PDF en el almacenamiento S3 para liberar espacio. Esta acción no se puede revertir.
+            Al confirmar la autorización, todas las cotizaciones
+            <strong>no seleccionadas</strong> se eliminarán permanentemente
+            junto con sus archivos de cotización PDF. Esta acción no se puede
+            revertir.
           </div>
         </q-banner>
       </q-card-section>
@@ -1011,7 +1273,13 @@
       <q-separator />
 
       <q-card-actions align="right" class="q-pa-md bg-grey-1">
-        <q-btn flat label="Cancelar" color="grey-8" v-close-popup :disable="submittingAuth" />
+        <q-btn
+          flat
+          label="Cancelar"
+          color="grey-8"
+          v-close-popup
+          :disable="submittingAuth"
+        />
         <q-btn
           unelevated
           label="Sí, Autorizar Orden"
@@ -1085,10 +1353,7 @@ const isGasolinaDetalle = (det) => {
 
 const isGasolinaOrden = (orden) => {
   const detalles =
-    orden.detalles ||
-    orden.detalles_servicio ||
-    orden.detallesServicio ||
-    [];
+    orden.detalles || orden.detalles_servicio || orden.detallesServicio || [];
   return detalles.some((d) => {
     const sName = (d.servicio?.nombre || "").toLowerCase();
     const tName = (
@@ -1141,9 +1406,52 @@ const selectedQuotes = ref({});
 const confirmAuthModal = ref(false);
 
 const isTotalPending = computed(() => {
-  const estatusNombre = (props.service?.estatus?.nombre || "").trim().toLowerCase();
+  const estatusNombre = (props.service?.estatus?.nombre || "")
+    .trim()
+    .toLowerCase();
   return estatusNombre === "solicitado" || estatusNombre === "no autorizado";
 });
+
+const isAutorizado = computed(() => {
+  const estatusNombre = (props.service?.estatus?.nombre || "")
+    .trim()
+    .toLowerCase();
+  return estatusNombre === "autorizado";
+});
+
+const printing = ref(false);
+
+const printOrdenCompra = async () => {
+  if (!isAutorizado.value || !props.service?.id) {
+    $q.notify({
+      type: "warning",
+      message: "Solo se puede imprimir una orden de compra autorizada.",
+    });
+    return;
+  }
+  printing.value = true;
+  try {
+    const res = await sendRequest(
+      "GET",
+      null,
+      `/api/service/${props.service.id}/pdf`,
+      ""
+    );
+    if (res) {
+      const base64Response = await fetch(`data:application/pdf;base64,${res}`);
+      const blob = await base64Response.blob();
+      const url = URL.createObjectURL(blob);
+      window.open(url, "_blank");
+    }
+  } catch (error) {
+    $q.notify({
+      type: "negative",
+      message: "Error al generar el formato impreso de la orden de compra.",
+    });
+  } finally {
+    printing.value = false;
+  }
+};
 
 const canAuthorize = computed(() => {
   return checkPuesto(["Director administrativo"]) && isTotalPending.value;
@@ -1309,7 +1617,9 @@ const submitAutorizacion = async () => {
 const executeAuthorization = async () => {
   if (!props.service?.id) return;
 
-  const selectedIds = selectedQuotesList.value.map((item) => item.cotizacion.id);
+  const selectedIds = selectedQuotesList.value.map(
+    (item) => item.cotizacion.id
+  );
 
   submittingAuth.value = true;
   try {

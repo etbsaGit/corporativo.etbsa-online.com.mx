@@ -1,116 +1,167 @@
 <template>
   <q-item>
     <q-item-section>
-      <q-input
-        outlined
-        dense
-        label="Buscar por placa o serie"
-        v-model="filterForm.search"
-        @update:model-value="onInputChange"
-      >
-        <template v-slot:prepend>
-          <q-icon name="search" />
-        </template>
-      </q-input>
-    </q-item-section>
-    <q-item-section>
-      <q-select
-        v-model="filterForm.sucursal_id"
-        :options="sucursales"
-        label="Sucursal"
-        option-value="id"
-        option-label="nombre"
-        option-disable="inactive"
-        emit-value
-        map-options
-        transition-show="jump-up"
-        transition-hide="jump-up"
-        clearable
-        outlined
-        dense
-        options-dense
-        @update:model-value="getRows()"
-      />
-    </q-item-section>
-    <q-item-section>
-      <q-select
-        v-model="filterForm.linea_id"
-        :options="lineas"
-        label="Linea"
-        option-value="id"
-        option-label="nombre"
-        option-disable="inactive"
-        emit-value
-        map-options
-        transition-show="jump-up"
-        transition-hide="jump-up"
-        clearable
-        outlined
-        dense
-        options-dense
-        @update:model-value="getRows()"
-      />
-    </q-item-section>
-    <q-item-section>
-      <q-select
-        v-model="filterForm.departamento_id"
-        :options="departamentos"
-        label="Departamento"
-        option-value="id"
-        option-label="nombre"
-        option-disable="inactive"
-        emit-value
-        map-options
-        transition-show="jump-up"
-        transition-hide="jump-up"
-        clearable
-        outlined
-        dense
-        options-dense
-        @update:model-value="getRows()"
-      />
-    </q-item-section>
-    <q-item-section>
-      <q-select
-        v-model="filterForm.estatus_id"
-        :options="types"
-        label="Tipo de vehiculo"
-        option-value="id"
-        option-label="nombre"
-        option-disable="inactive"
-        emit-value
-        map-options
-        transition-show="jump-up"
-        transition-hide="jump-up"
-        clearable
-        outlined
-        dense
-        options-dense
-        @update:model-value="getRows()"
-      />
-    </q-item-section>
-    <q-item-section>
-      <q-select
-        v-model="filterForm.activo"
-        :options="activoOptions"
-        label="Estatus"
-        emit-value
-        map-options
-        clearable
-        outlined
-        dense
-        options-dense
-        @update:model-value="getRows()"
-      />
-    </q-item-section>
-    <q-item-section side>
-      <q-btn
-        dense
-        label="Agregar"
-        color="primary"
-        @click="showAdd = true"
-        icon="add_circle"
-      />
+      <div class="row q-col-gutter-sm items-center">
+        <div class="col-12 col-sm-6 col-md-3">
+          <q-input
+            outlined
+            dense
+            clearable
+            label="Buscar (placa, serie, marca, modelo, tipo...)"
+            v-model="filterForm.search"
+            @update:model-value="onInputChange"
+          >
+            <template v-slot:prepend>
+              <q-icon name="search" />
+            </template>
+          </q-input>
+        </div>
+
+        <div class="col-12 col-sm-6 col-md-2">
+          <q-select
+            v-model="filterForm.marca_id"
+            :options="marcas"
+            label="Marca"
+            option-value="id"
+            option-label="nombre"
+            option-disable="inactive"
+            emit-value
+            map-options
+            transition-show="jump-up"
+            transition-hide="jump-up"
+            clearable
+            outlined
+            dense
+            options-dense
+            @update:model-value="getRows()"
+          />
+        </div>
+
+        <div class="col-12 col-sm-6 col-md-2">
+          <q-select
+            v-model="filterForm.modelo_id"
+            :options="modelos"
+            label="Modelo"
+            option-value="id"
+            option-label="nombre"
+            option-disable="inactive"
+            emit-value
+            map-options
+            transition-show="jump-up"
+            transition-hide="jump-up"
+            clearable
+            outlined
+            dense
+            options-dense
+            @update:model-value="getRows()"
+          />
+        </div>
+
+        <div class="col-12 col-sm-6 col-md-2">
+          <q-select
+            v-model="filterForm.tipo_id"
+            :options="types"
+            label="Tipo de vehículo"
+            option-value="id"
+            option-label="nombre"
+            option-disable="inactive"
+            emit-value
+            map-options
+            transition-show="jump-up"
+            transition-hide="jump-up"
+            clearable
+            outlined
+            dense
+            options-dense
+            @update:model-value="getRows()"
+          />
+        </div>
+
+        <div class="col-12 col-sm-6 col-md-3">
+          <q-select
+            v-model="filterForm.sucursal_id"
+            :options="sucursales"
+            label="Sucursal"
+            option-value="id"
+            option-label="nombre"
+            option-disable="inactive"
+            emit-value
+            map-options
+            transition-show="jump-up"
+            transition-hide="jump-up"
+            clearable
+            outlined
+            dense
+            options-dense
+            @update:model-value="getRows()"
+          />
+        </div>
+
+        <div class="col-12 col-sm-6 col-md-3">
+          <q-select
+            v-model="filterForm.linea_id"
+            :options="lineas"
+            label="Línea"
+            option-value="id"
+            option-label="nombre"
+            option-disable="inactive"
+            emit-value
+            map-options
+            transition-show="jump-up"
+            transition-hide="jump-up"
+            clearable
+            outlined
+            dense
+            options-dense
+            @update:model-value="getRows()"
+          />
+        </div>
+
+        <div class="col-12 col-sm-6 col-md-3">
+          <q-select
+            v-model="filterForm.departamento_id"
+            :options="departamentos"
+            label="Departamento"
+            option-value="id"
+            option-label="nombre"
+            option-disable="inactive"
+            emit-value
+            map-options
+            transition-show="jump-up"
+            transition-hide="jump-up"
+            clearable
+            outlined
+            dense
+            options-dense
+            @update:model-value="getRows()"
+          />
+        </div>
+
+        <div class="col-12 col-sm-6 col-md-2">
+          <q-select
+            v-model="filterForm.activo"
+            :options="activoOptions"
+            label="Estatus"
+            emit-value
+            map-options
+            clearable
+            outlined
+            dense
+            options-dense
+            @update:model-value="getRows()"
+          />
+        </div>
+
+        <div class="col-12 col-md-4 flex justify-end">
+          <q-btn
+            unelevated
+            label="Agregar"
+            color="primary"
+            @click="showAdd = true"
+            icon="add_circle"
+          />
+        </div>
+      </div>
     </q-item-section>
   </q-item>
 
@@ -170,27 +221,47 @@
           </q-td>
         </template>
 
-        <template v-slot:body-cell-tipo="props">
+        <template v-slot:body-cell-placas_serie="props">
           <q-td :props="props">
-            {{ props.row.estatus.nombre }}
+            <div class="text-weight-medium">{{ props.row.placas }}</div>
+            <div class="text-caption text-grey-7">{{ props.row.serie }}</div>
+          </q-td>
+        </template>
+
+        <template v-slot:body-cell-vehiculo="props">
+          <q-td :props="props">
+            <div class="text-weight-medium">
+              {{
+                [props.row.marca?.nombre, props.row.modelo?.nombre]
+                  .filter(Boolean)
+                  .join(" ")
+              }}
+            </div>
+            <div class="text-caption text-grey-7">
+              {{
+                [props.row.tipo?.nombre, props.row.version]
+                  .filter(Boolean)
+                  .join(" • ")
+              }}
+            </div>
           </q-td>
         </template>
 
         <template v-slot:body-cell-sucursal="props">
           <q-td :props="props">
-            {{ props.row.sucursal.nombre }}
+            {{ props.row.sucursal?.nombre }}
           </q-td>
         </template>
 
         <template v-slot:body-cell-linea="props">
           <q-td :props="props">
-            {{ props.row.linea.nombre }}
+            {{ props.row.linea?.nombre }}
           </q-td>
         </template>
 
         <template v-slot:body-cell-departamento="props">
           <q-td :props="props">
-            {{ props.row.departamento.nombre }}
+            {{ props.row.departamento?.nombre }}
           </q-td>
         </template>
 
@@ -268,78 +339,116 @@
 
   <q-dialog
     v-model="showAdd"
-    transition-show="rotate"
-    transition-hide="rotate"
+    transition-show="scale"
+    transition-hide="scale"
     persistent
   >
-    <q-card>
-      <q-item class="text-white bg-primary">
-        <q-item-section>
-          <q-item-label class="text-h6">Agregar</q-item-label>
-        </q-item-section>
-        <q-item-section side>
-          <q-btn label="Cerrar" color="red" v-close-popup />
-        </q-item-section>
-        <q-item-section side>
-          <q-btn label="Agregar" color="blue" @click="postRow" />
-        </q-item-section>
-      </q-item>
+    <q-card style="width: 680px; max-width: 95vw" class="q-pa-none">
+      <q-card-section class="bg-primary text-white q-py-sm">
+        <div class="row items-center no-wrap">
+          <q-avatar
+            icon="add_circle"
+            color="white"
+            text-color="primary"
+            size="md"
+            class="q-mr-sm"
+          />
+          <div class="col">
+            <div class="text-h6 leading-tight">Registrar Vehículo</div>
+            <div class="text-caption text-blue-1">
+              Complete los datos de identificación y asignación de la unidad
+            </div>
+          </div>
+          <q-btn icon="close" flat round dense v-close-popup />
+        </div>
+      </q-card-section>
+
       <q-separator />
-      <q-item class="q-pa-none">
-        <q-item-section>
-          <vehicle-form ref="add" />
-        </q-item-section>
-      </q-item>
+
+      <q-card-section class="q-pa-none scroll" style="max-height: 75vh">
+        <vehicle-form ref="add" :catalogs="catalogs" />
+      </q-card-section>
+
+      <q-separator />
+
+      <q-card-actions align="right" class="q-pa-sm bg-grey-2">
+        <q-btn flat label="Cancelar" color="grey-8" v-close-popup />
+        <q-btn
+          unelevated
+          label="Guardar Vehículo"
+          color="primary"
+          icon="save"
+          @click="postRow"
+        />
+      </q-card-actions>
     </q-card>
   </q-dialog>
 
   <q-dialog
     v-model="showEdit"
-    transition-show="rotate"
-    transition-hide="rotate"
+    transition-show="scale"
+    transition-hide="scale"
     persistent
   >
-    <q-card>
-      <q-item class="text-white bg-primary">
-        <q-item-section>
-          <q-item-label class="text-h6">Editar</q-item-label>
-        </q-item-section>
-        <q-item-section side>
-          <q-btn label="Cerrar" color="red" v-close-popup />
-        </q-item-section>
-        <q-item-section side>
-          <q-btn label="Actualizar" color="blue" @click="putRow" />
-        </q-item-section>
-        <!-- <q-item-section side>
-          <q-btn label="Borrar" color="amber" @click="deleteRow" />
-        </q-item-section> -->
-      </q-item>
+    <q-card style="width: 680px; max-width: 95vw" class="q-pa-none">
+      <q-card-section class="bg-primary text-white q-py-sm">
+        <div class="row items-center no-wrap">
+          <q-avatar
+            icon="edit_square"
+            color="white"
+            text-color="primary"
+            size="md"
+            class="q-mr-sm"
+          />
+          <div class="col">
+            <div class="text-h6 leading-tight">Editar Vehículo</div>
+            <div class="text-caption text-blue-1" v-if="selectedRow">
+              Placa: <strong>{{ selectedRow.placas }}</strong> &bull; Serie:
+              <strong>{{ selectedRow.serie }}</strong>
+            </div>
+          </div>
+          <q-btn icon="close" flat round dense v-close-popup />
+        </div>
+      </q-card-section>
+
       <q-separator />
-      <q-item>
-        <q-item-section>
-          <vehicle-form ref="edit" :vehicle="selectedRow" />
-        </q-item-section>
-      </q-item>
-      <q-item v-if="selectedRow?.activo == 1">
-        <q-item-section side>
+
+      <q-card-section class="q-pa-none scroll" style="max-height: 75vh">
+        <vehicle-form ref="edit" :vehicle="selectedRow" :catalogs="catalogs" />
+      </q-card-section>
+
+      <q-separator />
+
+      <q-card-actions align="between" class="q-pa-sm bg-grey-2">
+        <div>
           <q-btn
+            v-if="selectedRow?.activo == 1"
+            outline
             label="Dar de Baja"
             color="negative"
             icon="block"
             @click="showBajaDialog = true"
           />
-        </q-item-section>
-      </q-item>
-      <q-item v-if="selectedRow?.activo == 0">
-        <q-item-section side>
           <q-btn
-            label="Activar"
+            v-if="selectedRow?.activo == 0"
+            outline
+            label="Activar Unidad"
             color="positive"
-            icon="check"
+            icon="check_circle"
             @click="activarVehicle"
           />
-        </q-item-section>
-      </q-item>
+        </div>
+        <div class="q-gutter-x-sm">
+          <q-btn flat label="Cancelar" color="grey-8" v-close-popup />
+          <q-btn
+            unelevated
+            label="Actualizar"
+            color="primary"
+            icon="save"
+            @click="putRow"
+          />
+        </div>
+      </q-card-actions>
     </q-card>
   </q-dialog>
 
@@ -388,7 +497,11 @@
       <q-separator />
       <q-item>
         <q-item-section>
-          <vehicle-employee ref="asign" :vehicle="selectedRow" />
+          <vehicle-employee
+            ref="asign"
+            :vehicle="selectedRow"
+            :empleados-list="empleados"
+          />
         </q-item-section>
       </q-item>
     </q-card>
@@ -441,7 +554,19 @@ const asign = ref(null);
 const departamentos = ref([]);
 const lineas = ref([]);
 const sucursales = ref([]);
+const marcas = ref([]);
+const modelos = ref([]);
 const types = ref([]);
+const empleados = ref([]);
+
+const catalogs = computed(() => ({
+  sucursales: sucursales.value,
+  lineas: lineas.value,
+  departamentos: departamentos.value,
+  marcas: marcas.value,
+  modelos: modelos.value,
+  tipos: types.value,
+}));
 
 const next_page_url = ref("");
 const prev_page_url = ref("");
@@ -450,10 +575,12 @@ const current_page = ref(1);
 
 const filterForm = ref({
   search: null,
+  marca_id: null,
+  modelo_id: null,
+  tipo_id: null,
   departamento_id: null,
   linea_id: null,
   sucursal_id: null,
-  estatus_id: null,
   activo: 1,
 });
 
@@ -470,22 +597,22 @@ const columns = computed(() => {
       field: "edit",
     },
     {
-      name: "placas",
+      name: "placas_serie",
       align: "left",
-      field: "placas",
-      label: "Placas",
+      field: "placas_serie",
+      label: "Placas / Serie",
     },
     {
-      name: "serie",
+      name: "vehiculo",
       align: "left",
-      field: "serie",
-      label: "Serie",
+      field: "vehiculo",
+      label: "Vehículo (Marca / Modelo / Tipo / Versión)",
     },
     {
-      name: "tipo",
+      name: "anio",
       align: "left",
-      field: "tipo",
-      label: "Tipo",
+      field: "anio",
+      label: "Año",
     },
     {
       name: "sucursal",
@@ -580,7 +707,10 @@ const getForms = async () => {
   sucursales.value = res.sucursales;
   lineas.value = res.lineas;
   departamentos.value = res.departamentos;
-  types.value = res.estatus;
+  marcas.value = res.marcas;
+  modelos.value = res.modelos;
+  types.value = res.tipos;
+  empleados.value = res.empleados;
 };
 
 const getRows = async (page = 1) => {
