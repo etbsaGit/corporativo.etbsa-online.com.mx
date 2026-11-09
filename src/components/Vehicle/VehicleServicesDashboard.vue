@@ -30,11 +30,15 @@
               {{ vehicle?.activo == 1 ? "Unidad Activa" : "Unidad Inactiva" }}
             </q-badge>
           </div>
-          <div class="text-caption text-blue-1 q-mt-xs flex items-center q-gutter-x-md wrap">
+          <div
+            class="text-caption text-blue-1 q-mt-xs flex items-center q-gutter-x-md wrap"
+          >
             <span>
               <q-icon name="pin" size="14px" class="q-mr-xs" />
               Placa Actual:
-              <strong class="text-white">{{ vehicle?.placas || "Sin placa" }}</strong>
+              <strong class="text-white">{{
+                vehicle?.placas || "Sin placa"
+              }}</strong>
             </span>
             <span v-if="vehicle?.serie">
               <q-icon name="qr_code" size="14px" class="q-mr-xs" />
@@ -54,11 +58,14 @@
             <span v-if="vehicle?.departamento?.nombre">
               <q-icon name="domain" size="14px" class="q-mr-xs" />
               Depto:
-              <strong class="text-white">{{ vehicle.departamento.nombre }}</strong>
+              <strong class="text-white">{{
+                vehicle.departamento.nombre
+              }}</strong>
             </span>
           </div>
         </div>
         <q-btn
+          v-if="!onlyGasolina"
           unelevated
           color="positive"
           icon="file_download"
@@ -98,27 +105,44 @@
     >
       <!-- Tarjetas de KPIs Principales -->
       <div class="row q-col-gutter-md q-mb-md">
-        <!-- Total Dinero Invertido -->
+        <!-- Total Dinero Invertido / Total Litros Dispersados -->
         <div class="col-12 col-sm-6 col-md-3">
           <q-card flat bordered class="full-height kpi-card kpi-border-green">
             <q-card-section class="q-pa-md">
               <div class="row items-center no-wrap">
                 <div class="col">
                   <div class="text-overline text-grey-7 leading-none">
-                    DINERO TOTAL INVERTIDO
+                    {{
+                      onlyGasolina
+                        ? "TOTAL LITROS DISPERSADOS"
+                        : "DINERO TOTAL INVERTIDO"
+                    }}
                   </div>
                   <div class="text-h5 text-weight-bolder text-positive q-mt-xs">
-                    {{ formatCurrency(kpis.totalInvertido) }}
+                    {{
+                      onlyGasolina
+                        ? `${kpis.totalLtsDispersados.toLocaleString(
+                            "es-MX"
+                          )} Lts`
+                        : formatCurrency(kpis.totalInvertido)
+                    }}
                   </div>
                   <div class="text-caption text-grey-6 q-mt-xs">
-                    Subtotal: {{ formatCurrency(kpis.subtotalInvertido) }} &bull; IVA:
-                    {{ formatCurrency(kpis.ivaInvertido) }}
+                    <template v-if="onlyGasolina">
+                      Solicitados:
+                      {{ kpis.totalLtsSolicitados.toLocaleString("es-MX") }} Lts
+                    </template>
+                    <template v-else>
+                      Subtotal: {{ formatCurrency(kpis.subtotalInvertido) }}
+                      &bull; IVA:
+                      {{ formatCurrency(kpis.ivaInvertido) }}
+                    </template>
                   </div>
                 </div>
                 <q-avatar
                   color="green-1"
                   text-color="positive"
-                  icon="paid"
+                  :icon="onlyGasolina ? 'local_gas_station' : 'paid'"
                   size="46px"
                 />
               </div>
@@ -126,29 +150,37 @@
           </q-card>
         </div>
 
-        <!-- Total Servicios Realizados -->
+        <!-- Total Servicios Realizados / Dispersiones -->
         <div class="col-12 col-sm-6 col-md-3">
           <q-card flat bordered class="full-height kpi-card kpi-border-blue">
             <q-card-section class="q-pa-md">
               <div class="row items-center no-wrap">
                 <div class="col">
                   <div class="text-overline text-grey-7 leading-none">
-                    SERVICIOS REALIZADOS
+                    {{
+                      onlyGasolina
+                        ? "DISPERSIONES REGISTRADAS"
+                        : "SERVICIOS REALIZADOS"
+                    }}
                   </div>
                   <div class="text-h5 text-weight-bolder text-primary q-mt-xs">
                     {{ kpis.totalServicios }}
                     <span class="text-subtitle2 text-weight-regular text-grey-7">
-                      servicio(s)
+                      {{ onlyGasolina ? "registro(s)" : "servicio(s)" }}
                     </span>
                   </div>
                   <div class="text-caption text-grey-6 q-mt-xs">
-                    En {{ kpis.totalOrdenes }} orden(es) de servicio
+                    {{
+                      onlyGasolina
+                        ? "Solicitudes de combustible"
+                        : `En ${kpis.totalOrdenes} orden(es) de servicio`
+                    }}
                   </div>
                 </div>
                 <q-avatar
                   color="blue-1"
                   text-color="primary"
-                  icon="handyman"
+                  :icon="onlyGasolina ? 'ev_station' : 'handyman'"
                   size="46px"
                 />
               </div>
@@ -172,7 +204,11 @@
                     <span v-if="kpis.minKm && kpis.minKm !== kpis.maxKm">
                       Inicial: {{ formatKm(kpis.minKm) }}
                     </span>
-                    <span v-else>Kilometraje en servicios</span>
+                    <span v-else>{{
+                      onlyGasolina
+                        ? "Kilometraje en dispersiones"
+                        : "Kilometraje en servicios"
+                    }}</span>
                   </div>
                 </div>
                 <q-avatar
@@ -193,9 +229,11 @@
               <div class="row items-center no-wrap">
                 <div class="col overflow-hidden">
                   <div class="text-overline text-grey-7 leading-none">
-                    ÚLTIMO SERVICIO
+                    {{ onlyGasolina ? "ÚLTIMA DISPERSIÓN" : "ÚLTIMO SERVICIO" }}
                   </div>
-                  <div class="text-h6 text-weight-bolder text-deep-purple q-mt-xs ellipsis">
+                  <div
+                    class="text-h6 text-weight-bolder text-deep-purple q-mt-xs ellipsis"
+                  >
                     {{
                       kpis.ultimoServicioFecha
                         ? formatFecha(kpis.ultimoServicioFecha)
@@ -203,7 +241,12 @@
                     }}
                   </div>
                   <div class="text-caption text-grey-6 q-mt-xs ellipsis">
-                    {{ kpis.ultimoServicioNombre || "Ningún servicio registrado" }}
+                    {{
+                      kpis.ultimoServicioNombre ||
+                      (onlyGasolina
+                        ? "Ninguna dispersión registrada"
+                        : "Ningún servicio registrado")
+                    }}
                   </div>
                 </div>
                 <q-avatar
@@ -218,13 +261,20 @@
         </div>
       </div>
 
-      <!-- Desglose por Tipo de Servicio y Top Servicios -->
-      <div v-if="flatServices.length > 0" class="row q-col-gutter-md q-mb-md">
+      <!-- Desglose por Tipo de Servicio y Top Servicios (solo Servicios/Refacciones) -->
+      <div
+        v-if="!onlyGasolina && flatServices.length > 0"
+        class="row q-col-gutter-md q-mb-md"
+      >
         <!-- Distribución por Tipo de Servicio -->
         <div class="col-12 col-md-7">
           <q-card flat bordered class="full-height">
-            <q-card-section class="q-py-sm q-px-md bg-white flex items-center justify-between">
-              <div class="text-subtitle2 text-weight-bold text-primary flex items-center">
+            <q-card-section
+              class="q-py-sm q-px-md bg-white flex items-center justify-between"
+            >
+              <div
+                class="text-subtitle2 text-weight-bold text-primary flex items-center"
+              >
                 <q-icon name="pie_chart" class="q-mr-xs" size="18px" />
                 Inversión por Tipo de Servicio
               </div>
@@ -257,7 +307,9 @@
                         {{ tipo.nombre }}
                       </q-badge>
                       <span class="text-caption text-weight-bold text-grey-8">
-                        {{ tipo.count }} serv. ({{ tipo.porcentaje.toFixed(1) }}%)
+                        {{ tipo.count }} serv. ({{
+                          tipo.porcentaje.toFixed(1)
+                        }}%)
                       </span>
                     </div>
                     <div class="text-subtitle1 text-weight-bolder text-dark">
@@ -280,12 +332,20 @@
         <!-- Servicios Más Frecuentes / Mayor Inversión -->
         <div class="col-12 col-md-5">
           <q-card flat bordered class="full-height">
-            <q-card-section class="q-py-sm q-px-md bg-white flex items-center justify-between">
-              <div class="text-subtitle2 text-weight-bold text-primary flex items-center">
+            <q-card-section
+              class="q-py-sm q-px-md bg-white flex items-center justify-between"
+            >
+              <div
+                class="text-subtitle2 text-weight-bold text-primary flex items-center"
+              >
                 <q-icon name="build_circle" class="q-mr-xs" size="18px" />
                 Principales Servicios Realizados
               </div>
-              <q-badge color="grey-7" outline :label="`${resumenPorServicio.length} categorías`" />
+              <q-badge
+                color="grey-7"
+                outline
+                :label="`${resumenPorServicio.length} categorías`"
+              />
             </q-card-section>
             <q-separator />
             <q-card-section class="q-pa-sm scroll" style="max-height: 175px">
@@ -299,12 +359,16 @@
                   :class="filters.servicio === serv.nombre ? 'bg-blue-1' : ''"
                 >
                   <q-item-section>
-                    <q-item-label class="text-weight-medium text-body2 ellipsis">
+                    <q-item-label
+                      class="text-weight-medium text-body2 ellipsis"
+                    >
                       {{ serv.nombre }}
                     </q-item-label>
                     <q-item-label caption>
                       {{ serv.tipo }} &bull; Último KM:
-                      <strong>{{ serv.ultimoKm ? formatKm(serv.ultimoKm) : "N/A" }}</strong>
+                      <strong>{{
+                        serv.ultimoKm ? formatKm(serv.ultimoKm) : "N/A"
+                      }}</strong>
                     </q-item-label>
                   </q-item-section>
                   <q-item-section side class="text-right">
@@ -326,13 +390,17 @@
       <q-card flat bordered class="q-mb-md bg-white">
         <q-card-section class="q-pa-sm">
           <div class="row q-col-gutter-sm items-center">
-            <div class="col-12 col-sm-4">
+            <div :class="onlyGasolina ? 'col-12' : 'col-12 col-sm-4'">
               <q-input
                 v-model="filters.search"
                 outlined
                 dense
                 clearable
-                placeholder="Buscar servicio, descripción, OC, factura, proveedor..."
+                :placeholder="
+                  onlyGasolina
+                    ? 'Buscar por folio, notas, kilometraje, estatus, solicitante...'
+                    : 'Buscar servicio, descripción, OC, factura, proveedor...'
+                "
               >
                 <template v-slot:prepend>
                   <q-icon name="search" />
@@ -340,7 +408,7 @@
               </q-input>
             </div>
 
-            <div class="col-12 col-sm-3">
+            <div v-if="!onlyGasolina" class="col-12 col-sm-3">
               <q-select
                 v-model="filters.tipoServicio"
                 :options="filteredTipoServicioOptions"
@@ -364,7 +432,7 @@
               </q-select>
             </div>
 
-            <div class="col-12 col-sm-3">
+            <div v-if="!onlyGasolina" class="col-12 col-sm-3">
               <q-select
                 v-model="filters.servicio"
                 :options="filteredServicioOptions"
@@ -388,7 +456,7 @@
               </q-select>
             </div>
 
-            <div class="col-12 col-sm-2 flex justify-end">
+            <div v-if="!onlyGasolina" class="col-12 col-sm-2 flex justify-end">
               <q-btn-toggle
                 v-model="viewMode"
                 spread
@@ -409,8 +477,172 @@
         </q-card-section>
       </q-card>
 
+      <!-- VISTA GASOLINA: Tabla de Dispersiones de Gasolina -->
+      <q-card v-if="onlyGasolina" flat bordered class="bg-white">
+        <q-table
+          flat
+          :rows="filteredServices"
+          :columns="gasolinaColumns"
+          row-key="uid"
+          dense
+          :pagination="{ rowsPerPage: 15 }"
+          :rows-per-page-options="[10, 15, 25, 50, 0]"
+          no-data-label="No se encontraron dispersiones de gasolina registradas para esta unidad."
+        >
+          <template v-slot:top>
+            <div class="row full-width items-center justify-between q-py-xs">
+              <div
+                class="text-subtitle1 text-weight-bold text-dark flex items-center"
+              >
+                <q-icon
+                  name="local_gas_station"
+                  color="primary"
+                  size="sm"
+                  class="q-mr-xs"
+                />
+                Historial de Dispersiones de Gasolina
+                <q-badge
+                  color="primary"
+                  outline
+                  class="q-ml-sm"
+                  :label="`${filteredServices.length} registro(s)`"
+                />
+              </div>
+              <div class="text-subtitle2 text-grey-8">
+                Total dispersado filtrado:
+                <span class="text-weight-bolder text-positive text-subtitle1">
+                  {{ filteredTotalLtsDispersados.toLocaleString("es-MX") }} Lts
+                </span>
+              </div>
+            </div>
+          </template>
+
+          <template v-slot:body-cell-folio="props">
+            <q-td :props="props">
+              <div class="row items-center no-wrap q-gutter-x-xs">
+                <span class="text-weight-bold text-primary font-mono">
+                  #{{ props.row.id }}
+                </span>
+                <q-badge
+                  v-if="props.row.is_urgente"
+                  color="red-8"
+                  text-color="white"
+                  class="q-px-xs text-weight-bold"
+                >
+                  Urgente
+                </q-badge>
+              </div>
+            </q-td>
+          </template>
+
+          <template v-slot:body-cell-fecha="props">
+            <q-td :props="props">
+              <div class="text-weight-bold text-dark">
+                {{ formatFecha(props.row.fecha_elaboracion) }}
+              </div>
+            </q-td>
+          </template>
+
+          <template v-slot:body-cell-estatus="props">
+            <q-td :props="props">
+              <q-badge
+                :color="props.row.estatus?.color || 'grey-7'"
+                class="q-px-sm q-py-xs text-weight-bold"
+              >
+                {{ props.row.estatus?.nombre || "Sin estatus" }}
+              </q-badge>
+            </q-td>
+          </template>
+
+          <template v-slot:body-cell-lts_solicitados="props">
+            <q-td :props="props" class="text-right">
+              <q-badge
+                color="orange-1"
+                text-color="orange-10"
+                class="q-px-sm q-py-xs text-weight-bolder font-mono"
+              >
+                {{ props.row.lts_solicitados ?? 0 }} Lts
+              </q-badge>
+            </q-td>
+          </template>
+
+          <template v-slot:body-cell-lts_dispersados="props">
+            <q-td :props="props" class="text-right">
+              <q-badge
+                v-if="
+                  props.row.lts_dispersados !== null &&
+                  props.row.lts_dispersados !== undefined
+                "
+                color="green-1"
+                text-color="positive"
+                class="q-px-sm q-py-xs text-weight-bolder font-mono"
+              >
+                {{ props.row.lts_dispersados }} Lts
+              </q-badge>
+              <span v-else class="text-caption text-grey-5 italic"
+                >Pendiente</span
+              >
+            </q-td>
+          </template>
+
+          <template v-slot:body-cell-km_evento="props">
+            <q-td :props="props" class="text-right">
+              <q-chip
+                v-if="
+                  props.row.km_evento !== null &&
+                  props.row.km_evento !== undefined &&
+                  props.row.km_evento !== ''
+                "
+                dense
+                square
+                color="orange-1"
+                text-color="orange-10"
+                icon="speed"
+                class="text-weight-bold"
+              >
+                {{ formatKm(props.row.km_evento) }}
+              </q-chip>
+              <span v-else class="text-caption text-grey-5 italic"
+                >No reg.</span
+              >
+            </q-td>
+          </template>
+
+          <template v-slot:body-cell-notas="props">
+            <q-td :props="props" style="max-width: 280px; white-space: normal">
+              <div class="text-body2 text-grey-9">
+                {{ props.row.descripcion || "Sin notas" }}
+              </div>
+              <div
+                v-if="props.row.solicitante_nombre"
+                class="text-caption text-grey-6 q-mt-xs"
+              >
+                <q-icon name="person" size="12px" class="q-mr-xs" />
+                {{ props.row.solicitante_nombre }}
+              </div>
+            </q-td>
+          </template>
+
+          <template v-slot:body-cell-cargo="props">
+            <q-td :props="props">
+              <div class="text-caption text-weight-medium text-grey-9">
+                {{ props.row.sucursal_cargo_nombre || "-" }}
+              </div>
+              <div class="text-caption text-grey-6">
+                {{ props.row.depto_cargo_nombre || "" }}
+              </div>
+            </q-td>
+          </template>
+        </q-table>
+      </q-card>
+
       <!-- VISTA 1: Tabla Detallada de Servicios Realizados -->
-      <q-card v-if="viewMode === 'detalles'" flat bordered class="bg-white">
+      <q-card
+        v-else-if="viewMode === 'detalles'"
+        flat
+        bordered
+        class="bg-white"
+      >
         <q-table
           flat
           :rows="filteredServices"
@@ -423,8 +655,15 @@
         >
           <template v-slot:top>
             <div class="row full-width items-center justify-between q-py-xs">
-              <div class="text-subtitle1 text-weight-bold text-dark flex items-center">
-                <q-icon name="history_edu" color="primary" size="sm" class="q-mr-xs" />
+              <div
+                class="text-subtitle1 text-weight-bold text-dark flex items-center"
+              >
+                <q-icon
+                  name="history_edu"
+                  color="primary"
+                  size="sm"
+                  class="q-mr-xs"
+                />
                 Historial Detallado de Servicios Realizados
                 <q-badge
                   color="primary"
@@ -447,7 +686,10 @@
               <div class="text-weight-bold text-dark">
                 {{ formatFecha(props.row.fecha_elaboracion) }}
               </div>
-              <div v-if="props.row.orden_compra" class="text-caption text-grey-7">
+              <div
+                v-if="props.row.orden_compra"
+                class="text-caption text-grey-7"
+              >
                 OC: {{ props.row.orden_compra }}
               </div>
             </q-td>
@@ -468,15 +710,12 @@
             <q-td :props="props">
               <div class="text-weight-bold text-primary">
                 {{ props.row.servicio_nombre }}
-                <span
-                  v-if="isGasolinaService(props.row) && props.row.cantidad"
-                  class="text-weight-bolder text-orange-9 q-ml-xs"
-                >
-                  ({{ props.row.cantidad }} Lts)
-                </span>
               </div>
               <div
-                v-if="props.row.intervalo_km_sugerido || props.row.intervalo_meses_sugerido"
+                v-if="
+                  props.row.intervalo_km_sugerido ||
+                  props.row.intervalo_meses_sugerido
+                "
                 class="text-caption text-grey-6"
               >
                 <q-icon name="update" size="12px" class="q-mr-xs" />
@@ -496,7 +735,10 @@
               <div class="text-body2 text-grey-9">
                 {{ props.row.descripcion || "Sin descripción" }}
               </div>
-              <div class="text-caption text-grey-6 q-mt-xs" v-if="props.row.proveedor_nombre">
+              <div
+                class="text-caption text-grey-6 q-mt-xs"
+                v-if="props.row.proveedor_nombre"
+              >
                 <q-icon name="storefront" size="12px" class="q-mr-xs" />
                 {{ props.row.proveedor_nombre }}
               </div>
@@ -506,7 +748,11 @@
           <template v-slot:body-cell-km_evento="props">
             <q-td :props="props" class="text-right">
               <q-chip
-                v-if="props.row.km_evento !== null && props.row.km_evento !== undefined && props.row.km_evento !== ''"
+                v-if="
+                  props.row.km_evento !== null &&
+                  props.row.km_evento !== undefined &&
+                  props.row.km_evento !== ''
+                "
                 dense
                 square
                 color="orange-1"
@@ -516,7 +762,9 @@
               >
                 {{ formatKm(props.row.km_evento) }}
               </q-chip>
-              <span v-else class="text-caption text-grey-5 italic">No reg.</span>
+              <span v-else class="text-caption text-grey-5 italic"
+                >No reg.</span
+              >
             </q-td>
           </template>
 
@@ -564,7 +812,8 @@
         >
           <q-icon name="receipt_long" size="48px" color="grey-4" />
           <div class="text-subtitle1 text-grey-6 q-mt-sm">
-            No hay órdenes de servicio que coincidan con los filtros seleccionados.
+            No hay órdenes de servicio que coincidan con los filtros
+            seleccionados.
           </div>
         </div>
 
@@ -591,12 +840,18 @@
               </q-item-section>
 
               <q-item-section>
-                <q-item-label class="text-weight-bold text-subtitle1 flex items-center q-gutter-x-sm">
+                <q-item-label
+                  class="text-weight-bold text-subtitle1 flex items-center q-gutter-x-sm"
+                >
                   <span>Fecha: {{ formatFecha(orden.fecha_elaboracion) }}</span>
                   <q-badge v-if="orden.orden_compra" color="blue-8" outline>
                     OC: {{ orden.orden_compra }}
                   </q-badge>
-                  <q-badge v-if="orden.autorizacion_compras" color="teal-8" outline>
+                  <q-badge
+                    v-if="orden.autorizacion_compras"
+                    color="teal-8"
+                    outline
+                  >
                     Aut: {{ orden.autorizacion_compras }}
                   </q-badge>
                   <q-badge v-if="orden.factura" color="purple-8" outline>
@@ -606,13 +861,29 @@
                 <q-item-label caption class="text-grey-8">
                   <strong>Proveedor:</strong>
                   {{ orden.proveedor?.nombre || "No especificado" }}
-                  <span v-if="orden.sucursal_cargo?.nombre || orden.sucursalCargo?.nombre">
+                  <span
+                    v-if="
+                      orden.sucursal_cargo?.nombre ||
+                      orden.sucursalCargo?.nombre
+                    "
+                  >
                     &bull; <strong>Suc. Cargo:</strong>
-                    {{ orden.sucursal_cargo?.nombre || orden.sucursalCargo?.nombre }}
+                    {{
+                      orden.sucursal_cargo?.nombre ||
+                      orden.sucursalCargo?.nombre
+                    }}
                   </span>
-                  <span v-if="orden.departamento_cargo?.nombre || orden.departamentoCargo?.nombre">
+                  <span
+                    v-if="
+                      orden.departamento_cargo?.nombre ||
+                      orden.departamentoCargo?.nombre
+                    "
+                  >
                     &bull; <strong>Depto. Cargo:</strong>
-                    {{ orden.departamento_cargo?.nombre || orden.departamentoCargo?.nombre }}
+                    {{
+                      orden.departamento_cargo?.nombre ||
+                      orden.departamentoCargo?.nombre
+                    }}
                   </span>
                   <span v-if="orden.solicitante?.nombreCompleto">
                     &bull; <strong>Solicitante:</strong>
@@ -665,12 +936,6 @@
                     </td>
                     <td class="text-weight-bold text-primary">
                       {{ det.servicio?.nombre || "Servicio" }}
-                      <span
-                        v-if="isGasolinaDetalle(det) && det.cantidad"
-                        class="text-weight-bolder text-orange-9 q-ml-xs"
-                      >
-                        ({{ det.cantidad }} Lts)
-                      </span>
                     </td>
                     <td style="max-width: 320px; white-space: normal">
                       {{ det.descripcion }}
@@ -678,7 +943,9 @@
                     <td class="text-right text-weight-medium">
                       {{ det.km_evento ? formatKm(det.km_evento) : "No reg." }}
                     </td>
-                    <td class="text-right">{{ formatCurrency(det.subtotal) }}</td>
+                    <td class="text-right">
+                      {{ formatCurrency(det.subtotal) }}
+                    </td>
                     <td class="text-right">{{ formatCurrency(det.iva) }}</td>
                     <td class="text-right text-weight-bold text-positive">
                       {{ formatCurrency(det.total) }}
@@ -698,7 +965,8 @@
     <q-card-actions align="between" class="q-px-md q-py-sm bg-grey-2">
       <div class="text-caption text-grey-7">
         <q-icon name="info" size="14px" class="q-mr-xs" />
-        Mostrando {{ filteredServices.length }} de {{ flatServices.length }} servicio(s)
+        Mostrando {{ filteredServices.length }} de {{ flatServices.length }}
+        {{ onlyGasolina ? "dispersión(es)" : "servicio(s)" }}
         registrados para la unidad {{ vehicle?.placas || "" }}.
       </div>
       <div class="q-gutter-x-sm">
@@ -712,6 +980,7 @@
           @click="resetFilters"
         />
         <q-btn
+          v-if="!onlyGasolina"
           outline
           dense
           color="positive"
@@ -721,7 +990,13 @@
           :disable="loading || !vehicle?.id"
           @click="exportToExcel"
         />
-        <q-btn v-if="!embedded" flat label="Cerrar" color="grey-8" v-close-popup />
+        <q-btn
+          v-if="!embedded"
+          flat
+          label="Cerrar"
+          color="grey-8"
+          v-close-popup
+        />
       </div>
     </q-card-actions>
   </q-card>
@@ -823,34 +1098,10 @@ const toggleServicioFilter = (nombre) => {
   filters.value.servicio = filters.value.servicio === nombre ? null : nombre;
 };
 
-// Helpers para determinar si es gasolina
-const isGasolinaService = (row) => {
-  const sName = (row.servicio_nombre || "").toLowerCase();
-  const tName = (row.tipo_servicio_nombre || "").toLowerCase();
-  const tId = Number(row.tipo_servicio_id || 0);
-  return tName === "gasolina" || tId === 14 || sName.includes("gasolina");
-};
-
-const isGasolinaDetalle = (det) => {
-  const sName = (det.servicio?.nombre || "").toLowerCase();
-  const tName = (
-    det.servicio?.tipo_servicio?.nombre ||
-    det.servicio?.tipoServicio?.nombre ||
-    ""
-  ).toLowerCase();
-  const tId = Number(
-    det.servicio?.tipo_servicio_id || det.servicio?.tipoServicio?.id || 0
-  );
-  return tName === "gasolina" || tId === 14 || sName.includes("gasolina");
-};
-
-// Helper para determinar si una orden es de gasolina
+// Helper para determinar si una orden es de gasolina (registros heredados)
 const isGasolinaOrden = (orden) => {
   const detalles =
-    orden.detalles ||
-    orden.detalles_servicio ||
-    orden.detallesServicio ||
-    [];
+    orden.detalles || orden.detalles_servicio || orden.detallesServicio || [];
   return detalles.some((d) => {
     const sName = (d.servicio?.nombre || "").toLowerCase();
     const tName = (
@@ -865,14 +1116,25 @@ const isGasolinaOrden = (orden) => {
   });
 };
 
-// Lista de órdenes normalizada
+// Lista de dispersiones de gasolina de la nueva tabla
+const dispersionesGasolinaList = computed(() => {
+  return (
+    props.vehicle?.dispersiones_gasolina ||
+    props.vehicle?.dispersionesGasolina ||
+    []
+  );
+});
+
+// Lista de órdenes normalizada (solo para Servicios y Refacciones)
 const ordenesList = computed(() => {
+  if (props.onlyGasolina) {
+    return dispersionesGasolinaList.value;
+  }
+
   let raw =
     props.vehicle?.ordenes_servicio || props.vehicle?.ordenesServicio || [];
 
-  if (props.onlyGasolina) {
-    raw = raw.filter(isGasolinaOrden);
-  }
+  raw = raw.filter((o) => !isGasolinaOrden(o));
 
   return raw.map((orden) => {
     const detallesList =
@@ -892,8 +1154,48 @@ const ordenesList = computed(() => {
   });
 });
 
-// Lista plana de todos los servicios realizados en cada orden
+// Lista plana de todos los servicios o dispersiones realizados
 const flatServices = computed(() => {
+  if (props.onlyGasolina) {
+    return dispersionesGasolinaList.value.map((disp) => {
+      const sucCargoObj = disp.sucursal_cargo || disp.sucursalCargo || {};
+      const deptoCargoObj =
+        disp.departamento_cargo || disp.departamentoCargo || {};
+
+      return {
+        uid: `gas-${disp.id}`,
+        id: disp.id,
+        orden_id: disp.id,
+        fecha_elaboracion: disp.created_at,
+        estatus: disp.estatus || null,
+        is_urgente: Boolean(disp.is_urgente),
+        solicitante_nombre: disp.solicitante?.nombreCompleto || null,
+        sucursal_cargo_nombre: sucCargoObj?.nombre || null,
+        depto_cargo_nombre: deptoCargoObj?.nombre || null,
+        tipo_servicio_id: 14,
+        tipo_servicio_nombre: "Gasolina",
+        servicio_id: 62,
+        servicio_nombre: "Dispersión de Gasolina",
+        descripcion: disp.notas || null,
+        lts_solicitados:
+          disp.lts_solicitados !== null && disp.lts_solicitados !== undefined
+            ? Number(disp.lts_solicitados)
+            : 0,
+        lts_dispersados:
+          disp.lts_dispersados !== null && disp.lts_dispersados !== undefined
+            ? Number(disp.lts_dispersados)
+            : null,
+        km_evento:
+          disp.km_evento !== null && disp.km_evento !== undefined
+            ? Number(disp.km_evento)
+            : null,
+        subtotal: 0,
+        iva: 0,
+        total: 0,
+      };
+    });
+  }
+
   const items = [];
   for (const orden of ordenesList.value) {
     for (const det of orden.detallesList) {
@@ -1035,11 +1337,20 @@ const filteredServices = computed(() => {
     if (filters.value.search) {
       const q = filters.value.search.toLowerCase();
       const match =
+        String(item.id || "").includes(q) ||
         (item.servicio_nombre &&
           item.servicio_nombre.toLowerCase().includes(q)) ||
         (item.tipo_servicio_nombre &&
           item.tipo_servicio_nombre.toLowerCase().includes(q)) ||
         (item.descripcion && item.descripcion.toLowerCase().includes(q)) ||
+        (item.estatus?.nombre &&
+          item.estatus.nombre.toLowerCase().includes(q)) ||
+        (item.solicitante_nombre &&
+          item.solicitante_nombre.toLowerCase().includes(q)) ||
+        (item.sucursal_cargo_nombre &&
+          item.sucursal_cargo_nombre.toLowerCase().includes(q)) ||
+        (item.depto_cargo_nombre &&
+          item.depto_cargo_nombre.toLowerCase().includes(q)) ||
         (item.proveedor_nombre &&
           item.proveedor_nombre.toLowerCase().includes(q)) ||
         (item.orden_compra && item.orden_compra.toLowerCase().includes(q)) ||
@@ -1055,7 +1366,9 @@ const filteredServices = computed(() => {
 
 // Órdenes filtradas para la vista de órdenes
 const filteredOrders = computed(() => {
-  const allowedOrdenIds = new Set(filteredServices.value.map((s) => s.orden_id));
+  const allowedOrdenIds = new Set(
+    filteredServices.value.map((s) => s.orden_id)
+  );
   return ordenesList.value.filter((o) => allowedOrdenIds.has(o.id));
 });
 
@@ -1063,14 +1376,33 @@ const filteredTotalAmount = computed(() => {
   return filteredServices.value.reduce((acc, s) => acc + s.total, 0);
 });
 
+const filteredTotalLtsDispersados = computed(() => {
+  return filteredServices.value.reduce(
+    (acc, s) => acc + Number(s.lts_dispersados || 0),
+    0
+  );
+});
+
 // KPIs Generales
 const kpis = computed(() => {
-  const totalInvertido = flatServices.value.reduce((acc, s) => acc + s.total, 0);
+  const totalInvertido = flatServices.value.reduce(
+    (acc, s) => acc + s.total,
+    0
+  );
   const subtotalInvertido = flatServices.value.reduce(
     (acc, s) => acc + s.subtotal,
     0
   );
   const ivaInvertido = flatServices.value.reduce((acc, s) => acc + s.iva, 0);
+
+  const totalLtsSolicitados = flatServices.value.reduce(
+    (acc, s) => acc + Number(s.lts_solicitados || 0),
+    0
+  );
+  const totalLtsDispersados = flatServices.value.reduce(
+    (acc, s) => acc + Number(s.lts_dispersados || 0),
+    0
+  );
 
   const kms = flatServices.value
     .map((s) => s.km_evento)
@@ -1080,23 +1412,38 @@ const kpis = computed(() => {
   const minKm = kms.length > 0 ? Math.min(...kms) : null;
 
   const sortedByDate = [...flatServices.value].sort((a, b) => {
-    return new Date(b.fecha_elaboracion || 0) - new Date(a.fecha_elaboracion || 0);
+    return (
+      new Date(b.fecha_elaboracion || 0) - new Date(a.fecha_elaboracion || 0)
+    );
   });
 
   const ultimo = sortedByDate[0] || null;
+
+  let ultimoServicioNombre = null;
+  if (ultimo) {
+    if (props.onlyGasolina) {
+      const lts =
+        ultimo.lts_dispersados !== null && ultimo.lts_dispersados !== undefined
+          ? `${ultimo.lts_dispersados} Lts dispersados`
+          : `${ultimo.lts_solicitados || 0} Lts solicitados`;
+      ultimoServicioNombre = `Folio #${ultimo.id} • ${lts}`;
+    } else {
+      ultimoServicioNombre = `${ultimo.servicio_nombre} (${ultimo.tipo_servicio_nombre})`;
+    }
+  }
 
   return {
     totalInvertido,
     subtotalInvertido,
     ivaInvertido,
+    totalLtsSolicitados,
+    totalLtsDispersados,
     totalServicios: flatServices.value.length,
     totalOrdenes: ordenesList.value.length,
     maxKm,
     minKm,
     ultimoServicioFecha: ultimo?.fecha_elaboracion || null,
-    ultimoServicioNombre: ultimo
-      ? `${ultimo.servicio_nombre} (${ultimo.tipo_servicio_nombre})`
-      : null,
+    ultimoServicioNombre,
   };
 });
 
@@ -1151,6 +1498,63 @@ const resumenPorServicio = computed(() => {
   }
   return Object.values(map).sort((a, b) => b.total - a.total);
 });
+
+const gasolinaColumns = [
+  {
+    name: "folio",
+    label: "Folio",
+    field: "id",
+    align: "left",
+    sortable: true,
+  },
+  {
+    name: "fecha",
+    label: "Fecha",
+    field: "fecha_elaboracion",
+    align: "left",
+    sortable: true,
+  },
+  {
+    name: "estatus",
+    label: "Estatus",
+    field: (row) => row.estatus?.nombre || "",
+    align: "left",
+    sortable: true,
+  },
+  {
+    name: "lts_solicitados",
+    label: "Lts Solicitados",
+    field: "lts_solicitados",
+    align: "right",
+    sortable: true,
+  },
+  {
+    name: "lts_dispersados",
+    label: "Lts Dispersados",
+    field: "lts_dispersados",
+    align: "right",
+    sortable: true,
+  },
+  {
+    name: "km_evento",
+    label: "Kilometraje",
+    field: "km_evento",
+    align: "right",
+    sortable: true,
+  },
+  {
+    name: "notas",
+    label: "Notas / Solicitante",
+    field: "descripcion",
+    align: "left",
+  },
+  {
+    name: "cargo",
+    label: "Cargo (Suc. / Depto.)",
+    field: "sucursal_cargo_nombre",
+    align: "left",
+  },
+];
 
 const serviceColumns = [
   {
@@ -1221,9 +1625,17 @@ const getTipoColor = (tipoNombre = "") => {
   if (lower.includes("preventivo")) return "teal-7";
   if (lower.includes("correctivo")) return "deep-orange-7";
   if (lower.includes("llanta") || lower.includes("neum")) return "indigo-7";
-  if (lower.includes("estét") || lower.includes("carrocer") || lower.includes("hojalat"))
+  if (
+    lower.includes("estét") ||
+    lower.includes("carrocer") ||
+    lower.includes("hojalat")
+  )
     return "purple-7";
-  if (lower.includes("administrativo") || lower.includes("trámite") || lower.includes("seguro"))
+  if (
+    lower.includes("administrativo") ||
+    lower.includes("trámite") ||
+    lower.includes("seguro")
+  )
     return "blue-grey-7";
   return "primary";
 };

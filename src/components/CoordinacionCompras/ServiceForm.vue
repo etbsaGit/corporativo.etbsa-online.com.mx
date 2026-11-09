@@ -59,7 +59,7 @@
                   </q-item-section>
                   <q-item-section side>
                     <q-badge color="orange-9" outline class="text-subtitle2 q-px-sm q-py-xs">
-                      Último KM: {{ formatKm(scope.opt.ultimo_km || 0) }}
+                      Último KM: {{ formatKm(getVehicleUltimoKm(scope.opt)) }}
                     </q-badge>
                   </q-item-section>
                 </q-item>
@@ -1245,17 +1245,29 @@ const openPdf = (url) => {
   }
 };
 
+const getVehicleUltimoKm = (veh) => {
+  if (!veh) return 0;
+  const catVeh = (props.catalogs?.vehicles || []).find(
+    (v) => Number(v.id) === Number(veh.id)
+  );
+  return Math.max(Number(veh.ultimo_km || 0), Number(catVeh?.ultimo_km || 0));
+};
+
 const selectedVehicle = computed(() => {
   if (!formHeader.value.vehicle_id) return null;
   return (
     vehicles.value.find(
       (v) => Number(v.id) === Number(formHeader.value.vehicle_id)
-    ) || null
+    ) ||
+    (props.catalogs?.vehicles || []).find(
+      (v) => Number(v.id) === Number(formHeader.value.vehicle_id)
+    ) ||
+    null
   );
 });
 
 const ultimoKmUnidad = computed(() => {
-  return Number(selectedVehicle.value?.ultimo_km || 0);
+  return getVehicleUltimoKm(selectedVehicle.value);
 });
 
 const validateKm = (val) => {

@@ -5,32 +5,54 @@
       <div class="row items-center justify-between">
         <div class="row items-center q-gutter-x-sm">
           <q-avatar
-            icon="receipt_long"
+            :icon="onlyGasolina ? 'local_gas_station' : 'receipt_long'"
             color="white"
             text-color="primary"
             size="40px"
           />
           <div>
-            <div class="text-subtitle1 text-weight-bold">
-              Orden de Compra #{{ service?.id }}
+            <div class="text-subtitle1 text-weight-bold row items-center q-gutter-x-sm">
+              <span>
+                {{
+                  onlyGasolina
+                    ? `Solicitud de Dispersión de Gasolina #${service?.id}`
+                    : `Orden de Compra #${service?.id}`
+                }}
+              </span>
+              <q-badge
+                v-if="onlyGasolina && service?.is_urgente"
+                color="negative"
+                class="text-weight-bold q-px-sm"
+              >
+                <q-icon name="priority_high" size="14px" class="q-mr-xs" />
+                URGENTE
+              </q-badge>
             </div>
             <div class="text-caption text-blue-1">
               Fecha:
-              <strong>{{ formatFecha(service?.fecha_elaboracion) }}</strong>
-              <span v-if="service?.orden_compra || service?.id">
-                &bull; OC:
-                <strong>{{ service.orden_compra || service.id }}</strong>
-              </span>
-              <span v-if="service?.autorizacion_compras">
-                &bull; Aut. Compras:
-                <strong>{{ service.autorizacion_compras }}</strong>
-              </span>
+              <strong>{{
+                formatFecha(service?.fecha_elaboracion || service?.created_at)
+              }}</strong>
+              <template v-if="!onlyGasolina">
+                <span v-if="service?.orden_compra || service?.id">
+                  &bull; OC:
+                  <strong>{{ service.orden_compra || service.id }}</strong>
+                </span>
+                <span v-if="service?.autorizacion_compras">
+                  &bull; Aut. Compras:
+                  <strong>{{ service.autorizacion_compras }}</strong>
+                </span>
+              </template>
+              <template v-else-if="service?.estatus?.nombre">
+                &bull; Estatus:
+                <strong>{{ service.estatus.nombre }}</strong>
+              </template>
             </div>
           </div>
         </div>
         <div class="row items-center q-gutter-x-sm">
           <q-btn
-            v-if="isAutorizado"
+            v-if="!onlyGasolina && isAutorizado"
             unelevated
             dense
             color="white"
@@ -44,7 +66,7 @@
             <q-tooltip>Imprimir formato oficial de Orden de Compra</q-tooltip>
           </q-btn>
           <q-btn
-            v-if="service?.cotizacion_url"
+            v-if="!onlyGasolina && service?.cotizacion_url"
             unelevated
             dense
             color="white"
@@ -56,7 +78,26 @@
           >
             <q-tooltip>Abrir documento de cotización en PDF</q-tooltip>
           </q-btn>
-          <div class="text-right">
+          <div v-if="onlyGasolina" class="row items-center q-gutter-x-md">
+            <div class="text-right">
+              <div class="text-caption text-blue-1">Litros Solicitados</div>
+              <div class="text-h6 text-weight-bolder text-amber-3">
+                {{ service?.lts_solicitados ?? 0 }} L
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="text-caption text-blue-1">Litros Autorizados</div>
+              <div class="text-h6 text-weight-bolder text-white">
+                {{
+                  service?.lts_dispersados !== null &&
+                  service?.lts_dispersados !== undefined
+                    ? `${service.lts_dispersados} L`
+                    : "Pendiente"
+                }}
+              </div>
+            </div>
+          </div>
+          <div v-else class="text-right">
             <div class="text-caption text-blue-1">Total de la Orden</div>
             <div class="text-h6 text-weight-bolder text-white">
               {{
@@ -151,7 +192,78 @@
             </q-card-section>
             <q-separator />
             <q-card-section class="q-pa-sm">
-              <div class="row q-col-gutter-sm">
+              <div v-if="onlyGasolina" class="row q-col-gutter-sm">
+                <div class="col-6">
+                  <div class="text-caption text-grey-7">
+                    Empleado Solicitante
+                  </div>
+                  <div class="text-body2 text-weight-bold text-dark">
+                    {{
+                      service?.solicitante?.nombreCompleto || "No registrado"
+                    }}
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="text-caption text-grey-7">Registrado Por</div>
+                  <div class="text-body2">
+                    {{
+                      service?.registrador?.empleado?.nombreCompleto ||
+                      service?.registrador?.name ||
+                      "-"
+                    }}
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="text-caption text-grey-7">Sucursal Cargo</div>
+                  <div class="text-body2">
+                    {{
+                      service?.sucursal_cargo?.nombre ||
+                      service?.sucursalCargo?.nombre ||
+                      "-"
+                    }}
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="text-caption text-grey-7">Departamento Cargo</div>
+                  <div class="text-body2">
+                    {{
+                      service?.departamento_cargo?.nombre ||
+                      service?.departamentoCargo?.nombre ||
+                      "-"
+                    }}
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="text-caption text-grey-7">Prioridad</div>
+                  <div>
+                    <q-badge
+                      :color="service?.is_urgente ? 'negative' : 'blue-grey'"
+                      class="q-px-sm text-weight-bold"
+                    >
+                      {{ service?.is_urgente ? "Urgente" : "Normal" }}
+                    </q-badge>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="text-caption text-grey-7">Estatus Actual</div>
+                  <div>
+                    <q-badge
+                      v-if="service?.estatus"
+                      :style="
+                        service.estatus?.color
+                          ? { backgroundColor: service.estatus.color }
+                          : null
+                      "
+                      :color="!service.estatus?.color ? 'primary' : null"
+                      class="q-px-sm text-weight-bold"
+                    >
+                      {{ service.estatus.nombre }}
+                    </q-badge>
+                    <span v-else>-</span>
+                  </div>
+                </div>
+              </div>
+              <div v-else class="row q-col-gutter-sm">
                 <div class="col-12">
                   <div class="text-caption text-grey-7">Proveedor / Taller</div>
                   <div class="text-body2 text-weight-bold text-dark">
@@ -219,8 +331,107 @@
         </div>
       </div>
 
+      <!-- Desplegable: Detalle de Dispersión de Gasolina (cuando onlyGasolina es true) -->
+      <q-card v-if="onlyGasolina" flat bordered class="bg-white q-mb-md">
+        <q-expansion-item
+          default-opened
+          header-class="bg-grey-2 text-primary"
+          expand-icon-class="text-primary"
+        >
+          <template v-slot:header>
+            <q-item-section avatar>
+              <q-avatar
+                icon="local_gas_station"
+                color="amber-9"
+                text-color="white"
+                size="30px"
+              />
+            </q-item-section>
+            <q-item-section>
+              <div
+                class="text-subtitle2 text-weight-bold text-primary flex items-center"
+              >
+                Detalle de la Solicitud de Combustible
+              </div>
+            </q-item-section>
+            <q-item-section side>
+              <div class="text-caption text-grey-8">
+                KM Reportado:
+                <strong class="text-orange-9">
+                  {{
+                    service?.km_evento
+                      ? formatKm(service.km_evento)
+                      : "No registrado"
+                  }}
+                </strong>
+              </div>
+            </q-item-section>
+          </template>
+
+          <q-separator />
+
+          <q-markup-table flat dense separator="horizontal">
+            <thead>
+              <tr class="bg-grey-1 text-grey-8">
+                <th class="text-left">Concepto</th>
+                <th class="text-left">Notas / Observaciones</th>
+                <th class="text-right">Kilometraje (KM)</th>
+                <th class="text-center">Litros Solicitados</th>
+                <th class="text-center">Litros Autorizados / Dispersados</th>
+                <th class="text-center">Prioridad</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="text-weight-bold text-primary">
+                  Dispersión de gasolina
+                </td>
+                <td style="max-width: 360px; white-space: normal">
+                  {{ service?.notas || "Sin observaciones" }}
+                </td>
+                <td class="text-right text-weight-bold text-orange-10">
+                  {{
+                    service?.km_evento ? formatKm(service.km_evento) : "No reg."
+                  }}
+                </td>
+                <td class="text-center">
+                  <q-badge
+                    color="amber-10"
+                    text-color="white"
+                    class="q-px-sm q-py-xs text-weight-bold"
+                  >
+                    {{ service?.lts_solicitados ?? 0 }} Lts
+                  </q-badge>
+                </td>
+                <td class="text-center">
+                  <q-badge
+                    v-if="
+                      service?.lts_dispersados !== null &&
+                      service?.lts_dispersados !== undefined
+                    "
+                    color="positive"
+                    text-color="white"
+                    class="q-px-sm q-py-xs text-weight-bold"
+                  >
+                    {{ service.lts_dispersados }} Lts
+                  </q-badge>
+                  <span v-else class="text-caption text-grey-6">Pendiente</span>
+                </td>
+                <td class="text-center">
+                  <q-badge
+                    :color="service?.is_urgente ? 'negative' : 'blue-grey'"
+                  >
+                    {{ service?.is_urgente ? "Urgente" : "Normal" }}
+                  </q-badge>
+                </td>
+              </tr>
+            </tbody>
+          </q-markup-table>
+        </q-expansion-item>
+      </q-card>
+
       <!-- Desplegable: Servicios Realizados en la Orden -->
-      <q-card flat bordered class="bg-white q-mb-md">
+      <q-card v-else flat bordered class="bg-white q-mb-md">
         <q-expansion-item
           default-opened
           header-class="bg-grey-2 text-primary"
@@ -819,7 +1030,11 @@
                 autorizacionForm.autorizado ? 'text-positive' : 'text-negative'
               "
             >
-              Autorización de la Orden de Compra
+              {{
+                onlyGasolina
+                  ? "Autorización de Dispersión de Gasolina"
+                  : "Autorización de la Orden de Compra"
+              }}
             </div>
           </div>
           <q-badge
@@ -836,7 +1051,14 @@
           <q-form ref="autorizarFormRef" @submit.prevent="submitAutorizacion">
             <div class="row q-col-gutter-md items-center">
               <!-- Switch de Autorización (Verdadero o Falso) -->
-              <div class="col-12 col-md-5">
+              <div
+                class="col-12"
+                :class="
+                  onlyGasolina && autorizacionForm.autorizado
+                    ? 'col-md-4'
+                    : 'col-md-5'
+                "
+              >
                 <div class="q-pa-sm rounded-borders bg-grey-1 border-grey">
                   <div
                     class="text-caption text-grey-8 text-weight-medium q-mb-xs"
@@ -847,7 +1069,11 @@
                     v-model="autorizacionForm.autorizado"
                     :label="
                       autorizacionForm.autorizado
-                        ? 'Autorizar compra'
+                        ? onlyGasolina
+                          ? 'Autorizar dispersión'
+                          : 'Autorizar compra'
+                        : onlyGasolina
+                        ? 'No autorizar dispersión'
                         : 'No autorizar compra'
                     "
                     :color="
@@ -859,15 +1085,62 @@
                   <div class="text-caption text-grey-6 q-mt-xs">
                     {{
                       autorizacionForm.autorizado
-                        ? 'Al marcar como verdadero, la orden pasará a estatus "Autorizado".'
+                        ? onlyGasolina
+                          ? 'Al autorizar, la solicitud pasará a estatus "Por dispersar".'
+                          : 'Al marcar como verdadero, la orden pasará a estatus "Autorizado".'
                         : 'Al marcar como falso, la orden pasará a estatus "No Autorizado" y es obligatorio indicar los motivos o comentarios.'
                     }}
                   </div>
                 </div>
               </div>
 
+              <!-- Input para Litros Autorizados / Dispersados (solo Gasolina cuando autoriza) -->
+              <div
+                v-if="onlyGasolina && autorizacionForm.autorizado"
+                class="col-12 col-md-3"
+              >
+                <q-input
+                  v-model.number="autorizacionForm.lts_dispersados"
+                  type="number"
+                  min="1"
+                  step="1"
+                  outlined
+                  dense
+                  bg-color="white"
+                  label="Litros Autorizados a Dispersar (Lts) *"
+                  placeholder="Ej. 40"
+                  :hint="`Solicitados: ${service.lts_solicitados ?? 0} Lts`"
+                  :rules="[
+                    (val) =>
+                      !autorizacionForm.autorizado ||
+                      (val !== null &&
+                        val !== '' &&
+                        Number.isInteger(Number(val)) &&
+                        Number(val) >= 1) ||
+                      'Ingrese los litros autorizados (mínimo 1 Lto)',
+                  ]"
+                  lazy-rules
+                >
+                  <template v-slot:prepend>
+                    <q-icon name="local_gas_station" color="positive" />
+                  </template>
+                  <template v-slot:append>
+                    <span class="text-caption text-weight-bold text-grey-7"
+                      >Lts</span
+                    >
+                  </template>
+                </q-input>
+              </div>
+
               <!-- TextInput para notas o comentario -->
-              <div class="col-12 col-md-7">
+              <div
+                class="col-12"
+                :class="
+                  onlyGasolina && autorizacionForm.autorizado
+                    ? 'col-md-5'
+                    : 'col-md-7'
+                "
+              >
                 <q-input
                   v-model="autorizacionForm.comentarios"
                   type="textarea"
@@ -906,7 +1179,10 @@
               </div>
 
               <!-- Banner informativo de selección para autorización -->
-              <div v-if="autorizacionForm.autorizado" class="col-12">
+              <div
+                v-if="autorizacionForm.autorizado && !onlyGasolina"
+                class="col-12"
+              >
                 <q-banner
                   rounded
                   dense
@@ -1369,16 +1645,23 @@ const isGasolinaOrden = (orden) => {
 };
 
 const dashboardOrdersCount = computed(() => {
+  if (props.onlyGasolina) {
+    const rawGas =
+      vehicleHistory.value?.dispersiones_gasolina ||
+      vehicleHistory.value?.dispersionesGasolina ||
+      props.service?.vehicle?.dispersiones_gasolina ||
+      props.service?.vehicle?.dispersionesGasolina ||
+      [];
+    return rawGas.length;
+  }
+
   const raw =
     vehicleHistory.value?.ordenes_servicio ||
     vehicleHistory.value?.ordenesServicio ||
     props.service?.vehicle?.ordenes_servicio ||
     props.service?.vehicle?.ordenesServicio ||
     [];
-  if (!props.onlyGasolina) {
-    return raw.length;
-  }
-  return raw.filter(isGasolinaOrden).length;
+  return raw.filter((o) => !isGasolinaOrden(o)).length;
 });
 
 watch(
@@ -1399,6 +1682,7 @@ const submittingAuth = ref(false);
 
 const autorizacionForm = ref({
   autorizado: true,
+  lts_dispersados: null,
   comentarios: "",
 });
 
@@ -1549,6 +1833,8 @@ watch(
         (newSrv.estatus?.nombre || "").toLowerCase() === "no autorizado";
       autorizacionForm.value = {
         autorizado: !isNoAutorizado,
+        lts_dispersados:
+          newSrv.lts_dispersados ?? newSrv.lts_solicitados ?? null,
         comentarios: "",
       };
       if (autorizarFormRef.value) {
@@ -1574,6 +1860,31 @@ const submitAutorizacion = async () => {
   const isValid = await autorizarFormRef.value.validate();
   if (!isValid) {
     dataIncomplete();
+    return;
+  }
+
+  // Flujo aislado para Dispersión de Gasolina
+  if (props.onlyGasolina) {
+    submittingAuth.value = true;
+    try {
+      const payload = {
+        dispersion_id: props.service.id,
+        autorizado: Boolean(autorizacionForm.value.autorizado),
+        lts_dispersados: autorizacionForm.value.autorizado
+          ? Number(autorizacionForm.value.lts_dispersados)
+          : null,
+        comentarios: autorizacionForm.value.comentarios?.trim() || null,
+      };
+
+      const res = await sendRequest(
+        "POST",
+        payload,
+        props.authEndpoint || "/api/gasolina/autorizar"
+      );
+      emit("authorized", res || props.service);
+    } finally {
+      submittingAuth.value = false;
+    }
     return;
   }
 

@@ -2,10 +2,24 @@
   <q-form ref="myForm" greedy class="q-pa-xs">
     <!-- Encabezado / Título del Formulario -->
     <div
-      class="text-subtitle1 text-weight-bold text-primary q-mb-sm flex items-center"
+      class="text-subtitle1 text-weight-bold text-primary q-mb-sm flex items-center justify-between"
     >
-      <q-icon name="local_gas_station" size="sm" class="q-mr-xs text-amber-9" />
-      Datos de la Solicitud de Gasolina
+      <div class="flex items-center">
+        <q-icon
+          name="local_gas_station"
+          size="sm"
+          class="q-mr-xs text-amber-9"
+        />
+        Datos de la Solicitud de Dispersión de Gasolina
+      </div>
+      <q-badge
+        v-if="formGasolina.is_urgente"
+        color="negative"
+        class="q-px-sm q-py-xs text-weight-bold"
+      >
+        <q-icon name="priority_high" size="14px" class="q-mr-xs" />
+        SOLICITUD URGENTE
+      </q-badge>
     </div>
 
     <q-card flat bordered class="bg-grey-1 q-mb-md">
@@ -58,7 +72,7 @@
                   </q-item-section>
                   <q-item-section side>
                     <q-badge color="orange-9" outline>
-                      Último KM: {{ formatKm(scope.opt.ultimo_km || 0) }}
+                      Último KM: {{ formatKm(getVehicleUltimoKm(scope.opt)) }}
                     </q-badge>
                   </q-item-section>
                 </q-item>
@@ -86,25 +100,7 @@
             </div>
           </div>
 
-          <!-- 2. Fecha de Registro -->
-          <div class="col-12 col-sm-6 col-md-3">
-            <q-input
-              v-model="formGasolina.fecha_elaboracion"
-              type="date"
-              label="Fecha de Carga *"
-              outlined
-              dense
-              bg-color="white"
-              stack-label
-              :rules="[(val) => !!val || 'La fecha es obligatoria']"
-            >
-              <template v-slot:prepend>
-                <q-icon name="event" color="primary" />
-              </template>
-            </q-input>
-          </div>
-
-          <!-- 3. Kilometraje de Carga (KM Evento) -->
+          <!-- 2. Kilometraje de Carga (KM Evento) -->
           <div class="col-12 col-sm-6 col-md-3">
             <q-input
               v-model.number="formGasolina.km_evento"
@@ -124,13 +120,13 @@
             </q-input>
           </div>
 
-          <!-- 4. Litros a Cargar -->
-          <div class="col-12 col-sm-6 col-md-4">
+          <!-- 3. Litros Solicitados -->
+          <div class="col-12 col-sm-6 col-md-3">
             <q-input
-              v-model.number="formGasolina.cantidad"
+              v-model.number="formGasolina.lts_solicitados"
               type="number"
               min="1"
-              label="Litros a Cargar (Lts) *"
+              label="Litros Solicitados (Lts) *"
               suffix="L"
               outlined
               dense
@@ -144,10 +140,10 @@
             </q-input>
           </div>
 
-          <!-- 5. Empleado Solicitante -->
+          <!-- 4. Empleado Solicitante -->
           <div class="col-12 col-sm-6 col-md-4">
             <q-select
-              v-model="formGasolina.solicitante_id"
+              v-model="formGasolina.solicitado_por"
               :options="filteredEmpleados"
               label="Empleado Solicitante"
               option-value="id"
@@ -162,11 +158,7 @@
               options-dense
               clearable
               bg-color="white"
-              :disable="
-                !checkRole('Admin') ||
-                !checkPuestoIncludes('Coordinador de compras') ||
-                !checkPuestoIncludes('Director administrativo')
-              "
+              :disable="!canChangeSolicitante"
             >
               <template v-slot:prepend>
                 <q-icon name="person" color="grey-7" />
@@ -174,12 +166,12 @@
             </q-select>
           </div>
 
-          <!-- 6. Sucursal con Cargo -->
+          <!-- 5. Sucursal con Cargo -->
           <div class="col-12 col-sm-6 col-md-4">
             <q-select
               v-model="formGasolina.suc_cargo_id"
               :options="filteredSucursalesCargo"
-              label="Sucursal Cargo"
+              label="Sucursal Cargo *"
               option-value="id"
               option-label="nombre"
               emit-value
@@ -192,6 +184,7 @@
               options-dense
               clearable
               bg-color="white"
+              :rules="[(val) => !!val || 'Seleccione la sucursal con cargo']"
             >
               <template v-slot:prepend>
                 <q-icon name="store" color="grey-7" />
@@ -199,12 +192,12 @@
             </q-select>
           </div>
 
-          <!-- 7. Departamento con Cargo -->
+          <!-- 6. Departamento con Cargo -->
           <div class="col-12 col-sm-6 col-md-4">
             <q-select
               v-model="formGasolina.depto_cargo_id"
               :options="filteredDeptosCargo"
-              label="Departamento Cargo"
+              label="Departamento Cargo *"
               option-value="id"
               option-label="nombre"
               emit-value
@@ -217,6 +210,9 @@
               options-dense
               clearable
               bg-color="white"
+              :rules="[
+                (val) => !!val || 'Seleccione el departamento con cargo',
+              ]"
             >
               <template v-slot:prepend>
                 <q-icon name="apartment" color="grey-7" />
@@ -224,20 +220,85 @@
             </q-select>
           </div>
 
-          <!-- 8. Descripción (Opcional) -->
-          <div class="col-12 col-md-8">
+          <!-- 7. Switch Solicitud Urgente -->
+          <div class="col-12 col-sm-6 col-md-4">
+            <div
+              class="q-pa-sm rounded-borders row items-center justify-between full-height"
+              :class="
+                formGasolina.is_urgente
+                  ? 'bg-red-1 border-negative'
+                  : 'bg-white border-grey'
+              "
+            >
+              <div class="row items-center no-wrap">
+                <q-icon
+                  :name="
+                    formGasolina.is_urgente
+                      ? 'notification_important'
+                      : 'schedule'
+                  "
+                  :color="formGasolina.is_urgente ? 'negative' : 'grey-7'"
+                  size="22px"
+                  class="q-mr-sm"
+                />
+                <div>
+                  <div
+                    class="text-body2 text-weight-bold"
+                    :class="
+                      formGasolina.is_urgente ? 'text-negative' : 'text-grey-9'
+                    "
+                  >
+                    {{
+                      formGasolina.is_urgente
+                        ? "Dispersión Urgente"
+                        : "Prioridad Normal"
+                    }}
+                  </div>
+                  <div class="text-caption text-grey-7">
+                    Marcar si requiere atención inmediata
+                  </div>
+                </div>
+              </div>
+              <q-toggle
+                v-model="formGasolina.is_urgente"
+                color="negative"
+                keep-color
+              />
+            </div>
+          </div>
+
+          <!-- 8. Notas / Observaciones -->
+          <div class="col-12 col-sm-6 col-md-8">
             <q-input
-              v-model="formGasolina.descripcion"
+              v-model="formGasolina.notas"
               type="textarea"
               rows="2"
-              label="Descripción u Observaciones (Opcional)"
-              placeholder="Ej. Dispersión semanal de gasolina para ruta..."
+              :label="
+                formGasolina.is_urgente
+                  ? 'Notas u Observaciones (Motivo de urgencia) *'
+                  : 'Notas u Observaciones (Opcional)'
+              "
+              :placeholder="
+                formGasolina.is_urgente
+                  ? 'Indique obligatoriamente el motivo por el cual la dispersión es urgente...'
+                  : 'Ej. Dispersión semanal de gasolina para ruta...'
+              "
               outlined
               dense
               bg-color="white"
+              :rules="[
+                (val) =>
+                  !formGasolina.is_urgente ||
+                  (val && String(val).trim().length > 0) ||
+                  'Las notas son obligatorias cuando la dispersión es urgente',
+              ]"
+              lazy-rules
             >
               <template v-slot:prepend>
-                <q-icon name="notes" color="grey-7" />
+                <q-icon
+                  name="notes"
+                  :color="formGasolina.is_urgente ? 'negative' : 'grey-7'"
+                />
               </template>
             </q-input>
           </div>
@@ -249,12 +310,8 @@
 
 <script setup>
 import { ref, computed, watch, onMounted } from "vue";
-import { date } from "quasar";
-import {
-  sendRequest,
-  checkRole,
-  checkPuestoIncludes,
-} from "src/boot/functions";
+import { useAuthStore } from "src/stores/auth";
+import { checkRole, checkPuestoIncludes } from "src/boot/functions";
 
 const props = defineProps({
   orden: {
@@ -279,23 +336,29 @@ const props = defineProps({
   },
 });
 
+const authStore = useAuthStore();
 const myForm = ref(null);
 
-const getTodayDate = () => {
-  return date.formatDate(Date.now(), "YYYY-MM-DD");
-};
+const canChangeSolicitante = computed(() => {
+  return (
+    checkRole("Admin") ||
+    checkPuestoIncludes("Coordinador de compras") ||
+    checkPuestoIncludes("Director administrativo")
+  );
+});
 
 const formGasolina = ref({
   id: null,
   vehicle_id: null,
-  fecha_elaboracion: getTodayDate(),
   km_evento: null,
-  cantidad: null,
-  descripcion: "",
-  solicitante_id: null,
+  lts_solicitados: null,
+  lts_dispersados: null,
+  notas: "",
+  solicitado_por: null,
   suc_cargo_id: null,
   depto_cargo_id: null,
   estatus_id: null,
+  is_urgente: false,
 });
 
 const filteredVehicles = ref([]);
@@ -303,28 +366,29 @@ const filteredEmpleados = ref([]);
 const filteredSucursalesCargo = ref([]);
 const filteredDeptosCargo = ref([]);
 
+const getVehicleUltimoKm = (veh) => {
+  if (!veh) return 0;
+  const catVeh = (props.catalogs?.vehicles || []).find(
+    (v) => Number(v.id) === Number(veh.id)
+  );
+  return Math.max(Number(veh.ultimo_km || 0), Number(catVeh?.ultimo_km || 0));
+};
+
 const selectedVehicle = computed(() => {
   if (!formGasolina.value.vehicle_id) return null;
   const list = props.allowedVehicles || props.catalogs?.vehicles || [];
-  return list.find(
-    (v) => Number(v.id) === Number(formGasolina.value.vehicle_id)
+  return (
+    list.find((v) => Number(v.id) === Number(formGasolina.value.vehicle_id)) ||
+    (props.catalogs?.vehicles || []).find(
+      (v) => Number(v.id) === Number(formGasolina.value.vehicle_id)
+    ) ||
+    null
   );
 });
 
 const ultimoKmUnidad = computed(() => {
   if (!selectedVehicle.value) return 0;
-  return Number(selectedVehicle.value.ultimo_km || 0);
-});
-
-const servicioGasolinaId = computed(() => {
-  const list = props.catalogs?.servicios_cat || [];
-  const found = list.find(
-    (s) =>
-      (s.nombre || "").trim().toLowerCase() === "dispersión de gasolina" ||
-      (s.nombre || "").trim().toLowerCase() === "dispersion de gasolina" ||
-      Number(s.tipo_servicio_id) === 14
-  );
-  return found?.id || 3417;
+  return getVehicleUltimoKm(selectedVehicle.value);
 });
 
 const validateKm = (val) => {
@@ -335,7 +399,11 @@ const validateKm = (val) => {
   if (isNaN(num) || num < 0) {
     return "Ingrese un kilometraje válido";
   }
-  if (ultimoKmUnidad.value > 0 && num < ultimoKmUnidad.value) {
+  // Si estamos creando o si cambiamos de unidad, validar contra el último KM
+  const isEditingSameVehicle =
+    props.orden &&
+    Number(props.orden.vehicle_id) === Number(formGasolina.value.vehicle_id);
+  if (!isEditingSameVehicle && ultimoKmUnidad.value > 0 && num < ultimoKmUnidad.value) {
     return `El kilometraje (${num.toLocaleString()} km) no puede ser menor al último registrado de la unidad (${ultimoKmUnidad.value.toLocaleString()} km)`;
   }
   return true;
@@ -343,11 +411,11 @@ const validateKm = (val) => {
 
 const validateLitros = (val) => {
   if (val === null || val === undefined || val === "") {
-    return "Los litros son obligatorios";
+    return "Los litros solicitados son obligatorios";
   }
   const num = Number(val);
-  if (isNaN(num) || num <= 0) {
-    return "Ingrese una cantidad válida mayor a 0";
+  if (isNaN(num) || num <= 0 || !Number.isInteger(num)) {
+    return "Ingrese una cantidad entera mayor a 0";
   }
   return true;
 };
@@ -359,7 +427,6 @@ const formatKm = (val) => {
   return `${num.toLocaleString("es-MX")} km`;
 };
 
-// Filtro de vehículos
 const filterVehiclesFn = (val, update) => {
   const baseList = props.allowedVehicles || props.catalogs?.vehicles || [];
   if (val === "") {
@@ -379,7 +446,6 @@ const filterVehiclesFn = (val, update) => {
   });
 };
 
-// Filtro de empleados
 const filterEmpleadosFn = (val, update) => {
   const baseList = props.catalogs?.empleados || [];
   if (val === "") {
@@ -399,7 +465,6 @@ const filterEmpleadosFn = (val, update) => {
   });
 };
 
-// Filtro de sucursales cargo
 const filterSucursalesCargoFn = (val, update) => {
   const baseList = props.catalogs?.sucursales_cargo || [];
   if (val === "") {
@@ -416,7 +481,6 @@ const filterSucursalesCargoFn = (val, update) => {
   });
 };
 
-// Filtro de deptos cargo
 const filterDeptosCargoFn = (val, update) => {
   const baseList = props.catalogs?.deptos_cargo || [];
   if (val === "") {
@@ -433,60 +497,51 @@ const filterDeptosCargoFn = (val, update) => {
   });
 };
 
-// Inicialización de datos para modo edición o creación
 const initForm = () => {
   if (props.orden && typeof props.orden === "object") {
     const ord = props.orden;
-    const primerDetalle =
-      (ord.detalles && ord.detalles[0]) ||
-      (ord.detalles_servicio && ord.detalles_servicio[0]) ||
-      {};
-
     formGasolina.value = {
       id: ord.id,
       vehicle_id: ord.vehicle_id,
-      fecha_elaboracion: ord.fecha_elaboracion || getTodayDate(),
       km_evento:
-        primerDetalle.km_evento !== undefined &&
-        primerDetalle.km_evento !== null
-          ? Number(primerDetalle.km_evento)
+        ord.km_evento !== undefined && ord.km_evento !== null
+          ? Number(ord.km_evento)
           : null,
-      cantidad:
-        primerDetalle.cantidad !== undefined && primerDetalle.cantidad !== null
-          ? Number(primerDetalle.cantidad)
+      lts_solicitados:
+        ord.lts_solicitados !== undefined && ord.lts_solicitados !== null
+          ? Number(ord.lts_solicitados)
           : null,
-      descripcion: primerDetalle.descripcion || "",
-      solicitante_id: ord.solicitante_id || null,
+      lts_dispersados:
+        ord.lts_dispersados !== undefined && ord.lts_dispersados !== null
+          ? Number(ord.lts_dispersados)
+          : null,
+      notas: ord.notas || "",
+      solicitado_por: ord.solicitado_por || ord.solicitante_id || null,
       suc_cargo_id: ord.suc_cargo_id || null,
       depto_cargo_id: ord.depto_cargo_id || null,
       estatus_id: ord.estatus_id || null,
+      is_urgente: Boolean(ord.is_urgente),
     };
   } else {
     const defaultVehId = props.fixedVehicleId
       ? Number(props.fixedVehicleId)
       : null;
-    let initialKm = null;
-    if (defaultVehId) {
-      const list = props.allowedVehicles || props.catalogs?.vehicles || [];
-      const found = list.find((v) => Number(v.id) === Number(defaultVehId));
-      if (found) {
-        initialKm = found.ultimo_km || found.km || null;
-      }
-    }
+
+    const defaultSolId =
+      props.defaultSolicitanteId || authStore.authUser?.empleado?.id || null;
 
     formGasolina.value = {
       id: null,
       vehicle_id: defaultVehId,
-      fecha_elaboracion: getTodayDate(),
-      km_evento: initialKm,
-      cantidad: null,
-      descripcion: "",
-      solicitante_id: props.defaultSolicitanteId
-        ? Number(props.defaultSolicitanteId)
-        : null,
+      km_evento: null,
+      lts_solicitados: null,
+      lts_dispersados: null,
+      notas: "",
+      solicitado_por: defaultSolId ? Number(defaultSolId) : null,
       suc_cargo_id: null,
       depto_cargo_id: null,
       estatus_id: null,
+      is_urgente: false,
     };
   }
 
@@ -518,51 +573,53 @@ watch(
   { deep: true }
 );
 
+watch(
+  () => formGasolina.value.is_urgente,
+  (isUrgente) => {
+    if (!isUrgente && myForm.value) {
+      myForm.value.resetValidation();
+    }
+  }
+);
+
 onMounted(() => {
   initForm();
 });
 
-// Validación para el formulario
 const validate = async () => {
   if (!myForm.value) return false;
   return await myForm.value.validate();
 };
 
-// Generar payload estructurado para OCGasolinaVehicleController
 const getPayload = () => {
   const base = {
     vehicle_id: formGasolina.value.vehicle_id,
-    fecha_elaboracion: formGasolina.value.fecha_elaboracion,
-    solicitante_id: formGasolina.value.solicitante_id || null,
+    solicitado_por: formGasolina.value.solicitado_por || null,
     suc_cargo_id: formGasolina.value.suc_cargo_id || null,
     depto_cargo_id: formGasolina.value.depto_cargo_id || null,
-    detalles: [
-      {
-        vehicle_id: formGasolina.value.vehicle_id,
-        servicio_id: servicioGasolinaId.value,
-        km_evento:
-          formGasolina.value.km_evento !== null &&
-          formGasolina.value.km_evento !== ""
-            ? Number(formGasolina.value.km_evento)
-            : null,
-        cantidad:
-          formGasolina.value.cantidad !== null &&
-          formGasolina.value.cantidad !== ""
-            ? Number(formGasolina.value.cantidad)
-            : 1,
-        descripcion:
-          formGasolina.value.descripcion?.trim() ||
-          "Dispersión de gasolina para unidad",
-        precio_unitario: null,
-        subtotal: null,
-        iva: null,
-        total: null,
-      },
-    ],
+    lts_solicitados:
+      formGasolina.value.lts_solicitados !== null &&
+      formGasolina.value.lts_solicitados !== ""
+        ? Number(formGasolina.value.lts_solicitados)
+        : 1,
+    km_evento:
+      formGasolina.value.km_evento !== null &&
+      formGasolina.value.km_evento !== ""
+        ? Number(formGasolina.value.km_evento)
+        : null,
+    notas: formGasolina.value.notas?.trim() || null,
+    is_urgente: Boolean(formGasolina.value.is_urgente),
   };
 
   if (formGasolina.value.id) {
     base.id = formGasolina.value.id;
+  }
+  if (
+    formGasolina.value.lts_dispersados !== null &&
+    formGasolina.value.lts_dispersados !== undefined &&
+    formGasolina.value.lts_dispersados !== ""
+  ) {
+    base.lts_dispersados = Number(formGasolina.value.lts_dispersados);
   }
   if (formGasolina.value.estatus_id) {
     base.estatus_id = formGasolina.value.estatus_id;
@@ -583,5 +640,11 @@ defineExpose({
 <style scoped>
 .border-amber {
   border: 1px solid #ffb300;
+}
+.border-grey {
+  border: 1px solid #e0e0e0;
+}
+.border-negative {
+  border: 1px solid var(--q-negative);
 }
 </style>

@@ -1801,6 +1801,7 @@ const openCreate = () => {
 
 const openEdit = (item) => {
   selectedRow.value = item;
+  getForms();
   showEdit.value = true;
 };
 

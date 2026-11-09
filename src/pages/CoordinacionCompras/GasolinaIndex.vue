@@ -98,7 +98,7 @@
             outlined
             dense
             clearable
-            label="Buscar placa, serie, OC, factura, solicitante..."
+            label="Buscar placa, serie, folio, notas, solicitante..."
             v-model="filterForm.search"
             @update:model-value="onInputChange"
           >
@@ -188,7 +188,7 @@
               dense
               color="primary"
               icon="local_gas_station"
-              :label="onlyMyUnit ? 'Nueva Solicitud' : 'Nueva Orden'"
+              :label="onlyMyUnit ? 'Nueva Solicitud' : 'Nueva Dispersión'"
               class="q-px-sm"
               @click="openCreate"
             >
@@ -200,14 +200,16 @@
     </q-card-section>
   </q-card>
 
-  <!-- Tabla Principal de Órdenes Compra - Gasolina -->
+  <!-- Tabla Principal de Dispersión de Gasolina -->
   <q-item class="q-pt-none">
     <q-item-section>
       <q-table
         flat
         bordered
         :title="
-          onlyMyUnit ? 'Dispersión de Gasolina' : 'Órdenes de Compra - Gasolina'
+          onlyMyUnit
+            ? 'Dispersión de Gasolina'
+            : 'Solicitudes de Dispersión de Gasolina'
         "
         :rows="rows"
         :columns="columns"
@@ -231,13 +233,13 @@
                           assignedVehicles[0]?.placas || "S/P"
                         })`
                       : "Dispersión de Gasolina"
-                    : "Órdenes Compra - Gasolina"
+                    : "Dispersión de Gasolina"
                 }}
               </span>
               <q-badge
                 color="primary"
                 outline
-                :label="`${totalRegistros} orden(es)`"
+                :label="`${totalRegistros} solicitud(es)`"
               />
 
               <q-separator vertical inset class="q-mx-xs gt-xs" />
@@ -273,7 +275,7 @@
                 </q-tooltip>
               </q-btn>
 
-              <!-- Botón 1: Por dispersar (Azul) con contador -->
+              <!-- Botón 2: Por dispersar (Azul) con contador -->
               <q-btn
                 dense
                 no-caps
@@ -304,7 +306,7 @@
                 </q-tooltip>
               </q-btn>
 
-              <!-- Botón 2: Autorizadas (Verde) -->
+              <!-- Botón 3: Dispersadas (Verde) -->
               <q-btn
                 dense
                 no-caps
@@ -324,7 +326,7 @@
                 </q-tooltip>
               </q-btn>
 
-              <!-- Botón 3: No Autorizadas (Rojo) -->
+              <!-- Botón 4: No Autorizadas (Rojo) -->
               <q-btn
                 dense
                 no-caps
@@ -418,20 +420,11 @@
                 <q-tooltip>
                   {{
                     isExpanded(props.row.id)
-                      ? "Ocultar conceptos de gasolina"
-                      : "Ver conceptos de la orden"
+                      ? "Ocultar detalles y bitácora"
+                      : "Ver detalles y bitácora"
                   }}
                 </q-tooltip>
               </q-btn>
-              <q-badge
-                color="blue-grey-7"
-                class="q-ml-xs"
-                :label="getDetalles(props.row).length"
-              >
-                <q-tooltip>
-                  {{ getDetalles(props.row).length }} concepto(s) en esta orden
-                </q-tooltip>
-              </q-badge>
             </q-td>
 
             <!-- Acciones -->
@@ -443,7 +436,7 @@
                 icon="visibility"
                 @click="openShow(props.row)"
               >
-                <q-tooltip>Ver detalle de la orden</q-tooltip>
+                <q-tooltip>Ver detalle y autorización</q-tooltip>
               </q-btn>
               <q-btn
                 dense
@@ -453,7 +446,7 @@
                 @click="openEdit(props.row)"
                 :disable="!canEdit(props.row)"
               >
-                <q-tooltip>Editar orden</q-tooltip>
+                <q-tooltip>Editar solicitud</q-tooltip>
               </q-btn>
               <!-- marcar como dispersada -->
               <q-btn
@@ -466,43 +459,31 @@
               >
                 <q-tooltip>Marcar como dispersada</q-tooltip>
               </q-btn>
-              <!-- <q-btn
-                dense
-                flat
-                color="negative"
-                icon="delete"
-                @click="openDelete(props.row)"
-              >
-                <q-tooltip>Eliminar orden</q-tooltip>
-              </q-btn> -->
             </q-td>
 
-            <!-- Folios (OC / Aut / Factura) -->
-            <q-td key="folios" :props="props">
-              <div
-                v-if="props.row.orden_compra || props.row.id"
-                class="text-caption"
-              >
-                <strong>OC:</strong>
-                {{ props.row.orden_compra || props.row.id }}
-              </div>
-              <div
-                v-if="props.row.autorizacion_compras"
-                class="text-caption text-teal-9"
-              >
-                <strong>Aut:</strong> {{ props.row.autorizacion_compras }}
-              </div>
-              <div v-if="props.row.factura" class="text-caption text-purple-9">
-                <strong>Fact:</strong> {{ props.row.factura }}
+            <!-- Folio / Prioridad -->
+            <q-td key="folio" :props="props">
+              <div class="row items-center no-wrap q-gutter-x-xs">
+                <span class="text-weight-bold text-dark">
+                  #{{ props.row.id }}
+                </span>
+                <q-badge
+                  v-if="props.row.is_urgente"
+                  color="negative"
+                  class="text-weight-bold q-px-xs"
+                >
+                  <q-icon name="priority_high" size="12px" />
+                  Urgente
+                </q-badge>
               </div>
             </q-td>
 
             <!-- Fecha -->
             <q-td key="fecha" :props="props" class="text-weight-bold">
-              {{ formatFecha(props.row.fecha_elaboracion) }}
+              {{ formatFecha(props.row.created_at) }}
             </q-td>
 
-            <!-- Estatus de la Orden -->
+            <!-- Estatus de la Solicitud -->
             <q-td key="estatus" :props="props" class="text-center">
               <q-badge
                 v-if="getOrdenEstatus(props.row)"
@@ -537,25 +518,42 @@
               </div>
             </q-td>
 
-            <!-- Litros de Gasolina -->
-            <q-td key="litros" :props="props" class="text-center">
+            <!-- Litros Solicitados -->
+            <q-td key="lts_solicitados" :props="props" class="text-center">
               <q-badge
                 color="amber-10"
                 text-color="white"
-                class="q-px-sm q-py-xs"
+                class="q-px-sm q-py-xs text-weight-bold"
               >
                 <q-icon name="local_gas_station" size="14px" class="q-mr-xs" />
-                {{ getTotalLitros(props.row) }} L
+                {{ props.row.lts_solicitados ?? 0 }} L
               </q-badge>
+            </q-td>
+
+            <!-- Litros Dispersados / Autorizados -->
+            <q-td key="lts_dispersados" :props="props" class="text-center">
+              <q-badge
+                v-if="
+                  props.row.lts_dispersados !== null &&
+                  props.row.lts_dispersados !== undefined
+                "
+                color="positive"
+                text-color="white"
+                class="q-px-sm q-py-xs text-weight-bold"
+              >
+                <q-icon name="check_circle" size="14px" class="q-mr-xs" />
+                {{ props.row.lts_dispersados }} L
+              </q-badge>
+              <span v-else class="text-caption text-grey-5">Pendiente</span>
             </q-td>
 
             <!-- KM Carga / Evento -->
             <q-td key="km" :props="props" class="text-right">
               <span
-                v-if="getMaxKm(props.row)"
+                v-if="props.row.km_evento"
                 class="text-weight-bold text-orange-10"
               >
-                {{ formatKm(getMaxKm(props.row)) }}
+                {{ formatKm(props.row.km_evento) }}
               </span>
               <span v-else class="text-caption text-grey-5">No reg.</span>
             </q-td>
@@ -580,20 +578,13 @@
 
             <!-- Solicitante -->
             <q-td key="solicitante" :props="props">
-              <div class="text-caption">
+              <div class="text-caption text-weight-medium">
                 {{ props.row.solicitante?.nombreCompleto || "-" }}
               </div>
             </q-td>
-
-            <!-- Total de la Orden -->
-            <q-td key="total" :props="props" class="text-right">
-              <span class="text-subtitle2 text-weight-bolder text-positive">
-                {{ formatCurrency(getOrderTotal(props.row)) }}
-              </span>
-            </q-td>
           </q-tr>
 
-          <!-- Fila Desplegable: Detalles de Gasolina y Bitácora -->
+          <!-- Fila Desplegable: Detalles de Dispersión y Bitácora -->
           <q-tr
             v-show="isExpanded(props.row.id)"
             :props="props"
@@ -601,7 +592,7 @@
           >
             <q-td colspan="100%" class="q-pa-sm">
               <div class="q-mx-md q-gutter-y-sm">
-                <!-- Desplegable 1: Conceptos de Combustible incluidos -->
+                <!-- Desplegable 1: Información de la Dispersión -->
                 <q-card flat bordered class="bg-white">
                   <q-expansion-item
                     default-opened
@@ -620,29 +611,34 @@
                         <div
                           class="text-caption text-weight-bold text-grey-9 flex items-center"
                         >
-                          Dispersión de Combustible - Orden #{{
+                          Dispersión de Combustible - Solicitud #{{
                             props.row.id
                           }}
                           (Placa: {{ props.row.vehicle?.placas || "S/P" }})
-                          <q-badge color="primary" class="q-ml-sm">
-                            {{ getDetalles(props.row).length }} concepto(s)
+                          <q-badge
+                            v-if="props.row.is_urgente"
+                            color="negative"
+                            class="q-ml-sm"
+                          >
+                            URGENTE
                           </q-badge>
                         </div>
                       </q-item-section>
                       <q-item-section side>
                         <div class="text-caption text-grey-8">
-                          Subtotal:
-                          <strong>{{
-                            formatCurrency(getOrderSubtotal(props.row))
-                          }}</strong>
-                          &bull; IVA:
-                          <strong>{{
-                            formatCurrency(getOrderIva(props.row))
-                          }}</strong>
-                          &bull; Total:
-                          <strong class="text-positive">{{
-                            formatCurrency(getOrderTotal(props.row))
-                          }}</strong>
+                          Solicitados:
+                          <strong class="text-amber-10"
+                            >{{ props.row.lts_solicitados ?? 0 }} L</strong
+                          >
+                          &bull; Autorizados/Dispersados:
+                          <strong class="text-positive">
+                            {{
+                              props.row.lts_dispersados !== null &&
+                              props.row.lts_dispersados !== undefined
+                                ? `${props.row.lts_dispersados} L`
+                                : "Pendiente"
+                            }}
+                          </strong>
                         </div>
                       </q-item-section>
                     </template>
@@ -652,50 +648,57 @@
                       <thead>
                         <tr class="bg-grey-2 text-grey-8">
                           <th class="text-left">Concepto</th>
-                          <th class="text-left">Descripción / Observación</th>
+                          <th class="text-left">Notas / Observaciones</th>
                           <th class="text-right">Kilometraje (KM)</th>
-                          <th class="text-center">Litros / Cantidad</th>
-                          <th class="text-right">Precio por Litro</th>
-                          <th class="text-right">Subtotal</th>
-                          <th class="text-right">IVA</th>
-                          <th class="text-right">Total</th>
+                          <th class="text-center">Litros Solicitados</th>
+                          <th class="text-center">Litros Dispersados</th>
+                          <th class="text-center">Prioridad</th>
+                          <th class="text-left">Registrado Por</th>
                         </tr>
                       </thead>
                       <tbody>
-                        <tr v-for="det in getDetalles(props.row)" :key="det.id">
+                        <tr>
                           <td class="text-weight-bold text-primary">
-                            {{
-                              det.servicio?.nombre || "Dispersión de gasolina"
-                            }}
+                            Dispersión de gasolina
                           </td>
-                          <td style="max-width: 340px; white-space: normal">
-                            {{ det.descripcion || "-" }}
+                          <td style="max-width: 360px; white-space: normal">
+                            {{ props.row.notas || "-" }}
                           </td>
                           <td class="text-right text-weight-medium">
                             {{
-                              det.km_evento
-                                ? formatKm(det.km_evento)
+                              props.row.km_evento
+                                ? formatKm(props.row.km_evento)
                                 : "No reg."
                             }}
                           </td>
                           <td class="text-center font-mono text-weight-bold">
-                            {{ det.cantidad || 0 }} L
+                            {{ props.row.lts_solicitados ?? 0 }} L
                           </td>
-                          <td class="text-right">
+                          <td
+                            class="text-center font-mono text-weight-bold text-positive"
+                          >
                             {{
-                              det.precio_unitario
-                                ? formatCurrency(det.precio_unitario)
-                                : "-"
+                              props.row.lts_dispersados !== null &&
+                              props.row.lts_dispersados !== undefined
+                                ? `${props.row.lts_dispersados} L`
+                                : "Pendiente"
                             }}
                           </td>
-                          <td class="text-right">
-                            {{ formatCurrency(det.subtotal) }}
+                          <td class="text-center">
+                            <q-badge
+                              :color="
+                                props.row.is_urgente ? 'negative' : 'blue-grey'
+                              "
+                            >
+                              {{ props.row.is_urgente ? "Urgente" : "Normal" }}
+                            </q-badge>
                           </td>
-                          <td class="text-right">
-                            {{ formatCurrency(det.iva) }}
-                          </td>
-                          <td class="text-right text-weight-bold text-positive">
-                            {{ formatCurrency(det.total) }}
+                          <td>
+                            {{
+                              props.row.registrador?.empleado?.nombreCompleto ||
+                              props.row.registrador?.name ||
+                              "-"
+                            }}
                           </td>
                         </tr>
                       </tbody>
@@ -744,7 +747,8 @@
                       v-if="getBitacora(props.row).length === 0"
                       class="q-pa-sm text-center text-caption text-grey-6"
                     >
-                      No hay registros de bitácora para esta orden de gasolina.
+                      No hay registros de bitácora para esta solicitud de
+                      gasolina.
                     </div>
                     <q-markup-table v-else flat dense separator="horizontal">
                       <thead>
@@ -803,7 +807,7 @@
                             </div>
                           </td>
                           <td style="white-space: normal">
-                            {{ b.comentarios || "-" }}
+                            {{ b.comentarios || b.notas || "-" }}
                           </td>
                         </tr>
                       </tbody>
@@ -839,7 +843,7 @@
     </q-item-section>
   </q-item>
 
-  <!-- Modal: Registrar Nueva Orden de Gasolina -->
+  <!-- Modal: Registrar Nueva Solicitud de Gasolina -->
   <q-dialog v-model="showAdd" persistent>
     <q-card style="width: 960px; max-width: 96vw">
       <q-item class="bg-primary text-white">
@@ -848,11 +852,7 @@
         </q-item-section>
         <q-item-section>
           <q-item-label class="text-h6">
-            {{
-              onlyMyUnit
-                ? "Registrar Solicitud de Dispersión de Gasolina"
-                : "Registrar Orden de Compra - Gasolina"
-            }}
+            Registrar Solicitud de Dispersión de Gasolina
           </q-item-label>
         </q-item-section>
         <q-item-section side>
@@ -860,7 +860,7 @@
             <q-btn flat label="Cancelar" color="white" v-close-popup />
             <q-btn
               unelevated
-              :label="onlyMyUnit ? 'Enviar Solicitud' : 'Guardar Orden'"
+              :label="onlyMyUnit ? 'Enviar Solicitud' : 'Guardar Solicitud'"
               color="positive"
               icon="save"
               :loading="saving"
@@ -889,7 +889,7 @@
     </q-card>
   </q-dialog>
 
-  <!-- Modal: Editar Orden de Gasolina -->
+  <!-- Modal: Editar Solicitud de Gasolina -->
   <q-dialog v-model="showEdit" persistent>
     <q-card style="width: 960px; max-width: 96vw">
       <q-item class="bg-primary text-white">
@@ -898,11 +898,7 @@
         </q-item-section>
         <q-item-section>
           <q-item-label class="text-h6">
-            {{
-              onlyMyUnit
-                ? `Editar Solicitud de Gasolina #${selectedRow?.id}`
-                : `Editar Orden de Gasolina #${selectedRow?.id}`
-            }}
+            Editar Solicitud de Gasolina #{{ selectedRow?.id }}
           </q-item-label>
         </q-item-section>
         <q-item-section side>
@@ -940,7 +936,7 @@
     </q-card>
   </q-dialog>
 
-  <!-- Modal: Ver Detalle de Orden de Gasolina -->
+  <!-- Modal: Ver Detalle y Autorización de Solicitud de Gasolina -->
   <q-dialog v-model="showShow">
     <q-card
       style="width: 1200px; max-width: 96vw; max-height: 92vh"
@@ -961,9 +957,9 @@
   <!-- Modal: Confirmar Eliminación -->
   <BaseDialog v-model="showDelete" mode="delete" @submit="deleteRow">
     <template #delete-message>
-      ¿Estás seguro que deseas eliminar esta orden de gasolina (#{{
+      ¿Estás seguro que deseas eliminar esta solicitud de gasolina (#{{
         selectedRow?.id
-      }}) y todos sus conceptos asociados?
+      }})?
     </template>
   </BaseDialog>
 
@@ -978,8 +974,12 @@
       </q-card-section>
 
       <q-card-section class="q-pt-md text-body1">
-        ¿Estás seguro que deseas marcar la orden de gasolina
-        <strong>#{{ selectedRow?.id }}</strong> como <strong>DISPERSADA</strong>?
+        ¿Estás seguro que deseas marcar la solicitud de gasolina
+        <strong>#{{ selectedRow?.id }}</strong>
+        ({{
+          selectedRow?.lts_dispersados ?? selectedRow?.lts_solicitados ?? 0
+        }}
+        Lts) como <strong>DISPERSADA</strong>?
       </q-card-section>
 
       <q-card-actions align="right" class="bg-grey-1">
@@ -1000,12 +1000,11 @@
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
 import { useRoute } from "vue-router";
-import { date, useQuasar } from "quasar";
+import { date } from "quasar";
 import { useAuthStore } from "src/stores/auth";
 import {
   sendRequest,
   dataIncomplete,
-  show_notify,
   checkRole,
   checkPuestoIncludes,
 } from "src/boot/functions";
@@ -1021,7 +1020,6 @@ const props = defineProps({
   },
 });
 
-const $q = useQuasar();
 const route = useRoute();
 const authStore = useAuthStore();
 
@@ -1062,9 +1060,6 @@ const catalogs = ref({
   next_id: null,
   vehicles: [],
   empleados: [],
-  proveedores: [],
-  tipos_servicio: [],
-  servicios_cat: [],
   sucursales_cargo: [],
   deptos_cargo: [],
   estatus: [],
@@ -1085,28 +1080,49 @@ const statusCounts = ref({
   por_dispersar: 0,
   dispersado: 0,
   no_autorizado: 0,
+  solicitado_id: null,
+  por_dispersar_id: null,
+  dispersado_id: null,
+  no_autorizado_id: null,
 });
 
 const estatusSolicitadoId = computed(() => {
-  return catalogs.value?.estatus?.find(
-    (e) => (e.nombre || "").trim().toLowerCase() === "solicitado"
+  return (
+    statusCounts.value?.solicitado_id ||
+    catalogs.value?.estatus?.find(
+      (e) => (e.nombre || "").trim().toLowerCase() === "solicitado"
+    )?.id ||
+    null
   );
 });
 
 const estatusPorDispersarId = computed(() => {
-  return catalogs.value?.estatus?.find(
-    (e) => (e.nombre || "").trim().toLowerCase() === "por dispersar"
+  return (
+    statusCounts.value?.por_dispersar_id ||
+    catalogs.value?.estatus?.find(
+      (e) => (e.nombre || "").trim().toLowerCase() === "por dispersar"
+    )?.id ||
+    null
   );
 });
+
 const estatusDispersadoId = computed(() => {
-  return catalogs.value?.estatus?.find(
-    (e) => (e.nombre || "").trim().toLowerCase() === "dispersada"
+  return (
+    statusCounts.value?.dispersado_id ||
+    catalogs.value?.estatus?.find(
+      (e) => (e.nombre || "").trim().toLowerCase() === "dispersada"
+    )?.id ||
+    null
   );
 });
 
 const estatusNoAutorizadoId = computed(() => {
-  return catalogs.value?.estatus?.find(
-    (e) => (e.nombre || "").trim().toLowerCase() === "no autorizado"
+  return (
+    statusCounts.value?.no_autorizado_id ||
+    catalogs.value?.estatus?.find(
+      (e) => (e.nombre || "").trim().toLowerCase() === "no autorizado"
+    )?.id ||
+    null
   );
 });
 
@@ -1120,7 +1136,7 @@ const countPorRevisar = computed(() => {
   }
   return rows.value.filter(
     (r) =>
-      Number(r.estatus_id) === Number(estatusSolicitadoId.value?.id) ||
+      Number(r.estatus_id) === Number(estatusSolicitadoId.value) ||
       (r.estatus?.nombre || "").trim().toLowerCase() === "solicitado"
   ).length;
 });
@@ -1135,13 +1151,15 @@ const countPorDispersar = computed(() => {
   }
   return rows.value.filter(
     (r) =>
-      Number(r.estatus_id) === Number(estatusPorDispersarId.value?.id) ||
+      Number(r.estatus_id) === Number(estatusPorDispersarId.value) ||
       (r.estatus?.nombre || "").trim().toLowerCase() === "por dispersar"
   ).length;
 });
 
 const isEstatusActive = (estatusId) => {
   return (
+    estatusId !== null &&
+    estatusId !== undefined &&
     filterForm.value.estatus_id !== null &&
     filterForm.value.estatus_id !== undefined &&
     Number(filterForm.value.estatus_id) === Number(estatusId)
@@ -1149,6 +1167,7 @@ const isEstatusActive = (estatusId) => {
 };
 
 const filterByStatus = (estatusId) => {
+  if (!estatusId) return;
   if (isEstatusActive(estatusId)) {
     filterForm.value.estatus_id = null;
   } else {
@@ -1193,24 +1212,18 @@ const clearFilters = () => {
   getRows(1);
 };
 
-const notifyNewOrder = () => {
-  show_notify(
-    "El formulario de captura de órdenes de gasolina se encuentra en desarrollo.",
-    "info"
-  );
-};
-
 const columns = [
   {
-    name: "folios",
+    name: "folio",
     align: "left",
-    field: "orden_compra",
-    label: "OC / Aut / Factura",
+    field: "id",
+    label: "Folio",
+    sortable: true,
   },
   {
     name: "fecha",
     align: "left",
-    field: "fecha_elaboracion",
+    field: "created_at",
     label: "Fecha",
     sortable: true,
   },
@@ -1227,15 +1240,21 @@ const columns = [
     label: "Unidad / Placas",
   },
   {
-    name: "litros",
+    name: "lts_solicitados",
     align: "center",
-    field: "litros",
-    label: "Litros Carga",
+    field: "lts_solicitados",
+    label: "Lts. Solicitados",
+  },
+  {
+    name: "lts_dispersados",
+    align: "center",
+    field: "lts_dispersados",
+    label: "Lts. Dispersados",
   },
   {
     name: "km",
     align: "right",
-    field: "km",
+    field: "km_evento",
     label: "KM Carga",
   },
   {
@@ -1250,12 +1269,6 @@ const columns = [
     field: "solicitante",
     label: "Solicitante",
   },
-  {
-    name: "total",
-    align: "right",
-    field: "total",
-    label: "Total Orden",
-  },
 ];
 
 const canEdit = (row) => {
@@ -1263,7 +1276,6 @@ const canEdit = (row) => {
   const isCoordinadorCompras = checkPuestoIncludes("Coordinador de compras");
   const isDirectorAdmin = checkRole("Director administrativo");
   const estatus = getOrdenEstatus(row)?.nombre;
-  // console.log(estatus);
   return (
     isAdmin ||
     (isCoordinadorCompras && estatus !== "Solicitado") ||
@@ -1285,34 +1297,6 @@ const getOrdenEstatus = (row) => {
     return bitacora[0].estatus;
   }
   return null;
-};
-
-const getDetalles = (row) => {
-  return row?.detalles || row?.detalles_servicio || row?.detallesServicio || [];
-};
-
-const getTotalLitros = (row) => {
-  const detalles = getDetalles(row);
-  return detalles.reduce((acc, d) => acc + Number(d.cantidad || 0), 0);
-};
-
-const getOrderSubtotal = (row) => {
-  return getDetalles(row).reduce((acc, d) => acc + Number(d.subtotal || 0), 0);
-};
-
-const getOrderIva = (row) => {
-  return getDetalles(row).reduce((acc, d) => acc + Number(d.iva || 0), 0);
-};
-
-const getOrderTotal = (row) => {
-  return getDetalles(row).reduce((acc, d) => acc + Number(d.total || 0), 0);
-};
-
-const getMaxKm = (row) => {
-  const kms = getDetalles(row)
-    .map((d) => Number(d.km_evento || 0))
-    .filter((k) => k > 0);
-  return kms.length > 0 ? Math.max(...kms) : null;
 };
 
 const getBitacora = (row) => {
@@ -1455,9 +1439,6 @@ const getForms = async () => {
       next_id: res.next_id || null,
       vehicles: res.vehicles || [],
       empleados: res.empleados || [],
-      proveedores: res.proveedores || [],
-      tipos_servicio: res.tipos_servicio || [],
-      servicios_cat: res.servicios_cat || [],
       sucursales_cargo: res.sucursales_cargo || [],
       deptos_cargo: res.deptos_cargo || [],
       estatus: res.estatus || [],
@@ -1570,14 +1551,6 @@ const deleteRow = async () => {
   showDelete.value = false;
   getRows(current_page.value);
   getForms();
-};
-
-const formatCurrency = (val) => {
-  return Number(val || 0).toLocaleString("es-MX", {
-    style: "currency",
-    currency: "MXN",
-    minimumFractionDigits: 2,
-  });
 };
 
 const formatKm = (val) => {
