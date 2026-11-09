@@ -45,6 +45,11 @@
               Serie:
               <strong class="text-white font-mono">{{ vehicle.serie }}</strong>
             </span>
+            <span v-if="vehicle?.anio">
+              <q-icon name="calendar_today" size="14px" class="q-mr-xs" />
+              Año Modelo:
+              <strong class="text-white">{{ vehicle.anio }}</strong>
+            </span>
             <span v-if="vehicle?.estatus?.nombre">
               <q-icon name="directions_car" size="14px" class="q-mr-xs" />
               Tipo:
@@ -150,7 +155,7 @@
           </q-card>
         </div>
 
-        <!-- Total Servicios Realizados / Dispersiones -->
+        <!-- Año de la Unidad / Dispersiones -->
         <div class="col-12 col-sm-6 col-md-3">
           <q-card flat bordered class="full-height kpi-card kpi-border-blue">
             <q-card-section class="q-pa-md">
@@ -160,27 +165,39 @@
                     {{
                       onlyGasolina
                         ? "DISPERSIONES REGISTRADAS"
-                        : "SERVICIOS REALIZADOS"
+                        : "AÑO DE LA UNIDAD"
                     }}
                   </div>
                   <div class="text-h5 text-weight-bolder text-primary q-mt-xs">
-                    {{ kpis.totalServicios }}
-                    <span class="text-subtitle2 text-weight-regular text-grey-7">
-                      {{ onlyGasolina ? "registro(s)" : "servicio(s)" }}
-                    </span>
+                    <template v-if="onlyGasolina">
+                      {{ kpis.totalServicios }}
+                      <span
+                        class="text-subtitle2 text-weight-regular text-grey-7"
+                      >
+                        registro(s)
+                      </span>
+                    </template>
+                    <template v-else>
+                      {{ vehicle?.anio ? vehicle.anio : "No especificado" }}
+                    </template>
                   </div>
                   <div class="text-caption text-grey-6 q-mt-xs">
                     {{
                       onlyGasolina
                         ? "Solicitudes de combustible"
-                        : `En ${kpis.totalOrdenes} orden(es) de servicio`
+                        : vehicle?.anio
+                        ? `Antigüedad actual: ${Math.max(
+                            0,
+                            new Date().getFullYear() - Number(vehicle.anio)
+                          )} año(s)`
+                        : "Sin año registrado en la BD"
                     }}
                   </div>
                 </div>
                 <q-avatar
                   color="blue-1"
                   text-color="primary"
-                  :icon="onlyGasolina ? 'ev_station' : 'handyman'"
+                  :icon="onlyGasolina ? 'ev_station' : 'calendar_today'"
                   size="46px"
                 />
               </div>
@@ -256,6 +273,193 @@
                   size="46px"
                 />
               </div>
+            </q-card-section>
+          </q-card>
+        </div>
+      </div>
+
+      <!-- Gráficas de Líneas de Tendencia: Antigüedad de la Unidad y Rango de KM (10,000 km) -->
+      <div
+        v-if="!onlyGasolina && flatServices.length > 0"
+        class="row q-col-gutter-md q-mb-md"
+      >
+        <!-- Gráfica 1: Monto Gastado por Antigüedad de la Unidad -->
+        <div class="col-12 col-md-6">
+          <q-card flat bordered class="full-height bg-white">
+            <q-card-section
+              class="q-py-xs q-px-md bg-white flex items-center justify-between"
+            >
+              <div class="row items-center no-wrap">
+                <q-icon
+                  name="timeline"
+                  color="primary"
+                  size="19px"
+                  class="q-mr-xs"
+                />
+                <div>
+                  <div
+                    class="text-subtitle2 text-weight-bold text-primary leading-tight"
+                  >
+                    Tendencia de Gasto por Antigüedad de la Unidad
+                  </div>
+                  <div class="text-caption text-grey-6">
+                    <template v-if="vehicleModelYear">
+                      Evolución de costos según los años de vida de la unidad (Modelo {{ vehicleModelYear }})
+                    </template>
+                    <template v-else>
+                      Evolución anual de costos de mantenimiento de la unidad
+                    </template>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row items-center q-gutter-xs">
+                <q-chip
+                  v-if="filters.antiguedadKey !== null"
+                  removable
+                  dense
+                  color="primary"
+                  text-color="white"
+                  icon="filter_alt"
+                  class="text-weight-bold"
+                  @remove="filters.antiguedadKey = null"
+                >
+                  {{ activeAntiguedadChipLabel }}
+                </q-chip>
+                <span v-else class="text-caption text-grey-6">
+                  Clic en un punto para filtrar
+                </span>
+              </div>
+            </q-card-section>
+
+            <q-separator />
+
+            <div
+              v-if="tendenciaPorAntiguedad.peakTotal"
+              class="row items-center justify-between q-px-md q-py-xs bg-blue-1 text-caption wrap"
+            >
+              <div class="row items-center">
+                <q-icon
+                  name="trending_up"
+                  color="negative"
+                  size="16px"
+                  class="q-mr-xs"
+                />
+                <span class="text-grey-8 q-mr-xs">Mayor gasto en:</span>
+                <strong class="text-negative q-mr-xs">
+                  {{ tendenciaPorAntiguedad.peakTotal.fullLabel }}
+                </strong>
+                <span class="text-weight-bold text-dark">
+                  ({{ formatCurrency(tendenciaPorAntiguedad.peakTotal.total) }} en
+                  {{ tendenciaPorAntiguedad.peakTotal.servicios }} serv.)
+                </span>
+              </div>
+            </div>
+
+            <q-card-section class="q-pa-sm">
+              <div
+                v-if="tendenciaPorAntiguedad.items.length === 0"
+                class="flex flex-center column text-grey-6"
+                style="height: 245px"
+              >
+                <q-icon name="show_chart" size="38px" color="grey-4" />
+                <div class="text-caption q-mt-xs">
+                  Sin fechas de servicio registradas para graficar antigüedad.
+                </div>
+              </div>
+              <div
+                v-show="tendenciaPorAntiguedad.items.length > 0"
+                ref="unitAntiguedadChartRef"
+                class="unit-trend-chart"
+              ></div>
+            </q-card-section>
+          </q-card>
+        </div>
+
+        <!-- Gráfica 2: Monto Gastado por Rango de Kilometraje (Intervalos de 10,000 km) -->
+        <div class="col-12 col-md-6">
+          <q-card flat bordered class="full-height bg-white">
+            <q-card-section
+              class="q-py-xs q-px-md bg-white flex items-center justify-between"
+            >
+              <div class="row items-center no-wrap">
+                <q-icon
+                  name="insights"
+                  color="teal-8"
+                  size="19px"
+                  class="q-mr-xs"
+                />
+                <div>
+                  <div
+                    class="text-subtitle2 text-weight-bold text-teal-9 leading-tight"
+                  >
+                    Tendencia de Gasto por Rango de KM (Intervalos de 10,000 km)
+                  </div>
+                  <div class="text-caption text-grey-6">
+                    Identifica entre qué kilometrajes esta unidad ha requerido mayor mantenimiento
+                  </div>
+                </div>
+              </div>
+
+              <div class="row items-center q-gutter-xs">
+                <q-chip
+                  v-if="filters.kmBucket !== null"
+                  removable
+                  dense
+                  color="teal-8"
+                  text-color="white"
+                  icon="filter_alt"
+                  class="text-weight-bold"
+                  @remove="filters.kmBucket = null"
+                >
+                  KM: {{ formatKmBucketFull(filters.kmBucket) }}
+                </q-chip>
+                <span v-else class="text-caption text-grey-6">
+                  Clic en un rango para filtrar
+                </span>
+              </div>
+            </q-card-section>
+
+            <q-separator />
+
+            <div
+              v-if="tendenciaPorKm.peakTotal"
+              class="row items-center justify-between q-px-md q-py-xs bg-teal-1 text-caption wrap"
+            >
+              <div class="row items-center">
+                <q-icon
+                  name="warning_amber"
+                  color="deep-orange-9"
+                  size="16px"
+                  class="q-mr-xs"
+                />
+                <span class="text-grey-8 q-mr-xs">Mayor desgaste / gasto:</span>
+                <strong class="text-deep-orange-9 q-mr-xs">
+                  {{ tendenciaPorKm.peakTotal.fullLabel }}
+                </strong>
+                <span class="text-weight-bold text-dark">
+                  ({{ formatCurrency(tendenciaPorKm.peakTotal.total) }} en
+                  {{ tendenciaPorKm.peakTotal.servicios }} serv.)
+                </span>
+              </div>
+            </div>
+
+            <q-card-section class="q-pa-sm">
+              <div
+                v-if="tendenciaPorKm.items.length === 0"
+                class="flex flex-center column text-grey-6"
+                style="height: 245px"
+              >
+                <q-icon name="speed" size="38px" color="grey-4" />
+                <div class="text-caption q-mt-xs">
+                  No hay servicios con kilometraje capturado para graficar intervalos de 10,000 km.
+                </div>
+              </div>
+              <div
+                v-show="tendenciaPorKm.items.length > 0"
+                ref="unitKmChartRef"
+                class="unit-trend-chart"
+              ></div>
             </q-card-section>
           </q-card>
         </div>
@@ -971,7 +1175,13 @@
       </div>
       <div class="q-gutter-x-sm">
         <q-btn
-          v-if="filters.search || filters.tipoServicio || filters.servicio"
+          v-if="
+            filters.search ||
+            filters.tipoServicio ||
+            filters.servicio ||
+            filters.antiguedadKey !== null ||
+            filters.kmBucket !== null
+          "
           flat
           dense
           color="primary"
@@ -1003,8 +1213,9 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from "vue";
 import { date } from "quasar";
+import * as echarts from "echarts";
 import { sendRequest, show_notify } from "src/boot/functions";
 
 const props = defineProps({
@@ -1028,6 +1239,11 @@ const props = defineProps({
 
 const viewMode = ref("detalles");
 const exportingExcel = ref(false);
+const unitAntiguedadChartRef = ref(null);
+const unitKmChartRef = ref(null);
+let unitAntiguedadChartInstance = null;
+let unitKmChartInstance = null;
+let unitChartsResizeObserver = null;
 
 const exportToExcel = async () => {
   if (!props.vehicle?.id) return;
@@ -1077,6 +1293,8 @@ const filters = ref({
   search: "",
   tipoServicio: null,
   servicio: null,
+  antiguedadKey: null,
+  kmBucket: null,
 });
 
 const resetFilters = () => {
@@ -1084,6 +1302,8 @@ const resetFilters = () => {
     search: "",
     tipoServicio: null,
     servicio: null,
+    antiguedadKey: null,
+    kmBucket: null,
   };
   filteredTipoServicioOptions.value = tipoServicioOptions.value;
   filteredServicioOptions.value = servicioOptions.value;
@@ -1319,8 +1539,57 @@ const filterServicioFn = (val, update) => {
   });
 };
 
-// Servicios filtrados
-const filteredServices = computed(() => {
+// Año modelo de la unidad (si está capturado)
+const vehicleModelYear = computed(() => {
+  const parsed = parseInt(String(props.vehicle?.anio || "").trim(), 10);
+  return !isNaN(parsed) && parsed >= 1970 && parsed <= 2100 ? parsed : null;
+});
+
+// Clave de antigüedad / año del servicio para una fila
+const getItemAntiguedadKey = (item) => {
+  const fechaStr = item.fecha_elaboracion ? String(item.fecha_elaboracion) : "";
+  const srvYear = /^\d{4}/.test(fechaStr)
+    ? parseInt(fechaStr.slice(0, 4), 10)
+    : null;
+  if (!srvYear) return null;
+  if (vehicleModelYear.value) {
+    return Math.max(0, srvYear - vehicleModelYear.value);
+  }
+  return srvYear;
+};
+
+// Bucket de kilometraje en intervalos de 10,000 km (0 = 0..10k, 1 = 10k..20k, etc.)
+const getItemKmBucket = (item) => {
+  const km = Number(item.km_evento || 0);
+  if (!km || km <= 0) return null;
+  return Math.floor((km - 1) / 10000);
+};
+
+const formatKmBucketShort = (bucket) => {
+  const b = Number(bucket);
+  return `${b * 10}k - ${(b + 1) * 10}k km`;
+};
+
+const formatKmBucketFull = (bucket) => {
+  if (bucket === null || bucket === undefined) return "";
+  const b = Number(bucket);
+  const start = b === 0 ? 0 : b * 10000 + 1;
+  const end = (b + 1) * 10000;
+  return `${start.toLocaleString("es-MX")} - ${end.toLocaleString("es-MX")} km`;
+};
+
+const activeAntiguedadChipLabel = computed(() => {
+  if (filters.value.antiguedadKey === null) return "";
+  const k = Number(filters.value.antiguedadKey);
+  if (vehicleModelYear.value) {
+    const calYear = vehicleModelYear.value + k;
+    return `Edad: ${k} ${k === 1 ? "año" : "años"} (${calYear})`;
+  }
+  return `Año: ${k}`;
+});
+
+// Servicios base filtrados por buscador, tipo y servicio (antes de filtros de puntos de gráficas)
+const baseFilteredServices = computed(() => {
   return flatServices.value.filter((item) => {
     if (
       filters.value.tipoServicio &&
@@ -1362,6 +1631,200 @@ const filteredServices = computed(() => {
     }
     return true;
   });
+});
+
+// Servicios filtrados finales (incluyendo selección en gráficas de Antigüedad y Rango de KM)
+const filteredServices = computed(() => {
+  return baseFilteredServices.value.filter((item) => {
+    if (
+      filters.value.antiguedadKey !== null &&
+      filters.value.antiguedadKey !== undefined &&
+      getItemAntiguedadKey(item) !== Number(filters.value.antiguedadKey)
+    ) {
+      return false;
+    }
+    if (
+      filters.value.kmBucket !== null &&
+      filters.value.kmBucket !== undefined &&
+      getItemKmBucket(item) !== Number(filters.value.kmBucket)
+    ) {
+      return false;
+    }
+    return true;
+  });
+});
+
+// Dataset 1: Tendencia de Gasto por Antigüedad de la Unidad
+const tendenciaPorAntiguedad = computed(() => {
+  if (props.onlyGasolina) return { items: [], peakTotal: null };
+
+  const sourceList = baseFilteredServices.value.filter((item) => {
+    if (
+      filters.value.kmBucket !== null &&
+      filters.value.kmBucket !== undefined &&
+      getItemKmBucket(item) !== Number(filters.value.kmBucket)
+    ) {
+      return false;
+    }
+    return true;
+  });
+
+  const map = new Map();
+  let minKey = Infinity;
+  let maxKey = -Infinity;
+
+  for (const s of sourceList) {
+    const key = getItemAntiguedadKey(s);
+    if (key === null) continue;
+
+    if (key < minKey) minKey = key;
+    if (key > maxKey) maxKey = key;
+
+    if (!map.has(key)) {
+      map.set(key, {
+        key,
+        total: 0,
+        servicios: 0,
+      });
+    }
+    const entry = map.get(key);
+    entry.total += s.total;
+    entry.servicios += 1;
+  }
+
+  if (map.size === 0) {
+    return { items: [], peakTotal: null };
+  }
+
+  const keys = [];
+  if (maxKey - minKey <= 25) {
+    for (let k = minKey; k <= maxKey; k++) {
+      keys.push(k);
+    }
+  } else {
+    keys.push(...Array.from(map.keys()).sort((a, b) => a - b));
+  }
+
+  const hasModelYear = Boolean(vehicleModelYear.value);
+  const items = keys.map((key) => {
+    const data = map.get(key);
+    const total = data ? data.total : 0;
+    const servicios = data ? data.servicios : 0;
+    const promedioPorServicio = servicios > 0 ? total / servicios : 0;
+
+    let shortLabel = String(key);
+    let fullLabel = `Año ${key}`;
+    if (hasModelYear) {
+      const calYear = vehicleModelYear.value + key;
+      shortLabel =
+        key === 0
+          ? `0a (${calYear})`
+          : key === 1
+          ? `1a (${calYear})`
+          : `${key}a (${calYear})`;
+      fullLabel =
+        key === 0
+          ? `0 años - Nuevo (${calYear})`
+          : key === 1
+          ? `1 año (${calYear})`
+          : `${key} años (${calYear})`;
+    }
+
+    return {
+      key,
+      shortLabel,
+      fullLabel,
+      total: Number(total.toFixed(2)),
+      servicios,
+      promedioPorServicio: Number(promedioPorServicio.toFixed(2)),
+    };
+  });
+
+  let peakTotal = null;
+  for (const it of items) {
+    if (it.total > 0 && (!peakTotal || it.total > peakTotal.total)) {
+      peakTotal = it;
+    }
+  }
+
+  return { items, peakTotal };
+});
+
+// Dataset 2: Tendencia de Gasto por Rango de Kilometraje (Intervalos de 10,000 km)
+const tendenciaPorKm = computed(() => {
+  if (props.onlyGasolina) return { items: [], peakTotal: null };
+
+  const sourceList = baseFilteredServices.value.filter((item) => {
+    if (
+      filters.value.antiguedadKey !== null &&
+      filters.value.antiguedadKey !== undefined &&
+      getItemAntiguedadKey(item) !== Number(filters.value.antiguedadKey)
+    ) {
+      return false;
+    }
+    return true;
+  });
+
+  const map = new Map();
+  let minBucket = Infinity;
+  let maxBucket = -Infinity;
+
+  for (const s of sourceList) {
+    const bucket = getItemKmBucket(s);
+    if (bucket === null || bucket < 0 || bucket > 200) continue;
+
+    if (bucket < minBucket) minBucket = bucket;
+    if (bucket > maxBucket) maxBucket = bucket;
+
+    if (!map.has(bucket)) {
+      map.set(bucket, {
+        bucket,
+        total: 0,
+        servicios: 0,
+      });
+    }
+    const entry = map.get(bucket);
+    entry.total += s.total;
+    entry.servicios += 1;
+  }
+
+  if (map.size === 0) {
+    return { items: [], peakTotal: null };
+  }
+
+  const buckets = [];
+  if (maxBucket - minBucket <= 30) {
+    for (let b = minBucket; b <= maxBucket; b++) {
+      buckets.push(b);
+    }
+  } else {
+    buckets.push(...Array.from(map.keys()).sort((a, b) => a - b));
+  }
+
+  const items = buckets.map((bucket) => {
+    const data = map.get(bucket);
+    const total = data ? data.total : 0;
+    const servicios = data ? data.servicios : 0;
+    const promedioPorServicio = servicios > 0 ? total / servicios : 0;
+
+    return {
+      bucket,
+      label: formatKmBucketShort(bucket),
+      fullLabel: formatKmBucketFull(bucket),
+      total: Number(total.toFixed(2)),
+      servicios,
+      promedioPorServicio: Number(promedioPorServicio.toFixed(2)),
+    };
+  });
+
+  let peakTotal = null;
+  for (const it of items) {
+    if (it.total > 0 && (!peakTotal || it.total > peakTotal.total)) {
+      peakTotal = it;
+    }
+  }
+
+  return { items, peakTotal };
 });
 
 // Órdenes filtradas para la vista de órdenes
@@ -1665,9 +2128,384 @@ const formatFecha = (fechaStr) => {
   }
   return date.formatDate(fechaStr, "DD/MM/YYYY");
 };
+
+const formatCompactCurrency = (val) => {
+  const num = Number(val || 0);
+  if (num >= 1000000) return `$${(num / 1000000).toFixed(1)}M`;
+  if (num >= 1000) return `$${(num / 1000).toFixed(0)}k`;
+  return `$${num.toFixed(0)}`;
+};
+
+// Renderizado de Gráfica 1: Tendencia por Antigüedad de la Unidad
+const renderUnitAntiguedadChart = () => {
+  if (props.onlyGasolina) return;
+  const el = unitAntiguedadChartRef.value;
+  if (!el) return;
+
+  const items = tendenciaPorAntiguedad.value.items;
+  if (!items || items.length === 0) {
+    if (unitAntiguedadChartInstance) {
+      unitAntiguedadChartInstance.clear();
+    }
+    return;
+  }
+
+  if (
+    unitAntiguedadChartInstance &&
+    unitAntiguedadChartInstance.getDom() !== el
+  ) {
+    unitAntiguedadChartInstance.dispose();
+    unitAntiguedadChartInstance = null;
+  }
+
+  if (!unitAntiguedadChartInstance) {
+    unitAntiguedadChartInstance = echarts.init(el);
+    unitAntiguedadChartInstance.on("click", (params) => {
+      const idx = params?.dataIndex;
+      const currentItems = tendenciaPorAntiguedad.value.items;
+      if (idx !== undefined && currentItems[idx]) {
+        const clickedKey = currentItems[idx].key;
+        filters.value.antiguedadKey =
+          filters.value.antiguedadKey === clickedKey ? null : clickedKey;
+      }
+    });
+  }
+
+  const selectedKey = filters.value.antiguedadKey;
+  const labels = items.map((i) => i.shortLabel);
+  const totalData = items.map((i) => ({
+    value: i.total,
+    itemStyle:
+      selectedKey !== null && Number(selectedKey) === Number(i.key)
+        ? { color: "#D32F2F", borderColor: "#FFFFFF", borderWidth: 3 }
+        : undefined,
+    symbolSize:
+      selectedKey !== null && Number(selectedKey) === Number(i.key) ? 12 : 7,
+  }));
+  const avgData = items.map((i) => i.promedioPorServicio);
+
+  const option = {
+    tooltip: {
+      trigger: "axis",
+      backgroundColor: "rgba(15, 23, 42, 0.94)",
+      borderColor: "#334155",
+      textStyle: { color: "#F8FAFC", fontSize: 12 },
+      formatter: (params) => {
+        const idx = params?.[0]?.dataIndex ?? 0;
+        const item = items[idx];
+        if (!item) return "";
+        return `
+          <div style="font-weight:700;font-size:13px;margin-bottom:4px;border-bottom:1px solid rgba(255,255,255,0.2);padding-bottom:3px;">
+            ${item.fullLabel}
+          </div>
+          <div>Monto Total Gastado: <strong style="color:#4ADE80;">${formatCurrency(item.total)}</strong></div>
+          <div>Promedio por Servicio: <strong style="color:#FBBF24;">${formatCurrency(item.promedioPorServicio)}</strong></div>
+          <div style="margin-top:3px;font-size:11px;color:#CBD5E1;">
+            Servicios realizados: <strong>${item.servicios}</strong>
+          </div>
+        `;
+      },
+    },
+    legend: {
+      top: 2,
+      right: 10,
+      textStyle: { fontSize: 11, color: "#475569" },
+      data: ["Monto Total Gastado ($)", "Promedio por Servicio ($)"],
+    },
+    grid: {
+      left: 56,
+      right: 20,
+      top: 36,
+      bottom: items.length > 10 ? 50 : 32,
+    },
+    dataZoom:
+      items.length > 10
+        ? [
+            { type: "inside", start: 0, end: 100 },
+            { type: "slider", height: 15, bottom: 4, start: 0, end: 100 },
+          ]
+        : [],
+    xAxis: {
+      type: "category",
+      boundaryGap: false,
+      data: labels,
+      axisLabel: {
+        fontSize: 10,
+        color: "#475569",
+        rotate: items.length > 7 ? 22 : 0,
+      },
+      axisLine: { lineStyle: { color: "#CBD5E1" } },
+    },
+    yAxis: {
+      type: "value",
+      axisLabel: {
+        fontSize: 10,
+        color: "#64748B",
+        formatter: (val) => formatCompactCurrency(val),
+      },
+      splitLine: {
+        lineStyle: { type: "dashed", color: "#E2E8F0" },
+      },
+    },
+    series: [
+      {
+        name: "Monto Total Gastado ($)",
+        type: "line",
+        smooth: 0.35,
+        symbol: "circle",
+        symbolSize: 7,
+        data: totalData,
+        itemStyle: { color: "#1565C0" },
+        lineStyle: { width: 3, color: "#1565C0" },
+        areaStyle: {
+          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            { offset: 0, color: "rgba(21, 101, 192, 0.32)" },
+            { offset: 1, color: "rgba(21, 101, 192, 0.02)" },
+          ]),
+        },
+        markPoint: {
+          symbolSize: 42,
+          label: {
+            fontSize: 9,
+            fontWeight: "bold",
+            formatter: (p) => formatCompactCurrency(p.value),
+          },
+          itemStyle: { color: "#C62828" },
+          data: [{ type: "max", name: "Pico de Gasto" }],
+        },
+      },
+      {
+        name: "Promedio por Servicio ($)",
+        type: "line",
+        smooth: 0.35,
+        symbol: "diamond",
+        symbolSize: 6,
+        data: avgData,
+        itemStyle: { color: "#EF6C00" },
+        lineStyle: { width: 2, type: "dashed", color: "#EF6C00" },
+      },
+    ],
+  };
+
+  unitAntiguedadChartInstance.setOption(option, true);
+  unitAntiguedadChartInstance.resize();
+};
+
+// Renderizado de Gráfica 2: Tendencia por Rango de Kilometraje (10,000 km)
+const renderUnitKmChart = () => {
+  if (props.onlyGasolina) return;
+  const el = unitKmChartRef.value;
+  if (!el) return;
+
+  const items = tendenciaPorKm.value.items;
+  if (!items || items.length === 0) {
+    if (unitKmChartInstance) {
+      unitKmChartInstance.clear();
+    }
+    return;
+  }
+
+  if (unitKmChartInstance && unitKmChartInstance.getDom() !== el) {
+    unitKmChartInstance.dispose();
+    unitKmChartInstance = null;
+  }
+
+  if (!unitKmChartInstance) {
+    unitKmChartInstance = echarts.init(el);
+    unitKmChartInstance.on("click", (params) => {
+      const idx = params?.dataIndex;
+      const currentItems = tendenciaPorKm.value.items;
+      if (idx !== undefined && currentItems[idx]) {
+        const clickedBucket = currentItems[idx].bucket;
+        filters.value.kmBucket =
+          filters.value.kmBucket === clickedBucket ? null : clickedBucket;
+      }
+    });
+  }
+
+  const selectedBucket = filters.value.kmBucket;
+  const labels = items.map((i) => i.label);
+  const totalData = items.map((i) => ({
+    value: i.total,
+    itemStyle:
+      selectedBucket !== null && Number(selectedBucket) === Number(i.bucket)
+        ? { color: "#D84315", borderColor: "#FFFFFF", borderWidth: 3 }
+        : undefined,
+    symbolSize:
+      selectedBucket !== null && Number(selectedBucket) === Number(i.bucket)
+        ? 12
+        : 7,
+  }));
+  const avgData = items.map((i) => i.promedioPorServicio);
+
+  const option = {
+    tooltip: {
+      trigger: "axis",
+      backgroundColor: "rgba(15, 23, 42, 0.94)",
+      borderColor: "#334155",
+      textStyle: { color: "#F8FAFC", fontSize: 12 },
+      formatter: (params) => {
+        const idx = params?.[0]?.dataIndex ?? 0;
+        const item = items[idx];
+        if (!item) return "";
+        return `
+          <div style="font-weight:700;font-size:13px;margin-bottom:4px;border-bottom:1px solid rgba(255,255,255,0.2);padding-bottom:3px;">
+            Rango: ${item.fullLabel}
+          </div>
+          <div>Monto Total Gastado: <strong style="color:#4ADE80;">${formatCurrency(item.total)}</strong></div>
+          <div>Promedio por Servicio: <strong style="color:#C084FC;">${formatCurrency(item.promedioPorServicio)}</strong></div>
+          <div style="margin-top:3px;font-size:11px;color:#CBD5E1;">
+            Servicios en rango: <strong>${item.servicios}</strong>
+          </div>
+        `;
+      },
+    },
+    legend: {
+      top: 2,
+      right: 10,
+      textStyle: { fontSize: 11, color: "#475569" },
+      data: ["Monto Total Gastado ($)", "Promedio por Servicio ($)"],
+    },
+    grid: {
+      left: 56,
+      right: 20,
+      top: 36,
+      bottom: items.length > 9 ? 50 : 34,
+    },
+    dataZoom:
+      items.length > 9
+        ? [
+            { type: "inside", start: 0, end: 100 },
+            { type: "slider", height: 15, bottom: 4, start: 0, end: 100 },
+          ]
+        : [],
+    xAxis: {
+      type: "category",
+      boundaryGap: false,
+      data: labels,
+      axisLabel: {
+        fontSize: 10,
+        color: "#475569",
+        rotate: items.length > 5 ? 22 : 0,
+      },
+      axisLine: { lineStyle: { color: "#CBD5E1" } },
+    },
+    yAxis: {
+      type: "value",
+      axisLabel: {
+        fontSize: 10,
+        color: "#64748B",
+        formatter: (val) => formatCompactCurrency(val),
+      },
+      splitLine: {
+        lineStyle: { type: "dashed", color: "#E2E8F0" },
+      },
+    },
+    series: [
+      {
+        name: "Monto Total Gastado ($)",
+        type: "line",
+        smooth: 0.35,
+        symbol: "circle",
+        symbolSize: 7,
+        data: totalData,
+        itemStyle: { color: "#00796B" },
+        lineStyle: { width: 3, color: "#00796B" },
+        areaStyle: {
+          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            { offset: 0, color: "rgba(0, 121, 107, 0.32)" },
+            { offset: 1, color: "rgba(0, 121, 107, 0.02)" },
+          ]),
+        },
+        markPoint: {
+          symbolSize: 42,
+          label: {
+            fontSize: 9,
+            fontWeight: "bold",
+            formatter: (p) => formatCompactCurrency(p.value),
+          },
+          itemStyle: { color: "#D84315" },
+          data: [{ type: "max", name: "Pico de Desgaste" }],
+        },
+      },
+      {
+        name: "Promedio por Servicio ($)",
+        type: "line",
+        smooth: 0.35,
+        symbol: "diamond",
+        symbolSize: 6,
+        data: avgData,
+        itemStyle: { color: "#6A1B9A" },
+        lineStyle: { width: 2, type: "dashed", color: "#6A1B9A" },
+      },
+    ],
+  };
+
+  unitKmChartInstance.setOption(option, true);
+  unitKmChartInstance.resize();
+};
+
+const refreshUnitTrendCharts = async () => {
+  if (props.loading || props.onlyGasolina) return;
+  await nextTick();
+  if (typeof ResizeObserver !== "undefined" && !unitChartsResizeObserver) {
+    unitChartsResizeObserver = new ResizeObserver(() => {
+      if (unitAntiguedadChartInstance) unitAntiguedadChartInstance.resize();
+      if (unitKmChartInstance) unitKmChartInstance.resize();
+    });
+  }
+  if (unitChartsResizeObserver) {
+    if (unitAntiguedadChartRef.value) {
+      unitChartsResizeObserver.observe(unitAntiguedadChartRef.value);
+    }
+    if (unitKmChartRef.value) {
+      unitChartsResizeObserver.observe(unitKmChartRef.value);
+    }
+  }
+  renderUnitAntiguedadChart();
+  renderUnitKmChart();
+};
+
+watch(
+  [
+    tendenciaPorAntiguedad,
+    tendenciaPorKm,
+    () => filters.value.antiguedadKey,
+    () => filters.value.kmBucket,
+    () => props.loading,
+    () => props.vehicle,
+  ],
+  () => {
+    refreshUnitTrendCharts();
+  },
+  { deep: true }
+);
+
+onMounted(() => {
+  refreshUnitTrendCharts();
+});
+
+onBeforeUnmount(() => {
+  if (unitChartsResizeObserver) {
+    unitChartsResizeObserver.disconnect();
+    unitChartsResizeObserver = null;
+  }
+  if (unitAntiguedadChartInstance) {
+    unitAntiguedadChartInstance.dispose();
+    unitAntiguedadChartInstance = null;
+  }
+  if (unitKmChartInstance) {
+    unitKmChartInstance.dispose();
+    unitKmChartInstance = null;
+  }
+});
 </script>
 
 <style scoped>
+.unit-trend-chart {
+  width: 100%;
+  height: 245px;
+}
 .font-mono {
   font-family: monospace;
   letter-spacing: 0.5px;

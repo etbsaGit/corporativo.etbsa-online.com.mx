@@ -135,16 +135,19 @@
           />
         </div>
 
-        <!-- Selector Sucursal Cargo -->
+        <!-- Selector Sucursal -->
         <div class="col-12 col-sm-6 col-md-3">
           <q-select
             v-model="filterForm.suc_cargo_id"
-            :options="catalogs.sucursales_cargo"
-            label="Sucursal Cargo"
+            :options="filteredSucursalesCargo"
+            label="Sucursal"
             option-value="id"
             option-label="nombre"
             emit-value
             map-options
+            use-input
+            input-debounce="0"
+            @filter="filterSucursalesCargoFn"
             clearable
             outlined
             dense
@@ -483,6 +486,33 @@
               {{ formatFecha(props.row.created_at) }}
             </q-td>
 
+            <!-- Cargo (Sucursal / Depto / Solicitante) -->
+            <q-td key="cargo" :props="props">
+              <div class="text-caption text-weight-medium">
+                {{
+                  props.row.sucursal_cargo?.nombre ||
+                  props.row.sucursalCargo?.nombre ||
+                  "-"
+                }}
+                <span
+                  v-if="
+                    props.row.departamento_cargo?.nombre ||
+                    props.row.departamentoCargo?.nombre
+                  "
+                  class="text-grey-6"
+                >
+                  /
+                  {{
+                    props.row.departamento_cargo?.nombre ||
+                    props.row.departamentoCargo?.nombre
+                  }}
+                </span>
+              </div>
+              <div class="text-caption text-grey-8">
+                {{ props.row.solicitante?.nombreCompleto || "-" }}
+              </div>
+            </q-td>
+
             <!-- Estatus de la Solicitud -->
             <q-td key="estatus" :props="props" class="text-center">
               <q-badge
@@ -556,31 +586,6 @@
                 {{ formatKm(props.row.km_evento) }}
               </span>
               <span v-else class="text-caption text-grey-5">No reg.</span>
-            </q-td>
-
-            <!-- Cargo (Sucursal / Depto) -->
-            <q-td key="cargo" :props="props">
-              <div class="text-caption text-weight-medium">
-                {{
-                  props.row.sucursal_cargo?.nombre ||
-                  props.row.sucursalCargo?.nombre ||
-                  "-"
-                }}
-              </div>
-              <div class="text-caption text-grey-6">
-                {{
-                  props.row.departamento_cargo?.nombre ||
-                  props.row.departamentoCargo?.nombre ||
-                  ""
-                }}
-              </div>
-            </q-td>
-
-            <!-- Solicitante -->
-            <q-td key="solicitante" :props="props">
-              <div class="text-caption text-weight-medium">
-                {{ props.row.solicitante?.nombreCompleto || "-" }}
-              </div>
             </q-td>
           </q-tr>
 
@@ -1066,6 +1071,7 @@ const catalogs = ref({
 });
 
 const filteredVehicles = ref([]);
+const filteredSucursalesCargo = ref([]);
 
 const filterForm = ref({
   search: null,
@@ -1228,6 +1234,12 @@ const columns = [
     sortable: true,
   },
   {
+    name: "cargo",
+    align: "left",
+    field: "cargo",
+    label: "Sucursal / Depto / Solicitante",
+  },
+  {
     name: "estatus",
     align: "center",
     field: "estatus",
@@ -1256,18 +1268,6 @@ const columns = [
     align: "right",
     field: "km_evento",
     label: "KM Carga",
-  },
-  {
-    name: "cargo",
-    align: "left",
-    field: "cargo",
-    label: "Sucursal / Depto Cargo",
-  },
-  {
-    name: "solicitante",
-    align: "left",
-    field: "solicitante",
-    label: "Solicitante",
   },
 ];
 
@@ -1375,6 +1375,25 @@ const filterVehiclesFn = (val, update) => {
   });
 };
 
+const filterSucursalesCargoFn = (val, update) => {
+  if (val === "") {
+    update(() => {
+      filteredSucursalesCargo.value = catalogs.value.sucursales_cargo || [];
+    });
+    return;
+  }
+  update(() => {
+    const q = val.toLowerCase();
+    filteredSucursalesCargo.value = (
+      catalogs.value.sucursales_cargo || []
+    ).filter(
+      (s) =>
+        (s.nombre && s.nombre.toLowerCase().includes(q)) ||
+        (s.siglas && s.siglas.toLowerCase().includes(q))
+    );
+  });
+};
+
 const openCreate = () => {
   selectedRow.value = null;
   getForms();
@@ -1452,6 +1471,7 @@ const getForms = async () => {
     filteredVehicles.value = onlyMyUnit.value
       ? assignedVehicles.value
       : catalogs.value.vehicles;
+    filteredSucursalesCargo.value = catalogs.value.sucursales_cargo;
   }
 };
 

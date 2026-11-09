@@ -90,8 +90,8 @@
         <div
           :class="
             !onlyMyUnit || assignedVehicles.length > 1
-              ? 'col-12 col-md-3'
-              : 'col-12 col-md-4'
+              ? 'col-12 col-sm-6 col-md-2'
+              : 'col-12 col-sm-6 col-md-3'
           "
         >
           <q-input
@@ -111,7 +111,7 @@
         <!-- Vehículo (visible en /services o cuando el empleado tiene más de 1 unidad asignada) -->
         <div
           v-if="!onlyMyUnit || assignedVehicles.length > 1"
-          class="col-12 col-sm-6 col-md-2"
+          class="col-12 col-sm-6 col-md"
         >
           <q-select
             v-model="filterForm.vehicle_id"
@@ -136,14 +136,30 @@
           />
         </div>
 
+        <!-- Sucursal -->
+        <div class="col-12 col-sm-6 col-md">
+          <q-select
+            v-model="filterForm.suc_cargo_id"
+            :options="filteredSucursalesCargo"
+            label="Sucursal"
+            option-value="id"
+            option-label="nombre"
+            emit-value
+            map-options
+            use-input
+            input-debounce="0"
+            @filter="filterSucursalesCargoFn"
+            clearable
+            outlined
+            dense
+            options-dense
+            behavior="menu"
+            @update:model-value="getRows(1)"
+          />
+        </div>
+
         <!-- Proveedor -->
-        <div
-          :class="
-            !onlyMyUnit || assignedVehicles.length > 1
-              ? 'col-12 col-sm-6 col-md-2'
-              : 'col-12 col-sm-4 col-md-3'
-          "
-        >
+        <div class="col-12 col-sm-6 col-md">
           <q-select
             v-model="filterForm.proveedor_id"
             :options="filteredProveedores"
@@ -165,13 +181,7 @@
         </div>
 
         <!-- Tipo de Servicio -->
-        <div
-          :class="
-            !onlyMyUnit || assignedVehicles.length > 1
-              ? 'col-12 col-sm-6 col-md-2'
-              : 'col-12 col-sm-4 col-md-2'
-          "
-        >
+        <div class="col-12 col-sm-6 col-md">
           <q-select
             v-model="filterForm.tipo_servicio_id"
             :options="filteredTiposServicio"
@@ -193,13 +203,7 @@
         </div>
 
         <!-- Servicio Específico -->
-        <div
-          :class="
-            !onlyMyUnit || assignedVehicles.length > 1
-              ? 'col-12 col-sm-6 col-md-3'
-              : 'col-12 col-sm-4 col-md-3'
-          "
-        >
+        <div class="col-12 col-sm-12 col-md-3">
           <div class="row no-wrap items-center q-gutter-x-xs">
             <q-select
               class="col"
@@ -516,6 +520,33 @@
               {{ formatFecha(props.row.fecha_elaboracion) }}
             </q-td>
 
+            <!-- Cargo (Sucursal / Depto / Solicitante) -->
+            <q-td key="cargo" :props="props">
+              <div class="text-caption text-weight-medium">
+                {{
+                  props.row.sucursal_cargo?.nombre ||
+                  props.row.sucursalCargo?.nombre ||
+                  "-"
+                }}
+                <span
+                  v-if="
+                    props.row.departamento_cargo?.nombre ||
+                    props.row.departamentoCargo?.nombre
+                  "
+                  class="text-grey-6"
+                >
+                  /
+                  {{
+                    props.row.departamento_cargo?.nombre ||
+                    props.row.departamentoCargo?.nombre
+                  }}
+                </span>
+              </div>
+              <div class="text-caption text-grey-8">
+                {{ props.row.solicitante?.nombreCompleto || "-" }}
+              </div>
+            </q-td>
+
             <!-- Estatus de la Orden -->
             <q-td key="estatus" :props="props" class="text-center">
               <q-badge
@@ -599,31 +630,6 @@
                 {{ formatKm(getMaxKm(props.row)) }}
               </span>
               <span v-else class="text-caption text-grey-5">No reg.</span>
-            </q-td>
-
-            <!-- Cargo (Sucursal / Depto) -->
-            <q-td key="cargo" :props="props">
-              <div class="text-caption text-weight-medium">
-                {{
-                  props.row.sucursal_cargo?.nombre ||
-                  props.row.sucursalCargo?.nombre ||
-                  "-"
-                }}
-              </div>
-              <div class="text-caption text-grey-6">
-                {{
-                  props.row.departamento_cargo?.nombre ||
-                  props.row.departamentoCargo?.nombre ||
-                  ""
-                }}
-              </div>
-            </q-td>
-
-            <!-- Solicitante -->
-            <q-td key="solicitante" :props="props">
-              <div class="text-caption">
-                {{ props.row.solicitante?.nombreCompleto || "-" }}
-              </div>
             </q-td>
 
             <!-- Total de la Orden -->
@@ -806,6 +812,9 @@
                                   Cotización
                                 </th>
                                 <th class="text-left">Proveedor / Taller</th>
+                                <th class="text-center" style="width: 120px">
+                                  Válido hasta
+                                </th>
                                 <th class="text-center">Cant.</th>
                                 <th class="text-right">P. Unitario</th>
                                 <th class="text-right">Subtotal</th>
@@ -903,6 +912,46 @@
                                       {{ (cot.usoCfdi || cot.uso_cfdi).clave }}
                                     </q-badge>
                                   </div>
+                                </td>
+                                <td class="text-center">
+                                  <template v-if="cot.valido_hasta">
+                                    <template v-if="isCotizacionVigente(cot.valido_hasta)">
+                                      <q-badge
+                                        color="teal-8"
+                                        outline
+                                        class="text-weight-bold q-px-sm q-py-xs"
+                                      >
+                                        <q-icon
+                                          name="event_available"
+                                          size="13px"
+                                          class="q-mr-xs"
+                                          color="teal-8"
+                                        />
+                                        {{ formatFecha(cot.valido_hasta) }}
+                                      </q-badge>
+                                    </template>
+                                    <template v-else>
+                                      <q-badge
+                                        color="negative"
+                                        text-color="white"
+                                        class="text-weight-bolder q-px-sm q-py-xs shadow-1"
+                                      >
+                                        <q-icon
+                                          name="warning"
+                                          size="13px"
+                                          class="q-mr-xs"
+                                        />
+                                        CADUCADA
+                                      </q-badge>
+                                      <div
+                                        class="text-caption text-negative text-weight-bold q-mt-xs font-mono"
+                                        style="font-size: 11px"
+                                      >
+                                        Venció: {{ formatFecha(cot.valido_hasta) }}
+                                      </div>
+                                    </template>
+                                  </template>
+                                  <span v-else class="text-caption text-grey-5">-</span>
                                 </td>
                                 <td class="text-center font-mono">
                                   {{ cot.cantidad || 1 }}
@@ -1377,6 +1426,7 @@ const catalogs = ref({
 
 const filteredVehicles = ref([]);
 const filteredProveedores = ref([]);
+const filteredSucursalesCargo = ref([]);
 const filteredTiposServicio = ref([]);
 const servicioCatSearch = ref("");
 
@@ -1524,6 +1574,12 @@ const columns = [
     sortable: true,
   },
   {
+    name: "cargo",
+    align: "left",
+    field: "cargo",
+    label: "Sucursal / Depto / Solicitante",
+  },
+  {
     name: "estatus",
     align: "center",
     field: "estatus",
@@ -1546,18 +1602,6 @@ const columns = [
     align: "right",
     field: "km",
     label: "KM Evento",
-  },
-  {
-    name: "cargo",
-    align: "left",
-    field: "cargo",
-    label: "Sucursal / Depto Cargo",
-  },
-  {
-    name: "solicitante",
-    align: "left",
-    field: "solicitante",
-    label: "Solicitante",
   },
   {
     name: "total",
@@ -1772,6 +1816,25 @@ const filterProveedoresFn = (val, update) => {
   });
 };
 
+const filterSucursalesCargoFn = (val, update) => {
+  if (val === "") {
+    update(() => {
+      filteredSucursalesCargo.value = catalogs.value.sucursales_cargo || [];
+    });
+    return;
+  }
+  update(() => {
+    const q = val.toLowerCase();
+    filteredSucursalesCargo.value = (
+      catalogs.value.sucursales_cargo || []
+    ).filter(
+      (s) =>
+        (s.nombre && s.nombre.toLowerCase().includes(q)) ||
+        (s.siglas && s.siglas.toLowerCase().includes(q))
+    );
+  });
+};
+
 const filterTiposServicioFn = (val, update) => {
   if (val === "") {
     update(() => {
@@ -1851,6 +1914,7 @@ const getForms = async () => {
       ? assignedVehicles.value
       : catalogs.value.vehicles;
     filteredProveedores.value = catalogs.value.proveedores;
+    filteredSucursalesCargo.value = catalogs.value.sucursales_cargo;
     filteredTiposServicio.value = catalogs.value.tipos_servicio;
   }
 };
@@ -1991,6 +2055,23 @@ const formatFecha = (fechaStr) => {
     return `${d}/${m}/${y}`;
   }
   return date.formatDate(fechaStr, "DD/MM/YYYY");
+};
+
+const isCotizacionVigente = (fechaStr) => {
+  if (!fechaStr) return true;
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+  const parts = String(fechaStr).slice(0, 10).split("-");
+  if (parts.length === 3) {
+    const vigencia = new Date(
+      Number(parts[0]),
+      Number(parts[1]) - 1,
+      Number(parts[2])
+    );
+    vigencia.setHours(23, 59, 59, 999);
+    return vigencia.getTime() >= hoy.getTime();
+  }
+  return true;
 };
 
 const isAutorizado = (row) => {

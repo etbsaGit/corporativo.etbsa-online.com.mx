@@ -82,6 +82,10 @@ const routes = [
         component: () => import("src/pages/Vehicles/VehiclePage.vue"),
       },
       {
+        path: "/vehicles-dashboard",
+        component: () => import("src/pages/Vehicles/VehiclesDashboardPage.vue"),
+      },
+      {
         path: "/oc-services",
         component: () =>
           import("src/pages/CoordinacionCompras/ServiceIndex.vue"),

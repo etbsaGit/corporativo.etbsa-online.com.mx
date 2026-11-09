@@ -562,8 +562,8 @@
 
               <q-card-section class="q-pa-sm">
                 <div class="row q-col-gutter-sm items-center">
-                  <!-- Fila 1: Proveedor de la cotización y Archivo PDF -->
-                  <div class="col-12 col-sm-7 col-md-7">
+                  <!-- Fila 1: Proveedor de la cotización, Válido hasta y Archivo PDF -->
+                  <div class="col-12 col-sm-5 col-md-5">
                     <q-select
                       v-model="cot.proveedor_id"
                       :options="filteredProveedores"
@@ -590,8 +590,26 @@
                     </q-select>
                   </div>
 
+                  <!-- Fecha de Validez / Vigencia de la Cotización -->
+                  <div class="col-12 col-sm-3 col-md-3">
+                    <q-input
+                      v-model="cot.valido_hasta"
+                      type="date"
+                      label="Válido hasta *"
+                      outlined
+                      dense
+                      bg-color="white"
+                      stack-label
+                      :rules="[(val) => !!val || 'Indique la fecha de vigencia']"
+                    >
+                      <template v-slot:prepend>
+                        <q-icon name="event_available" color="teal-8" />
+                      </template>
+                    </q-input>
+                  </div>
+
                   <!-- Archivo PDF de esta Cotización -->
-                  <div class="col-12 col-sm-5 col-md-5">
+                  <div class="col-12 col-sm-4 col-md-4">
                     <q-file
                       v-model="cot.cotizacionFile"
                       label="Archivo Cotización (PDF)"
@@ -991,6 +1009,7 @@ const createEmptyCotizacion = () => ({
   forma_pago_id: formHeader.value?.forma_pago_id || null,
   metodo_pago_id: formHeader.value?.metodo_pago_id || null,
   uso_cfdi_id: formHeader.value?.uso_cfdi_id || null,
+  valido_hasta: null,
   cantidad: 1,
   precio_unitario: null,
   subtotal: 0,
@@ -1065,6 +1084,7 @@ const mapInitialConceptos = (srv) => {
       metodo_pago_id:
         d.metodo_pago_id || d.metodo_pago?.id || d.metodoPago?.id || null,
       uso_cfdi_id: d.uso_cfdi_id || d.uso_cfdi?.id || d.usoCfdi?.id || null,
+      valido_hasta: d.valido_hasta ? String(d.valido_hasta).slice(0, 10) : null,
       cantidad:
         d.cantidad !== null && d.cantidad !== undefined
           ? Number(d.cantidad)
@@ -1822,6 +1842,7 @@ const formService = computed(() => {
         subtotal: Number(cot.subtotal || 0),
         iva: Number(cot.iva || 0),
         total: Number(cot.total || 0),
+        valido_hasta: cot.valido_hasta || null,
         cotizacion_url: cot.cotizacion_url || null,
         base64: cot.base64 || null,
         archivo: cot.archivo || null,

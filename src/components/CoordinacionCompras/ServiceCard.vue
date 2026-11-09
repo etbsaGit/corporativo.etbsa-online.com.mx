@@ -614,6 +614,9 @@
                         Cotización
                       </th>
                       <th class="text-left">Proveedor / Taller</th>
+                      <th class="text-center" style="width: 120px">
+                        Válido hasta
+                      </th>
                       <th class="text-center">Cant.</th>
                       <th class="text-right">P. Unitario</th>
                       <th class="text-right">Subtotal</th>
@@ -739,6 +742,46 @@
                             {{ (cot.usoCfdi || cot.uso_cfdi).clave }}
                           </q-badge>
                         </div>
+                      </td>
+                      <td class="text-center">
+                        <template v-if="cot.valido_hasta">
+                          <template v-if="isCotizacionVigente(cot.valido_hasta)">
+                            <q-badge
+                              color="teal-8"
+                              outline
+                              class="text-weight-bold q-px-sm q-py-xs"
+                            >
+                              <q-icon
+                                name="event_available"
+                                size="13px"
+                                class="q-mr-xs"
+                                color="teal-8"
+                              />
+                              {{ formatFecha(cot.valido_hasta) }}
+                            </q-badge>
+                          </template>
+                          <template v-else>
+                            <q-badge
+                              color="negative"
+                              text-color="white"
+                              class="text-weight-bolder q-px-sm q-py-xs shadow-1"
+                            >
+                              <q-icon
+                                name="warning"
+                                size="13px"
+                                class="q-mr-xs"
+                              />
+                              CADUCADA
+                            </q-badge>
+                            <div
+                              class="text-caption text-negative text-weight-bold q-mt-xs font-mono"
+                              style="font-size: 11px"
+                            >
+                              Venció: {{ formatFecha(cot.valido_hasta) }}
+                            </div>
+                          </template>
+                        </template>
+                        <span v-else class="text-caption text-grey-5">-</span>
                       </td>
                       <td class="text-center font-mono">
                         {{ cot.cantidad || 1 }}
@@ -1228,6 +1271,13 @@
                         }}</strong>
                         &bull; Las cotizaciones no elegidas se eliminarán.
                       </span>
+                      <div
+                        v-if="hasCaducadasSelected"
+                        class="text-negative text-weight-bolder q-mt-xs row items-center"
+                      >
+                        <q-icon name="warning" size="18px" class="q-mr-xs text-negative" />
+                        ADVERTENCIA: Una o más cotizaciones seleccionadas se encuentran CADUCADAS.
+                      </div>
                     </div>
                   </div>
                 </q-banner>
@@ -1293,6 +1343,23 @@
 
         <!-- Resumen de Órdenes a Generar por Proveedor -->
         <div class="q-mb-md">
+          <!-- Alerta de Cotizaciones Caducadas Seleccionadas -->
+          <q-banner
+            v-if="hasCaducadasSelected"
+            rounded
+            class="bg-red-1 text-negative border-negative q-mb-sm q-pa-sm"
+          >
+            <template v-slot:avatar>
+              <q-icon name="warning" color="negative" size="26px" />
+            </template>
+            <div class="text-subtitle2 text-weight-bolder">
+              ¡Atención! Has seleccionado cotizaciones CADUCADAS
+            </div>
+            <div class="text-caption">
+              Una o más cotizaciones elegidas tienen la fecha de vigencia vencida. Verifique condiciones y precios con el proveedor antes de continuar.
+            </div>
+          </q-banner>
+
           <!-- Caso 1: Todos del mismo proveedor -->
           <div
             v-if="proveedoresSeleccionados.length === 1"
@@ -1387,6 +1454,7 @@
               <th class="text-left" style="width: 220px">Concepto</th>
               <th class="text-center" style="width: 120px">Cotización</th>
               <th class="text-left">Proveedor / Taller</th>
+              <th class="text-center" style="width: 120px">Válido hasta</th>
               <th class="text-center">Cant.</th>
               <th class="text-right">P. Unitario</th>
               <th class="text-right">Subtotal</th>
@@ -1490,6 +1558,41 @@
                   </q-badge>
                 </div>
               </td>
+              <td class="text-center">
+                <template v-if="item.cotizacion.valido_hasta">
+                  <template v-if="isCotizacionVigente(item.cotizacion.valido_hasta)">
+                    <q-badge
+                      color="teal-8"
+                      outline
+                      class="text-weight-bold q-px-xs"
+                    >
+                      <q-icon
+                        name="event_available"
+                        size="12px"
+                        class="q-mr-xs"
+                      />
+                      {{ formatFecha(item.cotizacion.valido_hasta) }}
+                    </q-badge>
+                  </template>
+                  <template v-else>
+                    <q-badge
+                      color="negative"
+                      text-color="white"
+                      class="text-weight-bolder q-px-sm q-py-xs shadow-1"
+                    >
+                      <q-icon name="warning" size="12px" class="q-mr-xs" />
+                      CADUCADA
+                    </q-badge>
+                    <div
+                      class="text-caption text-negative text-weight-bold q-mt-xs font-mono"
+                      style="font-size: 10.5px"
+                    >
+                      Venció: {{ formatFecha(item.cotizacion.valido_hasta) }}
+                    </div>
+                  </template>
+                </template>
+                <span v-else class="text-caption text-grey-5">-</span>
+              </td>
               <td class="text-center font-mono">
                 {{ item.cotizacion.cantidad || 1 }}
               </td>
@@ -1513,7 +1616,7 @@
           </tbody>
           <tfoot>
             <tr class="bg-grey-2 text-weight-bolder">
-              <td colspan="5" class="text-right text-subtitle2">
+              <td colspan="6" class="text-right text-subtitle2">
                 Total Autorizado:
               </td>
               <td class="text-right font-mono">
@@ -1778,6 +1881,14 @@ const selectedQuotesList = computed(() => {
     }
   });
   return list;
+});
+
+const hasCaducadasSelected = computed(() => {
+  return selectedQuotesList.value.some(
+    (item) =>
+      item.cotizacion?.valido_hasta &&
+      !isCotizacionVigente(item.cotizacion.valido_hasta)
+  );
 });
 
 const selectedQuotesTotals = computed(() => {
@@ -2045,6 +2156,23 @@ const formatFecha = (fechaStr) => {
     return `${d}/${m}/${y}`;
   }
   return date.formatDate(fechaStr, "DD/MM/YYYY");
+};
+
+const isCotizacionVigente = (fechaStr) => {
+  if (!fechaStr) return true;
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+  const parts = String(fechaStr).slice(0, 10).split("-");
+  if (parts.length === 3) {
+    const vigencia = new Date(
+      Number(parts[0]),
+      Number(parts[1]) - 1,
+      Number(parts[2])
+    );
+    vigencia.setHours(23, 59, 59, 999);
+    return vigencia.getTime() >= hoy.getTime();
+  }
+  return true;
 };
 
 const bitacoraList = computed(() => {
