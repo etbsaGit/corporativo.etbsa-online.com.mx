@@ -112,6 +112,80 @@
     <q-separator />
 
     <q-card-section class="q-pa-md">
+      <!-- Banner para Estatus: A Corregir -->
+      <q-banner
+        v-if="!onlyGasolina && isACorregir"
+        rounded
+        class="bg-red-1 text-negative border-negative q-mb-md q-pa-sm"
+      >
+        <template v-slot:avatar>
+          <q-icon name="warning" color="negative" size="26px" />
+        </template>
+        <div class="row items-center justify-between">
+          <div>
+            <div class="text-subtitle2 text-weight-bold text-negative">
+              Esta solicitud de compra requiere correcciones (Estatus: A Corregir)
+            </div>
+            <div class="text-body2 text-grey-9 q-mt-xs" v-if="latestCorreccionComment">
+              <strong>Observaciones de Coordinación de Compras:</strong>
+              <div class="q-pa-xs bg-white rounded-borders border-grey q-mt-xs text-weight-medium">
+                {{ latestCorreccionComment }}
+              </div>
+            </div>
+            <div class="text-caption text-grey-7 q-mt-xs">
+              Por favor edita la orden, corrige los conceptos o adjunta las cotizaciones requeridas y guárdala para enviarla a revisión.
+            </div>
+          </div>
+          <q-btn
+            unelevated
+            dense
+            color="negative"
+            icon="edit"
+            label="Editar Solicitud"
+            class="q-px-sm text-weight-bold"
+            @click="$emit('edit', props.service)"
+          />
+        </div>
+      </q-banner>
+
+      <!-- Banner Informativo: En Revisión (cuando el usuario no es quien revisa) -->
+      <q-banner
+        v-if="!onlyGasolina && isEnRevision && !canReview"
+        rounded
+        class="bg-amber-1 text-amber-10 border-warning q-mb-md q-pa-sm"
+      >
+        <template v-slot:avatar>
+          <q-icon name="hourglass_top" color="amber-9" size="24px" />
+        </template>
+        <div>
+          <div class="text-subtitle2 text-weight-bold">
+            Orden de Compra en Revisión
+          </div>
+          <div class="text-caption text-grey-8">
+            Esta solicitud se encuentra actualmente en revisión por la Coordinación de Compras. Una vez verificada, será enviada a la Dirección Administrativa para su autorización definitiva.
+          </div>
+        </div>
+      </q-banner>
+
+      <!-- Banner Informativo: Solicitado / Por Autorizar (cuando el usuario no es quien autoriza) -->
+      <q-banner
+        v-if="!onlyGasolina && isSolicitado && !canAuthorize"
+        rounded
+        class="bg-blue-1 text-primary border-primary q-mb-md q-pa-sm"
+      >
+        <template v-slot:avatar>
+          <q-icon name="pending_actions" color="primary" size="24px" />
+        </template>
+        <div>
+          <div class="text-subtitle2 text-weight-bold">
+            Orden de Compra Pre-autorizada (Pendiente de Autorización Final)
+          </div>
+          <div class="text-caption text-grey-8">
+            La orden fue revisada por la Coordinación de Compras y se encuentra en espera de autorización definitiva por la Dirección Administrativa.
+          </div>
+        </div>
+      </q-banner>
+
       <!-- Datos de la Unidad y de la Orden -->
       <div class="row q-col-gutter-md q-mb-md">
         <!-- Tarjeta Unidad -->
@@ -643,12 +717,19 @@
                           : null
                       "
                     >
-                      <td v-if="canAuthorize" class="text-center" @click.stop>
+                      <td
+                        v-if="canAuthorize"
+                        class="text-center"
+                        @click.stop="selectQuoteForConcept(concepto.key, cot.id)"
+                      >
                         <q-radio
-                          v-model="selectedQuotes[concepto.key]"
+                          :model-value="selectedQuotes[concepto.key]"
                           :val="cot.id"
                           color="positive"
                           size="sm"
+                          @click.stop.prevent="
+                            selectQuoteForConcept(concepto.key, cot.id)
+                          "
                         />
                       </td>
                       <td class="text-center">
@@ -842,7 +923,7 @@
               Total de conceptos:
               <strong>{{ conceptosAgrupados.length }}</strong> &bull; Total de
               cotizaciones: <strong>{{ detallesList.length }}</strong>
-              <template v-if="canAuthorize && autorizacionForm.autorizado">
+              <template v-if="isSelectingQuotes">
                 &bull; Conceptos seleccionados para autorizar:
                 <strong class="text-positive">{{
                   selectedQuotesList.length
@@ -852,7 +933,7 @@
             <div class="row q-gutter-x-md items-center">
               <span class="text-caption text-grey-8">
                 {{
-                  canAuthorize && autorizacionForm.autorizado
+                  isSelectingQuotes
                     ? "Total Autorizado Seleccionado:"
                     : "Total de la Orden:"
                 }}
@@ -860,8 +941,7 @@
               <span
                 class="text-subtitle1 text-weight-bolder"
                 :class="
-                  canAuthorize &&
-                  autorizacionForm.autorizado &&
+                  isSelectingQuotes &&
                   selectedQuotesList.length > 0
                     ? 'text-positive'
                     : isTotalPending
@@ -870,7 +950,7 @@
                 "
               >
                 {{
-                  canAuthorize && autorizacionForm.autorizado
+                  isSelectingQuotes
                     ? selectedQuotesList.length > 0
                       ? formatCurrency(selectedQuotesTotals.total)
                       : "Pendiente de selección"
@@ -1049,12 +1129,312 @@
         </q-expansion-item>
       </q-card>
 
+      <!-- SECCIÓN: Revisión por Coordinación de Compras (Paso Intermedio) -->
+      <q-card
+        flat
+        bordered
+        class="bg-white q-mt-md shadow-1"
+        v-if="!onlyGasolina && canReview"
+      >
+        <q-card-section
+          class="q-py-xs q-px-md flex items-center justify-between"
+          :class="
+            revisionForm.accion === 'autorizar_final'
+              ? 'bg-green-1'
+              : revisionForm.accion === 'aprobar'
+              ? 'bg-amber-1'
+              : revisionForm.accion === 'corregir'
+              ? 'bg-orange-1'
+              : 'bg-red-1'
+          "
+        >
+          <div class="row items-center q-gutter-x-sm">
+            <q-avatar
+              :icon="
+                revisionForm.accion === 'autorizar_final'
+                  ? 'verified'
+                  : revisionForm.accion === 'aprobar'
+                  ? 'thumb_up'
+                  : revisionForm.accion === 'corregir'
+                  ? 'edit_note'
+                  : 'cancel'
+              "
+              :color="
+                revisionForm.accion === 'autorizar_final'
+                  ? 'positive'
+                  : revisionForm.accion === 'aprobar'
+                  ? 'amber-9'
+                  : revisionForm.accion === 'corregir'
+                  ? 'deep-orange'
+                  : 'negative'
+              "
+              text-color="white"
+              size="28px"
+            />
+            <div
+              class="text-subtitle2 text-weight-bold"
+              :class="
+                revisionForm.accion === 'autorizar_final'
+                  ? 'text-positive'
+                  : revisionForm.accion === 'aprobar'
+                  ? 'text-amber-10'
+                  : revisionForm.accion === 'corregir'
+                  ? 'text-deep-orange-10'
+                  : 'text-negative'
+              "
+            >
+              Revisión de Orden de Compra (Coordinación de Compras)
+            </div>
+          </div>
+          <q-badge
+            :color="
+              revisionForm.accion === 'autorizar_final'
+                ? 'positive'
+                : revisionForm.accion === 'aprobar'
+                ? 'amber-9'
+                : revisionForm.accion === 'corregir'
+                ? 'deep-orange'
+                : 'negative'
+            "
+            class="text-weight-bold q-px-sm"
+          >
+            {{
+              revisionForm.accion === 'autorizar_final'
+                ? 'AUTORIZACIÓN FINAL'
+                : revisionForm.accion === 'aprobar'
+                ? 'PRE-AUTORIZAR'
+                : revisionForm.accion === 'corregir'
+                ? 'A CORREGIR'
+                : 'RECHAZAR'
+            }}
+          </q-badge>
+        </q-card-section>
+
+        <q-separator />
+
+        <q-card-section class="q-pa-md">
+          <q-form ref="revisionFormRef" @submit.prevent="submitRevision">
+            <div class="row q-col-gutter-md items-center">
+              <!-- Selección de Acción de Revisión -->
+              <div class="col-12 col-md-5">
+                <div class="q-pa-sm rounded-borders bg-grey-1 border-grey">
+                  <div class="text-caption text-grey-8 text-weight-medium q-mb-xs">
+                    Decisión de Revisión *
+                  </div>
+                  <div class="q-gutter-y-xs">
+                    <q-radio
+                      dense
+                      v-model="revisionForm.accion"
+                      val="aprobar"
+                      label="Pre-autorizar"
+                      color="amber-9"
+                    />
+                    <q-radio
+                      dense
+                      v-model="revisionForm.accion"
+                      val="corregir"
+                      label="Corregir (comentarios obligatorios)"
+                      color="deep-orange"
+                    />
+                    <q-radio
+                      dense
+                      v-model="revisionForm.accion"
+                      val="rechazar"
+                      label="Rechazar (comentarios obligatorios)"
+                      color="negative"
+                    />
+                    <q-radio
+                      dense
+                      v-model="revisionForm.accion"
+                      val="autorizar_final"
+                      label="Autorización final (1 o ninguna cotización por concepto)"
+                      color="positive"
+                    />
+                  </div>
+                  <div class="text-caption text-grey-6 q-mt-xs">
+                    {{
+                      revisionForm.accion === 'autorizar_final'
+                        ? 'Autoriza directamente la orden de compra seleccionando como máximo una cotización o ninguna por concepto. Las cotizaciones no elegidas se descartarán.'
+                        : revisionForm.accion === 'aprobar'
+                        ? 'Al pre-autorizar, la orden pasará a estatus "Solicitado" y se notificará al Director Administrativo para su autorización definitiva.'
+                        : revisionForm.accion === 'corregir'
+                        ? 'Al mandar a corregir, pasará a estatus "A Corregir", se notificará al solicitante y es obligatorio ingresar el motivo.'
+                        : 'Al rechazar, la orden pasará a estatus "No Autorizado", se notificará al solicitante y es obligatorio ingresar el motivo.'
+                    }}
+                  </div>
+                </div>
+              </div>
+
+              <!-- TextInput para comentarios u observaciones -->
+              <div class="col-12 col-md-7">
+                <q-input
+                  v-model="revisionForm.comentarios"
+                  type="textarea"
+                  rows="3"
+                  autogrow
+                  outlined
+                  dense
+                  bg-color="white"
+                  :label="
+                    revisionForm.accion === 'autorizar_final'
+                      ? 'Notas u observaciones de autorización final (Opcional)'
+                      : revisionForm.accion === 'aprobar'
+                      ? 'Notas u observaciones de pre-autorización (Opcional)'
+                      : 'Observaciones / Motivo obligatorio *'
+                  "
+                  :placeholder="
+                    revisionForm.accion === 'autorizar_final'
+                      ? 'Observaciones de autorización final...'
+                      : revisionForm.accion === 'aprobar'
+                      ? 'Notas para la Dirección Administrativa...'
+                      : 'Explique detalladamente qué debe corregir el solicitante o el motivo de rechazo...'
+                  "
+                  :rules="[
+                    (val) =>
+                      revisionForm.accion === 'aprobar' ||
+                      revisionForm.accion === 'autorizar_final' ||
+                      (val && String(val).trim().length > 0) ||
+                      'El motivo es obligatorio para mandar a corregir o rechazar la orden',
+                  ]"
+                  lazy-rules
+                >
+                  <template v-slot:prepend>
+                    <q-icon
+                      name="comment"
+                      :color="
+                        revisionForm.accion === 'autorizar_final'
+                          ? 'positive'
+                          : revisionForm.accion === 'aprobar'
+                          ? 'amber-9'
+                          : revisionForm.accion === 'corregir'
+                          ? 'deep-orange'
+                          : 'negative'
+                      "
+                    />
+                  </template>
+                </q-input>
+              </div>
+
+              <!-- Banner informativo de cotizaciones seleccionadas para autorización final -->
+              <div
+                v-if="revisionForm.accion === 'autorizar_final'"
+                class="col-12"
+              >
+                <q-banner
+                  rounded
+                  dense
+                  :class="
+                    selectedQuotesList.length > 0
+                      ? 'bg-green-1 text-green-10 border-positive'
+                      : 'bg-orange-1 text-orange-10 border-orange'
+                  "
+                  class="q-pa-sm"
+                >
+                  <template v-slot:avatar>
+                    <q-icon
+                      :name="
+                        selectedQuotesList.length > 0
+                          ? 'check_circle'
+                          : 'warning'
+                      "
+                      :color="
+                        selectedQuotesList.length > 0 ? 'positive' : 'warning'
+                      "
+                      size="20px"
+                    />
+                  </template>
+                  <div class="row items-center justify-between">
+                    <div>
+                      <strong
+                        >{{ selectedQuotesList.length }} de
+                        {{ conceptosAgrupados.length }} conceptos
+                        seleccionados</strong
+                      >
+                      para autorizar.
+                      <span
+                        v-if="selectedQuotesList.length === 0"
+                        class="text-weight-bold"
+                      >
+                        (Debes seleccionar al menos una cotización en los
+                        conceptos de arriba; máximo 1 o ninguna por concepto).
+                      </span>
+                      <span v-else class="text-caption text-grey-8 q-ml-sm">
+                        Total a autorizar:
+                        <strong>{{
+                          formatCurrency(selectedQuotesTotals.total)
+                        }}</strong>
+                        &bull; Las cotizaciones no elegidas se eliminarán.
+                      </span>
+                      <div
+                        v-if="hasCaducadasSelected"
+                        class="text-negative text-weight-bolder q-mt-xs row items-center"
+                      >
+                        <q-icon name="warning" size="18px" class="q-mr-xs text-negative" />
+                        ADVERTENCIA: Una o más cotizaciones seleccionadas se encuentran CADUCADAS.
+                      </div>
+                    </div>
+                  </div>
+                </q-banner>
+              </div>
+
+              <!-- Botones de Acción -->
+              <div class="col-12 row items-center justify-between">
+                <q-btn
+                  flat
+                  dense
+                  color="primary"
+                  icon="edit"
+                  label="Editar Orden antes de resolver"
+                  @click="$emit('edit', props.service)"
+                >
+                  <q-tooltip>Abrir formulario de edición para ajustar conceptos o datos</q-tooltip>
+                </q-btn>
+
+                <q-btn
+                  unelevated
+                  :color="
+                    revisionForm.accion === 'autorizar_final'
+                      ? 'positive'
+                      : revisionForm.accion === 'aprobar'
+                      ? 'amber-9'
+                      : revisionForm.accion === 'corregir'
+                      ? 'deep-orange'
+                      : 'negative'
+                  "
+                  :icon="
+                    revisionForm.accion === 'autorizar_final'
+                      ? 'check_circle'
+                      : revisionForm.accion === 'aprobar'
+                      ? 'verified'
+                      : revisionForm.accion === 'corregir'
+                      ? 'send'
+                      : 'cancel'
+                  "
+                  :label="
+                    revisionForm.accion === 'autorizar_final'
+                      ? 'Confirmar Autorización Final'
+                      : revisionForm.accion === 'aprobar'
+                      ? 'Pre-autorizar y Enviar a Director'
+                      : revisionForm.accion === 'corregir'
+                      ? 'Enviar Solicitud a Corregir'
+                      : 'Rechazar Orden en Revisión'
+                  "
+                  :loading="submittingRevision || submittingAuth"
+                  type="submit"
+                  class="q-px-md text-weight-bold"
+                />
+              </div>
+            </div>
+          </q-form>
+        </q-card-section>
+      </q-card>
+
       <!-- SECCIÓN: Autorización de la Orden de Compra -->
       <q-card
         flat
         bordered
         class="bg-white q-mt-md shadow-1"
-        v-if="checkPuesto(['Director administrativo'])"
+        v-if="canShowDirectorAuth"
       >
         <q-card-section
           class="q-py-xs q-px-md flex items-center justify-between"
@@ -1676,7 +2056,13 @@
 <script setup>
 import { ref, computed, watch } from "vue";
 import { date, useQuasar } from "quasar";
-import { sendRequest, dataIncomplete, checkPuesto } from "src/boot/functions";
+import {
+  sendRequest,
+  dataIncomplete,
+  checkPuesto,
+  checkPuestoIncludes,
+  checkRole,
+} from "src/boot/functions";
 import VehicleServicesDashboard from "src/components/Vehicle/VehicleServicesDashboard.vue";
 
 const props = defineProps({
@@ -1694,7 +2080,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["authorized"]);
+const emit = defineEmits(["authorized", "reviewed", "edit"]);
 
 const vehicleHistory = ref(null);
 const loadingHistory = ref(false);
@@ -1783,6 +2169,13 @@ const $q = useQuasar();
 const autorizarFormRef = ref(null);
 const submittingAuth = ref(false);
 
+const revisionFormRef = ref(null);
+const submittingRevision = ref(false);
+const revisionForm = ref({
+  accion: "aprobar",
+  comentarios: "",
+});
+
 const autorizacionForm = ref({
   autorizado: true,
   lts_dispersados: null,
@@ -1792,18 +2185,72 @@ const autorizacionForm = ref({
 const selectedQuotes = ref({});
 const confirmAuthModal = ref(false);
 
-const isTotalPending = computed(() => {
-  const estatusNombre = (props.service?.estatus?.nombre || "")
-    .trim()
-    .toLowerCase();
-  return estatusNombre === "solicitado" || estatusNombre === "no autorizado";
+const estatusNombre = computed(() => {
+  return (props.service?.estatus?.nombre || "").trim().toLowerCase();
+});
+
+const isEnRevision = computed(() => {
+  return (
+    estatusNombre.value === "en revisión" ||
+    estatusNombre.value === "en revision" ||
+    Number(props.service?.estatus_id) === 181
+  );
+});
+
+const isSolicitado = computed(() => {
+  return estatusNombre.value === "solicitado";
+});
+
+const isACorregir = computed(() => {
+  return (
+    estatusNombre.value === "a corregir" ||
+    Number(props.service?.estatus_id) === 182
+  );
 });
 
 const isAutorizado = computed(() => {
-  const estatusNombre = (props.service?.estatus?.nombre || "")
-    .trim()
-    .toLowerCase();
-  return estatusNombre === "autorizado";
+  return estatusNombre.value === "autorizado";
+});
+
+const isNoAutorizado = computed(() => {
+  return estatusNombre.value === "no autorizado";
+});
+
+const isTotalPending = computed(() => {
+  return (
+    isSolicitado.value ||
+    isEnRevision.value ||
+    isACorregir.value ||
+    isNoAutorizado.value
+  );
+});
+
+const latestCorreccionComment = computed(() => {
+  const bitacora = props.service?.bitacora || [];
+  const entries = bitacora.filter(
+    (b) =>
+      (b.estatus?.nombre || "").trim().toLowerCase() === "a corregir" ||
+      Number(b.estatus_id) === 182
+  );
+  if (entries.length > 0) {
+    const sorted = [...entries].sort((a, b) => (b.id || 0) - (a.id || 0));
+    return sorted[0]?.comentarios || "Sin comentarios especificados.";
+  }
+  return null;
+});
+
+const canReview = computed(() => {
+  if (props.onlyGasolina) return false;
+  const isCoordOrAdmin =
+    checkPuestoIncludes("Coordinador de compras") || checkRole("Admin");
+  return isCoordOrAdmin && isEnRevision.value;
+});
+
+const canShowDirectorAuth = computed(() => {
+  if (props.onlyGasolina) {
+    return checkPuestoIncludes("Director administrativo");
+  }
+  return checkPuestoIncludes("Director administrativo") && isSolicitado.value;
 });
 
 const printing = ref(false);
@@ -1841,11 +2288,29 @@ const printOrdenCompra = async () => {
 };
 
 const canAuthorize = computed(() => {
-  return checkPuesto(["Director administrativo"]) && isTotalPending.value;
+  if (props.onlyGasolina) {
+    return checkPuestoIncludes("Director administrativo") && isTotalPending.value;
+  }
+  if (canShowDirectorAuth.value) return true;
+  if (canReview.value && revisionForm.value.accion === "autorizar_final") {
+    return true;
+  }
+  return false;
+});
+
+const isSelectingQuotes = computed(() => {
+  return (
+    (canShowDirectorAuth.value && autorizacionForm.value.autorizado) ||
+    (canReview.value && revisionForm.value.accion === "autorizar_final")
+  );
 });
 
 const selectQuoteForConcept = (conceptKey, cotId) => {
-  selectedQuotes.value[conceptKey] = cotId;
+  if (selectedQuotes.value[conceptKey] === cotId) {
+    selectedQuotes.value[conceptKey] = null;
+  } else {
+    selectedQuotes.value[conceptKey] = cotId;
+  }
 };
 
 const initSelectedQuotes = () => {
@@ -1940,6 +2405,14 @@ watch(
   () => props.service,
   (newSrv) => {
     if (newSrv) {
+      revisionForm.value = {
+        accion: "aprobar",
+        comentarios: "",
+      };
+      if (revisionFormRef.value) {
+        revisionFormRef.value.resetValidation();
+      }
+
       const isNoAutorizado =
         (newSrv.estatus?.nombre || "").toLowerCase() === "no autorizado";
       autorizacionForm.value = {
@@ -1955,6 +2428,80 @@ watch(
   },
   { immediate: true }
 );
+
+watch(
+  () => revisionForm.value.accion,
+  (newAccion) => {
+    if (revisionFormRef.value) {
+      revisionFormRef.value.resetValidation();
+    }
+    if (newAccion === "autorizar_final") {
+      initSelectedQuotes();
+    }
+  }
+);
+
+const submitRevision = async () => {
+  if (!props.service?.id) return;
+  if (!revisionFormRef.value) return;
+
+  const isValid = await revisionFormRef.value.validate();
+  if (!isValid) {
+    dataIncomplete();
+    return;
+  }
+
+  // Opción 4: Autorización final directa desde revisión
+  if (revisionForm.value.accion === "autorizar_final") {
+    if (selectedQuotesList.value.length === 0) {
+      $q.notify({
+        type: "warning",
+        icon: "warning",
+        message:
+          "Debe seleccionar al menos una cotización en los conceptos para autorizar la orden de compra.",
+        position: "top",
+      });
+      return;
+    }
+
+    autorizacionForm.value.autorizado = true;
+    autorizacionForm.value.comentarios =
+      revisionForm.value.comentarios?.trim() || "";
+    confirmAuthModal.value = true;
+    return;
+  }
+
+  submittingRevision.value = true;
+  try {
+    const payload = {
+      orden_servicio_id: props.service.id,
+      accion: revisionForm.value.accion,
+      comentarios: revisionForm.value.comentarios?.trim() || null,
+    };
+
+    const res = await sendRequest(
+      "POST",
+      payload,
+      "/api/service/revision",
+      ""
+    );
+
+    $q.notify({
+      type: "positive",
+      message:
+        revisionForm.value.accion === "aprobar"
+          ? "Orden pre-autorizada correctamente y enviada a la Dirección Administrativa."
+          : revisionForm.value.accion === "corregir"
+          ? "Orden enviada a corregir al solicitante con observaciones."
+          : "Orden de compra rechazada en revisión.",
+    });
+
+    emit("authorized", res || props.service);
+    emit("reviewed", res || props.service);
+  } finally {
+    submittingRevision.value = false;
+  }
+};
 
 watch(
   () => autorizacionForm.value.autorizado,
@@ -2059,6 +2606,7 @@ const executeAuthorization = async () => {
     );
     confirmAuthModal.value = false;
     emit("authorized", res || props.service);
+    emit("reviewed", res || props.service);
   } finally {
     submittingAuth.value = false;
   }

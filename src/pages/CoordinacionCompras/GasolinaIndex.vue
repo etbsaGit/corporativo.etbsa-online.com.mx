@@ -366,6 +366,23 @@
 
             <div class="row items-center q-gutter-x-sm">
               <q-btn
+                v-if="canAuthorizeGasolina && countPorRevisar > 0"
+                outline
+                dense
+                no-caps
+                color="positive"
+                icon="done_all"
+                :label="`Seleccionar Solicitadas (${selectableRowsOnPage.length})`"
+                @click="selectPendingOnPage"
+                class="q-px-sm"
+              >
+                <q-tooltip>
+                  Seleccionar únicamente las solicitudes en estatus Solicitado
+                  mostradas en la página actual
+                </q-tooltip>
+              </q-btn>
+
+              <q-btn
                 flat
                 dense
                 no-caps
@@ -380,11 +397,67 @@
               />
             </div>
           </div>
+
+          <!-- Barra flotante de Selección Masiva -->
+          <div
+            v-if="selectedRows.length > 0 && canAuthorizeGasolina"
+            class="row full-width items-center justify-between q-pa-sm q-mt-xs bg-green-1 border-positive rounded-borders shadow-1"
+          >
+            <div class="row items-center q-gutter-x-sm">
+              <q-icon name="check_circle" color="positive" size="24px" />
+              <span class="text-subtitle2 text-weight-bold text-positive">
+                {{ selectedRows.length }} solicitud(es) en estatus Solicitado
+                seleccionada(s)
+              </span>
+              <q-badge color="positive" class="text-weight-bold q-px-sm">
+                Total: {{ totalLtsSelected }} Lts a autorizar
+              </q-badge>
+            </div>
+
+            <div class="row items-center q-gutter-x-xs">
+              <q-btn
+                dense
+                flat
+                color="grey-8"
+                icon="clear"
+                label="Limpiar selección"
+                no-caps
+                @click="clearSelection"
+              />
+              <q-btn
+                unelevated
+                color="positive"
+                icon="verified"
+                :label="`Autorizar de golpe (${selectedRows.length})`"
+                no-caps
+                class="text-weight-bold q-px-md"
+                @click="openBulkAuthModal"
+              />
+            </div>
+          </div>
         </template>
 
         <!-- Cabecera de la tabla -->
         <template v-slot:header="props">
           <q-tr :props="props" class="bg-grey-2">
+            <!-- Checkbox Cabecera para selección masiva -->
+            <q-th auto-width class="text-center" v-if="canAuthorizeGasolina">
+              <q-checkbox
+                dense
+                v-model="allSelectedOnPage"
+                :indeterminate="someSelectedOnPage"
+                :disable="selectableRowsOnPage.length === 0"
+                @update:model-value="toggleSelectAllOnPage"
+              >
+                <q-tooltip>
+                  {{
+                    allSelectedOnPage
+                      ? "Deseleccionar todas en esta página"
+                      : "Seleccionar todas las solicitudes en estatus Solicitado de esta página"
+                  }}
+                </q-tooltip>
+              </q-checkbox>
+            </q-th>
             <q-th auto-width class="text-center">Detalles</q-th>
             <q-th auto-width class="text-left">Acciones</q-th>
             <q-th
@@ -402,8 +475,36 @@
         <template v-slot:body="props">
           <q-tr
             :props="props"
-            :class="isExpanded(props.row.id) ? 'bg-amber-1' : ''"
+            :class="[
+              isExpanded(props.row.id) ? 'bg-amber-1' : '',
+              isRowSelected(props.row.id) ? 'bg-green-1' : '',
+            ]"
           >
+            <!-- Checkbox de Selección Masiva (solo activa para solicitudes en estatus Solicitado) -->
+            <q-td auto-width class="text-center" v-if="canAuthorizeGasolina">
+              <q-checkbox
+                v-if="isRowSolicitado(props.row)"
+                dense
+                :model-value="isRowSelected(props.row.id)"
+                @update:model-value="
+                  (val) => toggleRowSelection(props.row, val)
+                "
+              >
+                <q-tooltip>
+                  Seleccionar solicitud en estatus Solicitado (#{{
+                    props.row.id
+                  }})
+                </q-tooltip>
+              </q-checkbox>
+              <q-icon v-else name="remove" color="grey-4" size="16px">
+                <q-tooltip>
+                  No disponible: solo activa para solicitudes en estatus
+                  Solicitado (Estatus actual:
+                  {{ getOrdenEstatus(props.row)?.nombre || "N/A" }})
+                </q-tooltip>
+              </q-icon>
+            </q-td>
+
             <!-- Botón Desplegar Detalles -->
             <q-td auto-width class="text-center">
               <q-btn
@@ -1000,12 +1101,236 @@
       </q-card-actions>
     </q-card>
   </q-dialog>
+
+  <!-- Modal: Autorización Masiva de Solicitudes de Gasolina -->
+  <q-dialog v-model="showBulkAuthModal" persistent>
+    <q-card
+      style="width: 850px; max-width: 95vw; max-height: 90vh"
+      class="column"
+    >
+      <!-- Encabezado del Modal -->
+      <q-card-section class="row items-center q-pb-sm bg-positive text-white">
+        <q-avatar
+          icon="verified"
+          color="white"
+          text-color="positive"
+          size="32px"
+        />
+        <div class="q-ml-sm">
+          <div class="text-h6 text-weight-bold">
+            Autorización Masiva de Gasolina
+          </div>
+          <div class="text-caption text-white-8">
+            Autorizar las solicitudes de dispersión seleccionadas
+          </div>
+        </div>
+        <q-space />
+        <q-btn
+          icon="close"
+          flat
+          round
+          dense
+          v-close-popup
+          :disable="submittingBulkAuth"
+        />
+      </q-card-section>
+
+      <!-- Resumen / Estadísticas -->
+      <q-card-section class="q-pa-sm bg-grey-2">
+        <div class="row q-col-gutter-sm text-center">
+          <div class="col-12 col-sm-4">
+            <q-card flat bordered class="bg-white q-pa-xs">
+              <div class="text-caption text-grey-7">
+                Solicitudes a Autorizar
+              </div>
+              <div class="text-h6 text-weight-bolder text-primary">
+                {{ selectedRows.length }}
+              </div>
+            </q-card>
+          </div>
+          <div class="col-12 col-sm-4">
+            <q-card flat bordered class="bg-white q-pa-xs">
+              <div class="text-caption text-grey-7">
+                Total Litros Solicitados
+              </div>
+              <div class="text-h6 text-weight-bolder text-amber-9">
+                {{ totalLtsSolicitadosSelected }} Lts
+              </div>
+            </q-card>
+          </div>
+          <div class="col-12 col-sm-4">
+            <q-card flat bordered class="bg-white q-pa-xs">
+              <div class="text-caption text-grey-7">
+                Total Litros a Autorizar
+              </div>
+              <div class="text-h6 text-weight-bolder text-positive">
+                {{ totalLtsSelected }} Lts
+              </div>
+            </q-card>
+          </div>
+        </div>
+      </q-card-section>
+
+      <!-- Formulario y Detalle de Solicitudes -->
+      <q-card-section class="col scroll q-pa-md">
+        <!-- Observación / Comentario General -->
+        <q-input
+          v-model="bulkAuthForm.comentarios"
+          label="Comentario u Observación general (opcional)"
+          placeholder="Autorización masiva por Dirección Administrativa"
+          outlined
+          dense
+          autogrow
+          class="q-mb-md"
+        >
+          <template v-slot:prepend>
+            <q-icon name="notes" color="primary" />
+          </template>
+        </q-input>
+
+        <div
+          class="text-subtitle2 text-weight-bold text-grey-8 q-mb-xs flex items-center justify-between"
+        >
+          <span>
+            Solicitudes a autorizar (pasarán a estatus "Por dispersar"):
+          </span>
+          <q-btn
+            flat
+            dense
+            no-caps
+            size="sm"
+            color="primary"
+            label="Restablecer litros originales"
+            icon="restart_alt"
+            @click="resetBulkLtsToSolicitados"
+          />
+        </div>
+
+        <q-markup-table
+          flat
+          bordered
+          dense
+          separator="horizontal"
+          class="q-mt-xs"
+        >
+          <thead class="bg-grey-2">
+            <tr>
+              <th class="text-left">Folio</th>
+              <th class="text-left">Unidad</th>
+              <th class="text-left">Solicitante</th>
+              <th class="text-center">Lts Solicitados</th>
+              <th class="text-center" style="width: 140px">Lts a Autorizar</th>
+              <th class="text-center" style="width: 40px">Quitar</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="row in selectedRows" :key="row.id">
+              <td class="text-left text-weight-bold">
+                #{{ row.id }}
+                <q-badge
+                  v-if="row.is_urgente"
+                  color="negative"
+                  class="q-ml-xs text-weight-bold"
+                >
+                  Urgente
+                </q-badge>
+              </td>
+              <td class="text-left">
+                <div class="text-weight-bold">
+                  {{ row.vehicle?.placas || "S/P" }}
+                </div>
+                <div class="text-caption text-grey-7">
+                  {{ row.vehicle?.serie || "Sin serie" }}
+                </div>
+              </td>
+              <td class="text-left">
+                <div class="text-weight-medium">
+                  {{
+                    row.solicitante
+                      ? `${row.solicitante.nombreCompleto || ""}`.trim() ||
+                        row.solicitante.nombreCompleto ||
+                        "N/A"
+                      : "N/A"
+                  }}
+                </div>
+                <div class="text-caption text-grey-7">
+                  {{
+                    row.sucursal_cargo?.nombre ||
+                    row.sucursalCargo?.nombre ||
+                    "N/A"
+                  }}
+                  &bull;
+                  {{
+                    row.departamento_cargo?.nombre ||
+                    row.departamentoCargo?.nombre ||
+                    "N/A"
+                  }}
+                </div>
+              </td>
+              <td class="text-center">
+                <q-badge color="amber-10" class="text-weight-bold q-px-sm">
+                  {{ row.lts_solicitados || 0 }} Lts
+                </q-badge>
+              </td>
+              <td class="text-center">
+                <q-input
+                  v-model.number="row.lts_dispersados"
+                  type="number"
+                  min="1"
+                  dense
+                  outlined
+                  class="q-mx-auto"
+                  style="max-width: 120px"
+                  :rules="[(val) => (val && val > 0) || 'Mínimo 1']"
+                  hide-bottom-space
+                />
+              </td>
+              <td class="text-center">
+                <q-btn
+                  flat
+                  round
+                  dense
+                  color="negative"
+                  icon="close"
+                  size="sm"
+                  @click="removeSelectedRow(row.id)"
+                >
+                  <q-tooltip>Excluir esta solicitud del lote</q-tooltip>
+                </q-btn>
+              </td>
+            </tr>
+          </tbody>
+        </q-markup-table>
+      </q-card-section>
+
+      <!-- Botones de Acción -->
+      <q-separator />
+      <q-card-actions align="right" class="bg-grey-1 q-pa-sm">
+        <q-btn
+          flat
+          label="Cancelar"
+          color="grey-8"
+          v-close-popup
+          :disable="submittingBulkAuth"
+        />
+        <q-btn
+          unelevated
+          color="positive"
+          icon="verified"
+          :label="`Confirmar y Autorizar (${selectedRows.length})`"
+          :loading="submittingBulkAuth"
+          :disable="selectedRows.length === 0 || hasInvalidBulkLts"
+          @click="submitBulkAuth"
+        />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
 import { useRoute } from "vue-router";
-import { date } from "quasar";
+import { date, useQuasar } from "quasar";
 import { useAuthStore } from "src/stores/auth";
 import {
   sendRequest,
@@ -1027,6 +1352,7 @@ const props = defineProps({
 
 const route = useRoute();
 const authStore = useAuthStore();
+const $q = useQuasar();
 
 const onlyMyUnit = computed(() => {
   return (
@@ -1051,6 +1377,253 @@ const showDelete = ref(false);
 const showShow = ref(false);
 const showDispersar = ref(false);
 const savingDispersar = ref(false);
+
+// Estado de selección masiva y modal de autorización de golpe
+const selectedRows = ref([]);
+const showBulkAuthModal = ref(false);
+const submittingBulkAuth = ref(false);
+const bulkAuthForm = ref({
+  comentarios: "",
+});
+
+const canAuthorizeGasolina = computed(() => {
+  return (
+    checkPuestoIncludes("Director administrativo") ||
+    checkRole("Director administrativo") ||
+    checkRole("Admin")
+  );
+});
+
+const isRowSolicitado = (row) => {
+  if (!row) return false;
+
+  // 1. Relación directa 'estatus' (ej: row.estatus = { nombre: 'Solicitado' })
+  const nombreDirecto = (row.estatus?.nombre || "").trim().toLowerCase();
+  if (nombreDirecto) {
+    return nombreDirecto === "solicitado";
+  }
+
+  // 2. ID del estatus Solicitado cargado de status_counts o catálogos
+  const solicitadoId =
+    statusCounts.value?.solicitado_id ||
+    catalogs.value?.estatus?.find(
+      (e) => (e.nombre || "").trim().toLowerCase() === "solicitado"
+    )?.id;
+
+  if (solicitadoId && Number(row.estatus_id) === Number(solicitadoId)) {
+    return true;
+  }
+
+  // 3. Bitácora (último movimiento)
+  const bitacora = row.bitacora || [];
+  if (bitacora.length > 0) {
+    const bitacoraSorted = [...bitacora].sort((a, b) => {
+      const timeA = a.created_at ? new Date(a.created_at).getTime() : 0;
+      const timeB = b.created_at ? new Date(b.created_at).getTime() : 0;
+      if (timeB !== timeA) return timeB - timeA;
+      return (b.id || 0) - (a.id || 0);
+    });
+    const nombreBitacora = (bitacoraSorted[0]?.estatus?.nombre || "")
+      .trim()
+      .toLowerCase();
+    if (nombreBitacora) {
+      return nombreBitacora === "solicitado";
+    }
+  }
+
+  return false;
+};
+
+const canSelectRow = (row) => {
+  return canAuthorizeGasolina.value && isRowSolicitado(row);
+};
+
+const isRowSelected = (id) => {
+  return selectedRows.value.some((r) => Number(r.id) === Number(id));
+};
+
+const toggleRowSelection = (row, val) => {
+  // Asegurar que solo se pueda activar si la solicitud está en estatus Solicitado
+  if (!isRowSolicitado(row)) return;
+
+  if (val) {
+    if (!isRowSelected(row.id)) {
+      selectedRows.value.push({
+        ...row,
+        lts_dispersados: row.lts_dispersados ?? row.lts_solicitados ?? null,
+      });
+    }
+  } else {
+    selectedRows.value = selectedRows.value.filter(
+      (r) => Number(r.id) !== Number(row.id)
+    );
+  }
+};
+
+const selectableRowsOnPage = computed(() => {
+  return rows.value.filter((r) => canSelectRow(r));
+});
+
+const allSelectedOnPage = computed(() => {
+  return (
+    selectableRowsOnPage.value.length > 0 &&
+    selectableRowsOnPage.value.every((r) => isRowSelected(r.id))
+  );
+});
+
+const someSelectedOnPage = computed(() => {
+  return (
+    selectableRowsOnPage.value.some((r) => isRowSelected(r.id)) &&
+    !allSelectedOnPage.value
+  );
+});
+
+const toggleSelectAllOnPage = (val) => {
+  if (val) {
+    selectableRowsOnPage.value.forEach((r) => {
+      if (isRowSolicitado(r) && !isRowSelected(r.id)) {
+        selectedRows.value.push({
+          ...r,
+          lts_dispersados: r.lts_dispersados ?? r.lts_solicitados ?? null,
+        });
+      }
+    });
+  } else {
+    const pageIds = selectableRowsOnPage.value.map((r) => Number(r.id));
+    selectedRows.value = selectedRows.value.filter(
+      (r) => !pageIds.includes(Number(r.id))
+    );
+  }
+};
+
+const selectPendingOnPage = () => {
+  selectableRowsOnPage.value.forEach((r) => {
+    if (isRowSolicitado(r) && !isRowSelected(r.id)) {
+      selectedRows.value.push({
+        ...r,
+        lts_dispersados: r.lts_dispersados ?? r.lts_solicitados ?? null,
+      });
+    }
+  });
+};
+
+const clearSelection = () => {
+  selectedRows.value = [];
+};
+
+const totalLtsSolicitadosSelected = computed(() => {
+  return selectedRows.value.reduce(
+    (acc, cur) => acc + Number(cur.lts_solicitados || 0),
+    0
+  );
+});
+
+const totalLtsSelected = computed(() => {
+  return selectedRows.value.reduce(
+    (acc, cur) => acc + Number(cur.lts_dispersados || cur.lts_solicitados || 0),
+    0
+  );
+});
+
+const hasInvalidBulkLts = computed(() => {
+  return selectedRows.value.some(
+    (r) => !r.lts_dispersados || Number(r.lts_dispersados) <= 0
+  );
+});
+
+const resetBulkLtsToSolicitados = () => {
+  selectedRows.value.forEach((r) => {
+    r.lts_dispersados = r.lts_solicitados || 0;
+  });
+};
+
+const removeSelectedRow = (id) => {
+  selectedRows.value = selectedRows.value.filter(
+    (r) => Number(r.id) !== Number(id)
+  );
+  if (selectedRows.value.length === 0) {
+    showBulkAuthModal.value = false;
+  }
+};
+
+const openBulkAuthModal = () => {
+  // Filtrar estrictamente solo las que están en estatus Solicitado
+  selectedRows.value = selectedRows.value.filter((r) => isRowSolicitado(r));
+  if (selectedRows.value.length === 0) return;
+  selectedRows.value.forEach((r) => {
+    if (!r.lts_dispersados || Number(r.lts_dispersados) <= 0) {
+      r.lts_dispersados = r.lts_solicitados || 0;
+    }
+  });
+  bulkAuthForm.value.comentarios = "";
+  showBulkAuthModal.value = true;
+};
+
+const submitBulkAuth = async () => {
+  // Asegurar que solo se envíen solicitudes válidas en estatus Solicitado
+  const validSolicitudes = selectedRows.value.filter((r) => isRowSolicitado(r));
+  if (validSolicitudes.length === 0) {
+    $q.notify({
+      type: "warning",
+      message: "No hay solicitudes en estatus Solicitado para autorizar.",
+      position: "top",
+    });
+    return;
+  }
+
+  submittingBulkAuth.value = true;
+  try {
+    const payload = {
+      solicitudes: validSolicitudes.map((r) => ({
+        id: r.id,
+        lts_dispersados: Number(r.lts_dispersados || r.lts_solicitados || 0),
+      })),
+      comentarios: bulkAuthForm.value.comentarios?.trim() || null,
+    };
+
+    let res = null;
+    try {
+      res = await sendRequest(
+        "POST",
+        payload,
+        "/api/gasolina/autorizar-masivo",
+        ""
+      );
+    } catch (apiErr) {
+      console.warn("Fallback a llamadas individuales:", apiErr);
+      const promises = payload.solicitudes.map((item) =>
+        sendRequest(
+          "POST",
+          {
+            dispersion_id: item.id,
+            autorizado: true,
+            lts_dispersados: item.lts_dispersados,
+            comentarios: payload.comentarios,
+          },
+          "/api/gasolina/autorizar",
+          ""
+        )
+      );
+      res = await Promise.all(promises);
+    }
+
+    if (res) {
+      $q.notify({
+        type: "positive",
+        message: `Se autorizaron correctamente ${validSolicitudes.length} solicitudes de gasolina.`,
+        position: "top",
+      });
+      showBulkAuthModal.value = false;
+      selectedRows.value = [];
+      await getRows(current_page.value);
+      await getForms();
+    }
+  } catch (error) {
+    console.error("Error al autorizar solicitudes masivas:", error);
+  } finally {
+    submittingBulkAuth.value = false;
+  }
+};
 
 const expandedIds = ref([]);
 const allExpanded = ref(false);
@@ -1445,6 +2018,9 @@ const submitDispersar = async () => {
 const handleOrderAuthorized = (updatedOrden) => {
   if (updatedOrden && typeof updatedOrden === "object") {
     selectedRow.value = updatedOrden;
+    selectedRows.value = selectedRows.value.filter(
+      (r) => Number(r.id) !== Number(updatedOrden.id)
+    );
   }
   showShow.value = false;
   getRows(current_page.value);

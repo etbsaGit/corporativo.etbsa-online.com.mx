@@ -290,7 +290,38 @@
 
               <q-separator vertical inset class="q-mx-xs gt-xs" />
 
-              <!-- Botón 1: Por Revisar (Azul) con contador -->
+              <!-- Botón 1: En Revisión (Ámbar) con contador -->
+              <q-btn
+                dense
+                no-caps
+                :unelevated="isEstatusActive(estatusEnRevisionId)"
+                :outline="!isEstatusActive(estatusEnRevisionId)"
+                color="amber-9"
+                class="q-px-sm text-weight-bold"
+                @click="filterByStatus(estatusEnRevisionId)"
+              >
+                <span>En Revisión</span>
+                <q-badge
+                  :color="
+                    isEstatusActive(estatusEnRevisionId) ? 'white' : 'amber-9'
+                  "
+                  :text-color="
+                    isEstatusActive(estatusEnRevisionId) ? 'amber-9' : 'white'
+                  "
+                  class="q-ml-xs text-weight-bolder"
+                >
+                  {{ countEnRevision }}
+                </q-badge>
+                <q-tooltip>
+                  {{
+                    isEstatusActive(estatusEnRevisionId)
+                      ? "Filtro activo: clic para mostrar todas"
+                      : "Filtrar por solicitudes En Revisión (Coordinación de Compras)"
+                  }}
+                </q-tooltip>
+              </q-btn>
+
+              <!-- Botón 2: Por Autorizar (Azul) con contador -->
               <q-btn
                 dense
                 no-caps
@@ -300,7 +331,7 @@
                 class="q-px-sm text-weight-bold"
                 @click="filterByStatus(estatusSolicitadoId)"
               >
-                <span>Por Revisar</span>
+                <span>Por Autorizar</span>
                 <q-badge
                   :color="
                     isEstatusActive(estatusSolicitadoId) ? 'white' : 'primary'
@@ -310,18 +341,49 @@
                   "
                   class="q-ml-xs text-weight-bolder"
                 >
-                  {{ countPorRevisar }}
+                  {{ countPorAutorizar }}
                 </q-badge>
                 <q-tooltip>
                   {{
                     isEstatusActive(estatusSolicitadoId)
                       ? "Filtro activo: clic para mostrar todas"
-                      : "Filtrar por solicitudes Por Revisar (Solicitado)"
+                      : "Filtrar por solicitudes Por Autorizar (Solicitado)"
                   }}
                 </q-tooltip>
               </q-btn>
 
-              <!-- Botón 2: Autorizadas (Verde) -->
+              <!-- Botón 3: A Corregir (Rosa/Naranja oscuro) con contador -->
+              <q-btn
+                dense
+                no-caps
+                :unelevated="isEstatusActive(estatusACorregirId)"
+                :outline="!isEstatusActive(estatusACorregirId)"
+                color="deep-orange-8"
+                class="q-px-sm text-weight-bold"
+                @click="filterByStatus(estatusACorregirId)"
+              >
+                <span>A Corregir</span>
+                <q-badge
+                  :color="
+                    isEstatusActive(estatusACorregirId) ? 'white' : 'deep-orange-8'
+                  "
+                  :text-color="
+                    isEstatusActive(estatusACorregirId) ? 'deep-orange-8' : 'white'
+                  "
+                  class="q-ml-xs text-weight-bolder"
+                >
+                  {{ countACorregir }}
+                </q-badge>
+                <q-tooltip>
+                  {{
+                    isEstatusActive(estatusACorregirId)
+                      ? "Filtro activo: clic para mostrar todas"
+                      : "Filtrar por solicitudes A Corregir"
+                  }}
+                </q-tooltip>
+              </q-btn>
+
+              <!-- Botón 4: Autorizadas (Verde) -->
               <q-btn
                 dense
                 no-caps
@@ -332,6 +394,17 @@
                 @click="filterByStatus(estatusAutorizadoId)"
               >
                 <span>Autorizadas</span>
+                <q-badge
+                  :color="
+                    isEstatusActive(estatusAutorizadoId) ? 'white' : 'positive'
+                  "
+                  :text-color="
+                    isEstatusActive(estatusAutorizadoId) ? 'positive' : 'white'
+                  "
+                  class="q-ml-xs text-weight-bolder"
+                >
+                  {{ countAutorizadas }}
+                </q-badge>
                 <q-tooltip>
                   {{
                     isEstatusActive(estatusAutorizadoId)
@@ -341,7 +414,7 @@
                 </q-tooltip>
               </q-btn>
 
-              <!-- Botón 3: No Autorizadas (Rojo) -->
+              <!-- Botón 5: No Autorizadas (Rojo) -->
               <q-btn
                 dense
                 no-caps
@@ -352,6 +425,17 @@
                 @click="filterByStatus(estatusNoAutorizadoId)"
               >
                 <span>No Autorizadas</span>
+                <q-badge
+                  :color="
+                    isEstatusActive(estatusNoAutorizadoId) ? 'white' : 'negative'
+                  "
+                  :text-color="
+                    isEstatusActive(estatusNoAutorizadoId) ? 'negative' : 'white'
+                  "
+                  class="q-ml-xs text-weight-bolder"
+                >
+                  {{ countNoAutorizadas }}
+                </q-badge>
                 <q-tooltip>
                   {{
                     isEstatusActive(estatusNoAutorizadoId)
@@ -1241,6 +1325,8 @@
       <service-card
         :service="selectedRow"
         @authorized="handleOrderAuthorized"
+        @reviewed="handleOrderAuthorized"
+        @edit="handleEditFromCard"
       />
       <q-card-actions align="right" class="bg-grey-2">
         <q-btn flat label="Cerrar" color="grey-8" v-close-popup />
@@ -1442,30 +1528,90 @@ const filterForm = ref({
 });
 
 const statusCounts = ref({
+  en_revision: 0,
   solicitado: 0,
+  a_corregir: 0,
   autorizado: 0,
   no_autorizado: 0,
+  en_revision_id: null,
+  solicitado_id: null,
+  a_corregir_id: null,
+  autorizado_id: null,
+  no_autorizado_id: null,
+});
+
+const estatusEnRevisionId = computed(() => {
+  if (statusCounts.value?.en_revision_id) {
+    return Number(statusCounts.value.en_revision_id);
+  }
+  const est = catalogs.value?.estatus?.find(
+    (e) =>
+      (e.nombre || "").trim().toLowerCase() === "en revisión" ||
+      (e.nombre || "").trim().toLowerCase() === "en revision" ||
+      (e.clave || "").trim().toLowerCase() === "en-revision"
+  );
+  return est?.id ? Number(est.id) : 181;
 });
 
 const estatusSolicitadoId = computed(() => {
-  return catalogs.value?.estatus?.find(
+  if (statusCounts.value?.solicitado_id) {
+    return Number(statusCounts.value.solicitado_id);
+  }
+  const est = catalogs.value?.estatus?.find(
     (e) => (e.nombre || "").trim().toLowerCase() === "solicitado"
   );
+  return est?.id ? Number(est.id) : null;
+});
+
+const estatusACorregirId = computed(() => {
+  if (statusCounts.value?.a_corregir_id) {
+    return Number(statusCounts.value.a_corregir_id);
+  }
+  const est = catalogs.value?.estatus?.find(
+    (e) =>
+      (e.nombre || "").trim().toLowerCase() === "a corregir" ||
+      (e.clave || "").trim().toLowerCase() === "a-corregir"
+  );
+  return est?.id ? Number(est.id) : 182;
 });
 
 const estatusAutorizadoId = computed(() => {
-  return catalogs.value?.estatus?.find(
+  if (statusCounts.value?.autorizado_id) {
+    return Number(statusCounts.value.autorizado_id);
+  }
+  const est = catalogs.value?.estatus?.find(
     (e) => (e.nombre || "").trim().toLowerCase() === "autorizado"
   );
+  return est?.id ? Number(est.id) : null;
 });
 
 const estatusNoAutorizadoId = computed(() => {
-  return catalogs.value?.estatus?.find(
+  if (statusCounts.value?.no_autorizado_id) {
+    return Number(statusCounts.value.no_autorizado_id);
+  }
+  const est = catalogs.value?.estatus?.find(
     (e) => (e.nombre || "").trim().toLowerCase() === "no autorizado"
   );
+  return est?.id ? Number(est.id) : null;
 });
 
-const countPorRevisar = computed(() => {
+const countEnRevision = computed(() => {
+  if (
+    statusCounts.value &&
+    statusCounts.value.en_revision !== undefined &&
+    statusCounts.value.en_revision !== null
+  ) {
+    return Number(statusCounts.value.en_revision);
+  }
+  return rows.value.filter(
+    (r) =>
+      Number(r.estatus_id) === Number(estatusEnRevisionId.value) ||
+      (r.estatus?.nombre || "").trim().toLowerCase() === "en revisión" ||
+      (r.estatus?.nombre || "").trim().toLowerCase() === "en revision"
+  ).length;
+});
+
+const countPorAutorizar = computed(() => {
   if (
     statusCounts.value &&
     statusCounts.value.solicitado !== undefined &&
@@ -1477,6 +1623,51 @@ const countPorRevisar = computed(() => {
     (r) =>
       Number(r.estatus_id) === Number(estatusSolicitadoId.value) ||
       (r.estatus?.nombre || "").trim().toLowerCase() === "solicitado"
+  ).length;
+});
+
+const countACorregir = computed(() => {
+  if (
+    statusCounts.value &&
+    statusCounts.value.a_corregir !== undefined &&
+    statusCounts.value.a_corregir !== null
+  ) {
+    return Number(statusCounts.value.a_corregir);
+  }
+  return rows.value.filter(
+    (r) =>
+      Number(r.estatus_id) === Number(estatusACorregirId.value) ||
+      (r.estatus?.nombre || "").trim().toLowerCase() === "a corregir"
+  ).length;
+});
+
+const countAutorizadas = computed(() => {
+  if (
+    statusCounts.value &&
+    statusCounts.value.autorizado !== undefined &&
+    statusCounts.value.autorizado !== null
+  ) {
+    return Number(statusCounts.value.autorizado);
+  }
+  return rows.value.filter(
+    (r) =>
+      Number(r.estatus_id) === Number(estatusAutorizadoId.value) ||
+      (r.estatus?.nombre || "").trim().toLowerCase() === "autorizado"
+  ).length;
+});
+
+const countNoAutorizadas = computed(() => {
+  if (
+    statusCounts.value &&
+    statusCounts.value.no_autorizado !== undefined &&
+    statusCounts.value.no_autorizado !== null
+  ) {
+    return Number(statusCounts.value.no_autorizado);
+  }
+  return rows.value.filter(
+    (r) =>
+      Number(r.estatus_id) === Number(estatusNoAutorizadoId.value) ||
+      (r.estatus?.nombre || "").trim().toLowerCase() === "no autorizado"
   ).length;
 });
 
@@ -1613,16 +1804,16 @@ const columns = [
 
 const canEdit = (row) => {
   const isAdmin = checkRole("Admin");
-  const isCoordinadorCompras = checkPuestoIncludes("Coordinador de compras");
-  const isDirectorAdmin = checkRole("Director administrativo");
-  const estatus = getOrdenEstatus(row)?.nombre;
-  // console.log(estatus);
-  return (
-    isAdmin ||
-    (isCoordinadorCompras && estatus !== "Solicitado") ||
-    isDirectorAdmin ||
-    estatus === "Solicitado"
-  );
+  const estatusNombre = (getOrdenEstatus(row)?.nombre || "").trim().toLowerCase();
+
+  if (isAdmin) return true;
+  // Órdenes cerradas/finalizadas no se pueden editar
+  if (estatusNombre === "autorizado" || estatusNombre === "no autorizado") {
+    return false;
+  }
+
+  // Solicitudes en revisión, a corregir o solicitadas sí son editables
+  return true;
 };
 
 const getOrdenEstatus = (row) => {
@@ -1885,6 +2076,11 @@ const handleOrderAuthorized = (updatedOrden) => {
   showShow.value = false;
   getRows(current_page.value);
   getForms();
+};
+
+const handleEditFromCard = (service) => {
+  showShow.value = false;
+  editRow(service || selectedRow.value);
 };
 
 const getForms = async () => {
