@@ -152,7 +152,14 @@
           />
         </div>
 
-        <div class="col-12 col-md-4 flex justify-end">
+        <div class="col-12 col-md-4 flex justify-end q-gutter-sm">
+          <q-btn
+            outline
+            label="Catálogos"
+            color="secondary"
+            @click="showCatalogos = true"
+            icon="category"
+          />
           <q-btn
             unelevated
             label="Agregar"
@@ -521,6 +528,29 @@
       :loading="loadingServices"
     />
   </q-dialog>
+
+  <q-dialog
+    v-model="showCatalogos"
+    transition-show="scale"
+    transition-hide="scale"
+    @hide="onCatalogosHide"
+  >
+    <q-card style="width: 850px; max-width: 95vw">
+      <q-item class="text-white bg-primary">
+        <q-item-section>
+          <q-item-label class="text-h6">
+            Catálogos de Vehículos (Marcas, Modelos y Tipos)
+          </q-item-label>
+        </q-item-section>
+        <q-item-section side>
+          <q-btn dense flat round icon="close" color="white" v-close-popup />
+        </q-item-section>
+      </q-item>
+      <q-card-section class="q-pa-md">
+        <vehicle-catalogos @updated="catalogosUpdated = true" />
+      </q-card-section>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script setup>
@@ -532,6 +562,7 @@ import VehicleForm from "src/components/Vehicle/VehicleForm.vue";
 import VehicleEmployee from "src/components/Vehicle/VehicleEmployee.vue";
 import VehicleCard from "src/components/Vehicle/VehicleCard.vue";
 import VehicleServicesDashboard from "src/components/Vehicle/VehicleServicesDashboard.vue";
+import VehicleCatalogos from "src/components/Vehicle/VehicleCatalogos.vue";
 
 const rows = ref([]);
 const selectedRow = ref(null);
@@ -542,6 +573,8 @@ const showServices = ref(false);
 const loadingServices = ref(false);
 const add = ref(null);
 const showAdd = ref(false);
+const showCatalogos = ref(false);
+const catalogosUpdated = ref(false);
 const edit = ref(null);
 const showEdit = ref(false);
 
@@ -711,6 +744,13 @@ const getForms = async () => {
   modelos.value = res.modelos;
   types.value = res.tipos;
   empleados.value = res.empleados;
+};
+
+const onCatalogosHide = () => {
+  if (catalogosUpdated.value) {
+    catalogosUpdated.value = false;
+    getForms();
+  }
 };
 
 const getRows = async (page = 1) => {

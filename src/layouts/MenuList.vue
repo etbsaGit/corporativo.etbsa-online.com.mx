@@ -407,6 +407,22 @@
         clickable
         dense
         v-ripple
+        to="/vehicles-catalogos"
+        :active="link === 'vehicles-catalogos'"
+        @click="link = 'vehicles-catalogos'"
+        active-class="my-menu-link"
+      >
+        <q-item-section avatar>
+          <q-icon name="category" />
+        </q-item-section>
+
+        <q-item-section>Catálogos de Vehículos</q-item-section>
+      </q-item>
+      <q-item
+        v-if="checkRole('cc') || checkRole('Admin')"
+        clickable
+        dense
+        v-ripple
         to="/oc-services"
         :active="link === 'services'"
         @click="link = 'services'"

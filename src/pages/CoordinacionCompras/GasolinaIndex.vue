@@ -1355,11 +1355,7 @@ const authStore = useAuthStore();
 const $q = useQuasar();
 
 const onlyMyUnit = computed(() => {
-  return (
-    props.onlyMyUnit ||
-    route.path === "/gasolinaUnidad" ||
-    route.path === "/dispersionGasolina"
-  );
+  return props.onlyMyUnit || route.path === "/dispersionGasolina";
 });
 
 const assignedVehicle = ref(null);
