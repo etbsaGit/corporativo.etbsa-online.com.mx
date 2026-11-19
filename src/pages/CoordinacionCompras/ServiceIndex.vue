@@ -165,7 +165,7 @@
             :options="filteredProveedores"
             label="Proveedor"
             option-value="id"
-            option-label="nombre"
+            :option-label="(p) => p?.razon_social || p?.nombre || ''"
             emit-value
             map-options
             use-input
@@ -2002,7 +2002,10 @@ const filterProveedoresFn = (val, update) => {
   update(() => {
     const q = val.toLowerCase();
     filteredProveedores.value = (catalogs.value.proveedores || []).filter(
-      (p) => p.nombre && p.nombre.toLowerCase().includes(q)
+      (p) =>
+        (p.razon_social && p.razon_social.toLowerCase().includes(q)) ||
+        (p.nombre && p.nombre.toLowerCase().includes(q)) ||
+        (p.rfc && p.rfc.toLowerCase().includes(q))
     );
   });
 };

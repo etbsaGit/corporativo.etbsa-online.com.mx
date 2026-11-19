@@ -347,7 +347,7 @@
                   :options="filteredProveedoresOpts"
                   label="Proveedor / Taller"
                   option-value="id"
-                  option-label="nombre"
+                  :option-label="(p) => p?.razon_social || p?.nombre || ''"
                   emit-value
                   map-options
                   use-input
@@ -2058,8 +2058,11 @@ const filterProveedoresFn = (val, update) => {
   }
   update(() => {
     const q = val.toLowerCase();
-    filteredProveedoresOpts.value = catalogs.value.proveedores.filter((p) =>
-      p.nombre?.toLowerCase().includes(q)
+    filteredProveedoresOpts.value = (catalogs.value.proveedores || []).filter(
+      (p) =>
+        (p.razon_social && p.razon_social.toLowerCase().includes(q)) ||
+        (p.nombre && p.nombre.toLowerCase().includes(q)) ||
+        (p.rfc && p.rfc.toLowerCase().includes(q))
     );
   });
 };
@@ -2302,7 +2305,7 @@ const baseFilteredServices = computed(() => {
         estatus_id: orden.estatus_id,
         estatus_nombre: orden.estatus?.nombre || "Registrado",
         proveedor_id: provId,
-        proveedor_nombre: provObj?.nombre || null,
+        proveedor_nombre: provObj?.razon_social || provObj?.nombre || null,
         solicitante_nombre: orden.solicitante?.nombreCompleto || null,
         sucursal_cargo_nombre: sucCargoObj?.nombre || null,
         depto_cargo_nombre: deptoCargoObj?.nombre || null,

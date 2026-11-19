@@ -366,6 +366,22 @@
 
             <div class="row items-center q-gutter-x-sm">
               <q-btn
+                v-if="!onlyMyUnit"
+                outline
+                dense
+                no-caps
+                color="deep-purple"
+                icon="autorenew"
+                label="Dispersión automática"
+                @click="showAutomaticaModal = true"
+                class="q-px-sm"
+              >
+                <q-tooltip>
+                  Configurar unidades y litros para dispersión automática cada lunes 8:00 AM
+                </q-tooltip>
+              </q-btn>
+
+              <q-btn
                 v-if="canAuthorizeGasolina && countPorRevisar > 0"
                 outline
                 dense
@@ -476,8 +492,13 @@
           <q-tr
             :props="props"
             :class="[
-              isExpanded(props.row.id) ? 'bg-amber-1' : '',
-              isRowSelected(props.row.id) ? 'bg-green-1' : '',
+              isExpanded(props.row.id)
+                ? 'bg-amber-1'
+                : isRowSelected(props.row.id)
+                ? 'bg-green-1'
+                : props.row.is_automatica
+                ? 'bg-deep-purple-1'
+                : '',
             ]"
           >
             <!-- Checkbox de Selección Masiva (solo activa para solicitudes en estatus Solicitado) -->
@@ -578,6 +599,14 @@
                 >
                   <q-icon name="priority_high" size="12px" />
                   Urgente
+                </q-badge>
+                <q-badge
+                  v-if="props.row.is_automatica"
+                  color="deep-purple"
+                  class="text-weight-bold q-px-xs"
+                >
+                  <q-icon name="autorenew" size="12px" class="q-mr-xs" />
+                  Automática
                 </q-badge>
               </div>
             </q-td>
@@ -728,6 +757,13 @@
                           >
                             URGENTE
                           </q-badge>
+                          <q-badge
+                            v-if="props.row.is_automatica"
+                            color="deep-purple"
+                            class="q-ml-sm"
+                          >
+                            AUTOMÁTICA
+                          </q-badge>
                         </div>
                       </q-item-section>
                       <q-item-section side>
@@ -791,13 +827,21 @@
                             }}
                           </td>
                           <td class="text-center">
-                            <q-badge
-                              :color="
-                                props.row.is_urgente ? 'negative' : 'blue-grey'
-                              "
-                            >
-                              {{ props.row.is_urgente ? "Urgente" : "Normal" }}
-                            </q-badge>
+                            <div class="row items-center justify-center q-gutter-xs">
+                              <q-badge
+                                :color="
+                                  props.row.is_urgente ? 'negative' : 'blue-grey'
+                                "
+                              >
+                                {{ props.row.is_urgente ? "Urgente" : "Normal" }}
+                              </q-badge>
+                              <q-badge
+                                v-if="props.row.is_automatica"
+                                color="deep-purple"
+                              >
+                                Automática
+                              </q-badge>
+                            </div>
                           </td>
                           <td>
                             {{
@@ -1325,6 +1369,12 @@
       </q-card-actions>
     </q-card>
   </q-dialog>
+
+  <!-- Modal Configuración de Dispersión Automática Semanal -->
+  <GasolinaAutomaticaDialog
+    v-model="showAutomaticaModal"
+    :vehicles="catalogs.vehicles"
+  />
 </template>
 
 <script setup>
@@ -1342,6 +1392,7 @@ import {
 import BaseDialog from "src/bases/BaseDialog.vue";
 import ServiceCard from "src/components/CoordinacionCompras/ServiceCard.vue";
 import GasolinaForm from "src/components/CoordinacionCompras/GasolinaForm.vue";
+import GasolinaAutomaticaDialog from "src/components/CoordinacionCompras/GasolinaAutomaticaDialog.vue";
 
 const props = defineProps({
   onlyMyUnit: {
@@ -1377,6 +1428,7 @@ const savingDispersar = ref(false);
 // Estado de selección masiva y modal de autorización de golpe
 const selectedRows = ref([]);
 const showBulkAuthModal = ref(false);
+const showAutomaticaModal = ref(false);
 const submittingBulkAuth = ref(false);
 const bulkAuthForm = ref({
   comentarios: "",

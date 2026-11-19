@@ -154,6 +154,23 @@
     </q-item>
 
     <q-item
+      v-if="checkRole('Empleado')"
+      dense
+      clickable
+      v-ripple
+      to="/proveedores-autorizados"
+      :active="link === 'proveedores-autorizados'"
+      @click="link = 'proveedores-autorizados'"
+      active-class="my-menu-link"
+    >
+      <q-item-section avatar>
+        <q-icon name="verified_user" />
+      </q-item-section>
+
+      <q-item-section>Proveedores Autorizados</q-item-section>
+    </q-item>
+
+    <q-item
       clickable
       dense
       v-ripple

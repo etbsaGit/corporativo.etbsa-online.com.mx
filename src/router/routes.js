@@ -199,6 +199,11 @@ const routes = [
         component: () =>
           import("src/pages/CoordinacionCompras/GasolinaIndex.vue"),
       },
+      {
+        path: "/proveedores-autorizados",
+        component: () =>
+          import("src/pages/CoordinacionCompras/ProveedoresAutorizadosPage.vue"),
+      },
     ],
   },
   {

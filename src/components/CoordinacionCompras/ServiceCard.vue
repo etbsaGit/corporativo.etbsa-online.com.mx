@@ -341,7 +341,7 @@
                 <div class="col-12">
                   <div class="text-caption text-grey-7">Proveedor / Taller</div>
                   <div class="text-body2 text-weight-bold text-dark">
-                    {{ service?.proveedor?.nombre || "No especificado" }}
+                    {{ service?.proveedor?.razon_social || service?.proveedor?.nombre || "No especificado" }}
                   </div>
                 </div>
                 <div class="col-6">
@@ -766,7 +766,9 @@
                             size="16px"
                           />
                           <span>{{
+                            cot.proveedor?.razon_social ||
                             cot.proveedor?.nombre ||
+                            props.service?.proveedor?.razon_social ||
                             props.service?.proveedor?.nombre ||
                             "-"
                           }}</span>
@@ -2377,7 +2379,9 @@ const proveedoresSeleccionados = computed(() => {
       item.cotizacion.proveedor?.id ||
       "sin_prov";
     const pNombre =
-      item.cotizacion.proveedor?.nombre || "Proveedor no asignado";
+      item.cotizacion.proveedor?.razon_social ||
+      item.cotizacion.proveedor?.nombre ||
+      "Proveedor no asignado";
 
     if (!map.has(pId)) {
       map.set(pId, {

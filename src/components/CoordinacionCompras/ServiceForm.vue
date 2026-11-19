@@ -569,7 +569,7 @@
                       :options="filteredProveedores"
                       label="Proveedor / Taller *"
                       option-value="id"
-                      option-label="nombre"
+                      :option-label="(p) => p?.razon_social || p?.nombre || ''"
                       emit-value
                       map-options
                       use-input
@@ -1208,7 +1208,7 @@ const getConceptoServiceName = (concepto) => {
 const getProveedorName = (provId) => {
   if (!provId) return "";
   const found = proveedores.value.find((p) => Number(p.id) === Number(provId));
-  return found?.nombre || "";
+  return found?.razon_social || found?.nombre || "";
 };
 
 const onRejectedFile = () => {
@@ -1459,7 +1459,10 @@ const filterProveedoresFn = (val, update) => {
   update(() => {
     const q = val.toLowerCase().trim();
     filteredProveedores.value = proveedores.value.filter(
-      (p) => p.nombre && p.nombre.toLowerCase().includes(q)
+      (p) =>
+        (p.razon_social && p.razon_social.toLowerCase().includes(q)) ||
+        (p.nombre && p.nombre.toLowerCase().includes(q)) ||
+        (p.rfc && p.rfc.toLowerCase().includes(q))
     );
   });
 };
@@ -1738,7 +1741,7 @@ const getProveedoresFiscalSummary = () => {
 
         provMap.set(provId, {
           proveedor_id: provId,
-          nombre: provObj?.nombre || `Proveedor #${provId}`,
+          nombre: provObj?.razon_social || provObj?.nombre || `Proveedor #${provId}`,
           rfc: provObj?.rfc || null,
           forma_pago: fpObj
             ? `${fpObj.clave} - ${fpObj.nombre}`
