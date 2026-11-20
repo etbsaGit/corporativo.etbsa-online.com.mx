@@ -12,14 +12,6 @@
         />
         Datos de la Solicitud de Dispersión de Gasolina
       </div>
-      <q-badge
-        v-if="formGasolina.is_urgente"
-        color="negative"
-        class="q-px-sm q-py-xs text-weight-bold"
-      >
-        <q-icon name="priority_high" size="14px" class="q-mr-xs" />
-        SOLICITUD URGENTE
-      </q-badge>
     </div>
 
     <q-card flat bordered class="bg-grey-1 q-mb-md">
@@ -220,85 +212,76 @@
             </q-select>
           </div>
 
-          <!-- 7. Switch Solicitud Urgente -->
+          <!-- 7. Fecha y Hora Requerida de Dispersión -->
           <div class="col-12 col-sm-6 col-md-4">
-            <div
-              class="q-pa-sm rounded-borders row items-center justify-between full-height"
-              :class="
-                formGasolina.is_urgente
-                  ? 'bg-red-1 border-negative'
-                  : 'bg-white border-grey'
-              "
-            >
-              <div class="row items-center no-wrap">
-                <q-icon
-                  :name="
-                    formGasolina.is_urgente
-                      ? 'notification_important'
-                      : 'schedule'
-                  "
-                  :color="formGasolina.is_urgente ? 'negative' : 'grey-7'"
-                  size="22px"
-                  class="q-mr-sm"
-                />
-                <div>
-                  <div
-                    class="text-body2 text-weight-bold"
-                    :class="
-                      formGasolina.is_urgente ? 'text-negative' : 'text-grey-9'
-                    "
-                  >
-                    {{
-                      formGasolina.is_urgente
-                        ? "Dispersión Urgente"
-                        : "Prioridad Normal"
-                    }}
-                  </div>
-                  <div class="text-caption text-grey-7">
-                    Marcar si requiere atención inmediata
-                  </div>
-                </div>
-              </div>
-              <q-toggle
-                v-model="formGasolina.is_urgente"
-                color="negative"
-                keep-color
-              />
-            </div>
-          </div>
-
-          <!-- 8. Notas / Observaciones -->
-          <div class="col-12 col-sm-6 col-md-8">
             <q-input
-              v-model="formGasolina.notas"
-              type="textarea"
-              rows="2"
-              :label="
-                formGasolina.is_urgente
-                  ? 'Notas u Observaciones (Motivo de urgencia) *'
-                  : 'Notas u Observaciones (Opcional)'
-              "
-              :placeholder="
-                formGasolina.is_urgente
-                  ? 'Indique obligatoriamente el motivo por el cual la dispersión es urgente...'
-                  : 'Ej. Dispersión semanal de gasolina para ruta...'
-              "
+              v-model="formGasolina.fecha_requerida"
+              type="datetime-local"
+              label="Fecha y Hora Requerida *"
+              stack-label
               outlined
               dense
               bg-color="white"
               :rules="[
                 (val) =>
-                  !formGasolina.is_urgente ||
-                  (val && String(val).trim().length > 0) ||
-                  'Las notas son obligatorias cuando la dispersión es urgente',
+                  !!val ||
+                  'Indique la fecha y hora en que se necesita la dispersión',
               ]"
-              lazy-rules
             >
               <template v-slot:prepend>
-                <q-icon
-                  name="notes"
-                  :color="formGasolina.is_urgente ? 'negative' : 'grey-7'"
-                />
+                <q-icon name="event_available" color="primary" />
+              </template>
+            </q-input>
+          </div>
+
+          <!-- 8. URL del Recorrido (Google Maps) -->
+          <div class="col-12 col-sm-6 col-md-8">
+            <q-input
+              v-model="formGasolina.recorrido_url"
+              type="url"
+              label="URL del Recorrido (Google Maps) *"
+              placeholder="Ej. https://maps.app.goo.gl/... o https://www.google.com/maps/dir/..."
+              outlined
+              dense
+              clearable
+              bg-color="white"
+              :rules="[validateRecorridoUrl]"
+            >
+              <template v-slot:prepend>
+                <q-icon name="route" color="positive" />
+              </template>
+              <template v-slot:append>
+                <q-btn
+                  v-if="isValidHttpUrl(formGasolina.recorrido_url)"
+                  flat
+                  round
+                  dense
+                  color="primary"
+                  icon="open_in_new"
+                  type="a"
+                  :href="formGasolina.recorrido_url"
+                  target="_blank"
+                >
+                  <q-tooltip>Abrir recorrido en Google Maps</q-tooltip>
+                </q-btn>
+              </template>
+            </q-input>
+          </div>
+
+          <!-- 9. Notas / Observaciones -->
+          <div class="col-12">
+            <q-input
+              v-model="formGasolina.notas"
+              type="textarea"
+              rows="2"
+              label="Notas u Observaciones (Opcional)"
+              placeholder="Ej. Dispersión semanal de gasolina para ruta..."
+              outlined
+              dense
+              bg-color="white"
+            >
+              <template v-slot:prepend>
+                <q-icon name="notes" color="grey-7" />
               </template>
             </q-input>
           </div>
@@ -310,6 +293,7 @@
 
 <script setup>
 import { ref, computed, watch, onMounted } from "vue";
+import { date } from "quasar";
 import { useAuthStore } from "src/stores/auth";
 import { checkRole, checkPuestoIncludes } from "src/boot/functions";
 
@@ -347,18 +331,30 @@ const canChangeSolicitante = computed(() => {
   );
 });
 
+const getDefaultDateTimeLocal = () => {
+  return date.formatDate(new Date(), "YYYY-MM-DDTHH:mm");
+};
+
+const formatToDateTimeLocal = (val) => {
+  if (!val) return getDefaultDateTimeLocal();
+  const parsed = new Date(val);
+  if (isNaN(parsed.getTime())) return getDefaultDateTimeLocal();
+  return date.formatDate(parsed, "YYYY-MM-DDTHH:mm");
+};
+
 const formGasolina = ref({
   id: null,
   vehicle_id: null,
   km_evento: null,
   lts_solicitados: null,
   lts_dispersados: null,
+  fecha_requerida: getDefaultDateTimeLocal(),
+  recorrido_url: "",
   notas: "",
   solicitado_por: null,
   suc_cargo_id: null,
   depto_cargo_id: null,
   estatus_id: null,
-  is_urgente: false,
 });
 
 const filteredVehicles = ref([]);
@@ -416,6 +412,26 @@ const validateLitros = (val) => {
   const num = Number(val);
   if (isNaN(num) || num <= 0 || !Number.isInteger(num)) {
     return "Ingrese una cantidad entera mayor a 0";
+  }
+  return true;
+};
+
+const isValidHttpUrl = (val) => {
+  if (!val || typeof val !== "string") return false;
+  try {
+    const parsed = new URL(val.trim());
+    return parsed.protocol === "http:" || parsed.protocol === "https:";
+  } catch {
+    return false;
+  }
+};
+
+const validateRecorridoUrl = (val) => {
+  if (!val || !String(val).trim()) {
+    return "La URL del recorrido en Google Maps es obligatoria";
+  }
+  if (!isValidHttpUrl(val)) {
+    return "Ingrese una URL válida que inicie con http:// o https://";
   }
   return true;
 };
@@ -515,12 +531,15 @@ const initForm = () => {
         ord.lts_dispersados !== undefined && ord.lts_dispersados !== null
           ? Number(ord.lts_dispersados)
           : null,
+      fecha_requerida: formatToDateTimeLocal(
+        ord.fecha_requerida || ord.created_at
+      ),
+      recorrido_url: ord.recorrido_url || "",
       notas: ord.notas || "",
       solicitado_por: ord.solicitado_por || ord.solicitante_id || null,
       suc_cargo_id: ord.suc_cargo_id || null,
       depto_cargo_id: ord.depto_cargo_id || null,
       estatus_id: ord.estatus_id || null,
-      is_urgente: Boolean(ord.is_urgente),
     };
   } else {
     const defaultVehId = props.fixedVehicleId
@@ -536,12 +555,13 @@ const initForm = () => {
       km_evento: null,
       lts_solicitados: null,
       lts_dispersados: null,
+      fecha_requerida: getDefaultDateTimeLocal(),
+      recorrido_url: "",
       notas: "",
       solicitado_por: defaultSolId ? Number(defaultSolId) : null,
       suc_cargo_id: null,
       depto_cargo_id: null,
       estatus_id: null,
-      is_urgente: false,
     };
   }
 
@@ -573,15 +593,6 @@ watch(
   { deep: true }
 );
 
-watch(
-  () => formGasolina.value.is_urgente,
-  (isUrgente) => {
-    if (!isUrgente && myForm.value) {
-      myForm.value.resetValidation();
-    }
-  }
-);
-
 onMounted(() => {
   initForm();
 });
@@ -607,8 +618,11 @@ const getPayload = () => {
       formGasolina.value.km_evento !== ""
         ? Number(formGasolina.value.km_evento)
         : null,
+    fecha_requerida: formGasolina.value.fecha_requerida
+      ? formGasolina.value.fecha_requerida.replace("T", " ")
+      : null,
+    recorrido_url: formGasolina.value.recorrido_url?.trim() || null,
     notas: formGasolina.value.notas?.trim() || null,
-    is_urgente: Boolean(formGasolina.value.is_urgente),
   };
 
   if (formGasolina.value.id) {
@@ -640,11 +654,5 @@ defineExpose({
 <style scoped>
 .border-amber {
   border: 1px solid #ffb300;
-}
-.border-grey {
-  border: 1px solid #e0e0e0;
-}
-.border-negative {
-  border: 1px solid var(--q-negative);
 }
 </style>

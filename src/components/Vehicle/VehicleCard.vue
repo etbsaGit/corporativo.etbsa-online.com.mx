@@ -192,6 +192,79 @@
         </q-card-section>
       </q-card>
 
+      <!-- Expediente y Vigencias Actuales -->
+      <div class="text-subtitle1 text-weight-bold text-primary q-mb-xs flex items-center">
+        <q-icon name="folder_shared" class="q-mr-xs" size="sm" />
+        Expediente y Vigencias Actuales
+      </div>
+      <q-card flat bordered class="q-mb-md bg-grey-1">
+        <q-card-section class="q-pa-sm">
+          <div class="row q-col-gutter-sm">
+            <div
+              v-for="docItem in resumenExpediente"
+              :key="docItem.tipo"
+              class="col-12 col-sm-4"
+            >
+              <q-card flat bordered class="bg-white full-height">
+                <q-card-section class="q-pa-sm">
+                  <div class="row items-center justify-between no-wrap q-mb-xs">
+                    <div class="row items-center no-wrap">
+                      <q-icon
+                        :name="docItem.icon"
+                        :color="docItem.color"
+                        size="18px"
+                        class="q-mr-xs"
+                      />
+                      <span class="text-caption text-weight-bold text-dark">
+                        {{ docItem.titulo }}
+                      </span>
+                    </div>
+                    <q-badge
+                      :color="docItem.color"
+                      :label="docItem.badge"
+                      class="text-weight-bold"
+                    />
+                  </div>
+
+                  <template v-if="docItem.doc">
+                    <div class="text-caption text-grey-8 ellipsis">
+                      <strong>Folio:</strong> {{ docItem.doc.folio_o_poliza || "S/F" }}
+                    </div>
+                    <div
+                      v-if="docItem.doc.detalle_extra"
+                      class="text-caption text-grey-7 ellipsis"
+                    >
+                      {{ docItem.doc.detalle_extra }}
+                    </div>
+                    <div class="text-caption text-grey-8">
+                      <strong>Vence:</strong> {{ docItem.vencimientoLabel }}
+                    </div>
+                    <div v-if="docItem.doc.archivo_url" class="q-mt-xs">
+                      <q-btn
+                        dense
+                        flat
+                        no-caps
+                        size="xs"
+                        color="teal-7"
+                        icon="open_in_new"
+                        label="Ver documento"
+                        :href="docItem.doc.archivo_url"
+                        target="_blank"
+                      />
+                    </div>
+                  </template>
+                  <template v-else>
+                    <div class="text-caption text-grey-5 italic q-mt-xs">
+                      Sin documento registrado
+                    </div>
+                  </template>
+                </q-card-section>
+              </q-card>
+            </div>
+          </div>
+        </q-card-section>
+      </q-card>
+
       <!-- Historial de Placas -->
       <div class="text-subtitle1 text-weight-bold text-primary q-mb-xs flex items-center justify-between">
         <div class="flex items-center">
@@ -303,6 +376,54 @@ const usuariosUnidad = computed(() => {
 
 const historialList = computed(() => {
   return props.vehicle?.historial_placas || props.vehicle?.historialPlacas || [];
+});
+
+const resumenExpediente = computed(() => {
+  const vigentes =
+    props.vehicle?.documentos_vigentes ||
+    props.vehicle?.documentosVigentes ||
+    (props.vehicle?.documentos || []).filter((d) => d.es_vigente);
+
+  const cats = [
+    { tipo: "seguro", titulo: "Seguro", icon: "shield" },
+    { tipo: "tarjeta_circulacion", titulo: "Tarjeta Circ.", icon: "badge" },
+    { tipo: "verificacion", titulo: "Verificación", icon: "eco" },
+  ];
+
+  return cats.map((c) => {
+    const doc = vigentes.find((d) => d.tipo_documento === c.tipo) || null;
+    if (!doc) {
+      return {
+        ...c,
+        doc: null,
+        color: "grey-6",
+        badge: "Sin registro",
+        vencimientoLabel: "—",
+      };
+    }
+
+    let color = "positive";
+    let badge = "Vigente";
+    if (doc.estatus_vigencia === "vencido") {
+      color = "negative";
+      badge = "Vencido";
+    } else if (doc.estatus_vigencia === "por_vencer") {
+      color = "amber-9";
+      badge = "Por vencer";
+    }
+
+    const vencimientoLabel = doc.fecha_vencimiento
+      ? String(doc.fecha_vencimiento).substring(0, 10).split("-").reverse().join("/")
+      : "Permanente";
+
+    return {
+      ...c,
+      doc,
+      color,
+      badge,
+      vencimientoLabel,
+    };
+  });
 });
 
 const formatFecha = (fechaStr) => {

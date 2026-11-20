@@ -19,14 +19,6 @@
                     : `Orden de Compra #${service?.id}`
                 }}
               </span>
-              <q-badge
-                v-if="onlyGasolina && service?.is_urgente"
-                color="negative"
-                class="text-weight-bold q-px-sm"
-              >
-                <q-icon name="priority_high" size="14px" class="q-mr-xs" />
-                URGENTE
-              </q-badge>
             </div>
             <div class="text-caption text-blue-1">
               Fecha:
@@ -308,15 +300,33 @@
                   </div>
                 </div>
                 <div class="col-6">
-                  <div class="text-caption text-grey-7">Prioridad</div>
-                  <div>
-                    <q-badge
-                      :color="service?.is_urgente ? 'negative' : 'blue-grey'"
-                      class="q-px-sm text-weight-bold"
+                  <div class="text-caption text-grey-7">
+                    Fecha / Hora Requerida
+                  </div>
+                  <div
+                    v-if="service?.fecha_requerida"
+                    class="row items-center q-gutter-x-xs"
+                  >
+                    <span
+                      class="text-body2 text-weight-bold"
+                      :class="fechaRequeridaMeta?.textColor || 'text-primary'"
                     >
-                      {{ service?.is_urgente ? "Urgente" : "Normal" }}
+                      {{ formatFechaHora(service.fecha_requerida) }}
+                    </span>
+                    <q-badge
+                      v-if="fechaRequeridaMeta"
+                      :color="fechaRequeridaMeta.color"
+                      class="text-weight-bold q-px-xs"
+                    >
+                      <q-icon
+                        :name="fechaRequeridaMeta.badgeIcon"
+                        size="12px"
+                        class="q-mr-xs"
+                      />
+                      {{ fechaRequeridaMeta.label }}
                     </q-badge>
                   </div>
+                  <div v-else class="text-body2">-</div>
                 </div>
                 <div class="col-6">
                   <div class="text-caption text-grey-7">Estatus Actual</div>
@@ -335,6 +345,24 @@
                     </q-badge>
                     <span v-else>-</span>
                   </div>
+                </div>
+                <div class="col-12" v-if="service?.recorrido_url">
+                  <div class="text-caption text-grey-7">
+                    Recorrido (Google Maps)
+                  </div>
+                  <q-btn
+                    dense
+                    outline
+                    no-caps
+                    color="primary"
+                    icon="route"
+                    label="Ver recorrido en Google Maps"
+                    size="sm"
+                    class="q-mt-xs"
+                    type="a"
+                    :href="service.recorrido_url"
+                    target="_blank"
+                  />
                 </div>
               </div>
               <div v-else class="row q-col-gutter-sm">
@@ -448,17 +476,56 @@
             <thead>
               <tr class="bg-grey-1 text-grey-8">
                 <th class="text-left">Concepto</th>
+                <th class="text-left">Fecha / Hora Requerida</th>
+                <th class="text-center">Recorrido (Maps)</th>
                 <th class="text-left">Notas / Observaciones</th>
                 <th class="text-right">Kilometraje (KM)</th>
                 <th class="text-center">Litros Solicitados</th>
                 <th class="text-center">Litros Autorizados / Dispersados</th>
-                <th class="text-center">Prioridad</th>
               </tr>
             </thead>
             <tbody>
               <tr>
                 <td class="text-weight-bold text-primary">
                   Dispersión de gasolina
+                </td>
+                <td class="text-weight-bold text-primary">
+                  <div
+                    v-if="service?.fecha_requerida"
+                    class="row items-center q-gutter-x-xs"
+                  >
+                    <span>{{ formatFechaHora(service.fecha_requerida) }}</span>
+                    <q-badge
+                      v-if="fechaRequeridaMeta"
+                      :color="fechaRequeridaMeta.color"
+                      class="text-weight-bold q-px-xs"
+                    >
+                      <q-icon
+                        :name="fechaRequeridaMeta.badgeIcon"
+                        size="12px"
+                        class="q-mr-xs"
+                      />
+                      {{ fechaRequeridaMeta.label }}
+                    </q-badge>
+                  </div>
+                  <span v-else>-</span>
+                </td>
+                <td class="text-center">
+                  <q-btn
+                    v-if="service?.recorrido_url"
+                    dense
+                    outline
+                    no-caps
+                    size="sm"
+                    color="primary"
+                    icon="map"
+                    label="Abrir en Maps"
+                    type="a"
+                    :href="service.recorrido_url"
+                    target="_blank"
+                    class="q-px-sm"
+                  />
+                  <span v-else class="text-caption text-grey-6">-</span>
                 </td>
                 <td style="max-width: 360px; white-space: normal">
                   {{ service?.notas || "Sin observaciones" }}
@@ -490,13 +557,6 @@
                     {{ service.lts_dispersados }} Lts
                   </q-badge>
                   <span v-else class="text-caption text-grey-6">Pendiente</span>
-                </td>
-                <td class="text-center">
-                  <q-badge
-                    :color="service?.is_urgente ? 'negative' : 'blue-grey'"
-                  >
-                    {{ service?.is_urgente ? "Urgente" : "Normal" }}
-                  </q-badge>
                 </td>
               </tr>
             </tbody>
@@ -2758,6 +2818,102 @@ const formatFechaHora = (fechaStr) => {
   if (!fechaStr) return "-";
   return date.formatDate(fechaStr, "DD/MM/YYYY hh:mm A");
 };
+
+const formatRemainingDiff = (diffMinutes) => {
+  const absMins = Math.round(Math.abs(diffMinutes));
+  if (absMins < 60) {
+    return `${absMins} min`;
+  }
+  const hours = Math.floor(absMins / 60);
+  const mins = absMins % 60;
+  if (hours < 24) {
+    return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
+  }
+  const days = Math.floor(hours / 24);
+  const remHours = hours % 24;
+  return remHours > 0 ? `${days}d ${remHours}h` : `${days} día(s)`;
+};
+
+const fechaRequeridaMeta = computed(() => {
+  if (!props.onlyGasolina || !props.service?.fecha_requerida) return null;
+  const target = new Date(props.service.fecha_requerida);
+  if (isNaN(target.getTime())) return null;
+
+  const estatusNombre = (props.service?.estatus?.nombre || "")
+    .trim()
+    .toLowerCase();
+  if (estatusNombre === "dispersada" || estatusNombre === "no autorizado") {
+    return null;
+  }
+
+  const now = new Date();
+  const diffMs = target.getTime() - now.getTime();
+  const diffMinutes = diffMs / (1000 * 60);
+  const diffHours = diffMinutes / 60;
+
+  const isSameDay =
+    target.getFullYear() === now.getFullYear() &&
+    target.getMonth() === now.getMonth() &&
+    target.getDate() === now.getDate();
+
+  const tomorrow = new Date(now);
+  tomorrow.setDate(now.getDate() + 1);
+  const isTomorrow =
+    target.getFullYear() === tomorrow.getFullYear() &&
+    target.getMonth() === tomorrow.getMonth() &&
+    target.getDate() === tomorrow.getDate();
+
+  if (diffMinutes <= 0) {
+    const elapsed = formatRemainingDiff(diffMinutes);
+    return {
+      color: "negative",
+      textColor: "text-negative",
+      badgeIcon: "priority_high",
+      label:
+        Math.abs(diffMinutes) < 15
+          ? "Inmediata · Ahora"
+          : `Vencida · Hace ${elapsed}`,
+    };
+  }
+
+  if (diffHours <= 2) {
+    const rem = formatRemainingDiff(diffMinutes);
+    return {
+      color: "negative",
+      textColor: "text-negative",
+      badgeIcon: "local_fire_department",
+      label: `Urgente · En ${rem}`,
+    };
+  }
+
+  if (diffHours <= 6 || isSameDay) {
+    const rem = formatRemainingDiff(diffMinutes);
+    return {
+      color: "deep-orange",
+      textColor: "text-deep-orange-9",
+      badgeIcon: "schedule",
+      label: `Para hoy · En ${rem}`,
+    };
+  }
+
+  if (diffHours <= 24 || isTomorrow) {
+    const rem = formatRemainingDiff(diffMinutes);
+    return {
+      color: "amber-9",
+      textColor: "text-amber-10",
+      badgeIcon: "hourglass_top",
+      label: isTomorrow ? `Mañana · En ${rem}` : `Próxima · En ${rem}`,
+    };
+  }
+
+  const rem = formatRemainingDiff(diffMinutes);
+  return {
+    color: "blue-grey-6",
+    textColor: "text-primary",
+    badgeIcon: "event_available",
+    label: `Programada · En ${rem}`,
+  };
+});
 
 const openPdf = (url) => {
   if (url) {

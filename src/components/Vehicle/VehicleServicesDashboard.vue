@@ -727,14 +727,6 @@
                 <span class="text-weight-bold text-primary font-mono">
                   #{{ props.row.id }}
                 </span>
-                <q-badge
-                  v-if="props.row.is_urgente"
-                  color="red-8"
-                  text-color="white"
-                  class="q-px-xs text-weight-bold"
-                >
-                  Urgente
-                </q-badge>
               </div>
             </q-td>
           </template>
@@ -743,6 +735,12 @@
             <q-td :props="props">
               <div class="text-weight-bold text-dark">
                 {{ formatFecha(props.row.fecha_elaboracion) }}
+              </div>
+              <div
+                v-if="props.row.fecha_requerida"
+                class="text-caption text-primary text-weight-medium"
+              >
+                Req: {{ formatFechaHora(props.row.fecha_requerida) }}
               </div>
             </q-td>
           </template>
@@ -816,6 +814,23 @@
             <q-td :props="props" style="max-width: 280px; white-space: normal">
               <div class="text-body2 text-grey-9">
                 {{ props.row.descripcion || "Sin notas" }}
+              </div>
+              <div
+                v-if="props.row.recorrido_url"
+                class="q-mt-xs"
+              >
+                <q-btn
+                  dense
+                  outline
+                  no-caps
+                  size="xs"
+                  color="primary"
+                  icon="route"
+                  label="Ver recorrido Maps"
+                  type="a"
+                  :href="props.row.recorrido_url"
+                  target="_blank"
+                />
               </div>
               <div
                 v-if="props.row.solicitante_nombre"
@@ -1387,8 +1402,9 @@ const flatServices = computed(() => {
         id: disp.id,
         orden_id: disp.id,
         fecha_elaboracion: disp.created_at,
+        fecha_requerida: disp.fecha_requerida || null,
+        recorrido_url: disp.recorrido_url || null,
         estatus: disp.estatus || null,
-        is_urgente: Boolean(disp.is_urgente),
         solicitante_nombre: disp.solicitante?.nombreCompleto || null,
         sucursal_cargo_nombre: sucCargoObj?.nombre || null,
         depto_cargo_nombre: deptoCargoObj?.nombre || null,
@@ -2127,6 +2143,11 @@ const formatFecha = (fechaStr) => {
     return `${d}/${m}/${y}`;
   }
   return date.formatDate(fechaStr, "DD/MM/YYYY");
+};
+
+const formatFechaHora = (fechaStr) => {
+  if (!fechaStr) return "-";
+  return date.formatDate(fechaStr, "DD/MM/YYYY hh:mm A");
 };
 
 const formatCompactCurrency = (val) => {

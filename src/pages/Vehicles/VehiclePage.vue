@@ -117,7 +117,7 @@
           />
         </div>
 
-        <div class="col-12 col-sm-6 col-md-3">
+        <div class="col-12 col-sm-6 col-md-2">
           <q-select
             v-model="filterForm.departamento_id"
             :options="departamentos"
@@ -129,6 +129,21 @@
             map-options
             transition-show="jump-up"
             transition-hide="jump-up"
+            clearable
+            outlined
+            dense
+            options-dense
+            @update:model-value="getRows()"
+          />
+        </div>
+
+        <div class="col-12 col-sm-6 col-md-2">
+          <q-select
+            v-model="filterForm.estatus_expediente"
+            :options="estatusExpedienteOptions"
+            label="Expediente / Vigencias"
+            emit-value
+            map-options
             clearable
             outlined
             dense
@@ -152,7 +167,7 @@
           />
         </div>
 
-        <div class="col-12 col-md-4 flex justify-end q-gutter-sm">
+        <div class="col-12 col-md-3 flex justify-end q-gutter-sm">
           <q-btn
             outline
             label="Catálogos"
@@ -194,6 +209,16 @@
               @click="openInfo(props.row)"
             >
               <q-tooltip>Ver información</q-tooltip>
+            </q-btn>
+
+            <q-btn
+              dense
+              color="amber-9"
+              flat
+              icon="folder_shared"
+              @click="openExpediente(props.row)"
+            >
+              <q-tooltip>Expediente de Papeleo (Seguro, Tarjeta, Verificación)</q-tooltip>
             </q-btn>
 
             <q-btn
@@ -297,6 +322,35 @@
                 color="primary"
                 label="Responsable"
               />
+            </div>
+          </q-td>
+        </template>
+
+        <template v-slot:body-cell-expediente="props">
+          <q-td :props="props">
+            <div
+              class="row items-center no-wrap q-gutter-x-xs cursor-pointer"
+              @click="openExpediente(props.row)"
+            >
+              <q-badge
+                v-for="docItem in getRowExpedienteBadges(props.row)"
+                :key="docItem.tipo"
+                :color="docItem.color"
+                class="q-px-xs q-py-xs text-weight-bold"
+              >
+                <q-icon :name="docItem.icon" size="12px" class="q-mr-xs" />
+                {{ docItem.shortLabel }}
+                <q-tooltip class="bg-grey-10 text-body2">
+                  <div class="text-weight-bold">{{ docItem.titulo }}</div>
+                  <div>Estatus: <strong>{{ docItem.statusLabel }}</strong></div>
+                  <div v-if="docItem.folio">Folio/Póliza: {{ docItem.folio }}</div>
+                  <div v-if="docItem.detalle">Detalle: {{ docItem.detalle }}</div>
+                  <div v-if="docItem.vencimiento">Vence: {{ docItem.vencimiento }}</div>
+                  <div class="text-caption text-amber-2 q-mt-xs">
+                    Clic para abrir expediente
+                  </div>
+                </q-tooltip>
+              </q-badge>
             </div>
           </q-td>
         </template>
@@ -530,6 +584,18 @@
   </q-dialog>
 
   <q-dialog
+    v-model="showExpediente"
+    transition-show="scale"
+    transition-hide="scale"
+  >
+    <vehicle-expediente
+      v-if="expedienteVehicle"
+      :vehicle="expedienteVehicle"
+      @updated="getRows(current_page)"
+    />
+  </q-dialog>
+
+  <q-dialog
     v-model="showCatalogos"
     transition-show="scale"
     transition-hide="scale"
@@ -563,6 +629,7 @@ import VehicleEmployee from "src/components/Vehicle/VehicleEmployee.vue";
 import VehicleCard from "src/components/Vehicle/VehicleCard.vue";
 import VehicleServicesDashboard from "src/components/Vehicle/VehicleServicesDashboard.vue";
 import VehicleCatalogos from "src/components/Vehicle/VehicleCatalogos.vue";
+import VehicleExpediente from "src/components/Vehicle/VehicleExpediente.vue";
 
 const rows = ref([]);
 const selectedRow = ref(null);
@@ -571,6 +638,8 @@ const showInfo = ref(false);
 const servicesVehicle = ref(null);
 const showServices = ref(false);
 const loadingServices = ref(false);
+const expedienteVehicle = ref(null);
+const showExpediente = ref(false);
 const add = ref(null);
 const showAdd = ref(false);
 const showCatalogos = ref(false);
@@ -614,12 +683,21 @@ const filterForm = ref({
   departamento_id: null,
   linea_id: null,
   sucursal_id: null,
+  estatus_expediente: null,
   activo: 1,
 });
 
 const activoOptions = [
   { label: "Activos", value: 1 },
   { label: "Inactivos", value: 0 },
+];
+
+const estatusExpedienteOptions = [
+  { label: "Requiere atención (Vencido / Por vencer / Incompleto)", value: "atencion" },
+  { label: "Con documentos vencidos", value: "vencido" },
+  { label: "Próximos a vencer (≤ 30 días)", value: "por_vencer" },
+  { label: "Expediente incompleto", value: "incompleto" },
+  { label: "Expediente al corriente (3/3)", value: "al_corriente" },
 ];
 
 const columns = computed(() => {
@@ -673,6 +751,12 @@ const columns = computed(() => {
       label: "Encargados",
     },
     {
+      name: "expediente",
+      align: "left",
+      field: "expediente",
+      label: "Expediente (Seg. / Tarj. / Verif.)",
+    },
+    {
       name: "activo",
       align: "center",
       field: "activo",
@@ -723,6 +807,83 @@ const openServices = async (item) => {
   } finally {
     loadingServices.value = false;
   }
+};
+
+const openExpediente = (item) => {
+  expedienteVehicle.value = item;
+  showExpediente.value = true;
+};
+
+const getRowExpedienteBadges = (row) => {
+  const vigentes = row?.documentos_vigentes || row?.documentosVigentes || [];
+  const defs = [
+    {
+      tipo: "seguro",
+      shortLabel: "Seg",
+      titulo: "Seguro Vehicular",
+      icon: "shield",
+    },
+    {
+      tipo: "tarjeta_circulacion",
+      shortLabel: "Tarj",
+      titulo: "Tarjeta de Circulación",
+      icon: "badge",
+    },
+    {
+      tipo: "verificacion",
+      shortLabel: "Verif",
+      titulo: "Verificación Vehicular",
+      icon: "eco",
+    },
+  ];
+
+  return defs.map((def) => {
+    const doc = vigentes.find((d) => d.tipo_documento === def.tipo);
+    if (!doc) {
+      return {
+        ...def,
+        color: "grey-5",
+        statusLabel: "Sin registro",
+        folio: null,
+        detalle: null,
+        vencimiento: null,
+      };
+    }
+
+    let color = "positive";
+    let statusLabel = "Vigente";
+
+    if (doc.estatus_vigencia === "vencido") {
+      color = "negative";
+      statusLabel =
+        doc.dias_restantes !== null
+          ? `Vencido (hace ${Math.abs(doc.dias_restantes)} días)`
+          : "Vencido";
+    } else if (doc.estatus_vigencia === "por_vencer") {
+      color = "amber-9";
+      statusLabel =
+        doc.dias_restantes === 0
+          ? "Por vencer (vence hoy)"
+          : `Por vencer (faltan ${doc.dias_restantes} días)`;
+    } else if (!doc.fecha_vencimiento) {
+      statusLabel = "Vigente (Permanente)";
+    } else if (doc.dias_restantes !== null) {
+      statusLabel = `Vigente (${doc.dias_restantes} días restantes)`;
+    }
+
+    const cleanDate = doc.fecha_vencimiento
+      ? String(doc.fecha_vencimiento).substring(0, 10).split("-").reverse().join("/")
+      : "Permanente";
+
+    return {
+      ...def,
+      color,
+      statusLabel,
+      folio: doc.folio_o_poliza,
+      detalle: doc.detalle_extra,
+      vencimiento: cleanDate,
+    };
+  });
 };
 
 const openEdit = (item) => {

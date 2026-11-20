@@ -586,20 +586,12 @@
               </q-btn>
             </q-td>
 
-            <!-- Folio / Prioridad -->
+            <!-- Folio -->
             <q-td key="folio" :props="props">
               <div class="row items-center no-wrap q-gutter-x-xs">
                 <span class="text-weight-bold text-dark">
                   #{{ props.row.id }}
                 </span>
-                <q-badge
-                  v-if="props.row.is_urgente"
-                  color="negative"
-                  class="text-weight-bold q-px-xs"
-                >
-                  <q-icon name="priority_high" size="12px" />
-                  Urgente
-                </q-badge>
                 <q-badge
                   v-if="props.row.is_automatica"
                   color="deep-purple"
@@ -614,6 +606,40 @@
             <!-- Fecha -->
             <q-td key="fecha" :props="props" class="text-weight-bold">
               {{ formatFecha(props.row.created_at) }}
+            </q-td>
+
+            <!-- Fecha Requerida -->
+            <q-td key="fecha_requerida" :props="props">
+              <div v-if="props.row.fecha_requerida" class="column q-gutter-y-xs">
+                <div
+                  class="text-weight-bold row items-center no-wrap q-gutter-x-xs"
+                  :class="getFechaRequeridaMeta(props.row)?.textColor || 'text-dark'"
+                >
+                  <q-icon
+                    :name="getFechaRequeridaMeta(props.row)?.icon || 'event_available'"
+                    size="15px"
+                  />
+                  <span>{{ formatFechaHora(props.row.fecha_requerida) }}</span>
+                </div>
+                <div v-if="getFechaRequeridaMeta(props.row)">
+                  <q-badge
+                    :color="getFechaRequeridaMeta(props.row).color"
+                    :text-color="getFechaRequeridaMeta(props.row).badgeTextColor || 'white'"
+                    class="text-weight-bold q-px-xs"
+                  >
+                    <q-icon
+                      :name="getFechaRequeridaMeta(props.row).badgeIcon"
+                      size="12px"
+                      class="q-mr-xs"
+                    />
+                    {{ getFechaRequeridaMeta(props.row).label }}
+                    <q-tooltip>
+                      {{ getFechaRequeridaMeta(props.row).tooltip }}
+                    </q-tooltip>
+                  </q-badge>
+                </div>
+              </div>
+              <span v-else class="text-caption text-grey-5">-</span>
             </q-td>
 
             <!-- Cargo (Sucursal / Depto / Solicitante) -->
@@ -717,6 +743,27 @@
               </span>
               <span v-else class="text-caption text-grey-5">No reg.</span>
             </q-td>
+
+            <!-- Recorrido Google Maps -->
+            <q-td key="recorrido" :props="props" class="text-center">
+              <q-btn
+                v-if="props.row.recorrido_url"
+                dense
+                outline
+                no-caps
+                size="sm"
+                color="primary"
+                icon="route"
+                label="Ver ruta"
+                type="a"
+                :href="props.row.recorrido_url"
+                target="_blank"
+                class="q-px-sm"
+              >
+                <q-tooltip>Abrir recorrido en Google Maps</q-tooltip>
+              </q-btn>
+              <span v-else class="text-caption text-grey-5">-</span>
+            </q-td>
           </q-tr>
 
           <!-- Fila Desplegable: Detalles de Dispersión y Bitácora -->
@@ -751,13 +798,6 @@
                           }}
                           (Placa: {{ props.row.vehicle?.placas || "S/P" }})
                           <q-badge
-                            v-if="props.row.is_urgente"
-                            color="negative"
-                            class="q-ml-sm"
-                          >
-                            URGENTE
-                          </q-badge>
-                          <q-badge
                             v-if="props.row.is_automatica"
                             color="deep-purple"
                             class="q-ml-sm"
@@ -790,11 +830,12 @@
                       <thead>
                         <tr class="bg-grey-2 text-grey-8">
                           <th class="text-left">Concepto</th>
+                          <th class="text-left">Fecha / Hora Requerida</th>
+                          <th class="text-center">Recorrido (Maps)</th>
                           <th class="text-left">Notas / Observaciones</th>
                           <th class="text-right">Kilometraje (KM)</th>
                           <th class="text-center">Litros Solicitados</th>
                           <th class="text-center">Litros Dispersados</th>
-                          <th class="text-center">Prioridad</th>
                           <th class="text-left">Registrado Por</th>
                         </tr>
                       </thead>
@@ -802,6 +843,54 @@
                         <tr>
                           <td class="text-weight-bold text-primary">
                             Dispersión de gasolina
+                          </td>
+                          <td class="text-weight-bold text-primary">
+                            <div
+                              v-if="props.row.fecha_requerida"
+                              class="row items-center q-gutter-x-xs"
+                            >
+                              <span>{{
+                                formatFechaHora(props.row.fecha_requerida)
+                              }}</span>
+                              <q-badge
+                                v-if="getFechaRequeridaMeta(props.row)"
+                                :color="getFechaRequeridaMeta(props.row).color"
+                                :text-color="
+                                  getFechaRequeridaMeta(props.row)
+                                    .badgeTextColor || 'white'
+                                "
+                                class="text-weight-bold q-px-xs"
+                              >
+                                <q-icon
+                                  :name="
+                                    getFechaRequeridaMeta(props.row).badgeIcon
+                                  "
+                                  size="12px"
+                                  class="q-mr-xs"
+                                />
+                                {{ getFechaRequeridaMeta(props.row).label }}
+                              </q-badge>
+                            </div>
+                            <span v-else>-</span>
+                          </td>
+                          <td class="text-center">
+                            <q-btn
+                              v-if="props.row.recorrido_url"
+                              dense
+                              outline
+                              no-caps
+                              size="sm"
+                              color="primary"
+                              icon="map"
+                              label="Abrir en Maps"
+                              type="a"
+                              :href="props.row.recorrido_url"
+                              target="_blank"
+                              class="q-px-sm"
+                            />
+                            <span v-else class="text-caption text-grey-5"
+                              >-</span
+                            >
                           </td>
                           <td style="max-width: 360px; white-space: normal">
                             {{ props.row.notas || "-" }}
@@ -825,23 +914,6 @@
                                 ? `${props.row.lts_dispersados} L`
                                 : "Pendiente"
                             }}
-                          </td>
-                          <td class="text-center">
-                            <div class="row items-center justify-center q-gutter-xs">
-                              <q-badge
-                                :color="
-                                  props.row.is_urgente ? 'negative' : 'blue-grey'
-                                "
-                              >
-                                {{ props.row.is_urgente ? "Urgente" : "Normal" }}
-                              </q-badge>
-                              <q-badge
-                                v-if="props.row.is_automatica"
-                                color="deep-purple"
-                              >
-                                Automática
-                              </q-badge>
-                            </div>
                           </td>
                           <td>
                             {{
@@ -1260,8 +1332,10 @@
           <thead class="bg-grey-2">
             <tr>
               <th class="text-left">Folio</th>
+              <th class="text-left">Fecha Requerida</th>
               <th class="text-left">Unidad</th>
               <th class="text-left">Solicitante</th>
+              <th class="text-center">Recorrido</th>
               <th class="text-center">Lts Solicitados</th>
               <th class="text-center" style="width: 140px">Lts a Autorizar</th>
               <th class="text-center" style="width: 40px">Quitar</th>
@@ -1271,13 +1345,30 @@
             <tr v-for="row in selectedRows" :key="row.id">
               <td class="text-left text-weight-bold">
                 #{{ row.id }}
-                <q-badge
-                  v-if="row.is_urgente"
-                  color="negative"
-                  class="q-ml-xs text-weight-bold"
-                >
-                  Urgente
-                </q-badge>
+              </td>
+              <td class="text-left">
+                <div v-if="row.fecha_requerida" class="column q-gutter-y-xs">
+                  <span class="text-caption text-weight-bold">
+                    {{ formatFechaHora(row.fecha_requerida) }}
+                  </span>
+                  <div v-if="getFechaRequeridaMeta(row)">
+                    <q-badge
+                      :color="getFechaRequeridaMeta(row).color"
+                      :text-color="
+                        getFechaRequeridaMeta(row).badgeTextColor || 'white'
+                      "
+                      class="text-weight-bold q-px-xs"
+                    >
+                      <q-icon
+                        :name="getFechaRequeridaMeta(row).badgeIcon"
+                        size="11px"
+                        class="q-mr-xs"
+                      />
+                      {{ getFechaRequeridaMeta(row).label }}
+                    </q-badge>
+                  </div>
+                </div>
+                <span v-else class="text-caption text-grey-5">-</span>
               </td>
               <td class="text-left">
                 <div class="text-weight-bold">
@@ -1310,6 +1401,25 @@
                     "N/A"
                   }}
                 </div>
+              </td>
+              <td class="text-center">
+                <q-btn
+                  v-if="row.recorrido_url"
+                  dense
+                  outline
+                  no-caps
+                  size="sm"
+                  color="primary"
+                  icon="route"
+                  label="Ruta"
+                  type="a"
+                  :href="row.recorrido_url"
+                  target="_blank"
+                  class="q-px-xs"
+                >
+                  <q-tooltip>Ver recorrido en Google Maps</q-tooltip>
+                </q-btn>
+                <span v-else class="text-caption text-grey-5">-</span>
               </td>
               <td class="text-center">
                 <q-badge color="amber-10" class="text-weight-bold q-px-sm">
@@ -1851,7 +1961,14 @@ const columns = [
     name: "fecha",
     align: "left",
     field: "created_at",
-    label: "Fecha",
+    label: "Fecha Solicitud",
+    sortable: true,
+  },
+  {
+    name: "fecha_requerida",
+    align: "left",
+    field: "fecha_requerida",
+    label: "Fecha / Hora Requerida",
     sortable: true,
   },
   {
@@ -1889,6 +2006,12 @@ const columns = [
     align: "right",
     field: "km_evento",
     label: "KM Carga",
+  },
+  {
+    name: "recorrido",
+    align: "center",
+    field: "recorrido_url",
+    label: "Recorrido",
   },
 ];
 
@@ -1950,6 +2073,122 @@ const getUsuarioNombre = (item) => {
 const formatFechaHora = (fechaStr) => {
   if (!fechaStr) return "-";
   return date.formatDate(fechaStr, "DD/MM/YYYY hh:mm A");
+};
+
+const formatRemainingDiff = (diffMinutes) => {
+  const absMins = Math.round(Math.abs(diffMinutes));
+  if (absMins < 60) {
+    return `${absMins} min`;
+  }
+  const hours = Math.floor(absMins / 60);
+  const mins = absMins % 60;
+  if (hours < 24) {
+    return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
+  }
+  const days = Math.floor(hours / 24);
+  const remHours = hours % 24;
+  return remHours > 0 ? `${days}d ${remHours}h` : `${days} día(s)`;
+};
+
+const getFechaRequeridaMeta = (row) => {
+  if (!row?.fecha_requerida) return null;
+  const target = new Date(row.fecha_requerida);
+  if (isNaN(target.getTime())) return null;
+
+  const estatusNombre = (getOrdenEstatus(row)?.nombre || "")
+    .trim()
+    .toLowerCase();
+
+  // Si ya fue dispersada o no autorizada, mostrar indicador neutro
+  if (estatusNombre === "dispersada") {
+    return null;
+  }
+  if (estatusNombre === "no autorizado") {
+    return null;
+  }
+
+  const now = new Date();
+  const diffMs = target.getTime() - now.getTime();
+  const diffMinutes = diffMs / (1000 * 60);
+  const diffHours = diffMinutes / 60;
+
+  const isSameDay =
+    target.getFullYear() === now.getFullYear() &&
+    target.getMonth() === now.getMonth() &&
+    target.getDate() === now.getDate();
+
+  const tomorrow = new Date(now);
+  tomorrow.setDate(now.getDate() + 1);
+  const isTomorrow =
+    target.getFullYear() === tomorrow.getFullYear() &&
+    target.getMonth() === tomorrow.getMonth() &&
+    target.getDate() === tomorrow.getDate();
+
+  // 1. Vencida / Ya pasó la hora requerida o es inmediata (<= 0 min)
+  if (diffMinutes <= 0) {
+    const elapsed = formatRemainingDiff(diffMinutes);
+    return {
+      color: "negative",
+      textColor: "text-negative",
+      icon: "notification_important",
+      badgeIcon: "priority_high",
+      label:
+        Math.abs(diffMinutes) < 15
+          ? "Inmediata · Ahora"
+          : `Vencida · Hace ${elapsed}`,
+      tooltip: `La fecha/hora requerida ya venció hace ${elapsed} y sigue pendiente de dispersión`,
+    };
+  }
+
+  // 2. Muy urgente: faltan 2 horas o menos
+  if (diffHours <= 2) {
+    const rem = formatRemainingDiff(diffMinutes);
+    return {
+      color: "negative",
+      textColor: "text-negative",
+      icon: "alarm",
+      badgeIcon: "local_fire_department",
+      label: `Urgente · En ${rem}`,
+      tooltip: `Se necesita muy pronto (en ${rem})`,
+    };
+  }
+
+  // 3. Próxima: faltan hasta 6 horas o es para hoy mismo
+  if (diffHours <= 6 || isSameDay) {
+    const rem = formatRemainingDiff(diffMinutes);
+    return {
+      color: "deep-orange",
+      textColor: "text-deep-orange-9",
+      icon: "schedule",
+      badgeIcon: "schedule",
+      label: `Para hoy · En ${rem}`,
+      tooltip: `Programada para hoy (faltan ${rem})`,
+    };
+  }
+
+  // 4. Para mañana o dentro de las próximas 24 horas
+  if (diffHours <= 24 || isTomorrow) {
+    const rem = formatRemainingDiff(diffMinutes);
+    return {
+      color: "amber-9",
+      textColor: "text-amber-10",
+      icon: "event",
+      badgeIcon: "hourglass_top",
+      label: isTomorrow ? `Mañana · En ${rem}` : `Próxima · En ${rem}`,
+      tooltip: `Se ocupará pronto (en ${rem})`,
+    };
+  }
+
+  // 5. Programada con anticipación (> 24h)
+  const rem = formatRemainingDiff(diffMinutes);
+  return {
+    color: "blue-grey-6",
+    textColor: "text-primary",
+    icon: "event_available",
+    badgeIcon: "event_available",
+    label: `Programada · En ${rem}`,
+    tooltip: `Programada para dentro de ${rem}`,
+  };
 };
 
 const isExpanded = (id) => {
