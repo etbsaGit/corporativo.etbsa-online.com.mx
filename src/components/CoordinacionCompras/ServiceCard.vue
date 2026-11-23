@@ -199,9 +199,11 @@
                   </div>
                 </div>
                 <div class="col-6">
-                  <div class="text-caption text-grey-7">Tipo de Vehículo</div>
+                  <div class="text-caption text-grey-7">
+                    Unidad (Marca / Modelo / Tipo)
+                  </div>
                   <div class="text-body2 text-weight-medium">
-                    {{ service?.vehicle?.estatus?.nombre || "No definido" }}
+                    {{ getVehicleNombre(service?.vehicle) || "No definido" }}
                   </div>
                 </div>
                 <div class="col-12">
@@ -480,6 +482,7 @@
                 <th class="text-center">Recorrido (Maps)</th>
                 <th class="text-left">Notas / Observaciones</th>
                 <th class="text-right">Kilometraje (KM)</th>
+                <th class="text-center">Foto KM</th>
                 <th class="text-center">Litros Solicitados</th>
                 <th class="text-center">Litros Autorizados / Dispersados</th>
               </tr>
@@ -536,6 +539,21 @@
                   }}
                 </td>
                 <td class="text-center">
+                  <q-btn
+                    v-if="service?.foto_km_url"
+                    dense
+                    outline
+                    no-caps
+                    size="sm"
+                    color="amber-10"
+                    icon="photo_camera"
+                    label="Ver foto KM"
+                    class="q-px-sm"
+                    @click="showFotoKmModal = true"
+                  />
+                  <span v-else class="text-caption text-grey-6">-</span>
+                </td>
+                <td class="text-center">
                   <q-badge
                     color="amber-10"
                     text-color="white"
@@ -561,6 +579,77 @@
               </tr>
             </tbody>
           </q-markup-table>
+
+          <!-- Panel comparativo de Foto del Kilometraje vs KM Capturado -->
+          <div
+            v-if="service?.foto_km_url"
+            class="q-pa-sm bg-amber-1 border-top row items-center justify-between q-col-gutter-sm"
+          >
+            <div class="col-12 col-md-5">
+              <div class="row items-center q-gutter-x-sm">
+                <q-icon name="photo_camera" color="amber-10" size="26px" />
+                <div>
+                  <div class="text-subtitle2 text-weight-bold text-grey-9">
+                    Verificación de Kilometraje Real
+                  </div>
+                  <div class="text-caption text-grey-8">
+                    Compara la fotografía del odómetro con el KM capturado:
+                  </div>
+                </div>
+              </div>
+              <div class="q-mt-xs">
+                <q-badge
+                  color="orange-10"
+                  text-color="white"
+                  class="text-subtitle2 text-weight-bolder q-px-md q-py-xs"
+                >
+                  <q-icon name="speed" size="16px" class="q-mr-xs" />
+                  KM Capturado:
+                  {{
+                    service?.km_evento ? formatKm(service.km_evento) : "No reg."
+                  }}
+                </q-badge>
+              </div>
+            </div>
+            <div class="col-12 col-md-7 flex justify-end">
+              <div
+                class="bg-white q-pa-xs rounded-borders border-amber row items-center q-gutter-x-sm"
+              >
+                <q-img
+                  :src="service.foto_km_url"
+                  style="width: 140px; height: 90px"
+                  fit="cover"
+                  class="rounded-borders cursor-pointer shadow-1"
+                  @click="showFotoKmModal = true"
+                />
+                <div class="column q-gutter-y-xs">
+                  <q-btn
+                    unelevated
+                    dense
+                    no-caps
+                    size="sm"
+                    color="amber-10"
+                    icon="zoom_in"
+                    label="Ampliar foto"
+                    class="q-px-sm"
+                    @click="showFotoKmModal = true"
+                  />
+                  <q-btn
+                    flat
+                    dense
+                    no-caps
+                    size="sm"
+                    color="primary"
+                    icon="open_in_new"
+                    label="Abrir original"
+                    type="a"
+                    :href="service.foto_km_url"
+                    target="_blank"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
         </q-expansion-item>
       </q-card>
 
@@ -1026,171 +1115,6 @@
         </q-expansion-item>
       </q-card>
 
-      <!-- Desplegable: Historial de Servicios de la Unidad (Dashboard) -->
-      <q-card flat bordered class="bg-white q-mb-md">
-        <q-expansion-item
-          default-opened
-          header-class="bg-grey-2 text-primary"
-          expand-icon-class="text-primary"
-        >
-          <template v-slot:header>
-            <q-item-section avatar>
-              <q-avatar
-                :icon="onlyGasolina ? 'local_gas_station' : 'analytics'"
-                :color="onlyGasolina ? 'amber-9' : 'indigo-8'"
-                text-color="white"
-                size="30px"
-              />
-            </q-item-section>
-            <q-item-section>
-              <div
-                class="text-subtitle2 text-weight-bold text-primary flex items-center"
-              >
-                {{
-                  onlyGasolina
-                    ? "Historial de Cargas de Gasolina de la Unidad (Dashboard)"
-                    : "Historial de Servicios de la Unidad (Dashboard)"
-                }}
-                <q-badge
-                  :color="onlyGasolina ? 'amber-9' : 'indigo-8'"
-                  class="q-ml-sm"
-                >
-                  {{ dashboardOrdersCount }}
-                  órdenes registradas
-                </q-badge>
-              </div>
-            </q-item-section>
-            <q-item-section side>
-              <div class="text-caption text-grey-8">
-                Unidad:
-                <strong class="text-primary">{{
-                  service?.vehicle?.placas || "S/P"
-                }}</strong>
-              </div>
-            </q-item-section>
-          </template>
-
-          <q-separator />
-
-          <vehicle-services-dashboard
-            :vehicle="vehicleHistory || service?.vehicle"
-            :loading="loadingHistory"
-            :only-gasolina="onlyGasolina"
-            embedded
-          />
-        </q-expansion-item>
-      </q-card>
-
-      <!-- Desplegable: Bitácora de Acciones y Movimientos -->
-      <q-card flat bordered class="bg-white q-mb-md">
-        <q-expansion-item
-          default-opened
-          header-class="bg-grey-2 text-primary"
-          expand-icon-class="text-primary"
-        >
-          <template v-slot:header>
-            <q-item-section avatar>
-              <q-avatar
-                icon="history"
-                color="blue-8"
-                text-color="white"
-                size="30px"
-              />
-            </q-item-section>
-            <q-item-section>
-              <div
-                class="text-subtitle2 text-weight-bold text-primary flex items-center"
-              >
-                Bitácora de Movimientos
-                <q-badge color="blue-8" class="q-ml-sm">
-                  {{ bitacoraList.length }}
-                </q-badge>
-              </div>
-            </q-item-section>
-            <q-item-section side>
-              <div
-                v-if="bitacoraList.length > 0"
-                class="text-caption text-grey-7"
-              >
-                Último:
-                <span class="text-weight-bold">{{
-                  bitacoraList[0]?.estatus?.nombre || "Registrado"
-                }}</span>
-              </div>
-            </q-item-section>
-          </template>
-
-          <q-separator />
-
-          <div
-            v-if="bitacoraList.length === 0"
-            class="q-pa-md text-center text-grey-6"
-          >
-            <q-icon name="history_toggle_off" size="28px" class="q-mb-xs" />
-            <div class="text-caption">
-              No hay registros en la bitácora de esta orden.
-            </div>
-          </div>
-
-          <q-markup-table v-else flat dense separator="horizontal">
-            <thead>
-              <tr class="bg-grey-1 text-grey-8">
-                <th class="text-left" style="width: 175px">Fecha y Hora</th>
-                <th class="text-left" style="width: 140px">Estatus</th>
-                <th class="text-left" style="width: 250px">
-                  Usuario / Empleado
-                </th>
-                <th class="text-left">Comentarios</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="item in bitacoraList" :key="item.id">
-                <td class="text-caption font-mono">
-                  <q-icon
-                    name="schedule"
-                    size="14px"
-                    class="q-mr-xs text-grey-7"
-                  />
-                  {{ formatFechaHora(item.created_at) }}
-                </td>
-                <td>
-                  <q-badge
-                    :style="
-                      item.estatus?.color
-                        ? { backgroundColor: item.estatus.color }
-                        : null
-                    "
-                    :color="!item.estatus?.color ? 'primary' : null"
-                    class="q-px-sm"
-                  >
-                    {{ item.estatus?.nombre || "Sin estatus" }}
-                  </q-badge>
-                </td>
-                <td>
-                  <div class="text-weight-medium text-dark flex items-center">
-                    <q-icon
-                      :name="item.user?.empleado ? 'badge' : 'person'"
-                      size="16px"
-                      class="q-mr-xs text-grey-7"
-                    />
-                    <span>{{ getUsuarioNombre(item) }}</span>
-                  </div>
-                  <div
-                    v-if="item.user?.empleado && item.user?.name"
-                    class="text-caption text-grey-6 q-ml-md"
-                  >
-                    Usuario: {{ item.user.name }}
-                  </div>
-                </td>
-                <td style="white-space: normal">
-                  {{ item.comentarios || "-" }}
-                </td>
-              </tr>
-            </tbody>
-          </q-markup-table>
-        </q-expansion-item>
-      </q-card>
-
       <!-- SECCIÓN: Revisión por Coordinación de Compras (Paso Intermedio) -->
       <q-card
         flat
@@ -1491,11 +1415,11 @@
         </q-card-section>
       </q-card>
 
-      <!-- SECCIÓN: Autorización de la Orden de Compra -->
+      <!-- SECCIÓN: Autorización de la Orden de Compra / Dispersión de Gasolina -->
       <q-card
         flat
         bordered
-        class="bg-white q-mt-md shadow-1"
+        class="bg-white q-mb-md shadow-1"
         v-if="canShowDirectorAuth"
       >
         <q-card-section
@@ -1746,6 +1670,171 @@
             </div>
           </q-form>
         </q-card-section>
+      </q-card>
+
+      <!-- Desplegable: Historial de Servicios de la Unidad (Dashboard) -->
+      <q-card flat bordered class="bg-white q-mb-md">
+        <q-expansion-item
+          :default-opened="!onlyGasolina"
+          header-class="bg-grey-2 text-primary"
+          expand-icon-class="text-primary"
+        >
+          <template v-slot:header>
+            <q-item-section avatar>
+              <q-avatar
+                :icon="onlyGasolina ? 'local_gas_station' : 'analytics'"
+                :color="onlyGasolina ? 'amber-9' : 'indigo-8'"
+                text-color="white"
+                size="30px"
+              />
+            </q-item-section>
+            <q-item-section>
+              <div
+                class="text-subtitle2 text-weight-bold text-primary flex items-center"
+              >
+                {{
+                  onlyGasolina
+                    ? "Historial de Cargas de Gasolina de la Unidad (Dashboard)"
+                    : "Historial de Servicios de la Unidad (Dashboard)"
+                }}
+                <q-badge
+                  :color="onlyGasolina ? 'amber-9' : 'indigo-8'"
+                  class="q-ml-sm"
+                >
+                  {{ dashboardOrdersCount }}
+                  órdenes registradas
+                </q-badge>
+              </div>
+            </q-item-section>
+            <q-item-section side>
+              <div class="text-caption text-grey-8">
+                Unidad:
+                <strong class="text-primary">{{
+                  service?.vehicle?.placas || "S/P"
+                }}</strong>
+              </div>
+            </q-item-section>
+          </template>
+
+          <q-separator />
+
+          <vehicle-services-dashboard
+            :vehicle="vehicleHistory || service?.vehicle"
+            :loading="loadingHistory"
+            :only-gasolina="onlyGasolina"
+            embedded
+          />
+        </q-expansion-item>
+      </q-card>
+
+      <!-- Desplegable: Bitácora de Acciones y Movimientos -->
+      <q-card flat bordered class="bg-white q-mb-md">
+        <q-expansion-item
+          :default-opened="!onlyGasolina"
+          header-class="bg-grey-2 text-primary"
+          expand-icon-class="text-primary"
+        >
+          <template v-slot:header>
+            <q-item-section avatar>
+              <q-avatar
+                icon="history"
+                color="blue-8"
+                text-color="white"
+                size="30px"
+              />
+            </q-item-section>
+            <q-item-section>
+              <div
+                class="text-subtitle2 text-weight-bold text-primary flex items-center"
+              >
+                Bitácora de Movimientos
+                <q-badge color="blue-8" class="q-ml-sm">
+                  {{ bitacoraList.length }}
+                </q-badge>
+              </div>
+            </q-item-section>
+            <q-item-section side>
+              <div
+                v-if="bitacoraList.length > 0"
+                class="text-caption text-grey-7"
+              >
+                Último:
+                <span class="text-weight-bold">{{
+                  bitacoraList[0]?.estatus?.nombre || "Registrado"
+                }}</span>
+              </div>
+            </q-item-section>
+          </template>
+
+          <q-separator />
+
+          <div
+            v-if="bitacoraList.length === 0"
+            class="q-pa-md text-center text-grey-6"
+          >
+            <q-icon name="history_toggle_off" size="28px" class="q-mb-xs" />
+            <div class="text-caption">
+              No hay registros en la bitácora de esta orden.
+            </div>
+          </div>
+
+          <q-markup-table v-else flat dense separator="horizontal">
+            <thead>
+              <tr class="bg-grey-1 text-grey-8">
+                <th class="text-left" style="width: 175px">Fecha y Hora</th>
+                <th class="text-left" style="width: 140px">Estatus</th>
+                <th class="text-left" style="width: 250px">
+                  Usuario / Empleado
+                </th>
+                <th class="text-left">Comentarios</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="item in bitacoraList" :key="item.id">
+                <td class="text-caption font-mono">
+                  <q-icon
+                    name="schedule"
+                    size="14px"
+                    class="q-mr-xs text-grey-7"
+                  />
+                  {{ formatFechaHora(item.created_at) }}
+                </td>
+                <td>
+                  <q-badge
+                    :style="
+                      item.estatus?.color
+                        ? { backgroundColor: item.estatus.color }
+                        : null
+                    "
+                    :color="!item.estatus?.color ? 'primary' : null"
+                    class="q-px-sm"
+                  >
+                    {{ item.estatus?.nombre || "Sin estatus" }}
+                  </q-badge>
+                </td>
+                <td>
+                  <div class="text-weight-medium text-dark flex items-center">
+                    <q-icon
+                      :name="item.user?.empleado ? 'badge' : 'person'"
+                      size="16px"
+                      class="q-mr-xs text-grey-7"
+                    />
+                    <span>{{ getUsuarioNombre(item) }}</span>
+                  </div>
+                  <div
+                    v-if="item.user?.empleado && item.user?.name"
+                    class="text-caption text-grey-6 q-ml-md"
+                  >
+                    Usuario: {{ item.user.name }}
+                  </div>
+                </td>
+                <td style="white-space: normal">
+                  {{ item.comentarios || "-" }}
+                </td>
+              </tr>
+            </tbody>
+          </q-markup-table>
+        </q-expansion-item>
       </q-card>
     </q-card-section>
   </q-card>
@@ -2113,6 +2202,73 @@
       </q-card-actions>
     </q-card>
   </q-dialog>
+
+  <!-- Modal: Ver Foto del Kilometraje Real en Grande -->
+  <q-dialog v-model="showFotoKmModal">
+    <q-card style="width: 780px; max-width: 96vw">
+      <q-card-section
+        class="row items-center justify-between bg-primary text-white q-py-sm"
+      >
+        <div class="row items-center q-gutter-x-sm">
+          <q-icon name="photo_camera" size="22px" />
+          <div>
+            <div class="text-subtitle1 text-weight-bold">
+              Evidencia de Kilometraje - Solicitud #{{ service?.id }} ({{
+                service?.vehicle?.placas || "S/P"
+              }})
+            </div>
+            <div class="text-caption text-blue-1">
+              Verifica que el odómetro coincida con el kilometraje capturado
+            </div>
+          </div>
+        </div>
+        <q-btn icon="close" flat round dense v-close-popup />
+      </q-card-section>
+
+      <q-card-section
+        class="q-py-sm q-px-md bg-amber-1 row items-center justify-between"
+      >
+        <div class="text-subtitle2 text-grey-9">
+          Kilometraje Capturado en Solicitud:
+        </div>
+        <q-badge
+          color="orange-10"
+          text-color="white"
+          class="text-subtitle1 text-weight-bolder q-px-md q-py-xs"
+        >
+          <q-icon name="speed" size="18px" class="q-mr-xs" />
+          {{ service?.km_evento ? formatKm(service.km_evento) : "No reg." }}
+        </q-badge>
+      </q-card-section>
+
+      <q-separator />
+
+      <q-card-section class="q-pa-sm bg-grey-10 flex flex-center">
+        <img
+          v-if="service?.foto_km_url"
+          :src="service.foto_km_url"
+          alt="Foto Kilometraje"
+          style="max-width: 100%; max-height: 72vh; object-fit: contain"
+        />
+      </q-card-section>
+
+      <q-card-actions align="between" class="bg-grey-2 q-px-md">
+        <q-btn
+          v-if="service?.foto_km_url"
+          flat
+          dense
+          no-caps
+          color="primary"
+          icon="open_in_new"
+          label="Abrir imagen en pestaña nueva"
+          type="a"
+          :href="service.foto_km_url"
+          target="_blank"
+        />
+        <q-btn flat label="Cerrar" color="grey-8" v-close-popup />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script setup>
@@ -2246,6 +2402,7 @@ const autorizacionForm = ref({
 
 const selectedQuotes = ref({});
 const confirmAuthModal = ref(false);
+const showFotoKmModal = ref(false);
 
 const estatusNombre = computed(() => {
   return (props.service?.estatus?.nombre || "").trim().toLowerCase();
@@ -2732,6 +2889,23 @@ const getTipoColor = (tipoNombre = "") => {
   if (lower.includes("llanta") || lower.includes("neum")) return "indigo-7";
   if (lower.includes("estét") || lower.includes("carrocer")) return "purple-7";
   return "primary";
+};
+
+const getVehicleNombre = (veh) => {
+  if (!veh) return "";
+  if (veh.nombre_unidad && veh.nombre_unidad !== "Unidad") {
+    return veh.nombre_unidad;
+  }
+  const parts = [
+    veh.marca?.nombre,
+    veh.modelo?.nombre,
+    veh.tipo?.nombre,
+    veh.version,
+  ]
+    .map((p) => (p ? String(p).trim() : ""))
+    .filter(Boolean);
+  if (parts.length > 0) return parts.join(" ");
+  return veh.estatus?.nombre || "No definido";
 };
 
 const formatKm = (val) => {

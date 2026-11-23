@@ -68,10 +68,10 @@
                     <q-item-label class="text-weight-bold">
                       {{ scope.opt.placas || "S/P" }}
                       <span
-                        v-if="scope.opt.linea?.nombre"
+                        v-if="getVehicleNombre(scope.opt)"
                         class="text-weight-normal text-grey-7"
                       >
-                        - {{ scope.opt.linea.nombre }}
+                        - {{ getVehicleNombre(scope.opt) }}
                       </span>
                     </q-item-label>
                     <q-item-label caption>
@@ -164,7 +164,7 @@
                     {{ item.vehicle?.placas || "S/P" }}
                   </q-badge>
                   <span class="text-caption text-weight-medium text-grey-9">
-                    {{ item.vehicle?.linea?.nombre || "" }}
+                    {{ getVehicleNombre(item.vehicle) }}
                   </span>
                 </div>
                 <div class="text-caption text-grey-6">
@@ -283,6 +283,23 @@ const availableVehicles = computed(() => {
   return (props.vehicles || []).filter((v) => !usedIds.has(Number(v.id)));
 });
 
+const getVehicleNombre = (veh) => {
+  if (!veh) return "";
+  if (veh.nombre_unidad && veh.nombre_unidad !== "Unidad") {
+    return veh.nombre_unidad;
+  }
+  const parts = [
+    veh.marca?.nombre,
+    veh.modelo?.nombre,
+    veh.tipo?.nombre,
+    veh.version,
+  ]
+    .map((p) => (p ? String(p).trim() : ""))
+    .filter(Boolean);
+  if (parts.length > 0) return parts.join(" ");
+  return veh.linea?.nombre || "";
+};
+
 const filteredVehicleOptions = computed(() => {
   const term = vehicleSearchTerm.value.trim().toLowerCase();
   if (!term) return availableVehicles.value;
@@ -290,12 +307,12 @@ const filteredVehicleOptions = computed(() => {
     const placas = (v.placas || "").toLowerCase();
     const serie = (v.serie || "").toLowerCase();
     const suc = (v.sucursal?.nombre || "").toLowerCase();
-    const linea = (v.linea?.nombre || "").toLowerCase();
+    const nombreUnidad = getVehicleNombre(v).toLowerCase();
     return (
       placas.includes(term) ||
       serie.includes(term) ||
       suc.includes(term) ||
-      linea.includes(term)
+      nombreUnidad.includes(term)
     );
   });
 });
@@ -307,8 +324,8 @@ const totalLitros = computed(() =>
 const formatVehicleLabel = (v) => {
   if (!v) return "";
   const placas = v.placas || "S/P";
-  const linea = v.linea?.nombre ? ` - ${v.linea.nombre}` : "";
-  return `${placas}${linea}`;
+  const nombre = getVehicleNombre(v);
+  return nombre ? `${placas} - ${nombre}` : placas;
 };
 
 const filterVehiclesFn = (val, update) => {

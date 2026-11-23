@@ -40,7 +40,7 @@
                     {{ veh.placas || "S/P" }}
                   </q-badge>
                   <span class="text-caption text-weight-medium text-grey-9">
-                    {{ veh.estatus?.nombre || "Unidad" }}
+                    {{ getVehicleNombre(veh) }}
                   </span>
                   <q-badge
                     v-if="
@@ -120,7 +120,7 @@
             option-value="id"
             :option-label="
               (v) =>
-                v ? `${v.placas || 'S/P'} (${v.estatus?.nombre || ''})` : ''
+                v ? `${v.placas || 'S/P'} (${getVehicleNombre(v)})` : ''
             "
             emit-value
             map-options
@@ -365,6 +365,21 @@
             </div>
 
             <div class="row items-center q-gutter-x-sm">
+              <q-btn
+                outline
+                dense
+                no-caps
+                color="positive"
+                icon="table_view"
+                label="Descargar Reporte Excel"
+                @click="openExportModal"
+                class="q-px-sm"
+              >
+                <q-tooltip>
+                  Descargar reporte en Excel de dispersiones y rutas por semana o rango de fechas
+                </q-tooltip>
+              </q-btn>
+
               <q-btn
                 v-if="!onlyMyUnit"
                 outline
@@ -693,7 +708,7 @@
                   {{ props.row.vehicle?.placas || "S/P" }}
                 </q-badge>
                 <span class="text-caption text-grey-8">
-                  {{ props.row.vehicle?.estatus?.nombre || "" }}
+                  {{ getVehicleNombre(props.row.vehicle) }}
                 </span>
               </div>
               <div
@@ -735,13 +750,31 @@
 
             <!-- KM Carga / Evento -->
             <q-td key="km" :props="props" class="text-right">
-              <span
-                v-if="props.row.km_evento"
-                class="text-weight-bold text-orange-10"
-              >
-                {{ formatKm(props.row.km_evento) }}
-              </span>
-              <span v-else class="text-caption text-grey-5">No reg.</span>
+              <div class="row items-center justify-end no-wrap q-gutter-x-xs">
+                <span
+                  v-if="props.row.km_evento"
+                  class="text-weight-bold text-orange-10"
+                >
+                  {{ formatKm(props.row.km_evento) }}
+                </span>
+                <span v-else class="text-caption text-grey-5">No reg.</span>
+                <q-btn
+                  v-if="props.row.foto_km_url"
+                  flat
+                  round
+                  dense
+                  size="sm"
+                  color="amber-10"
+                  icon="photo_camera"
+                  @click="openFotoKmPreview(props.row)"
+                >
+                  <q-tooltip>
+                    Ver foto del kilometraje real ({{
+                      formatKm(props.row.km_evento)
+                    }})
+                  </q-tooltip>
+                </q-btn>
+              </div>
             </q-td>
 
             <!-- Recorrido Google Maps -->
@@ -834,6 +867,7 @@
                           <th class="text-center">Recorrido (Maps)</th>
                           <th class="text-left">Notas / Observaciones</th>
                           <th class="text-right">Kilometraje (KM)</th>
+                          <th class="text-center">Foto KM</th>
                           <th class="text-center">Litros Solicitados</th>
                           <th class="text-center">Litros Dispersados</th>
                           <th class="text-left">Registrado Por</th>
@@ -902,6 +936,23 @@
                                 : "No reg."
                             }}
                           </td>
+                          <td class="text-center">
+                            <q-btn
+                              v-if="props.row.foto_km_url"
+                              dense
+                              outline
+                              no-caps
+                              size="sm"
+                              color="amber-10"
+                              icon="photo_camera"
+                              label="Ver foto KM"
+                              class="q-px-sm"
+                              @click="openFotoKmPreview(props.row)"
+                            />
+                            <span v-else class="text-caption text-grey-5"
+                              >-</span
+                            >
+                          </td>
                           <td class="text-center font-mono text-weight-bold">
                             {{ props.row.lts_solicitados ?? 0 }} L
                           </td>
@@ -931,7 +982,6 @@
                 <!-- Desplegable 2: Bitácora de Acciones y Movimientos -->
                 <q-card flat bordered class="bg-white">
                   <q-expansion-item
-                    default-opened
                     header-class="bg-blue-grey-1 text-blue-grey-9"
                     expand-icon-class="text-blue-grey-9"
                   >
@@ -1335,6 +1385,7 @@
               <th class="text-left">Fecha Requerida</th>
               <th class="text-left">Unidad</th>
               <th class="text-left">Solicitante</th>
+              <th class="text-right">KM / Foto</th>
               <th class="text-center">Recorrido</th>
               <th class="text-center">Lts Solicitados</th>
               <th class="text-center" style="width: 140px">Lts a Autorizar</th>
@@ -1373,6 +1424,12 @@
               <td class="text-left">
                 <div class="text-weight-bold">
                   {{ row.vehicle?.placas || "S/P" }}
+                  <span
+                    v-if="getVehicleNombre(row.vehicle)"
+                    class="text-caption text-grey-8 text-weight-medium q-ml-xs"
+                  >
+                    ({{ getVehicleNombre(row.vehicle) }})
+                  </span>
                 </div>
                 <div class="text-caption text-grey-7">
                   {{ row.vehicle?.serie || "Sin serie" }}
@@ -1400,6 +1457,25 @@
                     row.departamentoCargo?.nombre ||
                     "N/A"
                   }}
+                </div>
+              </td>
+              <td class="text-right">
+                <div class="row items-center justify-end no-wrap q-gutter-x-xs">
+                  <span class="text-weight-bold text-orange-10">
+                    {{ row.km_evento ? formatKm(row.km_evento) : "No reg." }}
+                  </span>
+                  <q-btn
+                    v-if="row.foto_km_url"
+                    flat
+                    round
+                    dense
+                    size="sm"
+                    color="amber-10"
+                    icon="photo_camera"
+                    @click="openFotoKmPreview(row)"
+                  >
+                    <q-tooltip>Ver foto del kilometraje</q-tooltip>
+                  </q-btn>
                 </div>
               </td>
               <td class="text-center">
@@ -1485,6 +1561,182 @@
     v-model="showAutomaticaModal"
     :vehicles="catalogs.vehicles"
   />
+
+  <!-- Modal: Ver Foto del Kilometraje Real para Match -->
+  <q-dialog v-model="showFotoKmDialog">
+    <q-card style="width: 760px; max-width: 96vw">
+      <q-card-section
+        class="row items-center justify-between bg-primary text-white q-py-sm"
+      >
+        <div class="row items-center q-gutter-x-sm">
+          <q-icon name="photo_camera" size="24px" />
+          <div>
+            <div class="text-subtitle1 text-weight-bold">
+              Evidencia de Kilometraje - Solicitud #{{ fotoKmRow?.id }} ({{
+                fotoKmRow?.vehicle?.placas || "S/P"
+              }})
+            </div>
+            <div class="text-caption text-blue-1">
+              Verifica que la foto coincida con el kilometraje capturado
+            </div>
+          </div>
+        </div>
+        <q-btn icon="close" flat round dense v-close-popup />
+      </q-card-section>
+
+      <q-card-section
+        class="q-py-sm q-px-md bg-amber-1 row items-center justify-between"
+      >
+        <div class="text-subtitle2 text-grey-9">
+          Kilometraje Capturado en Solicitud:
+        </div>
+        <q-badge
+          color="orange-10"
+          text-color="white"
+          class="text-subtitle1 text-weight-bolder q-px-md q-py-xs"
+        >
+          <q-icon name="speed" size="18px" class="q-mr-xs" />
+          {{ fotoKmRow?.km_evento ? formatKm(fotoKmRow.km_evento) : "No reg." }}
+        </q-badge>
+      </q-card-section>
+
+      <q-separator />
+
+      <q-card-section class="q-pa-sm bg-grey-10 flex flex-center">
+        <img
+          v-if="fotoKmRow?.foto_km_url"
+          :src="fotoKmRow.foto_km_url"
+          alt="Foto Kilometraje"
+          style="max-width: 100%; max-height: 72vh; object-fit: contain"
+        />
+      </q-card-section>
+
+      <q-card-actions align="between" class="bg-grey-2 q-px-md">
+        <q-btn
+          v-if="fotoKmRow?.foto_km_url"
+          flat
+          dense
+          no-caps
+          color="primary"
+          icon="open_in_new"
+          label="Abrir imagen en pestaña nueva"
+          type="a"
+          :href="fotoKmRow.foto_km_url"
+          target="_blank"
+        />
+        <q-btn flat label="Cerrar" color="grey-8" v-close-popup />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
+
+  <!-- Modal: Descargar Reporte en Excel de Dispersiones y Rutas -->
+  <q-dialog v-model="showExportModal" persistent>
+    <q-card style="width: 520px; max-width: 95vw">
+      <q-card-section
+        class="row items-center justify-between bg-positive text-white q-py-sm"
+      >
+        <div class="row items-center q-gutter-x-sm">
+          <q-icon name="table_view" size="26px" />
+          <div>
+            <div class="text-subtitle1 text-weight-bold">
+              Descargar Reporte de Dispersiones y Rutas
+            </div>
+            <div class="text-caption text-white-8">
+              Exportar a Excel folio, unidad, solicitante, litros, ruta, fecha y estatus
+            </div>
+          </div>
+        </div>
+        <q-btn
+          icon="close"
+          flat
+          round
+          dense
+          v-close-popup
+          :disable="exportingExcel"
+        />
+      </q-card-section>
+
+      <q-card-section class="q-pa-md q-gutter-y-md">
+        <div>
+          <div class="text-subtitle2 text-weight-bold text-grey-9 q-mb-xs">
+            Seleccione el periodo a exportar:
+          </div>
+          <div class="column q-gutter-y-xs bg-grey-1 q-pa-sm rounded-borders border-grey">
+            <q-radio
+              v-model="exportForm.periodo"
+              val="esta_semana"
+              color="positive"
+              label="Esta semana (Lunes a Domingo actual)"
+              class="text-weight-medium"
+            />
+            <q-radio
+              v-model="exportForm.periodo"
+              val="semana_anterior"
+              color="positive"
+              label="Semana anterior (Lunes a Domingo pasado)"
+              class="text-weight-medium"
+            />
+            <q-radio
+              v-model="exportForm.periodo"
+              val="rango"
+              color="positive"
+              label="Rango de fechas personalizado"
+              class="text-weight-medium"
+            />
+          </div>
+        </div>
+
+        <div
+          v-if="exportForm.periodo === 'rango'"
+          class="row q-col-gutter-sm q-pt-xs"
+        >
+          <div class="col-12 col-sm-6">
+            <q-input
+              v-model="exportForm.fecha_desde"
+              type="date"
+              label="Fecha Desde *"
+              stack-label
+              outlined
+              dense
+              bg-color="white"
+            />
+          </div>
+          <div class="col-12 col-sm-6">
+            <q-input
+              v-model="exportForm.fecha_hasta"
+              type="date"
+              label="Fecha Hasta *"
+              stack-label
+              outlined
+              dense
+              bg-color="white"
+            />
+          </div>
+        </div>
+      </q-card-section>
+
+      <q-separator />
+
+      <q-card-actions align="right" class="bg-grey-1 q-pa-sm">
+        <q-btn
+          flat
+          label="Cancelar"
+          color="grey-8"
+          v-close-popup
+          :disable="exportingExcel"
+        />
+        <q-btn
+          unelevated
+          color="positive"
+          icon="download"
+          label="Descargar Excel"
+          class="text-weight-bold q-px-md"
+          :loading="exportingExcel"
+          @click="downloadExcelReport"
+        />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script setup>
@@ -1534,6 +1786,113 @@ const showDelete = ref(false);
 const showShow = ref(false);
 const showDispersar = ref(false);
 const savingDispersar = ref(false);
+const showFotoKmDialog = ref(false);
+const fotoKmRow = ref(null);
+
+const openFotoKmPreview = (row) => {
+  if (!row?.foto_km_url) return;
+  fotoKmRow.value = row;
+  showFotoKmDialog.value = true;
+};
+
+const showExportModal = ref(false);
+const exportingExcel = ref(false);
+const exportForm = ref({
+  periodo: "esta_semana",
+  fecha_desde: date.formatDate(new Date(), "YYYY-MM-DD"),
+  fecha_hasta: date.formatDate(new Date(), "YYYY-MM-DD"),
+});
+
+const openExportModal = () => {
+  exportForm.value.periodo = "esta_semana";
+  exportForm.value.fecha_desde = date.formatDate(new Date(), "YYYY-MM-DD");
+  exportForm.value.fecha_hasta = date.formatDate(new Date(), "YYYY-MM-DD");
+  showExportModal.value = true;
+};
+
+const downloadExcelReport = async () => {
+  if (exportForm.value.periodo === "rango") {
+    if (!exportForm.value.fecha_desde || !exportForm.value.fecha_hasta) {
+      $q.notify({
+        type: "warning",
+        message: "Seleccione la fecha de inicio y fecha fin para el rango.",
+        position: "top",
+      });
+      return;
+    }
+    if (exportForm.value.fecha_desde > exportForm.value.fecha_hasta) {
+      $q.notify({
+        type: "warning",
+        message: "La fecha desde no puede ser mayor que la fecha hasta.",
+        position: "top",
+      });
+      return;
+    }
+  }
+
+  exportingExcel.value = true;
+  try {
+    const payload = {
+      ...filterForm.value,
+      periodo: exportForm.value.periodo,
+      fecha_desde:
+        exportForm.value.periodo === "rango"
+          ? exportForm.value.fecha_desde
+          : null,
+      fecha_hasta:
+        exportForm.value.periodo === "rango"
+          ? exportForm.value.fecha_hasta
+          : null,
+      only_my_unit: onlyMyUnit.value,
+    };
+
+    const res = await sendRequest(
+      "POST",
+      payload,
+      "/api/gasolina/export-excel",
+      ""
+    );
+
+    if (res && res.file_base64) {
+      const byteCharacters = atob(res.file_base64);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+
+      const link = document.createElement("a");
+      const url = URL.createObjectURL(blob);
+      link.href = url;
+      link.setAttribute(
+        "download",
+        res.file_name ||
+          `Reporte_Dispersiones_Gasolina_${date.formatDate(
+            new Date(),
+            "YYYY-MM-DD"
+          )}.xlsx`
+      );
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      $q.notify({
+        type: "positive",
+        message: "Reporte en Excel descargado correctamente.",
+        position: "top",
+      });
+      showExportModal.value = false;
+    }
+  } catch (error) {
+    console.error("Error al exportar reporte en Excel:", error);
+  } finally {
+    exportingExcel.value = false;
+  }
+};
 
 // Estado de selección masiva y modal de autorización de golpe
 const selectedRows = ref([]);
@@ -2214,6 +2573,23 @@ const toggleExpandAll = () => {
   }
 };
 
+const getVehicleNombre = (veh) => {
+  if (!veh) return "";
+  if (veh.nombre_unidad && veh.nombre_unidad !== "Unidad") {
+    return veh.nombre_unidad;
+  }
+  const parts = [
+    veh.marca?.nombre,
+    veh.modelo?.nombre,
+    veh.tipo?.nombre,
+    veh.version,
+  ]
+    .map((p) => (p ? String(p).trim() : ""))
+    .filter(Boolean);
+  if (parts.length > 0) return parts.join(" ");
+  return veh.estatus?.nombre || "Unidad";
+};
+
 const filterVehiclesFn = (val, update) => {
   const baseList = onlyMyUnit.value
     ? assignedVehicles.value
@@ -2230,7 +2606,7 @@ const filterVehiclesFn = (val, update) => {
       (v) =>
         (v.placas && v.placas.toLowerCase().includes(q)) ||
         (v.serie && v.serie.toLowerCase().includes(q)) ||
-        (v.estatus?.nombre && v.estatus.nombre.toLowerCase().includes(q))
+        getVehicleNombre(v).toLowerCase().includes(q)
     );
   });
 };

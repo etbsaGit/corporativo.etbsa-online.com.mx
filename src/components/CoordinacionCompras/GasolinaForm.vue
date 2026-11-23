@@ -27,7 +27,7 @@
               :option-label="
                 (v) =>
                   v
-                    ? `${v.placas || 'S/P'} - ${v.estatus?.nombre || ''} (${
+                    ? `${v.placas || 'S/P'} - ${getVehicleNombre(v)} (${
                         v.serie || 'Sin serie'
                       })`
                     : ''
@@ -54,7 +54,7 @@
                     <q-item-label class="text-weight-bold">
                       {{ scope.opt.placas || "Sin placa" }}
                       <span class="text-caption text-grey-7 q-ml-xs">
-                        ({{ scope.opt.estatus?.nombre || "Unidad" }})
+                        ({{ getVehicleNombre(scope.opt) || "Unidad" }})
                       </span>
                     </q-item-label>
                     <q-item-label caption>
@@ -268,12 +268,73 @@
             </q-input>
           </div>
 
-          <!-- 9. Notas / Observaciones -->
-          <div class="col-12">
+          <!-- 9. Foto del Kilometraje Real (PNG o JPG) -->
+          <div class="col-12 col-md-5">
+            <q-file
+              v-model="fotoFile"
+              label="Foto del Kilometraje Real (PNG / JPG)"
+              accept=".png,.jpg,.jpeg,image/png,image/jpeg"
+              outlined
+              dense
+              clearable
+              bg-color="white"
+              @update:model-value="onFotoSelected"
+              @rejected="onFotoRejected"
+            >
+              <template v-slot:prepend>
+                <q-icon name="photo_camera" color="amber-10" />
+              </template>
+            </q-file>
+
+            <!-- Previsualización de la foto -->
+            <div
+              v-if="fotoPreviewUrl"
+              class="q-mt-xs q-pa-xs bg-white rounded-borders border-amber row items-center justify-between"
+            >
+              <div class="row items-center q-gutter-x-sm">
+                <q-img
+                  :src="fotoPreviewUrl"
+                  style="width: 56px; height: 42px"
+                  fit="cover"
+                  class="rounded-borders cursor-pointer shadow-1"
+                  @click="showPreviewDialog = true"
+                />
+                <div>
+                  <div class="text-caption text-weight-bold text-primary">
+                    Evidencia de KM lista
+                  </div>
+                  <q-btn
+                    flat
+                    dense
+                    no-caps
+                    size="xs"
+                    color="primary"
+                    icon="zoom_in"
+                    label="Ver imagen completa"
+                    @click="showPreviewDialog = true"
+                  />
+                </div>
+              </div>
+              <q-btn
+                flat
+                round
+                dense
+                size="sm"
+                color="negative"
+                icon="delete"
+                @click="clearFotoKm"
+              >
+                <q-tooltip>Quitar foto del kilometraje</q-tooltip>
+              </q-btn>
+            </div>
+          </div>
+
+          <!-- 10. Notas / Observaciones -->
+          <div class="col-12 col-md-7">
             <q-input
               v-model="formGasolina.notas"
               type="textarea"
-              rows="2"
+              rows="3"
               label="Notas u Observaciones (Opcional)"
               placeholder="Ej. Dispersión semanal de gasolina para ruta..."
               outlined
@@ -288,12 +349,35 @@
         </div>
       </q-card-section>
     </q-card>
+
+    <!-- Modal para previsualizar foto del kilometraje -->
+    <q-dialog v-model="showPreviewDialog">
+      <q-card style="width: 720px; max-width: 95vw">
+        <q-card-section
+          class="row items-center justify-between bg-primary text-white q-py-sm"
+        >
+          <div class="text-subtitle1 text-weight-bold flex items-center">
+            <q-icon name="photo_camera" class="q-mr-xs" size="20px" />
+            Foto del Kilometraje ({{ formatKm(formGasolina.km_evento || 0) }})
+          </div>
+          <q-btn icon="close" flat round dense v-close-popup />
+        </q-card-section>
+        <q-card-section class="q-pa-sm bg-grey-10 flex flex-center">
+          <img
+            v-if="fotoPreviewUrl"
+            :src="fotoPreviewUrl"
+            alt="Foto Kilometraje"
+            style="max-width: 100%; max-height: 75vh; object-fit: contain"
+          />
+        </q-card-section>
+      </q-card>
+    </q-dialog>
   </q-form>
 </template>
 
 <script setup>
 import { ref, computed, watch, onMounted } from "vue";
-import { date } from "quasar";
+import { date, useQuasar } from "quasar";
 import { useAuthStore } from "src/stores/auth";
 import { checkRole, checkPuestoIncludes } from "src/boot/functions";
 
@@ -321,7 +405,11 @@ const props = defineProps({
 });
 
 const authStore = useAuthStore();
+const $q = useQuasar();
 const myForm = ref(null);
+const fotoFile = ref(null);
+const fotoPreviewUrl = ref(null);
+const showPreviewDialog = ref(false);
 
 const canChangeSolicitante = computed(() => {
   return (
@@ -350,6 +438,8 @@ const formGasolina = ref({
   lts_dispersados: null,
   fecha_requerida: getDefaultDateTimeLocal(),
   recorrido_url: "",
+  foto_km: null,
+  remove_foto_km: false,
   notas: "",
   solicitado_por: null,
   suc_cargo_id: null,
@@ -357,10 +447,71 @@ const formGasolina = ref({
   estatus_id: null,
 });
 
+const onFotoRejected = () => {
+  $q.notify({
+    type: "negative",
+    message: "Solo se permiten imágenes en formato PNG o JPG.",
+    position: "top",
+  });
+};
+
+const onFotoSelected = (file) => {
+  if (!file) {
+    formGasolina.value.foto_km = null;
+    if (!props.orden?.foto_km_url || formGasolina.value.remove_foto_km) {
+      fotoPreviewUrl.value = null;
+    } else {
+      fotoPreviewUrl.value = props.orden.foto_km_url;
+    }
+    return;
+  }
+
+  const validTypes = ["image/png", "image/jpeg", "image/jpg"];
+  const ext = (file.name || "").split(".").pop().toLowerCase();
+  if (!validTypes.includes(file.type) && !["png", "jpg", "jpeg"].includes(ext)) {
+    onFotoRejected();
+    fotoFile.value = null;
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const base64Str = e.target?.result;
+    formGasolina.value.foto_km = base64Str;
+    formGasolina.value.remove_foto_km = false;
+    fotoPreviewUrl.value = base64Str;
+  };
+  reader.readAsDataURL(file);
+};
+
+const clearFotoKm = () => {
+  fotoFile.value = null;
+  formGasolina.value.foto_km = null;
+  formGasolina.value.remove_foto_km = true;
+  fotoPreviewUrl.value = null;
+};
+
 const filteredVehicles = ref([]);
 const filteredEmpleados = ref([]);
 const filteredSucursalesCargo = ref([]);
 const filteredDeptosCargo = ref([]);
+
+const getVehicleNombre = (veh) => {
+  if (!veh) return "";
+  if (veh.nombre_unidad && veh.nombre_unidad !== "Unidad") {
+    return veh.nombre_unidad;
+  }
+  const parts = [
+    veh.marca?.nombre,
+    veh.modelo?.nombre,
+    veh.tipo?.nombre,
+    veh.version,
+  ]
+    .map((p) => (p ? String(p).trim() : ""))
+    .filter(Boolean);
+  if (parts.length > 0) return parts.join(" ");
+  return veh.estatus?.nombre || "Unidad";
+};
 
 const getVehicleUltimoKm = (veh) => {
   if (!veh) return 0;
@@ -457,7 +608,7 @@ const filterVehiclesFn = (val, update) => {
       (v) =>
         (v.placas && v.placas.toLowerCase().includes(q)) ||
         (v.serie && v.serie.toLowerCase().includes(q)) ||
-        (v.estatus?.nombre && v.estatus.nombre.toLowerCase().includes(q))
+        getVehicleNombre(v).toLowerCase().includes(q)
     );
   });
 };
@@ -535,12 +686,16 @@ const initForm = () => {
         ord.fecha_requerida || ord.created_at
       ),
       recorrido_url: ord.recorrido_url || "",
+      foto_km: null,
+      remove_foto_km: false,
       notas: ord.notas || "",
       solicitado_por: ord.solicitado_por || ord.solicitante_id || null,
       suc_cargo_id: ord.suc_cargo_id || null,
       depto_cargo_id: ord.depto_cargo_id || null,
       estatus_id: ord.estatus_id || null,
     };
+    fotoFile.value = null;
+    fotoPreviewUrl.value = ord.foto_km_url || null;
   } else {
     const defaultVehId = props.fixedVehicleId
       ? Number(props.fixedVehicleId)
@@ -557,12 +712,16 @@ const initForm = () => {
       lts_dispersados: null,
       fecha_requerida: getDefaultDateTimeLocal(),
       recorrido_url: "",
+      foto_km: null,
+      remove_foto_km: false,
       notas: "",
       solicitado_por: defaultSolId ? Number(defaultSolId) : null,
       suc_cargo_id: null,
       depto_cargo_id: null,
       estatus_id: null,
     };
+    fotoFile.value = null;
+    fotoPreviewUrl.value = null;
   }
 
   filteredVehicles.value =
@@ -622,6 +781,8 @@ const getPayload = () => {
       ? formGasolina.value.fecha_requerida.replace("T", " ")
       : null,
     recorrido_url: formGasolina.value.recorrido_url?.trim() || null,
+    foto_km: formGasolina.value.foto_km || null,
+    remove_foto_km: Boolean(formGasolina.value.remove_foto_km),
     notas: formGasolina.value.notas?.trim() || null,
   };
 

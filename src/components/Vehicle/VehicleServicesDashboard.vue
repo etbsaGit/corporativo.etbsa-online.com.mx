@@ -50,10 +50,10 @@
               Año Modelo:
               <strong class="text-white">{{ vehicle.anio }}</strong>
             </span>
-            <span v-if="vehicle?.estatus?.nombre">
+            <span v-if="getVehicleNombre(vehicle)">
               <q-icon name="directions_car" size="14px" class="q-mr-xs" />
-              Tipo:
-              <strong class="text-white">{{ vehicle.estatus.nombre }}</strong>
+              Unidad:
+              <strong class="text-white">{{ getVehicleNombre(vehicle) }}</strong>
             </span>
             <span v-if="vehicle?.sucursal?.nombre">
               <q-icon name="store" size="14px" class="q-mr-xs" />
@@ -2126,6 +2126,23 @@ const formatCurrency = (val) => {
     currency: "MXN",
     minimumFractionDigits: 2,
   });
+};
+
+const getVehicleNombre = (veh) => {
+  if (!veh) return "";
+  if (veh.nombre_unidad && veh.nombre_unidad !== "Unidad") {
+    return veh.nombre_unidad;
+  }
+  const parts = [
+    veh.marca?.nombre,
+    veh.modelo?.nombre,
+    veh.tipo?.nombre,
+    veh.version,
+  ]
+    .map((p) => (p ? String(p).trim() : ""))
+    .filter(Boolean);
+  if (parts.length > 0) return parts.join(" ");
+  return veh.estatus?.nombre || "";
 };
 
 const formatKm = (val) => {

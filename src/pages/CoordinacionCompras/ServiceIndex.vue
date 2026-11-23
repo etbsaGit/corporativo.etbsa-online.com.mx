@@ -40,7 +40,7 @@
                     {{ veh.placas || "S/P" }}
                   </q-badge>
                   <span class="text-caption text-weight-medium text-grey-9">
-                    {{ veh.estatus?.nombre || "Unidad" }}
+                    {{ getVehicleNombre(veh) }}
                   </span>
                   <q-badge
                     v-if="
@@ -120,7 +120,7 @@
             option-value="id"
             :option-label="
               (v) =>
-                v ? `${v.placas || 'S/P'} (${v.estatus?.nombre || ''})` : ''
+                v ? `${v.placas || 'S/P'} (${getVehicleNombre(v)})` : ''
             "
             emit-value
             map-options
@@ -655,7 +655,7 @@
                   {{ props.row.vehicle?.placas || "S/P" }}
                 </q-badge>
                 <span class="text-caption text-grey-8">
-                  {{ props.row.vehicle?.estatus?.nombre || "" }}
+                  {{ getVehicleNombre(props.row.vehicle) }}
                 </span>
               </div>
               <div
@@ -1971,6 +1971,23 @@ const toggleExpandAll = () => {
   }
 };
 
+const getVehicleNombre = (veh) => {
+  if (!veh) return "";
+  if (veh.nombre_unidad && veh.nombre_unidad !== "Unidad") {
+    return veh.nombre_unidad;
+  }
+  const parts = [
+    veh.marca?.nombre,
+    veh.modelo?.nombre,
+    veh.tipo?.nombre,
+    veh.version,
+  ]
+    .map((p) => (p ? String(p).trim() : ""))
+    .filter(Boolean);
+  if (parts.length > 0) return parts.join(" ");
+  return veh.estatus?.nombre || "Unidad";
+};
+
 const filterVehiclesFn = (val, update) => {
   const baseList = onlyMyUnit.value
     ? assignedVehicles.value
@@ -1987,7 +2004,7 @@ const filterVehiclesFn = (val, update) => {
       (v) =>
         (v.placas && v.placas.toLowerCase().includes(q)) ||
         (v.serie && v.serie.toLowerCase().includes(q)) ||
-        (v.estatus?.nombre && v.estatus.nombre.toLowerCase().includes(q))
+        getVehicleNombre(v).toLowerCase().includes(q)
     );
   });
 };

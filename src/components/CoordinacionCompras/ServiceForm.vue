@@ -21,7 +21,7 @@
               :option-label="
                 (v) =>
                   v
-                    ? `${v.placas || 'S/P'} - ${v.estatus?.nombre || ''} (${
+                    ? `${v.placas || 'S/P'} - ${getVehicleNombre(v)} (${
                         v.serie || 'Sin serie'
                       })`
                     : ''
@@ -49,7 +49,7 @@
                     <q-item-label class="text-subtitle1 text-weight-bold">
                       {{ scope.opt.placas || "Sin placa" }}
                       <span class="text-caption text-grey-8 q-ml-xs">
-                        ({{ scope.opt.estatus?.nombre || "Unidad" }})
+                        ({{ getVehicleNombre(scope.opt) || "Unidad" }})
                       </span>
                     </q-item-label>
                     <q-item-label caption class="text-body2 text-grey-8">
@@ -1431,6 +1431,23 @@ const summaryTotals = computed(() => {
   return totals;
 });
 
+const getVehicleNombre = (veh) => {
+  if (!veh) return "";
+  if (veh.nombre_unidad && veh.nombre_unidad !== "Unidad") {
+    return veh.nombre_unidad;
+  }
+  const parts = [
+    veh.marca?.nombre,
+    veh.modelo?.nombre,
+    veh.tipo?.nombre,
+    veh.version,
+  ]
+    .map((p) => (p ? String(p).trim() : ""))
+    .filter(Boolean);
+  if (parts.length > 0) return parts.join(" ");
+  return veh.estatus?.nombre || "Unidad";
+};
+
 const filterVehiclesFn = (val, update) => {
   if (!val) {
     update(() => {
@@ -1444,7 +1461,7 @@ const filterVehiclesFn = (val, update) => {
       (v) =>
         (v.placas && v.placas.toLowerCase().includes(q)) ||
         (v.serie && v.serie.toLowerCase().includes(q)) ||
-        (v.estatus?.nombre && v.estatus.nombre.toLowerCase().includes(q))
+        getVehicleNombre(v).toLowerCase().includes(q)
     );
   });
 };
