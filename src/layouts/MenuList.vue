@@ -171,6 +171,28 @@
     </q-item>
 
     <q-item
+      v-if="
+        checkRole('Empleado') ||
+        checkRole('Admin') ||
+        checkRole('vehicles.checklist') ||
+        checkPermissions('vehicles.checklist')
+      "
+      dense
+      clickable
+      v-ripple
+      to="/revision-flotillas"
+      :active="link === 'revision-flotillas'"
+      @click="link = 'revision-flotillas'"
+      active-class="my-menu-link"
+    >
+      <q-item-section avatar>
+        <q-icon name="fact_check" />
+      </q-item-section>
+
+      <q-item-section>Revisión de Flotillas</q-item-section>
+    </q-item>
+
+    <q-item
       clickable
       dense
       v-ripple
@@ -813,6 +835,7 @@ import {
   checkRoleEmpleado,
   checkPuestoIncludes,
   checkSucursal,
+  checkPermissions,
 } from "../boot/functions";
 
 const link = ref("perfil");

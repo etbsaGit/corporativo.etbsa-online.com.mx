@@ -204,6 +204,11 @@ const routes = [
         component: () =>
           import("src/pages/CoordinacionCompras/ProveedoresAutorizadosPage.vue"),
       },
+      {
+        path: "/revision-flotillas",
+        component: () =>
+          import("src/pages/Vehicles/VehicleChecklistPage.vue"),
+      },
     ],
   },
   {
