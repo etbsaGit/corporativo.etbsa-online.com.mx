@@ -212,12 +212,12 @@
             </q-select>
           </div>
 
-          <!-- 7. Fecha y Hora Requerida de Dispersión -->
+          <!-- 7. Fecha Requerida de Dispersión -->
           <div class="col-12 col-sm-6 col-md-4">
             <q-input
               v-model="formGasolina.fecha_requerida"
-              type="datetime-local"
-              label="Fecha y Hora Requerida *"
+              type="date"
+              label="Fecha Requerida *"
               stack-label
               outlined
               dense
@@ -225,7 +225,7 @@
               :rules="[
                 (val) =>
                   !!val ||
-                  'Indique la fecha y hora en que se necesita la dispersión',
+                  'Indique la fecha en que se necesita la dispersión',
               ]"
             >
               <template v-slot:prepend>
@@ -239,7 +239,7 @@
             <q-input
               v-model="formGasolina.recorrido_url"
               type="url"
-              label="URL del Recorrido (Google Maps) *"
+              label="URL del Recorrido (Google Maps) (Opcional)"
               placeholder="Ej. https://maps.app.goo.gl/... o https://www.google.com/maps/dir/..."
               outlined
               dense
@@ -272,12 +272,14 @@
           <div class="col-12 col-md-5">
             <q-file
               v-model="fotoFile"
-              label="Foto del Kilometraje Real (PNG / JPG)"
+              label="Foto del Kilometraje Real (PNG / JPG) *"
               accept=".png,.jpg,.jpeg,image/png,image/jpeg"
               outlined
               dense
               clearable
               bg-color="white"
+              reactive-rules
+              :rules="[validateFotoKm]"
               @update:model-value="onFotoSelected"
               @rejected="onFotoRejected"
             >
@@ -329,17 +331,71 @@
             </div>
           </div>
 
-          <!-- 10. Notas / Observaciones -->
+          <!-- 10. Empleados a Notificar (Con Correo Institucional) -->
           <div class="col-12 col-md-7">
+            <q-select
+              v-model="formGasolina.notificados_ids"
+              :options="filteredEmpleadosNotificables"
+              label="Notificar también a otros empleados (Opcional)"
+              hint="Solo se muestran empleados con correo institucional registrado"
+              option-value="id"
+              :option-label="
+                (e) =>
+                  e
+                    ? `${e.nombreCompleto || ''} (${e.correo_institucional || ''})`
+                    : ''
+              "
+              emit-value
+              map-options
+              multiple
+              use-chips
+              use-input
+              input-debounce="0"
+              @filter="filterEmpleadosNotificablesFn"
+              outlined
+              dense
+              options-dense
+              clearable
+              bg-color="white"
+            >
+              <template v-slot:prepend>
+                <q-icon name="forward_to_inbox" color="primary" />
+              </template>
+              <template v-slot:option="scope">
+                <q-item v-bind="scope.itemProps">
+                  <q-item-section avatar>
+                    <q-icon name="person" color="primary" size="20px" />
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label class="text-weight-medium">
+                      {{ scope.opt.nombreCompleto }}
+                    </q-item-label>
+                    <q-item-label caption class="text-primary">
+                      {{ scope.opt.correo_institucional }}
+                    </q-item-label>
+                  </q-item-section>
+                </q-item>
+              </template>
+            </q-select>
+          </div>
+
+          <!-- 11. Notas / Observaciones -->
+          <div class="col-12">
             <q-input
               v-model="formGasolina.notas"
               type="textarea"
               rows="3"
-              label="Notas u Observaciones (Opcional)"
+              :label="
+                hasNotificados
+                  ? 'Notas u Observaciones * (Obligatorio al notificar a otros empleados)'
+                  : 'Notas u Observaciones (Opcional)'
+              "
               placeholder="Ej. Dispersión semanal de gasolina para ruta..."
               outlined
               dense
               bg-color="white"
+              reactive-rules
+              :rules="[validateNotas]"
             >
               <template v-slot:prepend>
                 <q-icon name="notes" color="grey-7" />
@@ -419,15 +475,18 @@ const canChangeSolicitante = computed(() => {
   );
 });
 
-const getDefaultDateTimeLocal = () => {
-  return date.formatDate(new Date(), "YYYY-MM-DDTHH:mm");
+const getDefaultDate = () => {
+  return date.formatDate(new Date(), "YYYY-MM-DD");
 };
 
-const formatToDateTimeLocal = (val) => {
-  if (!val) return getDefaultDateTimeLocal();
+const formatToDateInput = (val) => {
+  if (!val) return getDefaultDate();
+  if (/^\d{4}-\d{2}-\d{2}/.test(String(val))) {
+    return String(val).slice(0, 10);
+  }
   const parsed = new Date(val);
-  if (isNaN(parsed.getTime())) return getDefaultDateTimeLocal();
-  return date.formatDate(parsed, "YYYY-MM-DDTHH:mm");
+  if (isNaN(parsed.getTime())) return getDefaultDate();
+  return date.formatDate(parsed, "YYYY-MM-DD");
 };
 
 const formGasolina = ref({
@@ -436,7 +495,7 @@ const formGasolina = ref({
   km_evento: null,
   lts_solicitados: null,
   lts_dispersados: null,
-  fecha_requerida: getDefaultDateTimeLocal(),
+  fecha_requerida: getDefaultDate(),
   recorrido_url: "",
   foto_km: null,
   remove_foto_km: false,
@@ -445,6 +504,7 @@ const formGasolina = ref({
   suc_cargo_id: null,
   depto_cargo_id: null,
   estatus_id: null,
+  notificados_ids: [],
 });
 
 const onFotoRejected = () => {
@@ -493,8 +553,18 @@ const clearFotoKm = () => {
 
 const filteredVehicles = ref([]);
 const filteredEmpleados = ref([]);
+const filteredEmpleadosNotificables = ref([]);
 const filteredSucursalesCargo = ref([]);
 const filteredDeptosCargo = ref([]);
+
+const empleadosConCorreo = computed(() => {
+  return (props.catalogs?.empleados || []).filter(
+    (e) =>
+      e &&
+      e.correo_institucional &&
+      String(e.correo_institucional).trim() !== ""
+  );
+});
 
 const getVehicleNombre = (veh) => {
   if (!veh) return "";
@@ -579,10 +649,35 @@ const isValidHttpUrl = (val) => {
 
 const validateRecorridoUrl = (val) => {
   if (!val || !String(val).trim()) {
-    return "La URL del recorrido en Google Maps es obligatoria";
+    return true;
   }
   if (!isValidHttpUrl(val)) {
     return "Ingrese una URL válida que inicie con http:// o https://";
+  }
+  return true;
+};
+
+const validateFotoKm = () => {
+  if (
+    fotoFile.value ||
+    formGasolina.value.foto_km ||
+    (props.orden?.foto_km_url && !formGasolina.value.remove_foto_km)
+  ) {
+    return true;
+  }
+  return "La foto del kilometraje real es obligatoria";
+};
+
+const hasNotificados = computed(() => {
+  return (
+    Array.isArray(formGasolina.value.notificados_ids) &&
+    formGasolina.value.notificados_ids.length > 0
+  );
+});
+
+const validateNotas = (val) => {
+  if (hasNotificados.value && (!val || !String(val).trim())) {
+    return "Debe ingresar una nota o comentario cuando selecciona empleados a notificar";
   }
   return true;
 };
@@ -628,6 +723,26 @@ const filterEmpleadosFn = (val, update) => {
         e.nombreCompleto || `${e.nombre} ${e.apellido_paterno}`
       ).toLowerCase();
       return nombre.includes(q);
+    });
+  });
+};
+
+const filterEmpleadosNotificablesFn = (val, update) => {
+  const baseList = empleadosConCorreo.value;
+  if (val === "") {
+    update(() => {
+      filteredEmpleadosNotificables.value = baseList;
+    });
+    return;
+  }
+  update(() => {
+    const q = val.toLowerCase();
+    filteredEmpleadosNotificables.value = baseList.filter((e) => {
+      const nombre = (
+        e.nombreCompleto || `${e.nombre || ""} ${e.apellido_paterno || ""}`
+      ).toLowerCase();
+      const correo = (e.correo_institucional || "").toLowerCase();
+      return nombre.includes(q) || correo.includes(q);
     });
   });
 };
@@ -682,7 +797,7 @@ const initForm = () => {
         ord.lts_dispersados !== undefined && ord.lts_dispersados !== null
           ? Number(ord.lts_dispersados)
           : null,
-      fecha_requerida: formatToDateTimeLocal(
+      fecha_requerida: formatToDateInput(
         ord.fecha_requerida || ord.created_at
       ),
       recorrido_url: ord.recorrido_url || "",
@@ -693,6 +808,11 @@ const initForm = () => {
       suc_cargo_id: ord.suc_cargo_id || null,
       depto_cargo_id: ord.depto_cargo_id || null,
       estatus_id: ord.estatus_id || null,
+      notificados_ids: Array.isArray(ord.notificados)
+        ? ord.notificados
+            .map((n) => Number(n.notificado_id || n.notificado?.id || n.id))
+            .filter(Boolean)
+        : [],
     };
     fotoFile.value = null;
     fotoPreviewUrl.value = ord.foto_km_url || null;
@@ -710,7 +830,7 @@ const initForm = () => {
       km_evento: null,
       lts_solicitados: null,
       lts_dispersados: null,
-      fecha_requerida: getDefaultDateTimeLocal(),
+      fecha_requerida: getDefaultDate(),
       recorrido_url: "",
       foto_km: null,
       remove_foto_km: false,
@@ -719,6 +839,7 @@ const initForm = () => {
       suc_cargo_id: null,
       depto_cargo_id: null,
       estatus_id: null,
+      notificados_ids: [],
     };
     fotoFile.value = null;
     fotoPreviewUrl.value = null;
@@ -727,6 +848,7 @@ const initForm = () => {
   filteredVehicles.value =
     props.allowedVehicles || props.catalogs?.vehicles || [];
   filteredEmpleados.value = props.catalogs?.empleados || [];
+  filteredEmpleadosNotificables.value = empleadosConCorreo.value;
   filteredSucursalesCargo.value = props.catalogs?.sucursales_cargo || [];
   filteredDeptosCargo.value = props.catalogs?.deptos_cargo || [];
 };
@@ -745,6 +867,7 @@ watch(
     if (cats) {
       filteredVehicles.value = props.allowedVehicles || cats.vehicles || [];
       filteredEmpleados.value = cats.empleados || [];
+      filteredEmpleadosNotificables.value = empleadosConCorreo.value;
       filteredSucursalesCargo.value = cats.sucursales_cargo || [];
       filteredDeptosCargo.value = cats.deptos_cargo || [];
     }
@@ -778,12 +901,15 @@ const getPayload = () => {
         ? Number(formGasolina.value.km_evento)
         : null,
     fecha_requerida: formGasolina.value.fecha_requerida
-      ? formGasolina.value.fecha_requerida.replace("T", " ")
+      ? String(formGasolina.value.fecha_requerida).slice(0, 10)
       : null,
     recorrido_url: formGasolina.value.recorrido_url?.trim() || null,
     foto_km: formGasolina.value.foto_km || null,
     remove_foto_km: Boolean(formGasolina.value.remove_foto_km),
     notas: formGasolina.value.notas?.trim() || null,
+    notificados_ids: Array.isArray(formGasolina.value.notificados_ids)
+      ? formGasolina.value.notificados_ids.map(Number).filter(Boolean)
+      : [],
   };
 
   if (formGasolina.value.id) {

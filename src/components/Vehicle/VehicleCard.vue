@@ -239,6 +239,9 @@
                     <div class="text-caption text-grey-8">
                       <strong>Vence:</strong> {{ docItem.vencimientoLabel }}
                     </div>
+                    <div class="text-caption text-grey-8 ellipsis">
+                      <strong>Subido por:</strong> {{ docItem.subidoPorLabel }}
+                    </div>
                     <div v-if="docItem.doc.archivo_url" class="q-mt-xs">
                       <q-btn
                         dense
@@ -416,12 +419,18 @@ const resumenExpediente = computed(() => {
       ? String(doc.fecha_vencimiento).substring(0, 10).split("-").reverse().join("/")
       : "Permanente";
 
+    const reg = doc.registrador;
+    const subidoPorLabel = reg
+      ? reg.empleado?.nombreCompleto || reg.name || reg.email || `Usuario #${reg.id}`
+      : "No especificado";
+
     return {
       ...c,
       doc,
       color,
       badge,
       vencimientoLabel,
+      subidoPorLabel,
     };
   });
 });

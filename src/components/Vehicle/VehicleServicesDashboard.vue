@@ -740,7 +740,7 @@
                 v-if="props.row.fecha_requerida"
                 class="text-caption text-primary text-weight-medium"
               >
-                Req: {{ formatFechaHora(props.row.fecha_requerida) }}
+                Req: {{ formatFecha(props.row.fecha_requerida) }}
               </div>
             </q-td>
           </template>

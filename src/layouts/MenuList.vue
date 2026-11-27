@@ -124,6 +124,23 @@
       dense
       clickable
       v-ripple
+      to="/mis-unidades"
+      :active="link === 'mis-unidades'"
+      @click="link = 'mis-unidades'"
+      active-class="my-menu-link"
+    >
+      <q-item-section avatar>
+        <q-icon name="directions_car" />
+      </q-item-section>
+
+      <q-item-section>Mis Unidades</q-item-section>
+    </q-item>
+
+    <q-item
+      v-if="checkRole('Empleado')"
+      dense
+      clickable
+      v-ripple
       to="/serviciosUnidad"
       :active="link === 'serviciosUnidad'"
       @click="link = 'serviciosUnidad'"

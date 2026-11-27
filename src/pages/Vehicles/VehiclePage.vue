@@ -346,6 +346,7 @@
                   <div v-if="docItem.folio">Folio/Póliza: {{ docItem.folio }}</div>
                   <div v-if="docItem.detalle">Detalle: {{ docItem.detalle }}</div>
                   <div v-if="docItem.vencimiento">Vence: {{ docItem.vencimiento }}</div>
+                  <div v-if="docItem.subidoPor">Subido por: <strong>{{ docItem.subidoPor }}</strong></div>
                   <div class="text-caption text-amber-2 q-mt-xs">
                     Clic para abrir expediente
                   </div>
@@ -875,6 +876,11 @@ const getRowExpedienteBadges = (row) => {
       ? String(doc.fecha_vencimiento).substring(0, 10).split("-").reverse().join("/")
       : "Permanente";
 
+    const reg = doc.registrador;
+    const subidoPor = reg
+      ? reg.empleado?.nombreCompleto || reg.name || reg.email || `Usuario #${reg.id}`
+      : null;
+
     return {
       ...def,
       color,
@@ -882,6 +888,7 @@ const getRowExpedienteBadges = (row) => {
       folio: doc.folio_o_poliza,
       detalle: doc.detalle_extra,
       vencimiento: cleanDate,
+      subidoPor,
     };
   });
 };

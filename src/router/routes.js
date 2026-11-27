@@ -190,6 +190,10 @@ const routes = [
           import("src/pages/SalidaPermiso/SalidaPermisoPage.vue"),
       },
       {
+        path: "/mis-unidades",
+        component: () => import("src/pages/Vehicles/MisUnidadesPage.vue"),
+      },
+      {
         path: "/serviciosUnidad",
         component: () =>
           import("src/pages/CoordinacionCompras/ServiceIndex.vue"),

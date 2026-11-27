@@ -182,6 +182,17 @@
                     </span>
                   </div>
 
+                  <div class="row justify-between items-center">
+                    <span class="text-caption text-grey-7">Subido por:</span>
+                    <span
+                      class="text-caption text-weight-bold text-primary ellipsis"
+                      style="max-width: 190px"
+                    >
+                      <q-icon name="person" size="13px" class="q-mr-xs" />
+                      {{ getRegistradorName(vigentesMap[cat.tipo]) }}
+                    </span>
+                  </div>
+
                   <!-- Banner de días restantes / vencidos -->
                   <div
                     class="q-mt-sm q-pa-xs rounded-borders text-center text-caption text-weight-bold"
@@ -243,6 +254,7 @@
                   />
 
                   <q-btn
+                    v-if="!readonlyMode"
                     dense
                     flat
                     color="primary"
@@ -423,6 +435,23 @@
             </q-td>
           </template>
 
+          <template v-slot:body-cell-registrado_por="props">
+            <q-td :props="props">
+              <div class="row items-center no-wrap q-gutter-x-xs">
+                <q-icon name="person" size="15px" color="primary" />
+                <span class="text-caption text-weight-medium text-dark">
+                  {{ getRegistradorName(props.row) }}
+                </span>
+              </div>
+              <div
+                v-if="props.row.created_at"
+                class="text-caption text-grey-6"
+              >
+                {{ formatFechaHora(props.row.created_at) }}
+              </div>
+            </q-td>
+          </template>
+
           <template v-slot:body-cell-acciones="props">
             <q-td :props="props" class="text-right">
               <q-btn
@@ -437,7 +466,7 @@
               </q-btn>
 
               <q-btn
-                v-if="!props.row.es_vigente"
+                v-if="!props.row.es_vigente && !readonlyMode"
                 dense
                 flat
                 color="positive"
@@ -448,6 +477,7 @@
               </q-btn>
 
               <q-btn
+                v-if="!readonlyMode"
                 dense
                 flat
                 color="primary"
@@ -458,6 +488,7 @@
               </q-btn>
 
               <q-btn
+                v-if="!readonlyMode"
                 dense
                 flat
                 color="negative"
@@ -810,6 +841,10 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  readonlyMode: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const emit = defineEmits(["updated"]);
@@ -1088,6 +1123,12 @@ const historialColumns = [
     align: "left",
     label: "Observaciones",
     field: "observaciones",
+  },
+  {
+    name: "registrado_por",
+    align: "left",
+    label: "Subido por",
+    field: "registered_by",
   },
   {
     name: "acciones",
@@ -1382,6 +1423,22 @@ const openUrlInNewTab = (url) => {
 const isImageUrl = (url) => {
   if (!url) return false;
   return /\.(jpg|jpeg|png|webp|gif)(\?.*)?$/i.test(url);
+};
+
+const getRegistradorName = (doc) => {
+  const reg = doc?.registrador;
+  if (!reg) return "No especificado";
+  return (
+    reg.empleado?.nombreCompleto ||
+    reg.name ||
+    reg.email ||
+    `Usuario #${reg.id}`
+  );
+};
+
+const formatFechaHora = (fechaStr) => {
+  if (!fechaStr) return "";
+  return date.formatDate(fechaStr, "DD/MM/YYYY hh:mm A");
 };
 
 const formatFecha = (fechaStr) => {

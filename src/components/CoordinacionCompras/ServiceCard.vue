@@ -303,7 +303,7 @@
                 </div>
                 <div class="col-6">
                   <div class="text-caption text-grey-7">
-                    Fecha / Hora Requerida
+                    Fecha Requerida
                   </div>
                   <div
                     v-if="service?.fecha_requerida"
@@ -313,7 +313,7 @@
                       class="text-body2 text-weight-bold"
                       :class="fechaRequeridaMeta?.textColor || 'text-primary'"
                     >
-                      {{ formatFechaHora(service.fecha_requerida) }}
+                      {{ formatFecha(service.fecha_requerida) }}
                     </span>
                     <q-badge
                       v-if="fechaRequeridaMeta"
@@ -478,7 +478,7 @@
             <thead>
               <tr class="bg-grey-1 text-grey-8">
                 <th class="text-left">Concepto</th>
-                <th class="text-left">Fecha / Hora Requerida</th>
+                <th class="text-left">Fecha Requerida</th>
                 <th class="text-center">Recorrido (Maps)</th>
                 <th class="text-left">Notas / Observaciones</th>
                 <th class="text-right">Kilometraje (KM)</th>
@@ -497,7 +497,7 @@
                     v-if="service?.fecha_requerida"
                     class="row items-center q-gutter-x-xs"
                   >
-                    <span>{{ formatFechaHora(service.fecha_requerida) }}</span>
+                    <span>{{ formatFecha(service.fecha_requerida) }}</span>
                     <q-badge
                       v-if="fechaRequeridaMeta"
                       :color="fechaRequeridaMeta.color"
@@ -2937,8 +2937,9 @@ const formatCurrency = (val) => {
 
 const formatFecha = (fechaStr) => {
   if (!fechaStr) return "Sin fecha";
-  if (/^\d{4}-\d{2}-\d{2}$/.test(fechaStr)) {
-    const [y, m, d] = fechaStr.split("-");
+  const str = String(fechaStr);
+  if (/^\d{4}-\d{2}-\d{2}/.test(str)) {
+    const [y, m, d] = str.slice(0, 10).split("-");
     return `${d}/${m}/${y}`;
   }
   return date.formatDate(fechaStr, "DD/MM/YYYY");
@@ -3010,8 +3011,12 @@ const formatRemainingDiff = (diffMinutes) => {
 
 const fechaRequeridaMeta = computed(() => {
   if (!props.onlyGasolina || !props.service?.fecha_requerida) return null;
-  const target = new Date(props.service.fecha_requerida);
-  if (isNaN(target.getTime())) return null;
+  const datePart = String(props.service.fecha_requerida).slice(0, 10);
+  const parts = datePart.split("-").map(Number);
+  if (parts.length !== 3 || parts.some(isNaN)) return null;
+
+  const target = new Date(parts[0], parts[1] - 1, parts[2]);
+  target.setHours(0, 0, 0, 0);
 
   const estatusNombre = (props.service?.estatus?.nombre || "")
     .trim()
@@ -3020,72 +3025,47 @@ const fechaRequeridaMeta = computed(() => {
     return null;
   }
 
-  const now = new Date();
-  const diffMs = target.getTime() - now.getTime();
-  const diffMinutes = diffMs / (1000 * 60);
-  const diffHours = diffMinutes / 60;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
-  const isSameDay =
-    target.getFullYear() === now.getFullYear() &&
-    target.getMonth() === now.getMonth() &&
-    target.getDate() === now.getDate();
+  const diffDays = Math.round(
+    (target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+  );
 
-  const tomorrow = new Date(now);
-  tomorrow.setDate(now.getDate() + 1);
-  const isTomorrow =
-    target.getFullYear() === tomorrow.getFullYear() &&
-    target.getMonth() === tomorrow.getMonth() &&
-    target.getDate() === tomorrow.getDate();
-
-  if (diffMinutes <= 0) {
-    const elapsed = formatRemainingDiff(diffMinutes);
+  if (diffDays < 0) {
+    const absDays = Math.abs(diffDays);
+    const labelElapsed = absDays === 1 ? "1 día" : `${absDays} días`;
     return {
       color: "negative",
       textColor: "text-negative",
       badgeIcon: "priority_high",
-      label:
-        Math.abs(diffMinutes) < 15
-          ? "Inmediata · Ahora"
-          : `Vencida · Hace ${elapsed}`,
+      label: `Vencida · Hace ${labelElapsed}`,
     };
   }
 
-  if (diffHours <= 2) {
-    const rem = formatRemainingDiff(diffMinutes);
-    return {
-      color: "negative",
-      textColor: "text-negative",
-      badgeIcon: "local_fire_department",
-      label: `Urgente · En ${rem}`,
-    };
-  }
-
-  if (diffHours <= 6 || isSameDay) {
-    const rem = formatRemainingDiff(diffMinutes);
+  if (diffDays === 0) {
     return {
       color: "deep-orange",
       textColor: "text-deep-orange-9",
       badgeIcon: "schedule",
-      label: `Para hoy · En ${rem}`,
+      label: "Para hoy",
     };
   }
 
-  if (diffHours <= 24 || isTomorrow) {
-    const rem = formatRemainingDiff(diffMinutes);
+  if (diffDays === 1) {
     return {
       color: "amber-9",
       textColor: "text-amber-10",
       badgeIcon: "hourglass_top",
-      label: isTomorrow ? `Mañana · En ${rem}` : `Próxima · En ${rem}`,
+      label: "Para mañana",
     };
   }
 
-  const rem = formatRemainingDiff(diffMinutes);
   return {
     color: "blue-grey-6",
     textColor: "text-primary",
     badgeIcon: "event_available",
-    label: `Programada · En ${rem}`,
+    label: `En ${diffDays} días`,
   };
 });
 

@@ -366,6 +366,7 @@
 
             <div class="row items-center q-gutter-x-sm">
               <q-btn
+                v-if="canExportExcel"
                 outline
                 dense
                 no-caps
@@ -634,7 +635,7 @@
                     :name="getFechaRequeridaMeta(props.row)?.icon || 'event_available'"
                     size="15px"
                   />
-                  <span>{{ formatFechaHora(props.row.fecha_requerida) }}</span>
+                  <span>{{ formatFecha(props.row.fecha_requerida) }}</span>
                 </div>
                 <div v-if="getFechaRequeridaMeta(props.row)">
                   <q-badge
@@ -863,7 +864,7 @@
                       <thead>
                         <tr class="bg-grey-2 text-grey-8">
                           <th class="text-left">Concepto</th>
-                          <th class="text-left">Fecha / Hora Requerida</th>
+                          <th class="text-left">Fecha Requerida</th>
                           <th class="text-center">Recorrido (Maps)</th>
                           <th class="text-left">Notas / Observaciones</th>
                           <th class="text-right">Kilometraje (KM)</th>
@@ -884,7 +885,7 @@
                               class="row items-center q-gutter-x-xs"
                             >
                               <span>{{
-                                formatFechaHora(props.row.fecha_requerida)
+                                formatFecha(props.row.fecha_requerida)
                               }}</span>
                               <q-badge
                                 v-if="getFechaRequeridaMeta(props.row)"
@@ -1400,7 +1401,7 @@
               <td class="text-left">
                 <div v-if="row.fecha_requerida" class="column q-gutter-y-xs">
                   <span class="text-caption text-weight-bold">
-                    {{ formatFechaHora(row.fecha_requerida) }}
+                    {{ formatFecha(row.fecha_requerida) }}
                   </span>
                   <div v-if="getFechaRequeridaMeta(row)">
                     <q-badge
@@ -1911,6 +1912,16 @@ const canAuthorizeGasolina = computed(() => {
   );
 });
 
+const canExportExcel = computed(() => {
+  return (
+    checkRole("Admin") ||
+    checkRole("Director administrativo") ||
+    checkPuestoIncludes("Director administrativo") ||
+    checkRole("Coordinador de compras") ||
+    checkPuestoIncludes("Coordinador de compras")
+  );
+});
+
 const isRowSolicitado = (row) => {
   if (!row) return false;
 
@@ -2327,7 +2338,7 @@ const columns = [
     name: "fecha_requerida",
     align: "left",
     field: "fecha_requerida",
-    label: "Fecha / Hora Requerida",
+    label: "Fecha Requerida",
     sortable: true,
   },
   {
@@ -2451,102 +2462,75 @@ const formatRemainingDiff = (diffMinutes) => {
 
 const getFechaRequeridaMeta = (row) => {
   if (!row?.fecha_requerida) return null;
-  const target = new Date(row.fecha_requerida);
-  if (isNaN(target.getTime())) return null;
+  const datePart = String(row.fecha_requerida).slice(0, 10);
+  const parts = datePart.split("-").map(Number);
+  if (parts.length !== 3 || parts.some(isNaN)) return null;
+
+  const target = new Date(parts[0], parts[1] - 1, parts[2]);
+  target.setHours(0, 0, 0, 0);
 
   const estatusNombre = (getOrdenEstatus(row)?.nombre || "")
     .trim()
     .toLowerCase();
 
   // Si ya fue dispersada o no autorizada, mostrar indicador neutro
-  if (estatusNombre === "dispersada") {
-    return null;
-  }
-  if (estatusNombre === "no autorizado") {
+  if (estatusNombre === "dispersada" || estatusNombre === "no autorizado") {
     return null;
   }
 
-  const now = new Date();
-  const diffMs = target.getTime() - now.getTime();
-  const diffMinutes = diffMs / (1000 * 60);
-  const diffHours = diffMinutes / 60;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
-  const isSameDay =
-    target.getFullYear() === now.getFullYear() &&
-    target.getMonth() === now.getMonth() &&
-    target.getDate() === now.getDate();
+  const diffDays = Math.round(
+    (target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+  );
 
-  const tomorrow = new Date(now);
-  tomorrow.setDate(now.getDate() + 1);
-  const isTomorrow =
-    target.getFullYear() === tomorrow.getFullYear() &&
-    target.getMonth() === tomorrow.getMonth() &&
-    target.getDate() === tomorrow.getDate();
-
-  // 1. Vencida / Ya pasó la hora requerida o es inmediata (<= 0 min)
-  if (diffMinutes <= 0) {
-    const elapsed = formatRemainingDiff(diffMinutes);
+  // 1. Vencida (día anterior a hoy)
+  if (diffDays < 0) {
+    const absDays = Math.abs(diffDays);
+    const labelElapsed = absDays === 1 ? "1 día" : `${absDays} días`;
     return {
       color: "negative",
       textColor: "text-negative",
       icon: "notification_important",
       badgeIcon: "priority_high",
-      label:
-        Math.abs(diffMinutes) < 15
-          ? "Inmediata · Ahora"
-          : `Vencida · Hace ${elapsed}`,
-      tooltip: `La fecha/hora requerida ya venció hace ${elapsed} y sigue pendiente de dispersión`,
+      label: `Vencida · Hace ${labelElapsed}`,
+      tooltip: `La fecha requerida venció hace ${labelElapsed} y sigue pendiente de dispersión`,
     };
   }
 
-  // 2. Muy urgente: faltan 2 horas o menos
-  if (diffHours <= 2) {
-    const rem = formatRemainingDiff(diffMinutes);
-    return {
-      color: "negative",
-      textColor: "text-negative",
-      icon: "alarm",
-      badgeIcon: "local_fire_department",
-      label: `Urgente · En ${rem}`,
-      tooltip: `Se necesita muy pronto (en ${rem})`,
-    };
-  }
-
-  // 3. Próxima: faltan hasta 6 horas o es para hoy mismo
-  if (diffHours <= 6 || isSameDay) {
-    const rem = formatRemainingDiff(diffMinutes);
+  // 2. Para hoy
+  if (diffDays === 0) {
     return {
       color: "deep-orange",
       textColor: "text-deep-orange-9",
-      icon: "schedule",
+      icon: "today",
       badgeIcon: "schedule",
-      label: `Para hoy · En ${rem}`,
-      tooltip: `Programada para hoy (faltan ${rem})`,
+      label: "Para hoy",
+      tooltip: "Requerida para el día de hoy",
     };
   }
 
-  // 4. Para mañana o dentro de las próximas 24 horas
-  if (diffHours <= 24 || isTomorrow) {
-    const rem = formatRemainingDiff(diffMinutes);
+  // 3. Para mañana
+  if (diffDays === 1) {
     return {
       color: "amber-9",
       textColor: "text-amber-10",
       icon: "event",
       badgeIcon: "hourglass_top",
-      label: isTomorrow ? `Mañana · En ${rem}` : `Próxima · En ${rem}`,
-      tooltip: `Se ocupará pronto (en ${rem})`,
+      label: "Para mañana",
+      tooltip: "Requerida para mañana",
     };
   }
 
-  // 5. Programada con anticipación (> 24h)
-  const rem = formatRemainingDiff(diffMinutes);
+  // 4. Programada (> 1 día)
   return {
     color: "blue-grey-6",
     textColor: "text-primary",
     icon: "event_available",
     badgeIcon: "event_available",
-    label: `Programada · En ${rem}`,
-    tooltip: `Programada para dentro de ${rem}`,
+    label: `En ${diffDays} días`,
+    tooltip: `Programada para dentro de ${diffDays} días`,
   };
 };
 
@@ -2821,8 +2805,9 @@ const formatKm = (val) => {
 
 const formatFecha = (fechaStr) => {
   if (!fechaStr) return "Sin fecha";
-  if (/^\d{4}-\d{2}-\d{2}$/.test(fechaStr)) {
-    const [y, m, d] = fechaStr.split("-");
+  const str = String(fechaStr);
+  if (/^\d{4}-\d{2}-\d{2}/.test(str)) {
+    const [y, m, d] = str.slice(0, 10).split("-");
     return `${d}/${m}/${y}`;
   }
   return date.formatDate(fechaStr, "DD/MM/YYYY");
